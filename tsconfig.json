@@ -19,8 +19,8 @@
     ],
     "target": "ES2022",
     "module": "Node16",
-  "moduleResolution": "node16",
-  "allowImportingTsExtensions": true,
+    "moduleResolution": "node16",
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "rootDirs": [
       ".",
