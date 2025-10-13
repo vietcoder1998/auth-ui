@@ -16,31 +16,31 @@ export interface ForgotPasswordPayload {
 }
 
 export interface ResetPasswordPayload {
-  token: string;
+  token: string;    
   password: string;
 }
 
 export const login = async (payload: LoginPayload) => {
-  const res = await api.post("/v1/users/login", payload);
+  const res = await api.post("/users:login", payload);
   return res.data;
 };
 
 export const register = async (payload: RegisterPayload) => {
-  const res = await api.post("/v1/users/register", payload);
+  const res = await api.post("/users:register", payload);
   return res.data;
 };
 
 export const forgotPassword = async (payload: ForgotPasswordPayload) => {
-  const res = await api.post("/v1/users/forgot-password", payload);
+  const res = await api.post("/users:forgot-password", payload);
   return res.data;
 };
 
 export const resetPassword = async (payload: ResetPasswordPayload) => {
-  const res = await api.post("/v1/users/reset-password", payload);
+  const res = await api.post("/users:reset-password", payload);
   return res.data;
 };
 
 export const getMe = async () => {
-  const res = await api.get("/v1/users/me");
+  const res = await api.get("/users/me");
   return res.data;
 };
