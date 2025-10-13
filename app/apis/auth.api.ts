@@ -1,4 +1,4 @@
-import api from "./index.ts";
+import { getApiInstance } from "./index.ts";
 
 export interface LoginPayload {
   username: string;
@@ -21,26 +21,31 @@ export interface ResetPasswordPayload {
 }
 
 export const login = async (payload: LoginPayload) => {
+  const api = getApiInstance();
   const res = await api.post("/users:login", payload);
   return res.data;
 };
 
 export const register = async (payload: RegisterPayload) => {
+  const api = getApiInstance();
   const res = await api.post("/users:register", payload);
   return res.data;
 };
 
 export const forgotPassword = async (payload: ForgotPasswordPayload) => {
+  const api = getApiInstance();
   const res = await api.post("/users:forgot-password", payload);
   return res.data;
 };
 
 export const resetPassword = async (payload: ResetPasswordPayload) => {
+  const api = getApiInstance();
   const res = await api.post("/users:reset-password", payload);
   return res.data;
 };
 
 export const getMe = async () => {
+  const api = getApiInstance();
   const res = await api.get("/users/me");
   return res.data;
 };
