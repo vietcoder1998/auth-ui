@@ -5,4 +5,5 @@ export default [
   route("/register", "pages/Register.tsx"),
   route("/forgot-password", "pages/ForgotPassword.tsx"),
   route("/reset-password", "pages/ResetPassword.tsx"),
+  route("/login-success", "pages/LoginSuccess.tsx"),
 ] satisfies RouteConfig;
