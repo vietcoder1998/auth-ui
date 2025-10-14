@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, Input, Form, message } from 'antd';
 
 interface Config {
