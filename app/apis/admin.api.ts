@@ -22,8 +22,11 @@ export const adminApi = {
   async createToken(data: any) {
     return axios.post('/admin/tokens', data);
   },
-  async revokeToken(token: string) {
-    return axios.delete(`/admin/tokens/${token}`);
+  async grantToken(userId: string) {
+    return axios.post('/tokens/grant', { userId });
+  },
+  async revokeToken(tokenId: string) {
+    return axios.post('/tokens/revoke', { tokenId });
   },
   async getRoles(params?: any) {
     return axios.get('/admin/roles', { params });
