@@ -31,6 +31,9 @@ export const adminApi = {
   async createRole(data: any) {
     return axios.post('/admin/roles', data);
   },
+  async updateRole(id: string | number, data: any) {
+    return axios.put(`/admin/roles/${id}`, data);
+  },
   async deleteRole(id: string | number) {
     return axios.delete(`/admin/roles/${id}`);
   },
@@ -39,6 +42,9 @@ export const adminApi = {
   },
   async createPermission(data: any) {
     return axios.post('/admin/permissions', data);
+  },
+  async updatePermission(id: string | number, data: any) {
+    return axios.put(`/admin/permissions/${id}`, data);
   },
   async deletePermission(id: string | number) {
     return axios.delete(`/admin/permissions/${id}`);
