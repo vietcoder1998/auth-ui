@@ -19,4 +19,7 @@ export default [
     route("notifications", "pages/AdminNotificationPage.tsx"),
     route("config", "pages/AdminConfigPage.tsx"),
   ]),
+
+  // 404 Not Found page (catch-all route)
+  route("*", "pages/NotFound.tsx"),
 ] satisfies RouteConfig;
