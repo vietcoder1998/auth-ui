@@ -1,15 +1,17 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Menu, Typography, Button, Tooltip } from 'antd';
+import { Layout, Menu, Typography, Button, Tooltip, Avatar, Dropdown, Breadcrumb } from 'antd';
 import {
   DatabaseOutlined,
   SettingOutlined,
   HomeOutlined,
   LogoutOutlined,
+  UserOutlined,
+  ProfileOutlined,
 } from '@ant-design/icons';
 import {Outlet} from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
-const { Sider, Content } = Layout;
+const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
 
 const adminLinks = [
@@ -21,7 +23,7 @@ const adminLinks = [
 export default function AdminLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   
   // Determine selected keys based on current path
   const selectedKeys = [pathname];
@@ -35,6 +37,62 @@ export default function AdminLayout() {
     logout();
     navigate('/login');
   };
+
+  // Generate breadcrumb items based on current path
+  const generateBreadcrumb = () => {
+    const pathSegments = pathname.split('/').filter(Boolean);
+    const breadcrumbItems = [
+      {
+        title: <Link to="/admin"><HomeOutlined /> Admin</Link>,
+      }
+    ];
+
+    if (pathSegments.length > 1) {
+      if (pathSegments[1] === 'system') {
+        breadcrumbItems.push({
+          title: <Link to="/admin/system">System Management</Link>
+        });
+        if (pathSegments[2]) {
+          const pageTitle = pathSegments[2].charAt(0).toUpperCase() + pathSegments[2].slice(1);
+          breadcrumbItems.push({
+            title: pageTitle
+          });
+        }
+      } else if (pathSegments[1] === 'settings') {
+        breadcrumbItems.push({
+          title: <Link to="/admin/settings">Settings Management</Link>
+        });
+        if (pathSegments[2]) {
+          const pageTitle = pathSegments[2].charAt(0).toUpperCase() + pathSegments[2].slice(1);
+          breadcrumbItems.push({
+            title: pageTitle
+          });
+        }
+      }
+    }
+
+    return breadcrumbItems;
+  };
+
+  // Profile dropdown menu
+  const profileMenuItems = [
+    {
+      key: 'profile',
+      icon: <ProfileOutlined />,
+      label: 'Profile',
+      onClick: () => navigate('/profile')
+    },
+    {
+      type: 'divider' as const,
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: handleLogout,
+      danger: true
+    }
+  ];
   
   return (
     <Layout style={{ minHeight: '100vh', background: '#f6f8fa' }}>
@@ -74,12 +132,46 @@ export default function AdminLayout() {
         </div>
       </Sider>
       <Layout>
-        <Content style={{ minWidth: 0, background: '#f6f8fa' }}>
+        <Header style={{ 
+          background: '#fff', 
+          borderBottom: '1px solid #eee',
+          padding: '0 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          height: 64
+        }}>
+          <Breadcrumb
+            items={generateBreadcrumb()}
+            style={{ fontSize: '14px' }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ color: '#666', fontSize: '14px' }}>
+              {user?.nickname || user?.email}
+            </span>
+            <Dropdown
+              menu={{ items: profileMenuItems }}
+              placement="bottomRight"
+              trigger={['click']}
+            >
+              <Avatar
+                size={32}
+                icon={<UserOutlined />}
+                style={{ 
+                  backgroundColor: '#1890ff',
+                  cursor: 'pointer'
+                }}
+              />
+            </Dropdown>
+          </div>
+        </Header>
+        <Content style={{ minWidth: 0, background: '#f6f8fa', padding: '24px' }}>
           <div
             style={{
               background: '#fff',
               borderRadius: 8,
-              minHeight: 'calc(100vh - 48px)',
+              minHeight: 'calc(100vh - 112px)',
+              padding: '24px'
             }}
           >
             <Outlet/>

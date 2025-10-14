@@ -20,7 +20,7 @@ const Login: React.FC = () => {
     useEffect(() => {
         if (isAuthenticated && !authLoading) {
             const redirect = searchParams.get('redirect');
-            navigate(redirect || '/dashboard');
+            navigate(redirect || '/admin');
         }
     }, [isAuthenticated, authLoading, navigate, searchParams]);
 
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
             
             // Redirect to url param if exists
             const redirect = searchParams.get('redirect');
-            navigate(redirect || '/dashboard');
+            navigate(redirect || '/admin');
         } catch (err: any) {
             setError(err?.response?.data?.message || 'Login failed');
         } finally {

@@ -79,10 +79,10 @@ export default function AdminSystemLayout() {
         />
       </Sider>
       <Layout>
-        <Content style={{ padding: '24px', background: '#f5f5f5' }}>
+        <Content style={{ background: '#f5f5f5' }}>
           <div
             style={{
-              padding: 24,
+              padding: 12,
               background: '#fff',
               borderRadius: 8,
               minHeight: 360,
