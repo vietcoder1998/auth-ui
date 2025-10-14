@@ -61,6 +61,9 @@ export const adminApi = {
   async deleteMailTemplate(id: string | number) {
     return axios.delete(`/admin/mail-templates/${id}`);
   },
+  async updateMailTemplate(id: string | number, data: any) {
+    return axios.put(`/admin/mail-templates/${id}`, data);
+  },
   async getNotificationTemplates(params?: any) {
     return axios.get('/admin/notification-templates', { params });
   },
