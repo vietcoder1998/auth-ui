@@ -23,10 +23,10 @@ export const adminApi = {
     return axios.post('/admin/tokens', data);
   },
   async grantToken(userId: string) {
-    return axios.post('/tokens/grant', { userId });
+    return axios.post('/admin/tokens/grant', { userId });
   },
   async revokeToken(tokenId: string) {
-    return axios.post('/tokens/revoke', { tokenId });
+    return axios.post('/admin/tokens/revoke', { tokenId });
   },
   async getRoles(params?: any) {
     return axios.get('/admin/roles', { params });
@@ -69,6 +69,9 @@ export const adminApi = {
   },
   async createNotificationTemplate(data: any) {
     return axios.post('/admin/notification-templates', data);
+  },
+  async updateNotificationTemplate(id: string | number, data: any) {
+    return axios.put(`/admin/notification-templates/${id}`, data);
   },
   async deleteNotificationTemplate(id: string | number) {
     return axios.delete(`/admin/notification-templates/${id}`);

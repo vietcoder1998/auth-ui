@@ -1,5 +1,5 @@
 import { Button, Spin, Table, Modal, Input } from 'antd';
-import { RichText } from '../lib/RichText';
+import { RichText } from '../lib/RichText.tsx';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
 
