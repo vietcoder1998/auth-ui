@@ -13,7 +13,9 @@
   "dependencies": {
     "@react-router/node": "^7.9.2",
     "@react-router/serve": "^7.9.2",
+    "@types/antd": "^0.12.32",
     "@types/axios": "^0.9.36",
+    "antd": "^5.27.4",
     "axios": "^1.12.2",
     "isbot": "^5.1.31",
     "react": "^19.1.1",
