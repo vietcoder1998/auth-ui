@@ -1,6 +1,6 @@
+import { Button, Spin, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
-import { Table, Button, Spin } from 'antd';
 
 export default function AdminMailPage() {
   const [mailTemplates, setMailTemplates] = useState([]);
@@ -21,7 +21,22 @@ export default function AdminMailPage() {
     setLoading(false);
   };
 
-  const columns = [
+  interface MailTemplate {
+    id: number;
+    name: string;
+    subject: string;
+    body: string;
+    active: boolean;
+  }
+
+  interface ColumnType {
+    title: string;
+    dataIndex?: keyof MailTemplate;
+    key: string;
+    render?: (value: any, record: MailTemplate) => React.ReactNode;
+  }
+
+  const columns: ColumnType[] = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
     { title: 'Subject', dataIndex: 'subject', key: 'subject' },
     { title: 'Body', dataIndex: 'body', key: 'body' },
