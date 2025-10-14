@@ -165,13 +165,12 @@ export default function AdminLayout() {
             </Dropdown>
           </div>
         </Header>
-        <Content style={{ minWidth: 0, background: '#f6f8fa', padding: '24px' }}>
+        <Content style={{ minWidth: 0, background: '#f6f8fa' }}>
           <div
             style={{
               background: '#fff',
               borderRadius: 8,
               minHeight: 'calc(100vh - 112px)',
-              padding: '24px'
             }}
           >
             <Outlet/>
