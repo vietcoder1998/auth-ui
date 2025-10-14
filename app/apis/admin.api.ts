@@ -76,11 +76,11 @@ export const adminApi = {
   async createConfig(data: any) {
     return axios.post('/config', data);
   },
-  async updateConfig(id: string | number, data: any) {
-    return axios.put(`/config/${id}`, data);
+  async updateConfig(key: string, data: any) {
+    return axios.put('/config', { key, ...data });
   },
-  async deleteConfig(id: string | number) {
-    return axios.delete(`/config/${id}`);
+  async deleteConfig(key: string) {
+    return axios.delete(`/config/${key}`);
   },
   
   // Cache API methods
