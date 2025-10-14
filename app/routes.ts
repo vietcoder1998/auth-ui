@@ -18,6 +18,7 @@ export default [
     route("mail", "pages/AdminMailPage.tsx"),
     route("notifications", "pages/AdminNotificationPage.tsx"),
     route("config", "pages/AdminConfigPage.tsx"),
+    route("cache", "pages/AdminCachePage.tsx"), // /admin/cache
   ]),
 
   // 404 Not Found page (catch-all route)

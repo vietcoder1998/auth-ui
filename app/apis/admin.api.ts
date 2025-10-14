@@ -70,4 +70,27 @@ export const adminApi = {
   async deleteConfig(id: string | number) {
     return axios.delete(`/config/${id}`);
   },
+  
+  // Cache API methods
+  async getCacheKeys(params?: any) {
+    return axios.get('/admin/cache', { params });
+  },
+  async getCacheStats() {
+    return axios.get('/admin/cache/stats');
+  },
+  async getCacheValue(key: string) {
+    return axios.get(`/admin/cache/${encodeURIComponent(key)}`);
+  },
+  async setCacheValue(data: { key: string; value: any; ttl?: number }) {
+    return axios.post('/admin/cache', data);
+  },
+  async deleteCacheKey(key: string) {
+    return axios.delete(`/admin/cache/${encodeURIComponent(key)}`);
+  },
+  async clearAllCache() {
+    return axios.delete('/admin/cache');
+  },
+  async clearCacheByPattern(pattern: string) {
+    return axios.post('/admin/cache/clear', { pattern });
+  },
 };

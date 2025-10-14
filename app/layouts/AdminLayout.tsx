@@ -9,6 +9,7 @@ import {
   MailOutlined,
   NotificationOutlined,
   DatabaseOutlined,
+  CloudServerOutlined,
 } from '@ant-design/icons';
 import {Outlet} from 'react-router-dom'
 const { Sider, Content } = Layout;
@@ -21,6 +22,7 @@ const adminLinks = [
   { path: '/admin/mail', label: 'Mail', icon: <MailOutlined /> },
   { path: '/admin/notifications', label: 'Notifications', icon: <NotificationOutlined /> },
   { path: '/admin/config', label: 'Config', icon: <DatabaseOutlined /> },
+  { path: '/admin/cache', label: 'Cache', icon: <CloudServerOutlined /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
