@@ -14,14 +14,24 @@ export default [
   // Admin layout with protected subroutes
   route("/admin", "layouts/AdminLayout.tsx", [
     route("", "pages/AdminIndexPage.tsx"), // /admin
-    route("users", "pages/AdminUserPage.tsx"), // /admin/users
-    route("tokens", "pages/AdminTokenPage.tsx"), // /admin/tokens
-    route("roles", "pages/AdminRolePage.tsx"),
-    route("permissions", "pages/AdminPermissionPage.tsx"),
-    route("mail", "pages/AdminMailPage.tsx"),
-    route("notifications", "pages/AdminNotificationPage.tsx"),
-    route("config", "pages/AdminConfigPage.tsx"),
-    route("cache", "pages/AdminCachePage.tsx"), // /admin/cache
+    
+    // System management routes
+    route("system", "layouts/AdminSystemLayout.tsx", [
+      route("", "pages/system/AdminSystemIndexPage.tsx"), // /admin/system
+      route("users", "pages/AdminUserPage.tsx"), // /admin/system/users
+      route("tokens", "pages/AdminTokenPage.tsx"), // /admin/system/tokens
+      route("roles", "pages/AdminRolePage.tsx"), // /admin/system/roles
+      route("permissions", "pages/AdminPermissionPage.tsx"), // /admin/system/permissions
+      route("cache", "pages/AdminCachePage.tsx"), // /admin/system/cache
+    ]),
+    
+    // Settings management routes
+    route("settings", "layouts/AdminSettingsLayout.tsx", [
+      route("", "pages/settings/AdminSettingsIndexPage.tsx"), // /admin/settings
+      route("mail", "pages/AdminMailPage.tsx"), // /admin/settings/mail
+      route("notifications", "pages/AdminNotificationPage.tsx"), // /admin/settings/notifications
+      route("config", "pages/AdminConfigPage.tsx"), // /admin/settings/config
+    ]),
   ]),
 
   // Root redirect (redirect to dashboard if authenticated, login if not)

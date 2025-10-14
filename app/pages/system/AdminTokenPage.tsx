@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, message, Modal, Form, Select, Space, Tag, Tooltip } from 'antd';
 import { PlusOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, CopyOutlined } from '@ant-design/icons';
 

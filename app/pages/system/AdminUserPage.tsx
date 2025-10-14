@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Input, Button, Spin, Space, Alert } from 'antd';
 import { PlusOutlined, ReloadOutlined, LoginOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import AddUserModal from './modals/AddUserModal.tsx';
+import AddUserModal from '../modals/AddUserModal.tsx';
 
 export default function AdminUserPage() {
   const [users, setUsers] = useState([]);

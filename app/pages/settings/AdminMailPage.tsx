@@ -1,7 +1,7 @@
 import { Button, ConfigProvider, Input, Modal, Spin, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { RichText } from '../lib/RichText.tsx';
-import { adminApi } from '../apis/admin.api.ts';
+import { RichText } from '../../lib/RichText.tsx';
+import { adminApi } from '../../apis/admin.api.ts';
 
 export default function AdminMailPage() {
   const [mailTemplates, setMailTemplates] = useState([]);

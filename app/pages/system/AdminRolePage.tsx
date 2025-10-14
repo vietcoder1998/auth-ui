@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, Space, Typography, Modal, Input, Form } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import AddRoleModal from './modals/AddRoleModal.tsx';
+import AddRoleModal from '../modals/AddRoleModal.tsx';
 
 const { Title } = Typography;
 
