@@ -102,4 +102,9 @@ export const adminApi = {
   async clearCacheByPattern(pattern: string) {
     return axios.post('/admin/cache/clear', { pattern });
   },
+  
+  // User impersonation
+  async loginAsUser(email: string) {
+    return axios.post('/admin/users/login-as', { email });
+  },
 };
