@@ -46,7 +46,8 @@ describe('Login', () => {
     
     // Setup default mock implementations
     mockLogin.mockResolvedValue({ 
-      token: 'test-token',
+      accessToken: 'test-token',
+      refreshToken: 'test-refresh-token',
       user: { id: '1', email: 'test@example.com', nickname: 'Test User' }
     });
     mockGetMe.mockResolvedValue({ 
@@ -85,7 +86,7 @@ describe('Login', () => {
     // Wait for the login API to be called
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
-        username: 'test@example.com',
+        email: 'test@example.com',
         password: 'password123'
       });
     });
