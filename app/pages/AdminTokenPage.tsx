@@ -19,8 +19,16 @@ export default function AdminTokenPage() {
     setLoading(true);
     try {
       const res = await adminApi.getTokens();
-      setTokens(res.data as Token[]);
-    } catch {
+      // Handle different response structures
+      const rawData = res.data?.data || res.data || [];
+      if (Array.isArray(rawData)) {
+        setTokens(rawData as Token[]);
+      } else {
+        console.warn('Expected array but got:', rawData);
+        setTokens([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch tokens:', error);
       setTokens([]);
     }
     setLoading(false);
