@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
-import { Table, Button, Spin, Space, Typography } from 'antd';
+import { Table, Button, Spin, Space, Typography, Modal, Input, Form } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddRoleModal from './modals/AddRoleModal.tsx';
 
@@ -10,6 +10,10 @@ export default function AdminRolePage() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingRole, setEditingRole] = useState<any>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchRoles();
@@ -24,6 +28,27 @@ export default function AdminRolePage() {
       setRoles([]);
     }
     setLoading(false);
+  };
+
+  const handleEdit = (role: Role) => {
+    setEditingRole(role);
+    form.setFieldsValue(role);
+    setEditModalVisible(true);
+  };
+
+  const handleEditSave = async () => {
+    try {
+      const values = await form.validateFields();
+      setEditLoading(true);
+      await adminApi.updateRole(editingRole.id, values);
+      setEditModalVisible(false);
+      setEditingRole(null);
+      fetchRoles();
+    } catch (error) {
+      console.error('Failed to update role:', error);
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   interface Role {
@@ -63,7 +88,7 @@ export default function AdminRolePage() {
           <Button 
             size="small"
             icon={<EditOutlined />}
-            onClick={() => alert('Edit role: ' + r.name)}
+            onClick={() => handleEdit(r)}
           >
             Edit
           </Button>
@@ -127,6 +152,34 @@ export default function AdminRolePage() {
         onCancel={() => setAddModalVisible(false)}
         onSuccess={fetchRoles}
       />
+
+      <Modal
+        title="Edit Role"
+        open={editModalVisible}
+        onCancel={() => {
+          setEditModalVisible(false);
+          setEditingRole(null);
+          form.resetFields();
+        }}
+        onOk={handleEditSave}
+        confirmLoading={editLoading}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="name"
+            label="Role Name"
+            rules={[{ required: true, message: 'Please input role name!' }]}
+          >
+            <Input placeholder="Enter role name" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+          >
+            <Input.TextArea rows={3} placeholder="Enter role description" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

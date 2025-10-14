@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
-import { Table, Button, Spin, Space, Typography, Tag } from 'antd';
+import { Table, Button, Spin, Space, Typography, Tag, Modal, Input, Form, Select } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddPermissionModal from './modals/AddPermissionModal.tsx';
 
@@ -10,6 +10,10 @@ export default function AdminPermissionPage() {
   const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingPermission, setEditingPermission] = useState<any>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchPermissions();
@@ -24,6 +28,27 @@ export default function AdminPermissionPage() {
       setPermissions([]);
     }
     setLoading(false);
+  };
+
+  const handleEdit = (permission: Permission) => {
+    setEditingPermission(permission);
+    form.setFieldsValue(permission);
+    setEditModalVisible(true);
+  };
+
+  const handleEditSave = async () => {
+    try {
+      const values = await form.validateFields();
+      setEditLoading(true);
+      await adminApi.updatePermission(editingPermission.id, values);
+      setEditModalVisible(false);
+      setEditingPermission(null);
+      fetchPermissions();
+    } catch (error) {
+      console.error('Failed to update permission:', error);
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   interface Permission {
@@ -72,6 +97,28 @@ export default function AdminPermissionPage() {
       }
     },
     { 
+      title: 'Route', 
+      dataIndex: 'route', 
+      key: 'route',
+      render: (route: string) => route ? <code style={{ backgroundColor: '#f0f0f0', padding: '2px 4px', borderRadius: '2px' }}>{route}</code> : <em style={{ color: '#999' }}>-</em>
+    },
+    { 
+      title: 'Method', 
+      dataIndex: 'method', 
+      key: 'method',
+      render: (method: string) => {
+        if (!method) return <em style={{ color: '#999' }}>-</em>;
+        const colors = {
+          GET: 'green',
+          POST: 'blue',
+          PUT: 'orange',
+          DELETE: 'red',
+          PATCH: 'purple'
+        };
+        return <Tag color={colors[method as keyof typeof colors] || 'default'}>{method}</Tag>;
+      }
+    },
+    { 
       title: 'Actions', 
       key: 'actions',
       width: 150,
@@ -80,7 +127,7 @@ export default function AdminPermissionPage() {
           <Button 
             size="small"
             icon={<EditOutlined />}
-            onClick={() => alert('Edit permission: ' + p.name)}
+            onClick={() => handleEdit(p)}
           >
             Edit
           </Button>
@@ -144,6 +191,67 @@ export default function AdminPermissionPage() {
         onCancel={() => setAddModalVisible(false)}
         onSuccess={fetchPermissions}
       />
+
+      <Modal
+        title="Edit Permission"
+        open={editModalVisible}
+        onCancel={() => {
+          setEditModalVisible(false);
+          setEditingPermission(null);
+          form.resetFields();
+        }}
+        onOk={handleEditSave}
+        confirmLoading={editLoading}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="name"
+            label="Permission Name"
+            rules={[{ required: true, message: 'Please input permission name!' }]}
+          >
+            <Input placeholder="Enter permission name" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+          >
+            <Input.TextArea rows={3} placeholder="Enter permission description" />
+          </Form.Item>
+          <Form.Item
+            name="category"
+            label="Category"
+          >
+            <Select placeholder="Select category">
+              <Select.Option value="user">User</Select.Option>
+              <Select.Option value="role">Role</Select.Option>
+              <Select.Option value="permission">Permission</Select.Option>
+              <Select.Option value="system">System</Select.Option>
+              <Select.Option value="content">Content</Select.Option>
+              <Select.Option value="report">Report</Select.Option>
+              <Select.Option value="api">API</Select.Option>
+              <Select.Option value="other">Other</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="route"
+            label="Route (Optional)"
+          >
+            <Input placeholder="e.g., /admin/users, /api/reports" />
+          </Form.Item>
+          <Form.Item
+            name="method"
+            label="HTTP Method (Optional)"
+          >
+            <Select placeholder="Select HTTP method" allowClear>
+              <Select.Option value="GET">GET</Select.Option>
+              <Select.Option value="POST">POST</Select.Option>
+              <Select.Option value="PUT">PUT</Select.Option>
+              <Select.Option value="DELETE">DELETE</Select.Option>
+              <Select.Option value="PATCH">PATCH</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

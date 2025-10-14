@@ -24,6 +24,8 @@ interface Permission {
   name: string;
   description?: string;
   category?: string;
+  route?: string;
+  method?: string;
 }
 
 interface AddPermissionModalProps {
@@ -196,6 +198,35 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
             maxLength={500}
             showCount
           />
+        </Form.Item>
+
+        <Form.Item
+          name="route"
+          label="Route (Optional)"
+          extra="API route pattern (e.g., /admin/users, /api/reports)"
+        >
+          <Input
+            placeholder="e.g., /admin/users, /api/reports"
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="method"
+          label="HTTP Method (Optional)"
+          extra="HTTP method for route-based permissions"
+        >
+          <Select
+            placeholder="Select HTTP method"
+            size="large"
+            allowClear
+          >
+            <Option value="GET">GET</Option>
+            <Option value="POST">POST</Option>
+            <Option value="PUT">PUT</Option>
+            <Option value="DELETE">DELETE</Option>
+            <Option value="PATCH">PATCH</Option>
+          </Select>
         </Form.Item>
 
         <Divider />
