@@ -14,7 +14,7 @@ export default function AdminNotificationPage() {
     setLoading(true);
     try {
       const res = await adminApi.getNotificationTemplates();
-      setNotificationTemplates(res.data);
+      setNotificationTemplates(res.data.data);
     } catch {
       setNotificationTemplates([]);
     }

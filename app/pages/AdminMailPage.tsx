@@ -14,7 +14,7 @@ export default function AdminMailPage() {
     setLoading(true);
     try {
       const res = await adminApi.getMailTemplates();
-      setMailTemplates(res.data);
+      setMailTemplates(res.data.data);
     } catch {
       setMailTemplates([]);
     }

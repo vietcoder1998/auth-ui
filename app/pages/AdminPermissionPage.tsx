@@ -14,14 +14,27 @@ export default function AdminPermissionPage() {
     setLoading(true);
     try {
       const res = await adminApi.getPermissions();
-      setPermissions(res.data);
+      setPermissions(res.data.data);
     } catch {
       setPermissions([]);
     }
     setLoading(false);
   };
 
-  const columns = [
+  interface Permission {
+    id: number;
+    name: string;
+    [key: string]: any;
+  }
+
+  interface ColumnType {
+    title: string;
+    dataIndex?: string;
+    key: string;
+    render?: (value: any, record: Permission, index: number) => React.ReactNode;
+  }
+
+  const columns: ColumnType[] = [
     { title: 'Permission', dataIndex: 'name', key: 'name' },
     { title: 'Actions', key: 'actions', render: (_, p) => (
       <Button danger onClick={() => adminApi.deletePermission(p.id).then(fetchPermissions)}>Delete</Button>

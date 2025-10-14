@@ -15,22 +15,39 @@ export default function AdminUserPage() {
     setLoading(true);
     try {
       const res = await adminApi.getUsers({ search: filter });
-      setUsers(res.data);
+      setUsers(res.data.data);
     } catch {
       setUsers([]);
     }
     setLoading(false);
   };
 
-  const columns = [
+  interface User {
+    email: string;
+    nickname: string;
+    [key: string]: any;
+  }
+
+  interface Column {
+    title: string;
+    dataIndex?: string;
+    key: string;
+    render?: (value: any, record: User, index: number) => React.ReactNode;
+  }
+
+  const columns: Column[] = [
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'Nickname', dataIndex: 'nickname', key: 'nickname' },
-    { title: 'Actions', key: 'actions', render: (_, u) => (
-      <>
-        <Button onClick={() => alert('Edit ' + u.email)}>Edit</Button>
-        <Button danger onClick={() => adminApi.deleteUser(u.email).then(fetchUsers)}>Delete</Button>
-      </>
-    ) },
+    { 
+      title: 'Actions', 
+      key: 'actions', 
+      render: (_: any, u: User) => (
+        <>
+          <Button onClick={() => alert('Edit ' + u.email)}>Edit</Button>
+          <Button danger onClick={() => adminApi.deleteUser(u.email).then(fetchUsers)}>Delete</Button>
+        </>
+      ) 
+    },
   ];
 
   return (

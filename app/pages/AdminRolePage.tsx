@@ -14,14 +14,27 @@ export default function AdminRolePage() {
     setLoading(true);
     try {
       const res = await adminApi.getRoles();
-      setRoles(res.data);
+      setRoles(res.data.data);
     } catch {
       setRoles([]);
     }
     setLoading(false);
   };
 
-  const columns = [
+  interface Role {
+    id: number;
+    name: string;
+    [key: string]: any;
+  }
+
+  interface ColumnType {
+    title: string;
+    dataIndex?: string;
+    key: string;
+    render?: (value: any, record: Role, index: number) => React.ReactNode;
+  }
+
+  const columns: ColumnType[] = [
     { title: 'Role', dataIndex: 'name', key: 'name' },
     { title: 'Actions', key: 'actions', render: (_, r) => (
       <Button danger onClick={() => adminApi.deleteRole(r.id).then(fetchRoles)}>Delete</Button>
