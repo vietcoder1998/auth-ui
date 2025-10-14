@@ -34,7 +34,7 @@ export default function AdminLayout() {
         collapsedWidth="0"
         style={{ background: '#fff', borderRight: '1px solid #eee', minWidth: 0 }}
         width={80}
-        collapsed={true}
+        // collapsed={true}
       >
         <Menu
           mode="inline"
@@ -48,7 +48,7 @@ export default function AdminLayout() {
         />
       </Sider>
       <Layout>
-        <Content style={{ padding: '24px', minWidth: 0, background: '#f6f8fa' }}>
+        <Content style={{ minWidth: 0, background: '#f6f8fa' }}>
           <div
             style={{
               background: '#fff',

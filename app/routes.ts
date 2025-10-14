@@ -18,19 +18,19 @@ export default [
     // System management routes
     route("system", "layouts/AdminSystemLayout.tsx", [
       route("", "pages/system/AdminSystemIndexPage.tsx"), // /admin/system
-      route("users", "pages/AdminUserPage.tsx"), // /admin/system/users
-      route("tokens", "pages/AdminTokenPage.tsx"), // /admin/system/tokens
-      route("roles", "pages/AdminRolePage.tsx"), // /admin/system/roles
-      route("permissions", "pages/AdminPermissionPage.tsx"), // /admin/system/permissions
-      route("cache", "pages/AdminCachePage.tsx"), // /admin/system/cache
+      route("users", "pages/system/AdminUserPage.tsx"), // /admin/system/users
+      route("tokens", "pages/system/AdminTokenPage.tsx"), // /admin/system/tokens
+      route("roles", "pages/system/AdminRolePage.tsx"), // /admin/system/roles
+      route("permissions", "pages/system/AdminPermissionPage.tsx"), // /admin/system/permissions
+      route("cache", "pages/system/AdminCachePage.tsx"), // /admin/system/cache
     ]),
     
     // Settings management routes
     route("settings", "layouts/AdminSettingsLayout.tsx", [
       route("", "pages/settings/AdminSettingsIndexPage.tsx"), // /admin/settings
-      route("mail", "pages/AdminMailPage.tsx"), // /admin/settings/mail
-      route("notifications", "pages/AdminNotificationPage.tsx"), // /admin/settings/notifications
-      route("config", "pages/AdminConfigPage.tsx"), // /admin/settings/config
+      route("mail", "pages/settings/AdminMailPage.tsx"), // /admin/settings/mail
+      route("notifications", "pages/settings/AdminNotificationPage.tsx"), // /admin/settings/notifications
+      route("config", "pages/settings/AdminConfigPage.tsx"), // /admin/settings/config
     ]),
   ]),
 
