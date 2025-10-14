@@ -9,7 +9,7 @@ import {
   ReloadOutlined 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { adminApi } from '../../apis/admin.api';
+import { adminApi } from '../../apis/admin.api.ts';
 
 const { Title, Paragraph } = Typography;
 

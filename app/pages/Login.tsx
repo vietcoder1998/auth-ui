@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Form, Input, Button, Card, Alert, Spin, Typography, Space, Divider } from 'antd';
+import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
 import { login as loginApi } from '../apis/auth.api.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
 import AuthStatus from '../layouts/AuthStatus.tsx';
 
+const { Title, Text } = Typography;
+
 const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [form] = Form.useForm();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -21,12 +24,11 @@ const Login: React.FC = () => {
         }
     }, [isAuthenticated, authLoading, navigate, searchParams]);
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleLogin = async (values: { email: string; password: string }) => {
         setLoading(true);
         setError(null);
         try {
-            const res = await loginApi({ email, password });
+            const res = await loginApi({ email: values.email, password: values.password });
             
             // Use auth context to handle login (saves to cookies and updates state)
             await login(res.accessToken, res.user);
@@ -44,51 +46,113 @@ const Login: React.FC = () => {
     // Show loading while checking auth state
     if (authLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '100vh',
+                background: '#f0f2f5'
+            }}>
+                <Spin size="large" />
             </div>
         );
     }
 
     return (
-        <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow">
-            <h2 className="text-2xl font-bold mb-4">Login</h2>
-            
-            {/* Show current auth status */}
-            <div className="mb-4">
-                <AuthStatus />
-            </div>
+        <div style={{
+            minHeight: '100vh',
+            background: '#f0f2f5',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px'
+        }}>
+            <Card 
+                style={{ 
+                    width: '100%',
+                    maxWidth: 400,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+                variant="borderless"
+            >
+                <div style={{ textAlign: 'center', marginBottom: 32 }}>
+                    <LoginOutlined style={{ fontSize: 48, color: '#1890ff', marginBottom: 16 }} />
+                    <Title level={2} style={{ margin: 0 }}>Welcome Back</Title>
+                    <Text type="secondary">Please sign in to your account</Text>
+                </div>
+                
+                {/* Show current auth status */}
+                <div style={{ marginBottom: 24 }}>
+                    <AuthStatus />
+                </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="border rounded px-3 py-2 w-full"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    className="border rounded px-3 py-2 w-full"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                {error && <div className="text-red-500">{error}</div>}
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                    disabled={loading}
+                {error && (
+                    <Alert
+                        message={error}
+                        type="error"
+                        showIcon
+                        style={{ marginBottom: 24 }}
+                    />
+                )}
+
+                <Form
+                    form={form}
+                    name="login"
+                    onFinish={handleLogin}
+                    layout="vertical"
+                    size="large"
                 >
-                    {loading ? 'Logging in...' : 'Login'}
-                </button>
-            </form>
-            <div className="mt-4 text-center">
-                <a href="/register" className="text-blue-600 hover:underline">Register</a> |{' '}
-                <a href="/forgot-password" className="text-blue-600 hover:underline">Forgot Password?</a>
-            </div>
+                    <Form.Item
+                        name="email"
+                        label="Email"
+                        rules={[
+                            { required: true, message: 'Please input your email!' },
+                            { type: 'email', message: 'Please enter a valid email!' }
+                        ]}
+                    >
+                        <Input 
+                            prefix={<UserOutlined />} 
+                            placeholder="Enter your email"
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="password"
+                        label="Password"
+                        rules={[{ required: true, message: 'Please input your password!' }]}
+                    >
+                        <Input.Password 
+                            prefix={<LockOutlined />} 
+                            placeholder="Enter your password"
+                        />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit" 
+                            loading={loading}
+                            block
+                            style={{ height: 44 }}
+                        >
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </Button>
+                    </Form.Item>
+                </Form>
+
+                <Divider />
+
+                <div style={{ textAlign: 'center' }}>
+                    <Space split={<span style={{ color: '#d9d9d9' }}>|</span>}>
+                        <Link to="/register" style={{ color: '#1890ff' }}>
+                            Create Account
+                        </Link>
+                        <Link to="/forgot-password" style={{ color: '#1890ff' }}>
+                            Forgot Password?
+                        </Link>
+                    </Space>
+                </div>
+            </Card>
         </div>
     );
 };
