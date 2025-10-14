@@ -10,6 +10,9 @@ export const adminApi = {
   async createUser(data: any) {
     return axios.post('/admin/users', data);
   },
+  async updateUser(email: string, data: any) {
+    return axios.put(`/admin/users/${email}`, data);
+  },
   async deleteUser(email: string) {
     return axios.delete(`/admin/users/${email}`);
   },
