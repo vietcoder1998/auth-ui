@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { message } from 'antd';
 
 // Cookie utility function
 const getCookie = (name: string): string | null => {
@@ -59,18 +60,52 @@ export function getApiInstance(): AxiosInstance {
     instance.interceptors.response.use(
         (response) => response,
         (error) => {
-            // Handle 401 errors globally
+            // Extract error message for toast
+            let errorMessage = 'An error occurred';
+            
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            // Handle different error status codes
             if (error.response?.status === 401) {
+                errorMessage = 'Authentication failed. Please login again.';
+                
                 // Token might be expired, clear auth data
                 document.cookie = 'auth_token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
                 document.cookie = 'auth_user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
                 localStorage.removeItem('token');
                 
+                // Show toast before redirect
+                message.error(errorMessage);
+                
                 // Redirect to login if not already there
-                if (!window.location.pathname.includes('/login')) {
-                    window.location.href = '/login';
-                }
+                setTimeout(() => {
+                    if (!window.location.pathname.includes('/login')) {
+                        window.location.href = '/login';
+                    }
+                }, 1000); // Delay to show toast
+            } else if (error.response?.status === 403) {
+                errorMessage = 'Access denied. You don\'t have permission to perform this action.';
+                message.error(errorMessage);
+            } else if (error.response?.status === 404) {
+                errorMessage = 'Resource not found.';
+                message.error(errorMessage);
+            } else if (error.response?.status >= 500) {
+                errorMessage = 'Server error. Please try again later.';
+                message.error(errorMessage);
+            } else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNABORTED') {
+                errorMessage = 'Network error. Please check your connection.';
+                message.error(errorMessage);
+            } else {
+                // Show toast for other errors
+                message.error(errorMessage);
             }
+            
             return Promise.reject(error);
         }
     );
