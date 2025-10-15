@@ -51,6 +51,22 @@ interface Conversation {
   title: string;
   agentId: string;
   messages?: Message[];
+  lastMessage?: Message;
+  user?: {
+    id: string;
+    email: string;
+    nickname: string;
+    status: string;
+  };
+  agent?: {
+    id: string;
+    name: string;
+    model: string;
+    isActive: boolean;
+  };
+  _count?: {
+    messages: number;
+  };
 }
 
 export default function LLMChat() {
@@ -123,7 +139,9 @@ export default function LLMChat() {
   const fetchMessages = async () => {
     try {
       const response = await adminApi.getConversation(selectedConversation);
-      setMessages(response.data.messages || []);
+      // Handle both direct messages array and paginated messages structure
+      const messages = response.data.messages?.data || response.data.messages || [];
+      setMessages(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -228,10 +246,24 @@ export default function LLMChat() {
                 value={selectedConversation}
                 onChange={setSelectedConversation}
                 allowClear
+                optionLabelProp="label"
               >
                 {conversations.map(conv => (
-                  <Option key={conv.id} value={conv.id}>
-                    {conv.title}
+                  <Option key={conv.id} value={conv.id} label={conv.title}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <Text strong style={{ fontSize: '14px' }}>{conv.title}</Text>
+                      {conv.lastMessage && (
+                        <Text type="secondary" style={{ fontSize: '12px' }} ellipsis>
+                          {conv.lastMessage.sender === 'user' ? 'You: ' : 'AI: '}
+                          {conv.lastMessage.content.length > 50 
+                            ? conv.lastMessage.content.substring(0, 50) + '...' 
+                            : conv.lastMessage.content}
+                        </Text>
+                      )}
+                      <Text type="secondary" style={{ fontSize: '11px' }}>
+                        {conv._count?.messages || 0} messages
+                      </Text>
+                    </div>
                   </Option>
                 ))}
               </Select>
