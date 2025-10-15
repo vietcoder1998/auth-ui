@@ -56,6 +56,10 @@ const SSOLogin: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
+  
+  // Check if this is a popup window
+  const isPopup = searchParams.get('popup') === 'true';
+  const redirectUrl = searchParams.get('redirect');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -98,6 +102,14 @@ const SSOLogin: React.FC = () => {
       setError(errorMessage);
       setValidationResult(null);
       setCurrentStep(0);
+      
+      // If this is a popup, send error message to parent window
+      if (isPopup && window.opener) {
+        window.opener.postMessage({
+          type: 'SSO_LOGIN_ERROR',
+          error: errorMessage,
+        }, redirectUrl || window.location.origin);
+      }
     } finally {
       setValidating(false);
     }
@@ -126,7 +138,6 @@ const SSOLogin: React.FC = () => {
       // The result should contain loginHistory and user info
       if (result.data && result.data.user) {
         // For SSO login, we need to create a compatible token format
-        // The backend should provide this, but for now we'll handle it
         const userData = result.data.user;
         const mockToken = btoa(JSON.stringify({
           userId: userData.id,
@@ -138,11 +149,25 @@ const SSOLogin: React.FC = () => {
         await login(mockToken, userData);
         setCurrentStep(3);
         
-        // Redirect after a short delay to show success
-        setTimeout(() => {
-          const redirect = searchParams.get('redirect');
-          navigate(redirect || '/admin');
-        }, 2000);
+        // If this is a popup, send success message to parent window
+        if (isPopup && window.opener) {
+          window.opener.postMessage({
+            type: 'SSO_LOGIN_SUCCESS',
+            user: userData,
+            token: mockToken,
+          }, redirectUrl || window.location.origin);
+          
+          // Close popup after a short delay
+          setTimeout(() => {
+            window.close();
+          }, 1500);
+        } else {
+          // Redirect after a short delay to show success
+          setTimeout(() => {
+            const redirect = redirectUrl || '/admin';
+            navigate(redirect);
+          }, 2000);
+        }
       } else {
         throw new Error('Invalid login response');
       }
@@ -150,6 +175,14 @@ const SSOLogin: React.FC = () => {
       const errorMessage = err?.response?.data?.error || 'SSO login failed';
       setError(errorMessage);
       setCurrentStep(1);
+      
+      // If this is a popup, send error message to parent window
+      if (isPopup && window.opener) {
+        window.opener.postMessage({
+          type: 'SSO_LOGIN_ERROR',
+          error: errorMessage,
+        }, redirectUrl || window.location.origin);
+      }
     } finally {
       setLoading(false);
     }
@@ -217,8 +250,12 @@ const SSOLogin: React.FC = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <KeyOutlined style={{ fontSize: '48px', color: '#1890ff', marginBottom: '16px' }} />
-          <Title level={2} style={{ margin: 0, color: '#333' }}>SSO Login</Title>
-          <Text type="secondary">Single Sign-On Authentication</Text>
+          <Title level={2} style={{ margin: 0, color: '#333' }}>
+            {isPopup ? 'SSO Login - Popup' : 'SSO Login'}
+          </Title>
+          <Text type="secondary">
+            {isPopup ? 'Authenticate to access Calendar Todo App' : 'Single Sign-On Authentication'}
+          </Text>
         </div>
 
         {/* Progress Steps */}
@@ -286,11 +323,17 @@ const SSOLogin: React.FC = () => {
             )}
 
             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-              <Link to="/login">
-                <Button>
-                  <UserOutlined /> Regular Login
+              {isPopup ? (
+                <Button onClick={() => window.close()}>
+                  Cancel
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/login">
+                  <Button>
+                    <UserOutlined /> Regular Login
+                  </Button>
+                </Link>
+              )}
               
               {currentStep === 0 ? (
                 <Button 
