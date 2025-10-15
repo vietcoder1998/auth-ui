@@ -6,7 +6,10 @@ import {
   SafetyOutlined, 
   KeyOutlined,
   DatabaseOutlined,
-  ReloadOutlined 
+  ReloadOutlined,
+  LinkOutlined,
+  HistoryOutlined,
+  AuditOutlined 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -20,6 +23,9 @@ export default function AdminSystemIndexPage() {
     roles: 0,
     permissions: 0,
     tokens: 0,
+    sso: 0,
+    loginHistory: 0,
+    logicHistory: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -37,11 +43,49 @@ export default function AdminSystemIndexPage() {
         adminApi.getTokens(),
       ]);
 
+      // Fetch additional stats for SSO and History (with fallbacks)
+      let ssoCount = 0;
+      let loginHistoryCount = 0;
+      let logicHistoryCount = 0;
+
+      try {
+        const ssoResponse = await fetch('/api/admin/sso/stats');
+        if (ssoResponse.ok) {
+          const ssoStats = await ssoResponse.json();
+          ssoCount = ssoStats.totalSSO || 0;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch SSO stats:', error);
+      }
+
+      try {
+        const loginHistoryResponse = await fetch('/api/admin/login-history/stats');
+        if (loginHistoryResponse.ok) {
+          const loginStats = await loginHistoryResponse.json();
+          loginHistoryCount = loginStats.totalLogins || 0;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch login history stats:', error);
+      }
+
+      try {
+        const logicHistoryResponse = await fetch('/api/admin/logic-history/stats');
+        if (logicHistoryResponse.ok) {
+          const logicStats = await logicHistoryResponse.json();
+          logicHistoryCount = logicStats.totalEntries || 0;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch logic history stats:', error);
+      }
+
       setStats({
         users: usersRes.status === 'fulfilled' ? usersRes.value.data.data?.length || 0 : 0,
         roles: rolesRes.status === 'fulfilled' ? rolesRes.value.data.data?.length || 0 : 0,
         permissions: permissionsRes.status === 'fulfilled' ? permissionsRes.value.data.data?.length || 0 : 0,
         tokens: tokensRes.status === 'fulfilled' ? tokensRes.value.data.data?.length || 0 : 0,
+        sso: ssoCount,
+        loginHistory: loginHistoryCount,
+        logicHistory: logicHistoryCount,
       });
     } catch (error) {
       console.error('Failed to fetch system statistics:', error);
@@ -83,6 +127,30 @@ export default function AdminSystemIndexPage() {
       path: '/admin/system/tokens',
       description: 'Monitor active authentication tokens',
     },
+    {
+      title: 'SSO Entries',
+      count: stats.sso,
+      icon: <LinkOutlined />,
+      color: '#13c2c2',
+      path: '/admin/system/sso',
+      description: 'Manage Single Sign-On configurations',
+    },
+    {
+      title: 'Login History',
+      count: stats.loginHistory,
+      icon: <HistoryOutlined />,
+      color: '#eb2f96',
+      path: '/admin/system/login-history',
+      description: 'View user login and session history',
+    },
+    {
+      title: 'Logic History',
+      count: stats.logicHistory,
+      icon: <AuditOutlined />,
+      color: '#f5222d',
+      path: '/admin/system/logic-history',
+      description: 'Audit trail of system changes and actions',
+    },
   ];
 
   return (
@@ -110,7 +178,7 @@ export default function AdminSystemIndexPage() {
 
       <Row gutter={[16, 16]}>
         {systemCards.map((card) => (
-          <Col xs={24} sm={12} lg={6} key={card.title}>
+          <Col xs={24} sm={12} lg={8} xl={6} key={card.title}>
             <Card
               hoverable
               onClick={() => navigate(card.path)}

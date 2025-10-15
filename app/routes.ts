@@ -22,6 +22,9 @@ export default [
       route("tokens", "pages/system/AdminTokenPage.tsx"), // /admin/system/tokens
       route("roles", "pages/system/AdminRolePage.tsx"), // /admin/system/roles
       route("permissions", "pages/system/AdminPermissionPage.tsx"), // /admin/system/permissions
+      route("sso", "pages/system/AdminSSOPage.tsx"), // /admin/system/sso
+      route("login-history", "pages/system/AdminLoginHistoryPage.tsx"), // /admin/system/login-history
+      route("logic-history", "pages/system/AdminLogicHistoryPage.tsx"), // /admin/system/logic-history
       route("cache", "pages/system/AdminCachePage.tsx"), // /admin/system/cache
     ]),
     
