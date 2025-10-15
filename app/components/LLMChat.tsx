@@ -24,6 +24,7 @@ import {
   MessageOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
+import { adminApi } from '../apis/admin.api';
 
 const { TextArea } = Input;
 const { Text, Paragraph } = Typography;
@@ -94,22 +95,14 @@ export default function LLMChat() {
   const fetchAgents = async () => {
     try {
       setIsLoadingAgents(true);
-      const response = await fetch('/api/admin/agents', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await adminApi.getAgents();
+      const agents = response.data.data || [];
+      setAgents(agents);
       
-      if (response.ok) {
-        const data = await response.json();
-        setAgents(data.data || []);
-        
-        // Auto-select first active agent
-        const activeAgent = data.data?.find((agent: Agent) => agent.isActive);
-        if (activeAgent && !selectedAgent) {
-          setSelectedAgent(activeAgent.id);
-        }
+      // Auto-select first active agent
+      const activeAgent = agents.find((agent: Agent) => agent.isActive);
+      if (activeAgent && !selectedAgent) {
+        setSelectedAgent(activeAgent.id);
       }
     } catch (error) {
       console.error('Error fetching agents:', error);
@@ -120,17 +113,8 @@ export default function LLMChat() {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch(`/api/admin/conversations?agentId=${selectedAgent}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data.data || []);
-      }
+      const response = await adminApi.getConversations({ agentId: selectedAgent });
+      setConversations(response.data.data || []);
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }
@@ -138,17 +122,8 @@ export default function LLMChat() {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`/api/admin/conversations/${selectedConversation}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
-      }
+      const response = await adminApi.getConversation(selectedConversation);
+      setMessages(response.data.messages || []);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -158,24 +133,15 @@ export default function LLMChat() {
     if (!selectedAgent) return;
 
     try {
-      const response = await fetch('/api/admin/conversations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          agentId: selectedAgent,
-          title: `Chat ${new Date().toLocaleString()}`
-        })
+      const response = await adminApi.createConversation({
+        agentId: selectedAgent,
+        title: `Chat ${new Date().toLocaleString()}`
       });
 
-      if (response.ok) {
-        const newConversation = await response.json();
-        setConversations(prev => [newConversation, ...prev]);
-        setSelectedConversation(newConversation.id);
-        setMessages([]);
-      }
+      const newConversation = response.data;
+      setConversations(prev => [newConversation, ...prev]);
+      setSelectedConversation(newConversation.id);
+      setMessages([]);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
@@ -189,25 +155,14 @@ export default function LLMChat() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/admin/conversations/${selectedConversation}/messages`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          content: userMessage,
-          sender: 'user'
-        })
+      const response = await adminApi.sendMessage(selectedConversation, {
+        content: userMessage,
+        sender: 'user'
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Add both user message and AI response
-        if (data.userMessage && data.aiMessage) {
-          setMessages(prev => [...prev, data.userMessage, data.aiMessage]);
-        }
+      // Add both user message and AI response
+      if (response.data.userMessage && response.data.aiMessage) {
+        setMessages(prev => [...prev, response.data.userMessage, response.data.aiMessage]);
       }
     } catch (error) {
       console.error('Error sending message:', error);
