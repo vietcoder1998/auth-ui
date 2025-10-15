@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Typography, Button, Tooltip, Avatar, Dropdown, Breadcrumb } from 'antd';
 import type { MenuProps } from 'antd';
@@ -9,9 +9,12 @@ import {
   LogoutOutlined,
   UserOutlined,
   ProfileOutlined,
+  MessageOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
+import LLMChat from '../components/LLMChat.tsx';
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
 
@@ -25,6 +28,7 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const [isChatVisible, setIsChatVisible] = useState(false);
   
   // Determine selected keys based on current path
   const selectedKeys = [pathname];
@@ -152,6 +156,14 @@ export default function AdminLayout() {
             style={{ fontSize: '14px' }}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Tooltip title={isChatVisible ? "Hide AI Chat" : "Show AI Chat"}>
+              <Button
+                type={isChatVisible ? "primary" : "default"}
+                icon={isChatVisible ? <CloseOutlined /> : <MessageOutlined />}
+                onClick={() => setIsChatVisible(!isChatVisible)}
+                style={{ marginRight: '8px' }}
+              />
+            </Tooltip>
             <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
               <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
                 {user?.nickname || user?.email || 'Unknown User'}
@@ -178,16 +190,35 @@ export default function AdminLayout() {
             </Dropdown>
           </div>
         </Header>
-        <Content style={{ minWidth: 0, background: '#f6f8fa' }}>
+        <Content style={{ minWidth: 0, background: '#f6f8fa', display: 'flex', gap: '16px' }}>
           <div
             style={{
               background: '#fff',
               borderRadius: 8,
               minHeight: 'calc(100vh - 112px)',
+              flex: isChatVisible ? '1' : '1',
+              transition: 'all 0.3s ease',
             }}
           >
             <Outlet/>
           </div>
+          
+          {isChatVisible && (
+            <div
+              style={{
+                width: '400px',
+                minHeight: 'calc(100vh - 112px)',
+                background: '#fff',
+                borderRadius: 8,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <LLMChat />
+            </div>
+          )}
         </Content>
       </Layout>
     </Layout>
