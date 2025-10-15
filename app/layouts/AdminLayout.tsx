@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Typography, Button, Tooltip, Avatar, Dropdown, Breadcrumb } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   DatabaseOutlined,
   SettingOutlined,
@@ -9,7 +10,7 @@ import {
   UserOutlined,
   ProfileOutlined,
 } from '@ant-design/icons';
-import {Outlet} from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
@@ -41,7 +42,7 @@ export default function AdminLayout() {
   // Generate breadcrumb items based on current path
   const generateBreadcrumb = () => {
     const pathSegments = pathname.split('/').filter(Boolean);
-    const breadcrumbItems = [
+    const breadcrumbItems: { title: React.ReactNode }[] = [
       {
         title: <Link to="/admin"><HomeOutlined /> Admin</Link>,
       }
@@ -53,9 +54,12 @@ export default function AdminLayout() {
           title: <Link to="/admin/system">System Management</Link>
         });
         if (pathSegments[2]) {
-          const pageTitle = pathSegments[2].charAt(0).toUpperCase() + pathSegments[2].slice(1);
+          const pageTitle = pathSegments[2]
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
           breadcrumbItems.push({
-            title: pageTitle
+            title: <span>{pageTitle}</span>
           });
         }
       } else if (pathSegments[1] === 'settings') {
@@ -63,9 +67,12 @@ export default function AdminLayout() {
           title: <Link to="/admin/settings">Settings Management</Link>
         });
         if (pathSegments[2]) {
-          const pageTitle = pathSegments[2].charAt(0).toUpperCase() + pathSegments[2].slice(1);
+          const pageTitle = pathSegments[2]
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
           breadcrumbItems.push({
-            title: pageTitle
+            title: <span>{pageTitle}</span>
           });
         }
       }
@@ -75,7 +82,7 @@ export default function AdminLayout() {
   };
 
   // Profile dropdown menu
-  const profileMenuItems = [
+  const profileMenuItems: MenuProps['items'] = [
     {
       key: 'profile',
       icon: <ProfileOutlined />,
@@ -83,7 +90,7 @@ export default function AdminLayout() {
       onClick: () => navigate('/profile')
     },
     {
-      type: 'divider' as const,
+      type: 'divider',
     },
     {
       key: 'logout',
@@ -116,7 +123,7 @@ export default function AdminLayout() {
           items={adminLinks.map(link => ({
             key: link.path,
             icon: <Link to={link.path}>{link.icon}</Link>,
-            title: link.label
+            label: link.label
           }))}
         />
         <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
@@ -139,16 +146,26 @@ export default function AdminLayout() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          height: 64
+          height: 64,
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000
         }}>
           <Breadcrumb
             items={generateBreadcrumb()}
             style={{ fontSize: '14px' }}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ color: '#666', fontSize: '14px' }}>
-              {user?.nickname || user?.email}
-            </span>
+            <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
+              <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
+                {user?.nickname || user?.email || 'Unknown User'}
+              </div>
+              {user?.role && (
+                <div style={{ color: '#666', fontSize: '12px' }}>
+                  {user.role.name || 'No Role'}
+                </div>
+              )}
+            </div>
             <Dropdown
               menu={{ items: profileMenuItems }}
               placement="bottomRight"

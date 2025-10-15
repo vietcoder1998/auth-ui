@@ -31,6 +31,7 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import { adminApi } from '../../apis/admin.api.ts';
 
 interface SSOEntry {
   id: string;
@@ -77,21 +78,21 @@ const AdminSSOPage: React.FC = () => {
   const fetchSSOEntries = async (page = 1, search = '') => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `/api/admin/sso?page=${page}&limit=10&search=${encodeURIComponent(search)}`
-      );
-      const data = await response.json();
+      const response = await adminApi.getSSOEntries({
+        page,
+        limit: 10,
+        search
+      });
       
-      if (response.ok) {
-        setSSOEntries(data.data);
-        setTotalPages(data.pagination.totalPages);
-        setCurrentPage(data.pagination.page);
-      } else {
-        message.error(`Failed to fetch SSO entries: ${data.error}`);
+      if (response.data) {
+        setSSOEntries(response.data.data);
+        setTotalPages(response.data.pagination.totalPages);
+        setCurrentPage(response.data.pagination.page);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching SSO entries:', error);
-      message.error('Failed to fetch SSO entries');
+      const errorMessage = error.response?.data?.error || 'Failed to fetch SSO entries';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -99,17 +100,15 @@ const AdminSSOPage: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/sso/stats');
-      const data = await response.json();
+      const response = await adminApi.getSSOStats();
       
-      if (response.ok) {
-        setStats(data);
-      } else {
-        message.error(`Failed to fetch SSO stats: ${data.error}`);
+      if (response.data) {
+        setStats(response.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching SSO stats:', error);
-      message.error('Failed to fetch SSO stats');
+      const errorMessage = error.response?.data?.error || 'Failed to fetch SSO stats';
+      message.error(errorMessage);
     }
   };
 
@@ -129,40 +128,26 @@ const AdminSSOPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/sso/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        message.success('SSO entry deleted successfully');
-        fetchSSOEntries(currentPage, searchTerm);
-        fetchStats();
-      } else {
-        const data = await response.json();
-        message.error(`Failed to delete SSO entry: ${data.error}`);
-      }
-    } catch (error) {
+      await adminApi.deleteSSO(id);
+      message.success('SSO entry deleted successfully');
+      fetchSSOEntries(currentPage, searchTerm);
+      fetchStats();
+    } catch (error: any) {
       console.error('Error deleting SSO entry:', error);
-      message.error('Failed to delete SSO entry');
+      const errorMessage = error.response?.data?.error || 'Failed to delete SSO entry';
+      message.error(errorMessage);
     }
   };
 
   const handleRegenerateKey = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/sso/${id}/regenerate-key`, {
-        method: 'PATCH',
-      });
-
-      if (response.ok) {
-        message.success('SSO key regenerated successfully');
-        fetchSSOEntries(currentPage, searchTerm);
-      } else {
-        const data = await response.json();
-        message.error(`Failed to regenerate key: ${data.error}`);
-      }
-    } catch (error) {
+      await adminApi.regenerateSSORKey(id);
+      message.success('SSO key regenerated successfully');
+      fetchSSOEntries(currentPage, searchTerm);
+    } catch (error: any) {
       console.error('Error regenerating key:', error);
-      message.error('Failed to regenerate key');
+      const errorMessage = error.response?.data?.error || 'Failed to regenerate key';
+      message.error(errorMessage);
     }
   };
 
