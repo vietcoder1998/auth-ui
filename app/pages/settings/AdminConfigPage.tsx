@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, Input, Form, message } from 'antd';
+import { Table, Button, Spin, Input, Form, message, Typography } from 'antd';
+import CommonSearch from '../../components/CommonSearch.tsx';
+
+const { Title } = Typography;
 
 interface Config {
   id?: string | number;
@@ -14,7 +17,9 @@ interface ConfigResponse {
 
 export default function AdminConfigPage() {
   const [configs, setConfigs] = useState<Config[]>([]);
+  const [filteredConfigs, setFilteredConfigs] = useState<Config[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [form] = Form.useForm<Config>();
 
   useEffect(() => {
@@ -35,11 +40,34 @@ export default function AdminConfigPage() {
       }));
       
       setConfigs(configArray);
+      filterConfigs(configArray, searchTerm);
     } catch (error) {
       console.error('Failed to fetch configs:', error);
       setConfigs([]);
+      setFilteredConfigs([]);
     }
     setLoading(false);
+  };
+
+  const filterConfigs = (configList: Config[], search: string) => {
+    if (!search.trim()) {
+      setFilteredConfigs(configList);
+      return;
+    }
+
+    const filtered = configList.filter(config => {
+      const searchLower = search.toLowerCase();
+      const keyMatch = config.key.toLowerCase().includes(searchLower);
+      const valueMatch = String(config.value).toLowerCase().includes(searchLower);
+      return keyMatch || valueMatch;
+    });
+
+    setFilteredConfigs(filtered);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    filterConfigs(configs, value);
   };
 
   const columns = [
@@ -113,9 +141,16 @@ export default function AdminConfigPage() {
             danger
             size="small"
             disabled={c.id === undefined}
-            onClick={() => {
+            onClick={async () => {
               if (c.id !== undefined) {
-                adminApi.deleteConfig(String(c.id)).then(fetchConfigs);
+                try {
+                  await adminApi.deleteConfig(String(c.id));
+                  message.success('Config deleted successfully');
+                  await fetchConfigs();
+                } catch (error) {
+                  console.error('Error deleting config:', error);
+                  message.error('Error deleting config');
+                }
               }
             }}
           >
@@ -144,7 +179,7 @@ export default function AdminConfigPage() {
         message.success('Config created successfully');
       }
       form.resetFields();
-      fetchConfigs();
+      await fetchConfigs();
     } catch (error) {
       console.error('Error saving config:', error);
       message.error('Error saving config');
@@ -153,9 +188,8 @@ export default function AdminConfigPage() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Configuration Management</h2>
-        <Button onClick={fetchConfigs}>Refresh</Button>
+      <div style={{ marginBottom: '24px' }}>
+        <Title level={2}>Configuration Management</Title>
       </div>
       
       <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f5f5f5', borderRadius: '6px' }}>
@@ -200,9 +234,18 @@ export default function AdminConfigPage() {
         </Form>
       </div>
 
+      {/* Search */}
+      <CommonSearch
+        searchPlaceholder="Search by configuration key or value..."
+        searchValue={searchTerm}
+        onSearch={handleSearch}
+        onRefresh={fetchConfigs}
+        loading={loading}
+      />
+
       <Spin spinning={loading}>
         <Table
-          dataSource={configs}
+          dataSource={filteredConfigs}
           columns={columns}
           rowKey="key"
           pagination={{ 
