@@ -9,6 +9,8 @@ import {
   LinkOutlined,
   HistoryOutlined,
   AuditOutlined,
+  RobotOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 
 const { Content, Sider } = Layout;
@@ -24,6 +26,34 @@ export default function AdminSystemLayout() {
       icon: <DatabaseOutlined />,
       label: 'System Overview',
       onClick: () => navigate('/admin/system'),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'ai-section',
+      label: 'AI Management',
+      type: 'group',
+    },
+    {
+      key: '/admin/system/agents',
+      icon: <RobotOutlined />,
+      label: 'AI Agents',
+      onClick: () => navigate('/admin/system/agents'),
+    },
+    {
+      key: '/admin/system/conversations',
+      icon: <MessageOutlined />,
+      label: 'Conversations',
+      onClick: () => navigate('/admin/system/conversations'),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'user-section',
+      label: 'User Management',
+      type: 'group',
     },
     {
       key: '/admin/system/users',
@@ -54,6 +84,14 @@ export default function AdminSystemLayout() {
       icon: <LinkOutlined />,
       label: 'SSO Management',
       onClick: () => navigate('/admin/system/sso'),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'monitoring-section',
+      label: 'Monitoring & Logs',
+      type: 'group',
     },
     {
       key: '/admin/system/login-history',

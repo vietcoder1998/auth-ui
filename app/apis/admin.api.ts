@@ -305,4 +305,56 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.get(`/admin/api-keys/${id}/logs`, { params });
   },
+
+  // AI Agents Management
+  async getAgents(params?: any) {
+    const axios = getApiInstance();
+    return axios.get('/admin/agents', { params });
+  },
+  async createAgent(data: any) {
+    const axios = getApiInstance();
+    return axios.post('/admin/agents', data);
+  },
+  async updateAgent(id: string, data: any) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/agents/${id}`, data);
+  },
+  async deleteAgent(id: string) {
+    const axios = getApiInstance();
+    return axios.delete(`/admin/agents/${id}`);
+  },
+  async getAgentMemories(id: string, params?: any) {
+    const axios = getApiInstance();
+    return axios.get(`/admin/agents/${id}/memories`, { params });
+  },
+  async createAgentMemory(id: string, data: any) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/agents/${id}/memories`, data);
+  },
+
+  // Conversations Management
+  async getConversations(params?: any) {
+    const axios = getApiInstance();
+    return axios.get('/admin/conversations', { params });
+  },
+  async getConversation(id: string) {
+    const axios = getApiInstance();
+    return axios.get(`/admin/conversations/${id}`);
+  },
+  async createConversation(data: any) {
+    const axios = getApiInstance();
+    return axios.post('/admin/conversations', data);
+  },
+  async updateConversation(id: string, data: any) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/conversations/${id}`, data);
+  },
+  async deleteConversation(id: string) {
+    const axios = getApiInstance();
+    return axios.delete(`/admin/conversations/${id}`);
+  },
+  async sendMessage(conversationId: string, data: any) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/conversations/${conversationId}/messages`, data);
+  },
 };

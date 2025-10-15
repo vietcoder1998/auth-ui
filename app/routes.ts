@@ -16,7 +16,7 @@ export default [
   route("/admin", "layouts/AdminLayout.tsx", [
     route("", "pages/AdminIndexPage.tsx"), // /admin
     
-    // System management routes
+    // System management routes (including AI Management)
     route("system", "layouts/AdminSystemLayout.tsx", [
       route("", "pages/system/AdminSystemIndexPage.tsx"), // /admin/system
       route("users", "pages/system/AdminUserPage.tsx"), // /admin/system/users
@@ -27,6 +27,8 @@ export default [
       route("login-history", "pages/system/AdminLoginHistoryPage.tsx"), // /admin/system/login-history
       route("logic-history", "pages/system/AdminLogicHistoryPage.tsx"), // /admin/system/logic-history
       route("cache", "pages/system/AdminCachePage.tsx"), // /admin/system/cache
+      route("agents", "pages/system/AdminAgentPage.tsx"), // /admin/system/agents
+      route("conversations", "pages/system/AdminConversationList.tsx"), // /admin/system/conversations
     ]),
     
     // Settings management routes
