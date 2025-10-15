@@ -34,6 +34,7 @@ import {
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
+import CreateSSOModal from './modals/CreateSSOModal.tsx';
 
 interface SSOEntry {
   id: string;
@@ -194,6 +195,12 @@ const AdminSSOPage: React.FC = () => {
       const errorMessage = error.response?.data?.error || 'Failed to simulate SSO login';
       message.error(`SSO Login simulation failed: ${errorMessage}`);
     }
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    fetchSSOEntries(currentPage, searchTerm);
+    fetchStats();
   };
 
   const columns = [
@@ -532,6 +539,13 @@ const AdminSSOPage: React.FC = () => {
           </div>
         )}
       </Modal>
+
+      {/* Create SSO Modal */}
+      <CreateSSOModal
+        visible={showCreateModal}
+        onCancel={() => setShowCreateModal(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 };
