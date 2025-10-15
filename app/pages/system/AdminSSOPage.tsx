@@ -28,7 +28,9 @@ import {
   KeyOutlined,
   CalendarOutlined,
   MonitorOutlined,
-  UserOutlined
+  UserOutlined,
+  CopyOutlined,
+  PlayCircleOutlined
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -37,6 +39,7 @@ interface SSOEntry {
   id: string;
   url: string;
   key: string;
+  ssoKey?: string;
   userId: string;
   deviceIP?: string;
   isActive: boolean;
@@ -160,6 +163,39 @@ const AdminSSOPage: React.FC = () => {
     return new Date(expiresAt) < new Date();
   };
 
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      message.success(`${label} copied to clipboard`);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      message.error('Failed to copy to clipboard');
+    }
+  };
+
+  const simulateSSOLogin = async (ssoEntry: SSOEntry) => {
+    try {
+      const ssoKey = ssoEntry.ssoKey || ssoEntry.key;
+      
+      // Use admin API for SSO simulation
+      const response = await adminApi.simulateSSOLogin(ssoKey, {
+        deviceIP: '127.0.0.1',
+        userAgent: navigator.userAgent,
+        location: 'Admin Panel Simulator',
+      });
+
+      message.success(`SSO Login simulation successful for ${ssoEntry.user.email}`);
+      console.log('SSO Login Response:', response.data);
+      
+      // Refresh the table to show updated login count
+      fetchSSOEntries(currentPage, searchTerm);
+    } catch (error: any) {
+      console.error('Error simulating SSO login:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to simulate SSO login';
+      message.error(`SSO Login simulation failed: ${errorMessage}`);
+    }
+  };
+
   const columns = [
     {
       title: 'URL',
@@ -170,6 +206,30 @@ const AdminSSOPage: React.FC = () => {
           {url}
         </code>
       ),
+    },
+    {
+      title: 'SSO Key',
+      key: 'ssoKey',
+      render: (record: SSOEntry) => {
+        const displayKey = record.ssoKey || record.key;
+        const truncatedKey = displayKey.length > 16 ? `${displayKey.substring(0, 8)}...${displayKey.substring(-8)}` : displayKey;
+        
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <code style={{ fontSize: '11px', background: '#f0f0f0', padding: '2px 6px', borderRadius: '3px' }}>
+              {truncatedKey}
+            </code>
+            <Tooltip title="Copy SSO Key">
+              <Button
+                type="text"
+                size="small"
+                icon={<CopyOutlined />}
+                onClick={() => copyToClipboard(displayKey, 'SSO Key')}
+              />
+            </Tooltip>
+          </div>
+        );
+      },
     },
     {
       title: 'User',
@@ -221,6 +281,15 @@ const AdminSSOPage: React.FC = () => {
       key: 'actions',
       render: (record: SSOEntry) => (
         <Space>
+          <Tooltip title="Simulate SSO Login">
+            <Button
+              type="text"
+              icon={<PlayCircleOutlined />}
+              style={{ color: '#1890ff' }}
+              onClick={() => simulateSSOLogin(record)}
+              disabled={!record.isActive || isExpired(record.expiresAt)}
+            />
+          </Tooltip>
           <Tooltip title="View Details">
             <Button
               type="text"
@@ -350,6 +419,119 @@ const AdminSSOPage: React.FC = () => {
           scroll={{ x: 800 }}
         />
       </Card>
+
+      {/* SSO Details Modal */}
+      <Modal
+        title="SSO Entry Details"
+        open={showEditModal}
+        onCancel={() => {
+          setShowEditModal(false);
+          setSelectedSSO(null);
+        }}
+        footer={[
+          <Button key="close" onClick={() => setShowEditModal(false)}>
+            Close
+          </Button>
+        ]}
+        width={600}
+      >
+        {selectedSSO && (
+          <div>
+            <Row gutter={16} style={{ marginBottom: '16px' }}>
+              <Col span={24}>
+                <Card size="small" title="Basic Information">
+                  <div style={{ fontSize: '14px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>URL:</strong> 
+                      <code style={{ marginLeft: '8px', background: '#f5f5f5', padding: '2px 4px', borderRadius: '3px' }}>
+                        {selectedSSO.url}
+                      </code>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>User:</strong> {selectedSSO.user.email}
+                      {selectedSSO.user.nickname && <span style={{ color: '#666' }}> ({selectedSSO.user.nickname})</span>}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Device IP:</strong> {selectedSSO.deviceIP || 'N/A'}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Status:</strong> 
+                      <Tag color={selectedSSO.isActive ? 'green' : 'default'} style={{ marginLeft: '8px' }}>
+                        {selectedSSO.isActive ? 'Active' : 'Inactive'}
+                      </Tag>
+                      {selectedSSO.expiresAt && isExpired(selectedSSO.expiresAt) && (
+                        <Tag color="red">Expired</Tag>
+                      )}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Created:</strong> {formatDate(selectedSSO.createdAt)}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Login Count:</strong> {selectedSSO._count.loginHistory}
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={24}>
+                <Card size="small" title="Authentication Keys">
+                  <div style={{ fontSize: '14px' }}>
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong>Primary Key:</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                        <Input
+                          value={selectedSSO.key}
+                          readOnly
+                          size="small"
+                          style={{ fontFamily: 'monospace', fontSize: '11px' }}
+                        />
+                        <Button
+                          size="small"
+                          icon={<CopyOutlined />}
+                          onClick={() => copyToClipboard(selectedSSO.key, 'Primary Key')}
+                        />
+                      </div>
+                    </div>
+                    
+                    {selectedSSO.ssoKey && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <strong>SSO Key:</strong>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                          <Input
+                            value={selectedSSO.ssoKey}
+                            readOnly
+                            size="small"
+                            style={{ fontFamily: 'monospace', fontSize: '11px' }}
+                          />
+                          <Button
+                            size="small"
+                            icon={<CopyOutlined />}
+                            onClick={() => copyToClipboard(selectedSSO.ssoKey!, 'SSO Key')}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ marginTop: '16px' }}>
+                      <Button
+                        type="primary"
+                        icon={<PlayCircleOutlined />}
+                        onClick={() => simulateSSOLogin(selectedSSO)}
+                        disabled={!selectedSSO.isActive || isExpired(selectedSSO.expiresAt)}
+                        block
+                      >
+                        Test SSO Login
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

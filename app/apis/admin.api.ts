@@ -226,6 +226,20 @@ export const adminApi = {
     return axios.patch(`/admin/logic-history/${id}/notification-sent`);
   },
 
+  // SSO Simulation
+  async simulateSSOLogin(ssoKey: string, loginData?: any) {
+    const axios = getApiInstance();
+    return axios.post('/sso/login', loginData || {
+      deviceIP: '127.0.0.1',
+      userAgent: navigator.userAgent,
+      location: 'Admin Panel Simulator',
+    }, {
+      headers: {
+        'x-sso-key': ssoKey,
+      }
+    });
+  },
+
 
 
   // Mail Management
