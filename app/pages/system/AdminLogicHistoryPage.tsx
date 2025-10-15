@@ -1,4 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  Table,
+  Tag,
+  Button,
+  Space,
+  Modal,
+  Typography,
+  Row,
+  Col,
+  Statistic,
+  Tooltip,
+  message
+} from 'antd';
+import {
+  EyeOutlined,
+  CheckOutlined,
+  FileTextOutlined,
+  UserOutlined,
+  ClockCircleOutlined,
+  BellOutlined
+} from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface LogicHistoryEntry {
@@ -112,15 +134,16 @@ const AdminLogicHistoryPage: React.FC = () => {
       });
 
       if (response.ok) {
+        message.success('Notification marked as sent successfully');
         fetchLogicHistory(currentPage, searchTerm, actionFilter, entityTypeFilter);
         fetchStats();
       } else {
         const data = await response.json();
-        alert(`Failed to mark notification as sent: ${data.error}`);
+        message.error(`Failed to mark notification as sent: ${data.error}`);
       }
     } catch (error) {
       console.error('Error marking notification as sent:', error);
-      alert('Failed to mark notification as sent');
+      message.error('Failed to mark notification as sent');
     }
   };
 
@@ -137,72 +160,181 @@ const AdminLogicHistoryPage: React.FC = () => {
     }
   };
 
-  const getActionBadge = (action: string) => {
-    const actionColors = {
-      login: 'bg-blue-100 text-blue-800',
-      logout: 'bg-gray-100 text-gray-800',
-      password_change: 'bg-yellow-100 text-yellow-800',
-      profile_update: 'bg-green-100 text-green-800',
-      permission_change: 'bg-purple-100 text-purple-800',
-      role_change: 'bg-indigo-100 text-indigo-800',
+  const getActionColor = (action: string) => {
+    const actionColors: Record<string, string> = {
+      login: 'blue',
+      logout: 'default',
+      password_change: 'orange',
+      profile_update: 'green',
+      permission_change: 'purple',
+      role_change: 'magenta',
+      sso_login: 'cyan',
+      sso_logout: 'geekblue'
     };
-
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${actionColors[action as keyof typeof actionColors] || 'bg-gray-100 text-gray-800'}`}>
-        {action.replace('_', ' ').toUpperCase()}
-      </span>
-    );
+    return actionColors[action] || 'default';
   };
 
+  const columns = [
+    {
+      title: 'User',
+      key: 'user',
+      render: (record: LogicHistoryEntry) => (
+        <div>
+          <div style={{ fontWeight: 500 }}>{record.user.email}</div>
+          {record.user.nickname && (
+            <div style={{ color: '#666', fontSize: '12px' }}>{record.user.nickname}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (action: string) => (
+        <Tag color={getActionColor(action)}>
+          {action.replace('_', ' ').toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Entity',
+      key: 'entity',
+      render: (record: LogicHistoryEntry) => (
+        record.entityType ? (
+          <div>
+            <div style={{ fontWeight: 500 }}>{record.entityType}</div>
+            {record.entityId && (
+              <div style={{ color: '#666', fontSize: '11px', fontFamily: 'monospace' }}>
+                {record.entityId.substring(0, 8)}...
+              </div>
+            )}
+          </div>
+        ) : (
+          <span style={{ color: '#ccc' }}>N/A</span>
+        )
+      ),
+    },
+    {
+      title: 'IP Address',
+      dataIndex: 'ipAddress',
+      key: 'ipAddress',
+      render: (ip: string) => (
+        <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>
+      ),
+    },
+    {
+      title: 'Notification',
+      key: 'notification',
+      render: (record: LogicHistoryEntry) => (
+        record.notificationTemplateId ? (
+          <Space direction="vertical" size="small" style={{ fontSize: '12px' }}>
+            <Tag 
+              color={record.notificationSent ? 'success' : 'warning'} 
+              icon={record.notificationSent ? <CheckOutlined /> : <ClockCircleOutlined />}
+            >
+              {record.notificationSent ? 'Sent' : 'Pending'}
+            </Tag>
+            {record.notificationTemplate && (
+              <span style={{ color: '#666' }}>{record.notificationTemplate.name}</span>
+            )}
+          </Space>
+        ) : (
+          <Tag color="default">None</Tag>
+        )
+      ),
+    },
+    {
+      title: 'Created',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: string) => formatDate(date),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (record: LogicHistoryEntry) => (
+        <Space>
+          <Tooltip title="View Details">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => {
+                setSelectedEntry(record);
+                setShowDetailsModal(true);
+              }}
+            />
+          </Tooltip>
+          {record.notificationTemplateId && !record.notificationSent && (
+            <Tooltip title="Mark as Sent">
+              <Button
+                type="text"
+                icon={<BellOutlined />}
+                onClick={() => handleMarkNotificationSent(record.id)}
+              />
+            </Tooltip>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Logic History</h1>
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <Typography.Title level={2}>Logic History</Typography.Title>
       </div>
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Total Entries</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalEntries}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Notifications Sent</p>
-                <p className="text-2xl font-bold text-green-600">{stats.notificationsSent}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Pending Notifications</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.pendingNotifications}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Row gutter={16} style={{ marginBottom: '24px' }}>
+          <Col xs={24} sm={8}>
+            <Card>
+              <Statistic
+                title="Total Entries"
+                value={stats.totalEntries}
+                prefix={<FileTextOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Card>
+              <Statistic
+                title="Notifications Sent"
+                value={stats.notificationsSent}
+                valueStyle={{ color: '#3f8600' }}
+                prefix={<CheckOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Card>
+              <Statistic
+                title="Pending Notifications"
+                value={stats.pendingNotifications}
+                valueStyle={{ color: '#fa8c16' }}
+                prefix={<BellOutlined />}
+              />
+            </Card>
+          </Col>
+        </Row>
       )}
 
       {/* Action Breakdown */}
       {stats && stats.actionBreakdown.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Action Breakdown</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card title="Action Breakdown" style={{ marginBottom: '24px' }}>
+          <Row gutter={16}>
             {stats.actionBreakdown.map((item) => (
-              <div key={item.action} className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{item.count}</div>
-                <div className="text-sm text-gray-600">{item.action.replace('_', ' ')}</div>
-              </div>
+              <Col xs={12} sm={6} key={item.action}>
+                <Statistic
+                  title={item.action.replace('_', ' ')}
+                  value={item.count}
+                  valueStyle={{ fontSize: '18px' }}
+                />
+              </Col>
             ))}
-          </div>
-        </div>
+          </Row>
+        </Card>
       )}
 
       {/* Filters */}
@@ -257,199 +389,91 @@ const AdminLogicHistoryPage: React.FC = () => {
       />
 
       {/* Logic History Table */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900">Logic History Entries</h2>
-        </div>
-        <div className="p-6">
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
-            <div className="space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">User</th>
-                      <th className="text-left p-2">Action</th>
-                      <th className="text-left p-2">Entity</th>
-                      <th className="text-left p-2">IP Address</th>
-                      <th className="text-left p-2">Notification</th>
-                      <th className="text-left p-2">Created</th>
-                      <th className="text-right p-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {logicHistory.map((entry) => (
-                      <tr key={entry.id} className="border-b hover:bg-gray-50">
-                        <td className="p-2">
-                          <div className="text-sm">
-                            <div className="font-medium">{entry.user.email}</div>
-                            {entry.user.nickname && (
-                              <div className="text-gray-500">{entry.user.nickname}</div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          {getActionBadge(entry.action)}
-                        </td>
-                        <td className="p-2">
-                          {entry.entityType && (
-                            <div className="text-sm">
-                              <div className="font-medium">{entry.entityType}</div>
-                              {entry.entityId && (
-                                <div className="text-gray-500 font-mono text-xs">{entry.entityId}</div>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                        <td className="p-2">
-                          <div className="font-mono text-sm">{entry.ipAddress || 'N/A'}</div>
-                        </td>
-                        <td className="p-2">
-                          {entry.notificationTemplateId ? (
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                entry.notificationSent 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-orange-100 text-orange-800'
-                              }`}>
-                                {entry.notificationSent ? 'Sent' : 'Pending'}
-                              </span>
-                              {entry.notificationTemplate && (
-                                <div className="text-xs text-gray-500">
-                                  {entry.notificationTemplate.name}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">None</span>
-                          )}
-                        </td>
-                        <td className="p-2 text-sm text-gray-500">
-                          {formatDate(entry.createdAt)}
-                        </td>
-                        <td className="p-2">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => {
-                                setSelectedEntry(entry);
-                                setShowDetailsModal(true);
-                              }}
-                              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
-                            >
-                              View Details
-                            </button>
-                            {entry.notificationTemplateId && !entry.notificationSent && (
-                              <button
-                                onClick={() => handleMarkNotificationSent(entry.id)}
-                                className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
-                              >
-                                Mark Sent
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                    className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-4 py-2">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages}
-                    className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <Card title="Logic History Entries">
+        <Table
+          columns={columns}
+          dataSource={logicHistory}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            current: currentPage,
+            total: totalPages * 10,
+            pageSize: 10,
+            onChange: handlePageChange,
+            showSizeChanger: false,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          }}
+          scroll={{ x: 800 }}
+        />
+      </Card>
 
       {/* Details Modal */}
-      {showDetailsModal && selectedEntry && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Logic History Details</h3>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Basic Information</h4>
-                  <div className="space-y-2 text-sm">
-                    <div><strong>User:</strong> {selectedEntry.user.email}</div>
-                    <div><strong>Action:</strong> {selectedEntry.action}</div>
-                    <div><strong>Entity Type:</strong> {selectedEntry.entityType || 'N/A'}</div>
-                    <div><strong>Entity ID:</strong> {selectedEntry.entityId || 'N/A'}</div>
-                    <div><strong>IP Address:</strong> {selectedEntry.ipAddress || 'N/A'}</div>
+      <Modal
+        title="Logic History Details"
+        open={showDetailsModal}
+        onCancel={() => setShowDetailsModal(false)}
+        footer={[
+          <Button key="close" onClick={() => setShowDetailsModal(false)}>
+            Close
+          </Button>
+        ]}
+        width={800}
+      >
+        {selectedEntry && (
+          <div>
+            <Row gutter={16} style={{ marginBottom: '16px' }}>
+              <Col span={12}>
+                <Card size="small" title="Basic Information">
+                  <div style={{ fontSize: '14px' }}>
+                    <div style={{ marginBottom: '8px' }}><strong>User:</strong> {selectedEntry.user.email}</div>
+                    <div style={{ marginBottom: '8px' }}><strong>Action:</strong> {selectedEntry.action}</div>
+                    <div style={{ marginBottom: '8px' }}><strong>Entity Type:</strong> {selectedEntry.entityType || 'N/A'}</div>
+                    <div style={{ marginBottom: '8px' }}><strong>Entity ID:</strong> {selectedEntry.entityId || 'N/A'}</div>
+                    <div style={{ marginBottom: '8px' }}><strong>IP Address:</strong> {selectedEntry.ipAddress || 'N/A'}</div>
                     <div><strong>Created:</strong> {formatDate(selectedEntry.createdAt)}</div>
                   </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Notification</h4>
-                  <div className="space-y-2 text-sm">
-                    <div><strong>Template:</strong> {selectedEntry.notificationTemplate?.name || 'None'}</div>
-                    <div><strong>Status:</strong> {selectedEntry.notificationSent ? 'Sent' : 'Pending'}</div>
+                </Card>
+              </Col>
+              <Col span={12}>
+                <Card size="small" title="Notification">
+                  <div style={{ fontSize: '14px' }}>
+                    <div style={{ marginBottom: '8px' }}><strong>Template:</strong> {selectedEntry.notificationTemplate?.name || 'None'}</div>
+                    <div><strong>Status:</strong> 
+                      <Tag color={selectedEntry.notificationSent ? 'success' : 'warning'} style={{ marginLeft: '8px' }}>
+                        {selectedEntry.notificationSent ? 'Sent' : 'Pending'}
+                      </Tag>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </Card>
+              </Col>
+            </Row>
 
-              {selectedEntry.oldValues && (
-                <div className="mt-6">
-                  <h4 className="font-medium text-gray-900 mb-2">Old Values</h4>
-                  <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
-                    {JSON.stringify(parseJsonSafely(selectedEntry.oldValues), null, 2)}
-                  </pre>
-                </div>
-              )}
+            {selectedEntry.oldValues && (
+              <Card size="small" title="Old Values" style={{ marginBottom: '16px' }}>
+                <pre style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', fontSize: '12px', overflow: 'auto' }}>
+                  {JSON.stringify(parseJsonSafely(selectedEntry.oldValues), null, 2)}
+                </pre>
+              </Card>
+            )}
 
-              {selectedEntry.newValues && (
-                <div className="mt-6">
-                  <h4 className="font-medium text-gray-900 mb-2">New Values</h4>
-                  <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
-                    {JSON.stringify(parseJsonSafely(selectedEntry.newValues), null, 2)}
-                  </pre>
-                </div>
-              )}
+            {selectedEntry.newValues && (
+              <Card size="small" title="New Values" style={{ marginBottom: '16px' }}>
+                <pre style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', fontSize: '12px', overflow: 'auto' }}>
+                  {JSON.stringify(parseJsonSafely(selectedEntry.newValues), null, 2)}
+                </pre>
+              </Card>
+            )}
 
-              {selectedEntry.userAgent && (
-                <div className="mt-6">
-                  <h4 className="font-medium text-gray-900 mb-2">User Agent</h4>
-                  <div className="bg-gray-100 p-3 rounded text-sm break-all">
-                    {selectedEntry.userAgent}
-                  </div>
+            {selectedEntry.userAgent && (
+              <Card size="small" title="User Agent">
+                <div style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', fontSize: '12px', wordBreak: 'break-all' }}>
+                  {selectedEntry.userAgent}
                 </div>
-              )}
-            </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-              <button
-                onClick={() => setShowDetailsModal(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-              >
-                Close
-              </button>
-            </div>
+              </Card>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 };

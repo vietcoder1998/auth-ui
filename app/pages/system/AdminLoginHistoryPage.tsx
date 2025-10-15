@@ -1,4 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  Table,
+  Tag,
+  Button,
+  Space,
+  Typography,
+  Row,
+  Col,
+  Statistic,
+  Tooltip,
+  Popconfirm,
+  message
+} from 'antd';
+import {
+  UserOutlined,
+  CheckCircleOutlined,
+  MinusCircleOutlined,
+  ClockCircleOutlined,
+  TeamOutlined,
+  LogoutOutlined,
+  GlobalOutlined,
+  DesktopOutlined
+} from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface LoginHistoryEntry {
@@ -102,23 +126,22 @@ const AdminLoginHistoryPage: React.FC = () => {
   };
 
   const handleLogout = async (id: string) => {
-    if (!confirm('Are you sure you want to log out this user?')) return;
-
     try {
       const response = await fetch(`/api/admin/login-history/${id}/logout`, {
         method: 'PATCH',
       });
 
       if (response.ok) {
+        message.success('User logged out successfully');
         fetchLoginHistory(currentPage, searchTerm, statusFilter);
         fetchStats();
       } else {
         const data = await response.json();
-        alert(`Failed to log out user: ${data.error}`);
+        message.error(`Failed to log out user: ${data.error}`);
       }
     } catch (error) {
       console.error('Error logging out user:', error);
-      alert('Failed to log out user');
+      message.error('Failed to log out user');
     }
   };
 
@@ -126,70 +149,162 @@ const AdminLoginHistoryPage: React.FC = () => {
     return new Date(dateString).toLocaleString();
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusColors = {
-      active: 'bg-green-100 text-green-800',
-      logged_out: 'bg-gray-100 text-gray-800',
-      expired: 'bg-red-100 text-red-800',
+  const getStatusColor = (status: string) => {
+    const statusColors: Record<string, string> = {
+      active: 'success',
+      logged_out: 'default',
+      expired: 'error',
     };
-
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'}`}>
-        {status.replace('_', ' ').toUpperCase()}
-      </span>
-    );
+    return statusColors[status] || 'default';
   };
 
+  const columns = [
+    {
+      title: 'User',
+      key: 'user',
+      render: (record: LoginHistoryEntry) => (
+        <div>
+          <div style={{ fontWeight: 500 }}>{record.user.email}</div>
+          {record.user.nickname && (
+            <div style={{ color: '#666', fontSize: '12px' }}>{record.user.nickname}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Device IP',
+      dataIndex: 'deviceIP',
+      key: 'deviceIP',
+      render: (ip: string) => (
+        <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>
+      ),
+    },
+    {
+      title: 'Location',
+      dataIndex: 'location',
+      key: 'location',
+      render: (location: string) => (
+        <span style={{ fontSize: '12px' }}>{location || 'N/A'}</span>
+      ),
+    },
+    {
+      title: 'Login Time',
+      dataIndex: 'loginAt',
+      key: 'loginAt',
+      render: (date: string) => formatDate(date),
+    },
+    {
+      title: 'Logout Time',
+      dataIndex: 'logoutAt',
+      key: 'logoutAt',
+      render: (date: string) => date ? formatDate(date) : 'N/A',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Tag 
+          color={getStatusColor(status)}
+          icon={status === 'active' ? <CheckCircleOutlined /> : status === 'expired' ? <ClockCircleOutlined /> : <MinusCircleOutlined />}
+        >
+          {status.replace('_', ' ').toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: 'SSO',
+      key: 'sso',
+      render: (record: LoginHistoryEntry) => (
+        record.sso ? (
+          <Tag color="blue" icon={<GlobalOutlined />}>SSO</Tag>
+        ) : (
+          <Tag color="default" icon={<DesktopOutlined />}>Direct</Tag>
+        )
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (record: LoginHistoryEntry) => (
+        <Space>
+          {record.status === 'active' && (
+            <Popconfirm
+              title="Force Logout"
+              description="Are you sure you want to log out this user?"
+              onConfirm={() => handleLogout(record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Tooltip title="Force Logout">
+                <Button type="text" danger icon={<LogoutOutlined />} />
+              </Tooltip>
+            </Popconfirm>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Login History</h1>
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <Typography.Title level={2}>Login History</Typography.Title>
       </div>
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Total Logins</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalLogins}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Active Sessions</p>
-                <p className="text-2xl font-bold text-green-600">{stats.activeLogins}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Logged Out</p>
-                <p className="text-2xl font-bold text-gray-600">{stats.loggedOutLogins}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Expired</p>
-                <p className="text-2xl font-bold text-red-600">{stats.expiredLogins}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Unique Users</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.uniqueUsers}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Row gutter={16} style={{ marginBottom: '24px' }}>
+          <Col xs={24} sm={12} lg={5}>
+            <Card>
+              <Statistic
+                title="Total Logins"
+                value={stats.totalLogins}
+                prefix={<UserOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={5}>
+            <Card>
+              <Statistic
+                title="Active Sessions"
+                value={stats.activeLogins}
+                valueStyle={{ color: '#3f8600' }}
+                prefix={<CheckCircleOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={5}>
+            <Card>
+              <Statistic
+                title="Logged Out"
+                value={stats.loggedOutLogins}
+                valueStyle={{ color: '#666' }}
+                prefix={<MinusCircleOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={5}>
+            <Card>
+              <Statistic
+                title="Expired"
+                value={stats.expiredLogins}
+                valueStyle={{ color: '#cf1322' }}
+                prefix={<ClockCircleOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={4}>
+            <Card>
+              <Statistic
+                title="Unique Users"
+                value={stats.uniqueUsers}
+                valueStyle={{ color: '#1890ff' }}
+                prefix={<TeamOutlined />}
+              />
+            </Card>
+          </Col>
+        </Row>
       )}
 
       {/* Filters */}
@@ -226,110 +341,23 @@ const AdminLoginHistoryPage: React.FC = () => {
       />
 
       {/* Login History Table */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900">Login Sessions</h2>
-        </div>
-        <div className="p-6">
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
-            <div className="space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">User</th>
-                      <th className="text-left p-2">Device IP</th>
-                      <th className="text-left p-2">Location</th>
-                      <th className="text-left p-2">Login Time</th>
-                      <th className="text-left p-2">Logout Time</th>
-                      <th className="text-left p-2">Status</th>
-                      <th className="text-left p-2">SSO</th>
-                      <th className="text-right p-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loginHistory.map((entry) => (
-                      <tr key={entry.id} className="border-b hover:bg-gray-50">
-                        <td className="p-2">
-                          <div className="text-sm">
-                            <div className="font-medium">{entry.user.email}</div>
-                            {entry.user.nickname && (
-                              <div className="text-gray-500">{entry.user.nickname}</div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="font-mono text-sm">{entry.deviceIP || 'N/A'}</div>
-                        </td>
-                        <td className="p-2">
-                          <div className="text-sm">{entry.location || 'N/A'}</div>
-                        </td>
-                        <td className="p-2 text-sm">
-                          {formatDate(entry.loginAt)}
-                        </td>
-                        <td className="p-2 text-sm">
-                          {entry.logoutAt ? formatDate(entry.logoutAt) : 'N/A'}
-                        </td>
-                        <td className="p-2">
-                          {getStatusBadge(entry.status)}
-                        </td>
-                        <td className="p-2">
-                          {entry.sso ? (
-                            <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                              SSO
-                            </div>
-                          ) : (
-                            <div className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                              Direct
-                            </div>
-                          )}
-                        </td>
-                        <td className="p-2">
-                          <div className="flex justify-end gap-2">
-                            {entry.status === 'active' && (
-                              <button
-                                onClick={() => handleLogout(entry.id)}
-                                className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
-                              >
-                                Force Logout
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                    className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-4 py-2">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages}
-                    className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <Card title="Login Sessions">
+        <Table
+          columns={columns}
+          dataSource={loginHistory}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            current: currentPage,
+            total: totalPages * 10,
+            pageSize: 10,
+            onChange: handlePageChange,
+            showSizeChanger: false,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          }}
+          scroll={{ x: 800 }}
+        />
+      </Card>
     </div>
   );
 };
