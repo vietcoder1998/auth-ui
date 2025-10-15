@@ -5,6 +5,7 @@ import {
   MailOutlined,
   BellOutlined,
   SettingOutlined,
+  KeyOutlined,
 } from '@ant-design/icons';
 
 const { Content, Sider } = Layout;
@@ -20,6 +21,12 @@ export default function AdminSettingsLayout() {
       icon: <SettingOutlined />,
       label: 'Settings Overview',
       onClick: () => navigate('/admin/settings'),
+    },
+    {
+      key: '/admin/settings/api-keys',
+      icon: <KeyOutlined />,
+      label: 'API Keys',
+      onClick: () => navigate('/admin/settings/api-keys'),
     },
     {
       key: '/admin/settings/mail',

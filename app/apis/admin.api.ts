@@ -275,4 +275,34 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.patch(`/admin/mails/${id}/resend`);
   },
+
+  // API Key management
+  async getApiKeys(params?: any) {
+    const axios = getApiInstance();
+    return axios.get('/admin/api-keys', { params });
+  },
+  async createApiKey(data: any) {
+    const axios = getApiInstance();
+    return axios.post('/admin/api-keys', data);
+  },
+  async updateApiKey(id: string, data: any) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/api-keys/${id}`, data);
+  },
+  async deleteApiKey(id: string) {
+    const axios = getApiInstance();
+    return axios.delete(`/admin/api-keys/${id}`);
+  },
+  async regenerateApiKey(id: string) {
+    const axios = getApiInstance();
+    return axios.patch(`/admin/api-keys/${id}/regenerate`);
+  },
+  async getApiKeyStats() {
+    const axios = getApiInstance();
+    return axios.get('/admin/api-keys/stats');
+  },
+  async getApiKeyLogs(id: string, params?: any) {
+    const axios = getApiInstance();
+    return axios.get(`/admin/api-keys/${id}/logs`, { params });
+  },
 };

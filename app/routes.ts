@@ -32,6 +32,7 @@ export default [
     // Settings management routes
     route("settings", "layouts/AdminSettingsLayout.tsx", [
       route("", "pages/settings/AdminSettingsIndexPage.tsx"), // /admin/settings
+      route("api-keys", "pages/settings/AdminApiKeysPage.tsx"), // /admin/settings/api-keys
       route("mail", "pages/settings/AdminMailPage.tsx"), // /admin/settings/mail
       route("notifications", "pages/settings/AdminNotificationPage.tsx"), // /admin/settings/notifications
       route("config", "pages/settings/AdminConfigPage.tsx"), // /admin/settings/config
