@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface LogicHistoryEntry {
   id: string;
@@ -205,49 +206,55 @@ const AdminLogicHistoryPage: React.FC = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <form onSubmit={handleSearch} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <input
-              type="text"
-              placeholder="Search by action, entity, or user..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Actions</option>
-              <option value="login">Login</option>
-              <option value="logout">Logout</option>
-              <option value="password_change">Password Change</option>
-              <option value="profile_update">Profile Update</option>
-              <option value="permission_change">Permission Change</option>
-              <option value="role_change">Role Change</option>
-            </select>
-            <select
-              value={entityTypeFilter}
-              onChange={(e) => setEntityTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Entity Types</option>
-              <option value="user">User</option>
-              <option value="role">Role</option>
-              <option value="permission">Permission</option>
-              <option value="token">Token</option>
-            </select>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Search
-            </button>
-          </div>
-        </form>
-      </div>
+      <CommonSearch
+        searchPlaceholder="Search by action, entity, or user..."
+        searchValue={searchTerm}
+        onSearch={(value) => {
+          setSearchTerm(value);
+          fetchLogicHistory(1, value, actionFilter, entityTypeFilter);
+        }}
+        onRefresh={() => {
+          fetchLogicHistory(currentPage, searchTerm, actionFilter, entityTypeFilter);
+          fetchStats();
+        }}
+        loading={loading}
+        filters={[
+          {
+            key: 'action',
+            label: 'Action',
+            options: [
+              { value: 'login', label: 'Login' },
+              { value: 'logout', label: 'Logout' },
+              { value: 'password_change', label: 'Password Change' },
+              { value: 'profile_update', label: 'Profile Update' },
+              { value: 'permission_change', label: 'Permission Change' },
+              { value: 'role_change', label: 'Role Change' }
+            ]
+          },
+          {
+            key: 'entityType',
+            label: 'Entity Type',
+            options: [
+              { value: 'user', label: 'User' },
+              { value: 'role', label: 'Role' },
+              { value: 'permission', label: 'Permission' },
+              { value: 'token', label: 'Token' }
+            ]
+          }
+        ]}
+        filterValues={{ action: actionFilter, entityType: entityTypeFilter }}
+        onFilterChange={(key, value) => {
+          if (key === 'action') {
+            setActionFilter(value);
+          } else if (key === 'entityType') {
+            setEntityTypeFilter(value);
+          }
+          fetchLogicHistory(1, searchTerm, 
+            key === 'action' ? value : actionFilter,
+            key === 'entityType' ? value : entityTypeFilter
+          );
+        }}
+      />
 
       {/* Logic History Table */}
       <div className="bg-white rounded-lg shadow">

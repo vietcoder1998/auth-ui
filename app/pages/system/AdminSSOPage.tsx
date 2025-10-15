@@ -1,20 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { 
-  Plus, 
-  Search, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  RefreshCw,
-  Key,
-  Calendar,
-  Monitor,
-  User
-} from 'lucide-react';
+import {
+  Card,
+  Button,
+  Input,
+  Tag,
+  Table,
+  Space,
+  Modal,
+  Form,
+  Select,
+  DatePicker,
+  Statistic,
+  Row,
+  Col,
+  Typography,
+  message,
+  Popconfirm,
+  Tooltip
+} from 'antd';
+import {
+  PlusOutlined,
+  SearchOutlined,
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SyncOutlined,
+  KeyOutlined,
+  CalendarOutlined,
+  MonitorOutlined,
+  UserOutlined
+} from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface SSOEntry {
   id: string;
@@ -44,6 +60,9 @@ interface SSOStats {
   totalLogins: number;
 }
 
+const { Title } = Typography;
+const { Search } = Input;
+
 const AdminSSOPage: React.FC = () => {
   const [ssoEntries, setSSOEntries] = useState<SSOEntry[]>([]);
   const [stats, setStats] = useState<SSOStats | null>(null);
@@ -68,10 +87,11 @@ const AdminSSOPage: React.FC = () => {
         setTotalPages(data.pagination.totalPages);
         setCurrentPage(data.pagination.page);
       } else {
-        console.error('Failed to fetch SSO entries:', data.error);
+        message.error(`Failed to fetch SSO entries: ${data.error}`);
       }
     } catch (error) {
       console.error('Error fetching SSO entries:', error);
+      message.error('Failed to fetch SSO entries');
     } finally {
       setLoading(false);
     }
@@ -85,10 +105,11 @@ const AdminSSOPage: React.FC = () => {
       if (response.ok) {
         setStats(data);
       } else {
-        console.error('Failed to fetch SSO stats:', data.error);
+        message.error(`Failed to fetch SSO stats: ${data.error}`);
       }
     } catch (error) {
       console.error('Error fetching SSO stats:', error);
+      message.error('Failed to fetch SSO stats');
     }
   };
 
@@ -97,9 +118,9 @@ const AdminSSOPage: React.FC = () => {
     fetchStats();
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchSSOEntries(1, searchTerm);
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    fetchSSOEntries(1, value);
   };
 
   const handlePageChange = (page: number) => {
@@ -107,43 +128,41 @@ const AdminSSOPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this SSO entry?')) return;
-
     try {
       const response = await fetch(`/api/admin/sso/${id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
+        message.success('SSO entry deleted successfully');
         fetchSSOEntries(currentPage, searchTerm);
         fetchStats();
       } else {
         const data = await response.json();
-        alert(`Failed to delete SSO entry: ${data.error}`);
+        message.error(`Failed to delete SSO entry: ${data.error}`);
       }
     } catch (error) {
       console.error('Error deleting SSO entry:', error);
-      alert('Failed to delete SSO entry');
+      message.error('Failed to delete SSO entry');
     }
   };
 
   const handleRegenerateKey = async (id: string) => {
-    if (!confirm('Are you sure you want to regenerate the SSO key?')) return;
-
     try {
       const response = await fetch(`/api/admin/sso/${id}/regenerate-key`, {
         method: 'PATCH',
       });
 
       if (response.ok) {
+        message.success('SSO key regenerated successfully');
         fetchSSOEntries(currentPage, searchTerm);
       } else {
         const data = await response.json();
-        alert(`Failed to regenerate key: ${data.error}`);
+        message.error(`Failed to regenerate key: ${data.error}`);
       }
     } catch (error) {
       console.error('Error regenerating key:', error);
-      alert('Failed to regenerate key');
+      message.error('Failed to regenerate key');
     }
   };
 
@@ -156,199 +175,195 @@ const AdminSSOPage: React.FC = () => {
     return new Date(expiresAt) < new Date();
   };
 
+  const columns = [
+    {
+      title: 'URL',
+      dataIndex: 'url',
+      key: 'url',
+      render: (url: string) => (
+        <code style={{ fontSize: '12px', background: '#f5f5f5', padding: '2px 4px', borderRadius: '3px' }}>
+          {url}
+        </code>
+      ),
+    },
+    {
+      title: 'User',
+      dataIndex: 'user',
+      key: 'user',
+      render: (user: any) => (
+        <div>
+          <div style={{ fontWeight: 500 }}>{user.email}</div>
+          {user.nickname && <div style={{ color: '#666', fontSize: '12px' }}>{user.nickname}</div>}
+        </div>
+      ),
+    },
+    {
+      title: 'Device IP',
+      dataIndex: 'deviceIP',
+      key: 'deviceIP',
+      render: (ip: string) => (
+        <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>
+      ),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: (record: SSOEntry) => (
+        <Space>
+          <Tag color={record.isActive ? 'green' : 'default'}>
+            {record.isActive ? 'Active' : 'Inactive'}
+          </Tag>
+          {record.expiresAt && isExpired(record.expiresAt) && (
+            <Tag color="red">Expired</Tag>
+          )}
+        </Space>
+      ),
+    },
+    {
+      title: 'Logins',
+      dataIndex: ['_count', 'loginHistory'],
+      key: 'logins',
+      render: (count: number) => <Tag>{count}</Tag>,
+    },
+    {
+      title: 'Created',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: string) => formatDate(date),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (record: SSOEntry) => (
+        <Space>
+          <Tooltip title="View Details">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => {
+                setSelectedSSO(record);
+                setShowEditModal(true);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Regenerate Key">
+            <Popconfirm
+              title="Are you sure you want to regenerate the SSO key?"
+              onConfirm={() => handleRegenerateKey(record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="text" icon={<SyncOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title="Are you sure you want to delete this SSO entry?"
+              onConfirm={() => handleDelete(record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="text" danger icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">SSO Management</h1>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+    <div style={{ padding: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <Title level={2}>SSO Management</Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
           Create SSO Entry
         </Button>
       </div>
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total SSO</CardTitle>
-              <Key className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalSSO}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active</CardTitle>
-              <Monitor className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.activeSSO}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Inactive</CardTitle>
-              <Monitor className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-600">{stats.inactiveSSO}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Expired</CardTitle>
-              <Calendar className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.expiredSSO}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Logins</CardTitle>
-              <User className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.totalLogins}</div>
-            </CardContent>
-          </Card>
-        </div>
+        <Row gutter={16} style={{ marginBottom: '24px' }}>
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <Card>
+              <Statistic
+                title="Total SSO"
+                value={stats.totalSSO}
+                prefix={<KeyOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <Card>
+              <Statistic
+                title="Active"
+                value={stats.activeSSO}
+                valueStyle={{ color: '#3f8600' }}
+                prefix={<MonitorOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <Card>
+              <Statistic
+                title="Inactive"
+                value={stats.inactiveSSO}
+                valueStyle={{ color: '#666' }}
+                prefix={<MonitorOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <Card>
+              <Statistic
+                title="Expired"
+                value={stats.expiredSSO}
+                valueStyle={{ color: '#cf1322' }}
+                prefix={<CalendarOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <Card>
+              <Statistic
+                title="Total Logins"
+                value={stats.totalLogins}
+                valueStyle={{ color: '#1890ff' }}
+                prefix={<UserOutlined />}
+              />
+            </Card>
+          </Col>
+        </Row>
       )}
 
       {/* Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <Input
-              placeholder="Search by URL, key, user email, or device IP..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1"
-            />
-            <Button type="submit">
-              <Search className="h-4 w-4" />
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <CommonSearch
+        searchPlaceholder="Search by URL, key, user email, or device IP..."
+        searchValue={searchTerm}
+        onSearch={handleSearch}
+        onRefresh={() => {
+          fetchSSOEntries(currentPage, searchTerm);
+          fetchStats();
+        }}
+        loading={loading}
+      />
 
       {/* SSO Entries Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>SSO Entries</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
-            <div className="space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">URL</th>
-                      <th className="text-left p-2">User</th>
-                      <th className="text-left p-2">Device IP</th>
-                      <th className="text-left p-2">Status</th>
-                      <th className="text-left p-2">Logins</th>
-                      <th className="text-left p-2">Created</th>
-                      <th className="text-right p-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ssoEntries.map((sso) => (
-                      <tr key={sso.id} className="border-b hover:bg-gray-50">
-                        <td className="p-2">
-                          <div className="font-mono text-sm">{sso.url}</div>
-                        </td>
-                        <td className="p-2">
-                          <div className="text-sm">
-                            <div className="font-medium">{sso.user.email}</div>
-                            {sso.user.nickname && (
-                              <div className="text-gray-500">{sso.user.nickname}</div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="font-mono text-sm">{sso.deviceIP || 'N/A'}</div>
-                        </td>
-                        <td className="p-2">
-                          <div className="flex gap-2">
-                            <Badge variant={sso.isActive ? 'default' : 'secondary'}>
-                              {sso.isActive ? 'Active' : 'Inactive'}
-                            </Badge>
-                            {sso.expiresAt && isExpired(sso.expiresAt) && (
-                              <Badge variant="destructive">Expired</Badge>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <Badge variant="outline">{sso._count.loginHistory}</Badge>
-                        </td>
-                        <td className="p-2 text-sm text-gray-500">
-                          {formatDate(sso.createdAt)}
-                        </td>
-                        <td className="p-2">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedSSO(sso);
-                                setShowEditModal(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleRegenerateKey(sso.id)}
-                            >
-                              <RefreshCw className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDelete(sso.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="px-4 py-2">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
+      <Card title="SSO Entries">
+        <Table
+          columns={columns}
+          dataSource={ssoEntries}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            current: currentPage,
+            total: totalPages * 10,
+            pageSize: 10,
+            onChange: handlePageChange,
+            showSizeChanger: false,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          }}
+          scroll={{ x: 800 }}
+        />
       </Card>
     </div>
   );

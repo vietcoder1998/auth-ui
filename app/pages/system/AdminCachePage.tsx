@@ -28,6 +28,7 @@ import {
   SearchOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -360,50 +361,44 @@ const AdminCachePage: React.FC = () => {
       )}
 
       {/* Controls */}
-      <Card style={{ marginBottom: '16px' }}>
-        <Space style={{ marginBottom: '16px' }}>
-          <Input.Search
-            placeholder="Search pattern (e.g., auth:*, token:*)"
-            defaultValue="*"
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            suffix={<SearchOutlined />}
-          />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setAddModalVisible(true)}
-          >
-            Add Cache
-          </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => {
-              fetchCacheData(pagination.page, pagination.limit, searchPattern);
-              fetchCacheStats();
-            }}
-          >
-            Refresh
-          </Button>
-          <Button
-            icon={<ClearOutlined />}
-            onClick={() => setClearPatternModalVisible(true)}
-          >
-            Clear Pattern
-          </Button>
-          <Popconfirm
-            title="Are you sure you want to clear ALL cache?"
-            description="This action cannot be undone."
-            onConfirm={handleClearAllCache}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button danger icon={<DeleteOutlined />}>
-              Clear All
+      <CommonSearch
+        searchPlaceholder="Search pattern (e.g., auth:*, token:*)"
+        searchValue={searchPattern}
+        onSearch={handleSearch}
+        onRefresh={() => {
+          fetchCacheData(pagination.page, pagination.limit, searchPattern);
+          fetchCacheStats();
+        }}
+        loading={loading || statsLoading}
+        extra={
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setAddModalVisible(true)}
+            >
+              Add Cache
             </Button>
-          </Popconfirm>
-        </Space>
-      </Card>
+            <Button
+              icon={<ClearOutlined />}
+              onClick={() => setClearPatternModalVisible(true)}
+            >
+              Clear Pattern
+            </Button>
+            <Popconfirm
+              title="Are you sure you want to clear ALL cache?"
+              description="This action cannot be undone."
+              onConfirm={handleClearAllCache}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger icon={<DeleteOutlined />}>
+                Clear All
+              </Button>
+            </Popconfirm>
+          </Space>
+        }
+      />
 
       {/* Cache Table */}
       <Card>

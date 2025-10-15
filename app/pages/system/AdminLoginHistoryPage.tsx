@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface LoginHistoryEntry {
   id: string;
@@ -192,35 +193,37 @@ const AdminLoginHistoryPage: React.FC = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <form onSubmit={handleSearch} className="space-y-4">
-          <div className="flex gap-4">
-            <input
-              type="text"
-              placeholder="Search by user email, device IP, or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <select
-              value={statusFilter}
-              onChange={(e) => handleStatusFilterChange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="logged_out">Logged Out</option>
-              <option value="expired">Expired</option>
-            </select>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Search
-            </button>
-          </div>
-        </form>
-      </div>
+      <CommonSearch
+        searchPlaceholder="Search by user email, device IP, or location..."
+        searchValue={searchTerm}
+        onSearch={(value) => {
+          setSearchTerm(value);
+          fetchLoginHistory(1, value, statusFilter);
+        }}
+        onRefresh={() => {
+          fetchLoginHistory(currentPage, searchTerm, statusFilter);
+          fetchStats();
+        }}
+        loading={loading}
+        filters={[
+          {
+            key: 'status',
+            label: 'Status',
+            options: [
+              { value: 'active', label: 'Active' },
+              { value: 'logged_out', label: 'Logged Out' },
+              { value: 'expired', label: 'Expired' }
+            ]
+          }
+        ]}
+        filterValues={{ status: statusFilter }}
+        onFilterChange={(key, value) => {
+          if (key === 'status') {
+            setStatusFilter(value);
+            fetchLoginHistory(1, searchTerm, value);
+          }
+        }}
+      />
 
       {/* Login History Table */}
       <div className="bg-white rounded-lg shadow">

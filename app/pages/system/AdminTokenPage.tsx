@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, message, Modal, Form, Select, Space, Tag, Tooltip } from 'antd';
 import { PlusOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, CopyOutlined } from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface Token {
   id: string;
@@ -234,20 +235,26 @@ export default function AdminTokenPage() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Token Management</h2>
-        <Space>
-          <Button icon={<ReloadOutlined />} onClick={fetchTokens}>
-            Refresh
-          </Button>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            onClick={() => setCreateModalVisible(true)}
-          >
-            Create Token
-          </Button>
-        </Space>
+      <div style={{ marginBottom: '16px' }}>
+        <h2 style={{ margin: 0, marginBottom: '16px' }}>Token Management</h2>
+        
+        <CommonSearch
+          searchPlaceholder="Search tokens..."
+          onSearch={() => {}} // No search functionality for tokens currently
+          onRefresh={fetchTokens}
+          loading={loading}
+          showRefresh={true}
+          extra={
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              onClick={() => setCreateModalVisible(true)}
+            >
+              Create Token
+            </Button>
+          }
+          style={{ marginBottom: '0px' }}
+        />
       </div>
       
       <Spin spinning={loading}>

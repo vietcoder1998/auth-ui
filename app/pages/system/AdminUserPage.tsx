@@ -3,6 +3,7 @@ import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Input, Button, Spin, Space, Alert } from 'antd';
 import { PlusOutlined, ReloadOutlined, LoginOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddUserModal from '../modals/AddUserModal.tsx';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 export default function AdminUserPage() {
   const [users, setUsers] = useState([]);
@@ -171,24 +172,16 @@ export default function AdminUserPage() {
           style={{ marginBottom: '16px' }}
         />
         
-        <Space style={{ marginBottom: '16px', width: '100%', justifyContent: 'space-between' }}>
-          <Input.Search
-            placeholder="Search by email or nickname"
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            onSearch={fetchUsers}
-            style={{ width: 300 }}
-            allowClear
-          />
-          
-          <Space>
-            <Button 
-              icon={<ReloadOutlined />} 
-              onClick={fetchUsers}
-              loading={loading}
-            >
-              Refresh
-            </Button>
+        <CommonSearch
+          searchPlaceholder="Search by email or nickname"
+          searchValue={filter}
+          onSearch={(value) => {
+            setFilter(value);
+            fetchUsers();
+          }}
+          onRefresh={fetchUsers}
+          loading={loading}
+          extra={
             <Button 
               type="primary" 
               icon={<PlusOutlined />}
@@ -196,8 +189,9 @@ export default function AdminUserPage() {
             >
               Add User
             </Button>
-          </Space>
-        </Space>
+          }
+          style={{ marginBottom: '16px' }}
+        />
       </div>
 
       <Spin spinning={loading}>

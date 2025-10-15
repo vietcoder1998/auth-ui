@@ -3,6 +3,7 @@ import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, Space, Typography, Modal, Input, Form } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddRoleModal from '../modals/AddRoleModal.tsx';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
 
@@ -114,22 +115,21 @@ export default function AdminRolePage() {
       <div style={{ marginBottom: '24px' }}>
         <Title level={2} style={{ marginBottom: '16px' }}>Role Management</Title>
         
-        <Space style={{ marginBottom: '16px' }}>
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={fetchRoles}
-            loading={loading}
-          >
-            Refresh
-          </Button>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            onClick={() => setAddModalVisible(true)}
-          >
-            Create Role
-          </Button>
-        </Space>
+        <CommonSearch
+          searchPlaceholder="Search roles..."
+          onSearch={() => {}} // No search functionality for roles currently
+          onRefresh={fetchRoles}
+          loading={loading}
+          extra={
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              onClick={() => setAddModalVisible(true)}
+            >
+              Create Role
+            </Button>
+          }
+        />
       </div>
 
       <Spin spinning={loading}>

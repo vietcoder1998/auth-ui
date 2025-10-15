@@ -3,6 +3,7 @@ import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, Space, Typography, Tag, Modal, Input, Form, Select } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddPermissionModal from '../modals/AddPermissionModal.tsx';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
 
@@ -153,22 +154,21 @@ export default function AdminPermissionPage() {
       <div style={{ marginBottom: '24px' }}>
         <Title level={2} style={{ marginBottom: '16px' }}>Permission Management</Title>
         
-        <Space style={{ marginBottom: '16px' }}>
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={fetchPermissions}
-            loading={loading}
-          >
-            Refresh
-          </Button>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            onClick={() => setAddModalVisible(true)}
-          >
-            Create Permission
-          </Button>
-        </Space>
+        <CommonSearch
+          searchPlaceholder="Search permissions..."
+          onSearch={() => {}} // No search functionality for permissions currently
+          onRefresh={fetchPermissions}
+          loading={loading}
+          extra={
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              onClick={() => setAddModalVisible(true)}
+            >
+              Create Permission
+            </Button>
+          }
+        />
       </div>
 
       <Spin spinning={loading}>

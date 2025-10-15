@@ -7,6 +7,9 @@ import {
   TeamOutlined,
   SafetyOutlined,
   DatabaseOutlined,
+  LinkOutlined,
+  HistoryOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 
 const { Content, Sider } = Layout;
@@ -46,6 +49,24 @@ export default function AdminSystemLayout() {
       icon: <SafetyOutlined />,
       label: 'Permissions',
       onClick: () => navigate('/admin/system/permissions'),
+    },
+    {
+      key: '/admin/system/sso',
+      icon: <LinkOutlined />,
+      label: 'SSO Management',
+      onClick: () => navigate('/admin/system/sso'),
+    },
+    {
+      key: '/admin/system/login-history',
+      icon: <HistoryOutlined />,
+      label: 'Login History',
+      onClick: () => navigate('/admin/system/login-history'),
+    },
+    {
+      key: '/admin/system/logic-history',
+      icon: <AuditOutlined />,
+      label: 'Logic History',
+      onClick: () => navigate('/admin/system/logic-history'),
     },
     {
       key: '/admin/system/cache',
