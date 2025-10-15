@@ -106,7 +106,7 @@ export default function AdminLayout() {
   ];
   
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f6f8fa' }}>
+    <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
       <Sider
         style={{ 
           background: '#fff', 
@@ -190,7 +190,7 @@ export default function AdminLayout() {
             </Dropdown>
           </div>
         </Header>
-        <Content style={{ minWidth: 0, background: '#f6f8fa', display: 'flex', gap: '16px' }}>
+        <Content style={{ minWidth: 0, background: '#f6f8fa', display: 'flex', gap: '16px',height: 'calc(' }}>
           <div
             style={{
               background: '#fff',
@@ -207,7 +207,7 @@ export default function AdminLayout() {
             <div
               style={{
                 width: '400px',
-                minHeight: 'calc(100vh - 112px)',
+                height: '70vh',
                 background: '#fff',
                 borderRadius: 8,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',

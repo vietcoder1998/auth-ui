@@ -49,7 +49,7 @@ export default function AdminSettingsLayout() {
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+    <Layout style={{ background: '#f5f5f5' }}>
       <Sider
         width={250}
         style={{
@@ -67,7 +67,7 @@ export default function AdminSettingsLayout() {
           mode="inline"
           selectedKeys={[location.pathname]}
           items={settingsMenuItems}
-          style={{ borderRight: 0, height: 'calc(100% - 64px)' }}
+          style={{ borderRight: 0, height: 'calc(100% - 112px)' }}
         />
       </Sider>
       <Layout>
