@@ -50,6 +50,35 @@ export const getMe = async () => {
   return res.data;
 };
 
+export interface SSOLoginPayload {
+  ssoKey: string;
+  deviceIP?: string;
+  userAgent?: string;
+  location?: string;
+}
+
+export const ssoLogin = async (payload: SSOLoginPayload) => {
+  const api = getApiInstance();
+  const res = await api.post("/sso-auth/login", {
+    deviceIP: payload.deviceIP || '127.0.0.1',
+    userAgent: payload.userAgent || navigator.userAgent,
+    location: payload.location || 'Web App',
+  }, {
+    headers: {
+      'x-sso-key': payload.ssoKey,
+    }
+  });
+  return res.data;
+};
+
+export const validateSSOKey = async (ssoKey: string) => {
+  const api = getApiInstance();
+  const res = await api.post("/sso-auth/validate-key", {
+    ssoKey: ssoKey
+  });
+  return res.data;
+};
+
 export const validateToken = async (token: string) => {
   const api = getApiInstance();
   const res = await api.post("/auth/validate", { token });

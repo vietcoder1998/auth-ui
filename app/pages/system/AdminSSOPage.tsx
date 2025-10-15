@@ -30,11 +30,13 @@ import {
   MonitorOutlined,
   UserOutlined,
   CopyOutlined,
-  PlayCircleOutlined
+  PlayCircleOutlined,
+  LinkOutlined
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
 import CreateSSOModal from './modals/CreateSSOModal.tsx';
+import SSOLoginLinkModal from '../../components/SSOLoginLinkModal.tsx';
 
 interface SSOEntry {
   id: string;
@@ -78,6 +80,7 @@ const AdminSSOPage: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedSSO, setSelectedSSO] = useState<SSOEntry | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showLoginLinkModal, setShowLoginLinkModal] = useState(false);
 
   const fetchSSOEntries = async (page = 1, search = '', showLoading = true) => {
     try {
@@ -328,6 +331,18 @@ const AdminSSOPage: React.FC = () => {
       key: 'actions',
       render: (record: SSOEntry) => (
         <Space>
+          <Tooltip title="Generate Login Link">
+            <Button
+              type="text"
+              icon={<LinkOutlined />}
+              style={{ color: '#52c41a' }}
+              onClick={() => {
+                setSelectedSSO(record);
+                setShowLoginLinkModal(true);
+              }}
+              disabled={!record.isActive || isExpired(record.expiresAt)}
+            />
+          </Tooltip>
           <Tooltip title="Simulate SSO Login">
             <Button
               type="text"
@@ -592,6 +607,20 @@ const AdminSSOPage: React.FC = () => {
         onCancel={() => setShowCreateModal(false)}
         onSuccess={handleCreateSuccess}
       />
+
+      {/* SSO Login Link Modal */}
+      {selectedSSO && (
+        <SSOLoginLinkModal
+          visible={showLoginLinkModal}
+          onCancel={() => {
+            setShowLoginLinkModal(false);
+            setSelectedSSO(null);
+          }}
+          ssoKey={selectedSSO.ssoKey || selectedSSO.key}
+          userEmail={selectedSSO.user.email}
+          appUrl={selectedSSO.url}
+        />
+      )}
     </div>
   );
 };

@@ -147,6 +147,9 @@ const Login: React.FC = () => {
                         <Link to="/register" style={{ color: '#1890ff' }}>
                             Create Account
                         </Link>
+                        <Link to="/sso-login" style={{ color: '#1890ff' }}>
+                            SSO Login
+                        </Link>
                         <Link to="/forgot-password" style={{ color: '#1890ff' }}>
                             Forgot Password?
                         </Link>
