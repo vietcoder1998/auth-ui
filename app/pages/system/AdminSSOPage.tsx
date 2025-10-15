@@ -79,9 +79,12 @@ const AdminSSOPage: React.FC = () => {
   const [selectedSSO, setSelectedSSO] = useState<SSOEntry | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const fetchSSOEntries = async (page = 1, search = '') => {
+  const fetchSSOEntries = async (page = 1, search = '', showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
+      
       const response = await adminApi.getSSOEntries({
         page,
         limit: 10,
@@ -93,12 +96,17 @@ const AdminSSOPage: React.FC = () => {
         setTotalPages(response.data.pagination.totalPages);
         setCurrentPage(response.data.pagination.page);
       }
+      
+      return response.data;
     } catch (error: any) {
       console.error('Error fetching SSO entries:', error);
       const errorMessage = error.response?.data?.error || 'Failed to fetch SSO entries';
       message.error(errorMessage);
+      throw error;
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -109,10 +117,13 @@ const AdminSSOPage: React.FC = () => {
       if (response.data) {
         setStats(response.data);
       }
+      
+      return response.data;
     } catch (error: any) {
       console.error('Error fetching SSO stats:', error);
       const errorMessage = error.response?.data?.error || 'Failed to fetch SSO stats';
       message.error(errorMessage);
+      throw error;
     }
   };
 
@@ -134,8 +145,12 @@ const AdminSSOPage: React.FC = () => {
     try {
       await adminApi.deleteSSO(id);
       message.success('SSO entry deleted successfully');
-      fetchSSOEntries(currentPage, searchTerm);
-      fetchStats();
+      
+      // Refresh data after deletion
+      await Promise.all([
+        fetchSSOEntries(currentPage, searchTerm, false),
+        fetchStats()
+      ]);
     } catch (error: any) {
       console.error('Error deleting SSO entry:', error);
       const errorMessage = error.response?.data?.error || 'Failed to delete SSO entry';
@@ -147,7 +162,9 @@ const AdminSSOPage: React.FC = () => {
     try {
       await adminApi.regenerateSSORKey(id);
       message.success('SSO key regenerated successfully');
-      fetchSSOEntries(currentPage, searchTerm);
+      
+      // Refresh SSO entries to show the new key
+      await fetchSSOEntries(currentPage, searchTerm, false);
     } catch (error: any) {
       console.error('Error regenerating key:', error);
       const errorMessage = error.response?.data?.error || 'Failed to regenerate key';
@@ -188,8 +205,11 @@ const AdminSSOPage: React.FC = () => {
       message.success(`SSO Login simulation successful for ${ssoEntry.user.email}`);
       console.log('SSO Login Response:', response.data);
       
-      // Refresh the table to show updated login count
-      fetchSSOEntries(currentPage, searchTerm);
+      // Refresh the table to show updated login count and stats
+      await Promise.all([
+        fetchSSOEntries(currentPage, searchTerm, false),
+        fetchStats()
+      ]);
     } catch (error: any) {
       console.error('Error simulating SSO login:', error);
       const errorMessage = error.response?.data?.error || 'Failed to simulate SSO login';
@@ -197,10 +217,30 @@ const AdminSSOPage: React.FC = () => {
     }
   };
 
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = async () => {
     setShowCreateModal(false);
-    fetchSSOEntries(currentPage, searchTerm);
-    fetchStats();
+    
+    // Show loading state while refreshing
+    setLoading(true);
+    
+    try {
+      // Refresh both SSO entries and stats in parallel
+      // Reset to first page to ensure new entry is visible (newest entries are typically first)
+      await Promise.all([
+        fetchSSOEntries(1, searchTerm, false),
+        fetchStats()
+      ]);
+      
+      // Update current page to 1 if we moved there
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      }
+    } catch (error) {
+      console.error('Error refreshing data after SSO creation:', error);
+      message.error('Failed to refresh data after creating SSO entry');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns = [
@@ -401,9 +441,15 @@ const AdminSSOPage: React.FC = () => {
         searchPlaceholder="Search by URL, key, user email, or device IP..."
         searchValue={searchTerm}
         onSearch={handleSearch}
-        onRefresh={() => {
-          fetchSSOEntries(currentPage, searchTerm);
-          fetchStats();
+        onRefresh={async () => {
+          try {
+            await Promise.all([
+              fetchSSOEntries(currentPage, searchTerm),
+              fetchStats()
+            ]);
+          } catch (error) {
+            console.error('Error refreshing data:', error);
+          }
         }}
         loading={loading}
       />
