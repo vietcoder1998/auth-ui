@@ -24,6 +24,7 @@ import {
   DesktopOutlined
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import { adminApi } from '../../apis/admin.api.ts';
 
 interface LoginHistoryEntry {
   id: string;
@@ -67,25 +68,23 @@ const AdminLoginHistoryPage: React.FC = () => {
   const fetchLoginHistory = async (page = 1, search = '', status = '') => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
+      const params = {
         page: page.toString(),
         limit: '10',
         search,
         ...(status && { status }),
-      });
+      };
 
-      const response = await fetch(`/api/admin/login-history?${params}`);
-      const data = await response.json();
+      const response = await adminApi.getLoginHistory(params);
+      console.log(response.data)
+      const data = response.data;
       
-      if (response.ok) {
-        setLoginHistory(data.data);
-        setTotalPages(data.pagination.totalPages);
-        setCurrentPage(data.pagination.page);
-      } else {
-        console.error('Failed to fetch login history:', data.error);
-      }
+      setLoginHistory(data.data);
+      setTotalPages(data.pagination.totalPages);
+      setCurrentPage(data.pagination.page);
     } catch (error) {
       console.error('Error fetching login history:', error);
+      message.error('Failed to fetch login history');
     } finally {
       setLoading(false);
     }
@@ -93,16 +92,11 @@ const AdminLoginHistoryPage: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/login-history/stats');
-      const data = await response.json();
-      
-      if (response.ok) {
-        setStats(data);
-      } else {
-        console.error('Failed to fetch login stats:', data.error);
-      }
+      const response = await adminApi.getLoginStats();
+      setStats(response.data);
     } catch (error) {
       console.error('Error fetching login stats:', error);
+      message.error('Failed to fetch login statistics');
     }
   };
 
@@ -127,18 +121,10 @@ const AdminLoginHistoryPage: React.FC = () => {
 
   const handleLogout = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/login-history/${id}/logout`, {
-        method: 'PATCH',
-      });
-
-      if (response.ok) {
-        message.success('User logged out successfully');
-        fetchLoginHistory(currentPage, searchTerm, statusFilter);
-        fetchStats();
-      } else {
-        const data = await response.json();
-        message.error(`Failed to log out user: ${data.error}`);
-      }
+      await adminApi.logoutUser(id);
+      message.success('User logged out successfully');
+      fetchLoginHistory(currentPage, searchTerm, statusFilter);
+      fetchStats();
     } catch (error) {
       console.error('Error logging out user:', error);
       message.error('Failed to log out user');

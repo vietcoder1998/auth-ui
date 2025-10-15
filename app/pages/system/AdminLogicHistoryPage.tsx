@@ -22,6 +22,7 @@ import {
   BellOutlined
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import { adminApi } from '../../apis/admin.api.ts';
 
 interface LogicHistoryEntry {
   id: string;
@@ -73,26 +74,23 @@ const AdminLogicHistoryPage: React.FC = () => {
   const fetchLogicHistory = async (page = 1, search = '', action = '', entityType = '') => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
+      const params = {
         page: page.toString(),
         limit: '10',
         search,
         ...(action && { action }),
         ...(entityType && { entityType }),
-      });
+      };
 
-      const response = await fetch(`/api/admin/logic-history?${params}`);
-      const data = await response.json();
+      const response = await adminApi.getLogicHistory(params);
+      const data = response.data;
       
-      if (response.ok) {
-        setLogicHistory(data.data);
-        setTotalPages(data.pagination.totalPages);
-        setCurrentPage(data.pagination.page);
-      } else {
-        console.error('Failed to fetch logic history:', data.error);
-      }
+      setLogicHistory(data.data);
+      setTotalPages(data.pagination.totalPages);
+      setCurrentPage(data.pagination.page);
     } catch (error) {
       console.error('Error fetching logic history:', error);
+      message.error('Failed to fetch logic history');
     } finally {
       setLoading(false);
     }
@@ -100,16 +98,11 @@ const AdminLogicHistoryPage: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/logic-history/stats');
-      const data = await response.json();
-      
-      if (response.ok) {
-        setStats(data);
-      } else {
-        console.error('Failed to fetch logic history stats:', data.error);
-      }
+      const response = await adminApi.getLogicHistoryStats();
+      setStats(response.data);
     } catch (error) {
       console.error('Error fetching logic history stats:', error);
+      message.error('Failed to fetch logic history statistics');
     }
   };
 
@@ -129,18 +122,10 @@ const AdminLogicHistoryPage: React.FC = () => {
 
   const handleMarkNotificationSent = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/logic-history/${id}/notification-sent`, {
-        method: 'PATCH',
-      });
-
-      if (response.ok) {
-        message.success('Notification marked as sent successfully');
-        fetchLogicHistory(currentPage, searchTerm, actionFilter, entityTypeFilter);
-        fetchStats();
-      } else {
-        const data = await response.json();
-        message.error(`Failed to mark notification as sent: ${data.error}`);
-      }
+      await adminApi.markNotificationSent(id);
+      message.success('Notification marked as sent successfully');
+      fetchLogicHistory(currentPage, searchTerm, actionFilter, entityTypeFilter);
+      fetchStats();
     } catch (error) {
       console.error('Error marking notification as sent:', error);
       message.error('Failed to mark notification as sent');
@@ -321,7 +306,7 @@ const AdminLogicHistoryPage: React.FC = () => {
       )}
 
       {/* Action Breakdown */}
-      {stats && stats.actionBreakdown.length > 0 && (
+      {stats && stats?.actionBreakdown?.length > 0 && (
         <Card title="Action Breakdown" style={{ marginBottom: '24px' }}>
           <Row gutter={16}>
             {stats.actionBreakdown.map((item) => (
@@ -392,7 +377,7 @@ const AdminLogicHistoryPage: React.FC = () => {
       <Card title="Logic History Entries">
         <Table
           columns={columns}
-          dataSource={logicHistory}
+          dataSource={logicHistory ?? []}
           rowKey="id"
           loading={loading}
           pagination={{
