@@ -123,7 +123,6 @@ export default function AdminLayout() {
           items={adminLinks.map(link => ({
             key: link.path,
             icon: <Link to={link.path}>{link.icon}</Link>,
-            label: link.label
           }))}
         />
         <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
