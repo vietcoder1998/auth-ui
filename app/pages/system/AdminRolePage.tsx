@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, Space, Typography, Modal, Input, Form } from 'antd';
+import { Table, Button, Spin, Space, Typography, Modal, Input, Form, Select, Tag } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddRoleModal from '../modals/AddRoleModal.tsx';
 import CommonSearch from '../../components/CommonSearch.tsx';
@@ -9,15 +9,18 @@ const { Title } = Typography;
 
 export default function AdminRolePage() {
   const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchRoles();
+    fetchPermissions();
   }, []);
 
   const fetchRoles = async () => {
@@ -31,9 +34,24 @@ export default function AdminRolePage() {
     setLoading(false);
   };
 
+  const fetchPermissions = async () => {
+    setPermissionsLoading(true);
+    try {
+      const res = await adminApi.getPermissions();
+      setPermissions(res.data.data);
+    } catch {
+      setPermissions([]);
+    }
+    setPermissionsLoading(false);
+  };
+
   const handleEdit = (role: Role) => {
     setEditingRole(role);
-    form.setFieldsValue(role);
+    form.setFieldsValue({
+      name: role.name,
+      description: role.description,
+      permissions: role.permissions?.map((p: any) => p.id) || []
+    });
     setEditModalVisible(true);
   };
 
@@ -78,7 +96,25 @@ export default function AdminRolePage() {
       title: 'Permissions', 
       dataIndex: 'permissions', 
       key: 'permissions',
-      render: (permissions: any[]) => permissions ? permissions.length : 0
+      render: (permissions: any[]) => (
+        <div>
+          <span style={{ marginRight: 8 }}>{permissions ? permissions.length : 0} permissions</span>
+          {permissions && permissions.length > 0 && (
+            <div style={{ marginTop: 4 }}>
+              {permissions.slice(0, 3).map((perm: any) => (
+                <Tag key={perm.id} size="small" style={{ margin: '2px' }}>
+                  {perm.name}
+                </Tag>
+              ))}
+              {permissions.length > 3 && (
+                <Tag size="small" style={{ margin: '2px' }}>
+                  +{permissions.length - 3} more
+                </Tag>
+              )}
+            </div>
+          )}
+        </div>
+      )
     },
     { 
       title: 'Actions', 
@@ -163,6 +199,7 @@ export default function AdminRolePage() {
         }}
         onOk={handleEditSave}
         confirmLoading={editLoading}
+        width={600}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -177,6 +214,40 @@ export default function AdminRolePage() {
             label="Description"
           >
             <Input.TextArea rows={3} placeholder="Enter role description" />
+          </Form.Item>
+          <Form.Item
+            name="permissions"
+            label="Permissions"
+          >
+            <Select
+              mode="multiple"
+              placeholder="Select permissions"
+              loading={permissionsLoading}
+              showSearch
+              optionFilterProp="label"
+              style={{ width: '100%' }}
+              options={permissions.map((perm: any) => ({
+                value: perm.id,
+                label: perm.name,
+                title: perm.description
+              }))}
+              tagRender={(props) => {
+                const { label, closable, onClose } = props;
+                const permission = permissions.find((p: any) => p.name === label);
+                return (
+                  <Tag
+                    color={permission?.category === 'system' ? 'red' : 
+                          permission?.category === 'user' ? 'blue' : 
+                          permission?.category === 'role' ? 'green' : 'default'}
+                    closable={closable}
+                    onClose={onClose}
+                    style={{ margin: '2px' }}
+                  >
+                    {label}
+                  </Tag>
+                );
+              }}
+            />
           </Form.Item>
         </Form>
       </Modal>

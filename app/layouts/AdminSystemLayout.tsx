@@ -83,8 +83,7 @@ export default function AdminSystemLayout() {
           background: '#fff',
           borderRight: '1px solid #f0f0f0',
         }}
-        breakpoint="lg"
-        collapsedWidth="0"
+        collapsed={false}
       >
         <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
           <Title level={4} style={{ margin: 0, color: '#1890ff' }}>

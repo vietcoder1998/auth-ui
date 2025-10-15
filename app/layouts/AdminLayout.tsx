@@ -104,17 +104,14 @@ export default function AdminLayout() {
   return (
     <Layout style={{ minHeight: '100vh', background: '#f6f8fa' }}>
       <Sider
-        breakpoint="md"
-        collapsedWidth="0"
         style={{ 
           background: '#fff', 
-          borderRight: '1px solid #eee', 
-          minWidth: 0,
+          borderRight: '1px solid #eee',
           display: 'flex',
           flexDirection: 'column'
         }}
         width={80}
-        // collapsed={true}
+        collapsed={false}
       >
         <Menu
           mode="inline"
