@@ -1,30 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
 import {
-  Card,
-  Input,
-  Button,
-  List,
+  MessageOutlined,
+  PlusOutlined,
+  RobotOutlined,
+  SendOutlined,
+  SettingOutlined,
+  UserOutlined
+} from '@ant-design/icons';
+import {
   Avatar,
-  Typography,
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Empty,
+  Input,
+  List,
+  Select,
   Space,
   Spin,
-  Select,
   Tooltip,
-  Divider,
-  Badge,
-  Empty
+  Typography
 } from 'antd';
-import {
-  SendOutlined,
-  RobotOutlined,
-  UserOutlined,
-  PlusOutlined,
-  DeleteOutlined,
-  SettingOutlined,
-  MessageOutlined
-} from '@ant-design/icons';
-import { useAuth } from '../hooks/useAuth';
-import { adminApi } from '../apis/admin.api';
+import React, { useEffect, useRef, useState } from 'react';
+import { adminApi } from '../apis/admin.api.ts';
+import { useAuth } from '../hooks/useAuth.tsx';
 
 const { TextArea } = Input;
 const { Text, Paragraph } = Typography;
@@ -140,7 +139,8 @@ export default function LLMChat() {
     try {
       const response = await adminApi.getConversation(selectedConversation);
       // Handle both direct messages array and paginated messages structure
-      const messages = response.data.messages?.data || response.data.messages || [];
+      console.log(response.data.data.messages.data)
+      const messages = response.data.data.messages.data || response.data.messages || [];
       setMessages(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
