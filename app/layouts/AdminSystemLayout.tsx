@@ -131,7 +131,7 @@ export default function AdminSystemLayout() {
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
-          items={systemMenuItems}
+          items={systemMenuItems} 
           style={{ borderRight: 0, height: 'calc(100% - 112px)' }}
         />
       </Sider>
@@ -139,7 +139,6 @@ export default function AdminSystemLayout() {
         <Content style={{ background: '#f5f5f5' }}>
           <div
             style={{
-              padding: 12,
               background: '#fff',
               borderRadius: 8,
               minHeight: 360,

@@ -194,29 +194,44 @@ const AdminSSOPage: React.FC = () => {
     }
   };
 
-  const simulateSSOLogin = async (ssoEntry: SSOEntry) => {
+  const openSSOLoginWindow = (ssoEntry: SSOEntry) => {
     try {
       const ssoKey = ssoEntry.ssoKey || ssoEntry.key;
+      const baseUrl = window.location.origin;
       
-      // Use admin API for SSO simulation
-      const response = await adminApi.simulateSSOLogin(ssoKey, {
-        deviceIP: '127.0.0.1',
-        userAgent: navigator.userAgent,
-        location: 'Admin Panel Simulator',
-      });
-
-      message.success(`SSO Login simulation successful for ${ssoEntry.user.email}`);
-      console.log('SSO Login Response:', response.data);
+      // Construct SSO login URL
+      const ssoLoginUrl = `${baseUrl}/sso/login?key=${encodeURIComponent(ssoKey)}&redirect=${encodeURIComponent(ssoEntry.url)}`;
       
-      // Refresh the table to show updated login count and stats
-      await Promise.all([
-        fetchSSOEntries(currentPage, searchTerm, false),
-        fetchStats()
-      ]);
+      // Open in new private/incognito window
+      const newWindow = window.open(
+        ssoLoginUrl,
+        '_blank',
+        'width=500,height=800,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,status=no'
+      );
+      
+      if (newWindow) {
+        message.success(`SSO login window opened for ${ssoEntry.user.email}`);
+        
+        // Optional: Listen for window close to refresh stats
+        const checkClosed = setInterval(() => {
+          if (newWindow.closed) {
+            clearInterval(checkClosed);
+            // Refresh stats after window is closed
+            fetchStats();
+            fetchSSOEntries(currentPage, searchTerm, false);
+          }
+        }, 1000);
+        
+        // Clear interval after 5 minutes to prevent memory leaks
+        setTimeout(() => {
+          clearInterval(checkClosed);
+        }, 5 * 60 * 1000);
+      } else {
+        message.error('Unable to open new window. Please check your popup blocker settings.');
+      }
     } catch (error: any) {
-      console.error('Error simulating SSO login:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to simulate SSO login';
-      message.error(`SSO Login simulation failed: ${errorMessage}`);
+      console.error('Error opening SSO login window:', error);
+      message.error('Failed to open SSO login window');
     }
   };
 
@@ -329,6 +344,8 @@ const AdminSSOPage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
+      fixed: 'right' as const,
+      width: 200,
       render: (record: SSOEntry) => (
         <Space>
           <Tooltip title="Generate Login Link">
@@ -343,12 +360,12 @@ const AdminSSOPage: React.FC = () => {
               disabled={!record.isActive || isExpired(record.expiresAt)}
             />
           </Tooltip>
-          <Tooltip title="Simulate SSO Login">
+          <Tooltip title="Open SSO Login">
             <Button
               type="text"
               icon={<PlayCircleOutlined />}
               style={{ color: '#1890ff' }}
-              onClick={() => simulateSSOLogin(record)}
+              onClick={() => openSSOLoginWindow(record)}
               disabled={!record.isActive || isExpired(record.expiresAt)}
             />
           </Tooltip>
@@ -484,7 +501,7 @@ const AdminSSOPage: React.FC = () => {
             showSizeChanger: false,
             showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
           }}
-          scroll={{ x: 800 }}
+          scroll={{ x: 1200 }}
         />
       </Card>
 
@@ -586,11 +603,11 @@ const AdminSSOPage: React.FC = () => {
                       <Button
                         type="primary"
                         icon={<PlayCircleOutlined />}
-                        onClick={() => simulateSSOLogin(selectedSSO)}
+                        onClick={() => openSSOLoginWindow(selectedSSO)}
                         disabled={!selectedSSO.isActive || isExpired(selectedSSO.expiresAt)}
                         block
                       >
-                        Test SSO Login
+                        Open SSO Login
                       </Button>
                     </div>
                   </div>
