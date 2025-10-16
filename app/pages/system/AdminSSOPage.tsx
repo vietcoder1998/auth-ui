@@ -36,6 +36,7 @@ import {
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
 import CreateSSOModal from './modals/CreateSSOModal.tsx';
+import EditSSOModal from './modals/EditSSOModal.tsx';
 import SSOLoginLinkModal from '../../components/SSOLoginLinkModal.tsx';
 
 interface SSOEntry {
@@ -386,10 +387,10 @@ const AdminSSOPage: React.FC = () => {
               disabled={!record.isActive || isExpired(record.expiresAt)}
             />
           </Tooltip>
-          <Tooltip title="View Details">
+          <Tooltip title="Edit SSO Entry">
             <Button
               type="text"
-              icon={<EyeOutlined />}
+              icon={<EditOutlined />}
               onClick={() => {
                 setSelectedSSO(record);
                 setShowEditModal(true);
@@ -522,118 +523,26 @@ const AdminSSOPage: React.FC = () => {
         />
       </Card>
 
-      {/* SSO Details Modal */}
-      <Modal
-        title="SSO Entry Details"
-        open={showEditModal}
+      {/* Edit SSO Modal */}
+      <EditSSOModal
+        visible={showEditModal}
+        ssoEntry={selectedSSO}
         onCancel={() => {
           setShowEditModal(false);
           setSelectedSSO(null);
         }}
-        footer={[
-          <Button key="close" onClick={() => setShowEditModal(false)}>
-            Close
-          </Button>
-        ]}
-        width={600}
-      >
-        {selectedSSO && (
-          <div>
-            <Row gutter={16} style={{ marginBottom: '16px' }}>
-              <Col span={24}>
-                <Card size="small" title="Basic Information">
-                  <div style={{ fontSize: '14px' }}>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>URL:</strong> 
-                      <code style={{ marginLeft: '8px', background: '#f5f5f5', padding: '2px 4px', borderRadius: '3px' }}>
-                        {selectedSSO.url}
-                      </code>
-                    </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>User:</strong> {selectedSSO.user.email}
-                      {selectedSSO.user.nickname && <span style={{ color: '#666' }}> ({selectedSSO.user.nickname})</span>}
-                    </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>Device IP:</strong> {selectedSSO.deviceIP || 'N/A'}
-                    </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>Status:</strong> 
-                      <Tag color={selectedSSO.isActive ? 'green' : 'default'} style={{ marginLeft: '8px' }}>
-                        {selectedSSO.isActive ? 'Active' : 'Inactive'}
-                      </Tag>
-                      {selectedSSO.expiresAt && isExpired(selectedSSO.expiresAt) && (
-                        <Tag color="red">Expired</Tag>
-                      )}
-                    </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>Created:</strong> {formatDate(selectedSSO.createdAt)}
-                    </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>Login Count:</strong> {selectedSSO._count.loginHistory}
-                    </div>
-                  </div>
-                </Card>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col span={24}>
-                <Card size="small" title="Authentication Keys">
-                  <div style={{ fontSize: '14px' }}>
-                    <div style={{ marginBottom: '12px' }}>
-                      <strong>Primary Key:</strong>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                        <Input
-                          value={selectedSSO.key}
-                          readOnly
-                          size="small"
-                          style={{ fontFamily: 'monospace', fontSize: '11px' }}
-                        />
-                        <Button
-                          size="small"
-                          icon={<CopyOutlined />}
-                          onClick={() => copyToClipboard(selectedSSO.key, 'Primary Key')}
-                        />
-                      </div>
-                    </div>
-                    
-                    {selectedSSO.ssoKey && (
-                      <div style={{ marginBottom: '12px' }}>
-                        <strong>SSO Key:</strong>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                          <Input
-                            value={selectedSSO.ssoKey}
-                            readOnly
-                            size="small"
-                            style={{ fontFamily: 'monospace', fontSize: '11px' }}
-                          />
-                          <Button
-                            size="small"
-                            icon={<CopyOutlined />}
-                            onClick={() => copyToClipboard(selectedSSO.ssoKey!, 'SSO Key')}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div style={{ marginTop: '16px' }}>
-                      <Button
-                        type="primary"
-                        icon={<PlayCircleOutlined />}
-                        onClick={() => openSSOLoginWindow(selectedSSO)}
-                        disabled={!selectedSSO.isActive || isExpired(selectedSSO.expiresAt)}
-                        block
-                      >
-                        Open SSO Login
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </Col>
-            </Row>
-          </div>
-        )}
-      </Modal>
+        onSuccess={async () => {
+          // Refresh data after successful edit
+          try {
+            await Promise.all([
+              fetchSSOEntries(currentPage, searchTerm, false),
+              fetchStats()
+            ]);
+          } catch (error) {
+            console.error('Error refreshing data after SSO edit:', error);
+          }
+        }}
+      />
 
       {/* Create SSO Modal */}
       <CreateSSOModal

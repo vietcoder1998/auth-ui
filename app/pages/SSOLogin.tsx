@@ -152,11 +152,12 @@ const SSOLogin: React.FC = () => {
         gmail,
         deviceIP: undefined, // Will default to client IP
         userAgent: navigator.userAgent,
-        location: 'SSO Web Login',
+        location: isSSO ? 'SSO Web Login (Direct)' : 'SSO Web Login',
       };
 
+      console.log('SSO Login Data:', { ...loginData, isSSO, redirectUrl });
       const result = await performSSOLogin(loginData, redirectUrl);
-      console.log(result)
+      console.log('SSO Login Result:', result);
       if (result.success && result.userData && result.token) {
         await login(result.token, result.userData);
         setCurrentStep(3);
@@ -264,10 +265,12 @@ const SSOLogin: React.FC = () => {
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <KeyOutlined style={{ fontSize: '48px', color: '#1890ff', marginBottom: '16px' }} />
           <Title level={2} style={{ margin: 0, color: '#333' }}>
-            {isPopup ? 'SSO Login - Popup' : 'SSO Login'}
+            {isPopup ? 'SSO Login - Popup' : isSSO ? 'SSO Login - Direct' : 'SSO Login'}
           </Title>
           <Text type="secondary">
-            {isPopup ? 'Authenticate to access Calendar Todo App' : 'Single Sign-On Authentication'}
+            {isPopup ? 'Authenticate to access Calendar Todo App' : 
+             isSSO ? 'Direct SSO Authentication (Token bypass enabled)' : 
+             'Single Sign-On Authentication'}
           </Text>
         </div>
 
@@ -286,13 +289,24 @@ const SSOLogin: React.FC = () => {
         {/* URL Fix Notification */}
         {urlFixed && (
           <Alert
-            message="URL Format Fixed"
-            description="The URL format was corrected. You will be redirected to the proper SSO login page shortly."
-            type="info"
+            message="SSO URL Error Fixed"
+            description="The malformed SSO URL was detected and corrected. You will be redirected to the proper SSO login page shortly."
+            type="warning"
             style={{ marginBottom: '24px' }}
             showIcon
             closable
             onClose={() => setUrlFixed(false)}
+          />
+        )}
+
+        {/* SSO Direct Mode Notification */}
+        {isSSO && (
+          <Alert
+            message="Direct SSO Mode"
+            description="You are in direct SSO mode. Token validation is bypassed for immediate authentication."
+            type="success"
+            style={{ marginBottom: '24px' }}
+            showIcon
           />
         )}
 
