@@ -162,10 +162,10 @@ const SSOLogin: React.FC = () => {
             window.close();
           }, 1500);
         } else {
-          // Redirect after a short delay to show success
+          // Redirect to LoginSuccess page with user data and callback URL
           setTimeout(() => {
-            const redirect = redirectUrl || '/admin';
-            navigate(redirect);
+            const loginSuccessUrl = `/sso/login-success?user=${encodeURIComponent(JSON.stringify(userData))}&ssoId=${result.data.loginHistory?.ssoId || ''}${redirectUrl ? `&callback=${encodeURIComponent(redirectUrl)}` : ''}`;
+            navigate(loginSuccessUrl);
           }, 2000);
         }
       } else {

@@ -7,7 +7,8 @@ import {
   UserOutlined,
   UploadOutlined,
   FileOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  MinusOutlined
 } from '@ant-design/icons';
 import {
   Avatar,
@@ -29,6 +30,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
+import Cookies from 'js-cookie';
 
 
 
@@ -87,6 +89,7 @@ export default function LLMChat() {
   const [isLoadingAgents, setIsLoadingAgents] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -127,6 +130,19 @@ export default function LLMChat() {
       setUploadedFiles([]);
     }
   }, [selectedConversation]);
+
+  useEffect(() => {
+    // Read collapse state from cookie on mount
+    const collapsed = Cookies.get('llm_chat_collapsed');
+    setIsCollapsed(collapsed === 'true');
+  }, []);
+
+  const handleCollapseToggle = () => {
+    setIsCollapsed((prev) => {
+      Cookies.set('llm_chat_collapsed', (!prev).toString(), { expires: 365 });
+      return !prev;
+    });
+  };
 
   const fetchAgents = async () => {
     try {
@@ -329,313 +345,321 @@ export default function LLMChat() {
           background: rgba(0,0,0,0.3);
         }
       `}</style>
-      <Card 
-        style={{ 
-          height: '100%', 
-          display: 'flex', 
-          flexDirection: 'column',
-          overflowY: 'auto'
-        }}
-        bodyStyle={{ 
-          padding: 0, 
-          height: '100%', 
-          display: 'flex', 
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}
-      >
-      {/* Header */}
-      <div style={{ padding: '8px 16px', borderBottom: '1px solid #f0f0f0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'nowrap', overflow: 'hidden' }}>
-          <Select
-            style={{ width: '160px', flexShrink: 0 }}
-            size="small"
-            placeholder="Agent"
-            value={selectedAgent}
-            onChange={setSelectedAgent}
-            loading={isLoadingAgents}
-            suffixIcon={<RobotOutlined />}
-          >
-            {agents.map(agent => (
-              <Option key={agent.id} value={agent.id}>
-                <Badge status={agent.isActive ? "success" : "default"} style={{ marginRight: '4px' }} />
-                {agent.name}
-              </Option>
-            ))}
-          </Select>
+      {/* Collapse Button */}
+      {!isCollapsed ? (
+        <Card 
+          style={{ 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            overflowY: 'auto'
+          }}
+          bodyStyle={{ 
+            padding: 0, 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
+        >
+        {/* Header */}
+        <div style={{ padding: '8px 16px', borderBottom: '1px solid #f0f0f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'nowrap', overflow: 'hidden' }}>
+            <Select
+              style={{ width: '160px', flexShrink: 0 }}
+              size="small"
+              placeholder="Agent"
+              value={selectedAgent}
+              onChange={setSelectedAgent}
+              loading={isLoadingAgents}
+              suffixIcon={<RobotOutlined />}
+            >
+              {agents.map(agent => (
+                <Option key={agent.id} value={agent.id}>
+                  <Badge status={agent.isActive ? "success" : "default"} style={{ marginRight: '4px' }} />
+                  {agent.name}
+                </Option>
+              ))}
+            </Select>
 
-          {selectedAgent && (
-            <>
-              <Select
-                style={{ flex: 1, minWidth: '80px' }}
-                size="small"
-                placeholder="Chat"
-                value={selectedConversation}
-                onChange={setSelectedConversation}
-                allowClear
-                optionLabelProp="label"
-              >
-                {conversations.map(conv => (
-                  <Option key={conv.id} value={conv.id} label={conv.title}>
-                    <Text strong style={{ fontSize: '12px' }}>{conv.title}</Text>
-                  </Option>
-                ))}
-              </Select>
-              <Button 
-                type="primary" 
-                icon={<PlusOutlined />} 
-                onClick={createNewConversation}
-                size="small" 
-                style={{ flexShrink: 0 }}
-              />
-            </>
-          )}
-          
-          <Button type="text" icon={<SettingOutlined />} size="small" style={{ flexShrink: 0 }} />
+            {selectedAgent && (
+              <>
+                <Select
+                  style={{ flex: 1, minWidth: '80px' }}
+                  size="small"
+                  placeholder="Chat"
+                  value={selectedConversation}
+                  onChange={setSelectedConversation}
+                  allowClear
+                  optionLabelProp="label"
+                >
+                  {conversations.map(conv => (
+                    <Option key={conv.id} value={conv.id} label={conv.title}>
+                      <Text strong style={{ fontSize: '12px' }}>{conv.title}</Text>
+                    </Option>
+                  ))}
+                </Select>
+                <Button 
+                  type="primary" 
+                  icon={<PlusOutlined />} 
+                  onClick={createNewConversation}
+                  size="small" 
+                  style={{ flexShrink: 0 }}
+                />
+              </>
+            )}
+            
+            <Button type="text" icon={<SettingOutlined />} size="small" style={{ flexShrink: 0 }} />
+          </div>
         </div>
-      </div>
 
-      {/* Messages */}
-      <div 
-        style={{ 
-          flex: 1, 
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          padding: selectedConversation ? '0 6px' : '0',
-          background: selectedConversation ? '#fafafa' : 'transparent',
-          minHeight: 0,
-          maxHeight: 300,
-          scrollBehavior: 'smooth'
-        }}
-        className="messages-container"
-      >
-        {!selectedAgent ? (
-          <Empty 
-            description="Select an AI Agent to start chatting"
-            image={<RobotOutlined style={{ fontSize: '48px', color: '#d9d9d9' }} />}
-          />
-        ) : !selectedConversation ? (
-          <Empty 
-            description="Create a new conversation to start chatting"
-            image={<MessageOutlined style={{ fontSize: '48px', color: '#d9d9d9' }} />}
-          />
-        ) : (
-          <div style={{ 
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <List
-              dataSource={messages}
-              style={{ 
-                flex: 1,
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                paddingBottom: '8px'
-              }}
-              renderItem={(message) => (
-                <List.Item style={{ 
-                  border: 'none', 
-                  padding: '8px 0',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word'
-                }}>
-                  <div style={{ 
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
+        {/* Messages */}
+        <div 
+          style={{ 
+            flex: 1, 
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: selectedConversation ? '0 6px' : '0',
+            background: selectedConversation ? '#fafafa' : 'transparent',
+            minHeight: 0,
+            maxHeight: 300,
+            scrollBehavior: 'smooth'
+          }}
+          className="messages-container"
+        >
+          {!selectedAgent ? (
+            <Empty 
+              description="Select an AI Agent to start chatting"
+              image={<RobotOutlined style={{ fontSize: '48px', color: '#d9d9d9' }} />}
+            />
+          ) : !selectedConversation ? (
+            <Empty 
+              description="Create a new conversation to start chatting"
+              image={<MessageOutlined style={{ fontSize: '48px', color: '#d9d9d9' }} />}
+            />
+          ) : (
+            <div style={{ 
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <List
+                dataSource={messages}
+                style={{ 
+                  flex: 1,
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  paddingBottom: '8px'
+                }}
+                renderItem={(message) => (
+                  <List.Item style={{ 
+                    border: 'none', 
+                    padding: '8px 0',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word'
                   }}>
-                    <div style={{
-                      maxWidth: '80%',
-                      minWidth: '100px',
+                    <div style={{ 
+                      width: '100%',
                       display: 'flex',
-                      gap: '8px',
-                      alignItems: 'flex-start',
-                      flexDirection: message.sender === 'user' ? 'row-reverse' : 'row'
+                      justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
                     }}>
-                      <Avatar 
-                        size="small"
-                        icon={message.sender === 'user' ? <UserOutlined /> : <RobotOutlined />}
-                        style={{ 
-                          backgroundColor: message.sender === 'user' ? '#1890ff' : '#52c41a',
-                          flexShrink: 0
-                        }}
-                      />
-                      <div 
-                        className="message-content"
-                        style={{
-                          background: message.sender === 'user' ? '#1890ff' : '#fff',
-                          color: message.sender === 'user' ? '#fff' : '#333',
-                          padding: '8px 12px',
-                          borderRadius: '12px',
-                          border: message.sender === 'agent' ? '1px solid #d9d9d9' : 'none',
-                          wordBreak: 'break-word',
-                          overflowWrap: 'break-word',
-                          maxWidth: '100%',
-                          maxHeight: '300px',
-                          overflowY: 'auto',
-                          overflowX: 'hidden'
-                        }}
-                      >
-                        <Paragraph 
+                      <div style={{
+                        maxWidth: '80%',
+                        minWidth: '100px',
+                        display: 'flex',
+                        gap: '8px',
+                        alignItems: 'flex-start',
+                        flexDirection: message.sender === 'user' ? 'row-reverse' : 'row'
+                      }}>
+                        <Avatar 
+                          size="small"
+                          icon={message.sender === 'user' ? <UserOutlined /> : <RobotOutlined />}
                           style={{ 
-                            margin: 0, 
+                            backgroundColor: message.sender === 'user' ? '#1890ff' : '#52c41a',
+                            flexShrink: 0
+                          }}
+                        />
+                        <div 
+                          className="message-content"
+                          style={{
+                            background: message.sender === 'user' ? '#1890ff' : '#fff',
                             color: message.sender === 'user' ? '#fff' : '#333',
-                            whiteSpace: 'pre-wrap',
+                            padding: '8px 12px',
+                            borderRadius: '12px',
+                            border: message.sender === 'agent' ? '1px solid #d9d9d9' : 'none',
                             wordBreak: 'break-word',
                             overflowWrap: 'break-word',
-                            lineHeight: '1.5'
+                            maxWidth: '100%',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            overflowX: 'hidden'
                           }}
                         >
-                          {message.content}
-                        </Paragraph>
-                        {message.tokens && (
-                          <Text 
+                          <Paragraph 
                             style={{ 
-                              fontSize: '11px', 
-                              opacity: 0.7,
-                              color: message.sender === 'user' ? '#fff' : '#666'
+                              margin: 0, 
+                              color: message.sender === 'user' ? '#fff' : '#333',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.5'
                             }}
                           >
-                            {message.tokens} tokens
-                          </Text>
-                        )}
+                            {message.content}
+                          </Paragraph>
+                          {message.tokens && (
+                            <Text 
+                              style={{ 
+                                fontSize: '11px', 
+                                opacity: 0.7,
+                                color: message.sender === 'user' ? '#fff' : '#666'
+                              }}
+                            >
+                              {message.tokens} tokens
+                            </Text>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </List.Item>
-              )}
-            />
-          </div>
-        )}
-        
-        {isLoading && (
-          <div style={{ textAlign: 'center', padding: '16px' }}>
-            <Spin size="small" />
-            <Text style={{ marginLeft: '8px', color: '#666' }}>AI is thinking...</Text>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      {selectedConversation && (
-        <>
-          <Divider style={{ margin: 0 }} />
-          <div 
-            style={{ 
-              padding: '16px',
-              position: 'relative'
-            }}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            {/* Drag and Drop Overlay */}
-            {isDragOver && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(24, 144, 255, 0.1)',
-                border: '2px dashed #1890ff',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 10,
-                color: '#1890ff',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <UploadOutlined style={{ fontSize: '24px', marginBottom: '8px' }} />
-                  <div>Drop files here to upload context</div>
-                </div>
-              </div>
-            )}
-
-            {/* Uploaded Files Display */}
-            {uploadedFiles.length > 0 && (
-              <div style={{ marginBottom: '12px' }}>
-                <Text type="secondary" style={{ fontSize: '12px', marginBottom: '8px', display: 'block' }}>
-                  Context Files ({uploadedFiles.length}):
-                </Text>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {uploadedFiles.map(file => (
-                    <div
-                      key={file.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        background: '#f5f5f5',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px'
-                      }}
-                    >
-                      <FileOutlined />
-                      <span>{file.name}</span>
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => removeFile(file.id)}
-                        style={{ minWidth: 'auto', padding: '0 4px' }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-              <TextArea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder={`Message ${selectedAgentData?.name || 'AI Agent'}...`}
-                autoSize={{ minRows: 1, maxRows: 4 }}
-                style={{ flex: 1 }}
-                disabled={isLoading}
-              />
-              
-              {/* Upload Button */}
-              <Upload
-                beforeUpload={handleFileUpload}
-                showUploadList={false}
-                multiple
-                accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
-              >
-                <Tooltip title="Upload context files">
-                  <Button
-                    icon={<UploadOutlined />}
-                    disabled={isLoading}
-                  />
-                </Tooltip>
-              </Upload>
-
-              <Button
-                type="primary"
-                icon={<SendOutlined />}
-                onClick={sendMessage}
-                disabled={(!inputValue.trim() && uploadedFiles.length === 0) || isLoading}
-                loading={isLoading}
+                  </List.Item>
+                )}
               />
             </div>
-            {selectedAgentData && (
-              <Text type="secondary" style={{ fontSize: '12px', marginTop: '4px', display: 'block' }}>
-                Model: {selectedAgentData.model} • {selectedAgentData.description}
-              </Text>
-            )}
-          </div>
-        </>
+          )}
+          
+          {isLoading && (
+            <div style={{ textAlign: 'center', padding: '16px' }}>
+              <Spin size="small" />
+              <Text style={{ marginLeft: '8px', color: '#666' }}>AI is thinking...</Text>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        {selectedConversation && (
+          <>
+            <Divider style={{ margin: 0 }} />
+            <div 
+              style={{ 
+                padding: '16px',
+                position: 'relative'
+              }}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {/* Drag and Drop Overlay */}
+              {isDragOver && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(24, 144, 255, 0.1)',
+                  border: '2px dashed #1890ff',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  color: '#1890ff',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <UploadOutlined style={{ fontSize: '24px', marginBottom: '8px' }} />
+                    <div>Drop files here to upload context</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Uploaded Files Display */}
+              {uploadedFiles.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <Text type="secondary" style={{ fontSize: '12px', marginBottom: '8px', display: 'block' }}>
+                    Context Files ({uploadedFiles.length}):
+                  </Text>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {uploadedFiles.map(file => (
+                      <div
+                        key={file.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          background: '#f5f5f5',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px'
+                        }}
+                      >
+                        <FileOutlined />
+                        <span>{file.name}</span>
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => removeFile(file.id)}
+                          style={{ minWidth: 'auto', padding: '0 4px' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                <TextArea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder={`Message ${selectedAgentData?.name || 'AI Agent'}...`}
+                  autoSize={{ minRows: 1, maxRows: 4 }}
+                  style={{ flex: 1 }}
+                  disabled={isLoading}
+                />
+                
+                {/* Upload Button */}
+                <Upload
+                  beforeUpload={handleFileUpload}
+                  showUploadList={false}
+                  multiple
+                  accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
+                >
+                  <Tooltip title="Upload context files">
+                    <Button
+                      icon={<UploadOutlined />}
+                      disabled={isLoading}
+                    />
+                  </Tooltip>
+                </Upload>
+
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  onClick={sendMessage}
+                  disabled={(!inputValue.trim() && uploadedFiles.length === 0) || isLoading}
+                  loading={isLoading}
+                />
+              </div>
+              {selectedAgentData && (
+                <Text type="secondary" style={{ fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                  Model: {selectedAgentData.model} • {selectedAgentData.description}
+                </Text>
+              )}
+            </div>
+          </>
+        )}
+      </Card>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '32px 0', color: '#888' }}>
+          <RobotOutlined style={{ fontSize: '32px' }} />
+          <div>LLM Chat Collapsed</div>
+        </div>
       )}
-    </Card>
     </>
   );
 }

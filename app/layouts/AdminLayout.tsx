@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Typography, Button, Tooltip, Avatar, Dropdown, Breadcrumb } from 'antd';
 import type { MenuProps } from 'antd';
+import Cookies from 'js-cookie';
 import {
   DatabaseOutlined,
   SettingOutlined,
@@ -30,6 +31,12 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
+
+  // Load chat collapse state from cookie on mount
+  useEffect(() => {
+    const collapsed = Cookies.get('admin_chat_collapsed');
+    setIsChatCollapsed(collapsed === 'true');
+  }, []);
   
   // Determine selected keys based on current path
   const selectedKeys = [pathname];
@@ -231,7 +238,11 @@ export default function AdminLayout() {
                 cursor: 'pointer',
                 minHeight: '48px'
               }}
-              onClick={() => setIsChatCollapsed(!isChatCollapsed)}
+              onClick={() => {
+                const newCollapsed = !isChatCollapsed;
+                setIsChatCollapsed(newCollapsed);
+                Cookies.set('admin_chat_collapsed', newCollapsed.toString(), { expires: 365 });
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <MessageOutlined style={{ color: '#1890ff' }} />

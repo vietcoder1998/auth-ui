@@ -3,7 +3,8 @@ import { type RouteConfig, route } from "@react-router/dev/routes";
 export default [
   // Auth pages (public, no layout)
   route("/login", "pages/Login.tsx"),
-  route("/sso-login", "pages/SSOLogin.tsx"),
+  route("/sso/login", "pages/SSOLogin.tsx"),
+  route("/sso/login-success", "pages/SSOLoginSuccess.tsx"),
   route("/register", "pages/Register.tsx"),
   route("/forgot-password", "pages/ForgotPassword.tsx"),
   route("/reset-password", "pages/ResetPassword.tsx"),
