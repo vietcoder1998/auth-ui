@@ -4,7 +4,10 @@ import {
   RobotOutlined,
   SendOutlined,
   SettingOutlined,
-  UserOutlined
+  UserOutlined,
+  UploadOutlined,
+  FileOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import {
   Avatar,
@@ -19,7 +22,9 @@ import {
   Space,
   Spin,
   Tooltip,
-  Typography
+  Typography,
+  Upload,
+  message
 } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
@@ -78,6 +83,8 @@ export default function LLMChat() {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAgents, setIsLoadingAgents] = useState(true);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -104,6 +111,8 @@ export default function LLMChat() {
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages();
+      // Clear uploaded files when switching conversations
+      setUploadedFiles([]);
     }
   }, [selectedConversation]);
 
@@ -160,6 +169,7 @@ export default function LLMChat() {
       setConversations(prev => [newConversation, ...prev]);
       setSelectedConversation(newConversation.id);
       setMessages([]);
+      setUploadedFiles([]);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
@@ -169,12 +179,29 @@ export default function LLMChat() {
     if (!inputValue.trim() || !selectedConversation || isLoading) return;
 
     const userMessage = inputValue.trim();
+    let messageContent = userMessage;
+
+    // Include file context if files are uploaded
+    if (uploadedFiles.length > 0) {
+      const fileContext = uploadedFiles.map(file => {
+        let contextText = `\n\n--- File: ${file.name} (${file.type}) ---\n`;
+        if (file.content) {
+          contextText += file.content;
+        } else {
+          contextText += `[Binary file - ${(file.size / 1024).toFixed(2)} KB]`;
+        }
+        return contextText;
+      }).join('\n');
+
+      messageContent = `${userMessage}${fileContext}`;
+    }
+
     setInputValue('');
     setIsLoading(true);
 
     try {
       const response = await adminApi.sendMessage(selectedConversation, {
-        content: userMessage,
+        content: messageContent,
         sender: 'user'
       });
 
@@ -182,6 +209,9 @@ export default function LLMChat() {
       if (response.data.userMessage && response.data.aiMessage) {
         setMessages(prev => [...prev, response.data.userMessage, response.data.aiMessage]);
       }
+
+      // Clear uploaded files after sending
+      setUploadedFiles([]);
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -194,6 +224,57 @@ export default function LLMChat() {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      const fileData = {
+        id: Date.now().toString(),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        content: null as string | null
+      };
+
+      // Read file content based on type
+      if (file.type.startsWith('text/') || file.name.endsWith('.json') || file.name.endsWith('.md')) {
+        const content = await file.text();
+        fileData.content = content;
+      }
+
+      setUploadedFiles(prev => [...prev, fileData]);
+      message.success(`File "${file.name}" uploaded successfully`);
+      return false; // Prevent default upload behavior
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      message.error('Failed to upload file');
+      return false;
+    }
+  };
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    files.forEach(file => handleFileUpload(file));
   };
 
   const selectedAgentData = agents.find(agent => agent.id === selectedAgent);
@@ -372,7 +453,76 @@ export default function LLMChat() {
       {selectedConversation && (
         <>
           <Divider style={{ margin: 0 }} />
-          <div style={{ padding: '16px' }}>
+          <div 
+            style={{ 
+              padding: '16px',
+              position: 'relative'
+            }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {/* Drag and Drop Overlay */}
+            {isDragOver && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(24, 144, 255, 0.1)',
+                border: '2px dashed #1890ff',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+                color: '#1890ff',
+                fontSize: '14px',
+                fontWeight: 'bold'
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <UploadOutlined style={{ fontSize: '24px', marginBottom: '8px' }} />
+                  <div>Drop files here to upload context</div>
+                </div>
+              </div>
+            )}
+
+            {/* Uploaded Files Display */}
+            {uploadedFiles.length > 0 && (
+              <div style={{ marginBottom: '12px' }}>
+                <Text type="secondary" style={{ fontSize: '12px', marginBottom: '8px', display: 'block' }}>
+                  Context Files ({uploadedFiles.length}):
+                </Text>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {uploadedFiles.map(file => (
+                    <div
+                      key={file.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#f5f5f5',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <FileOutlined />
+                      <span>{file.name}</span>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        onClick={() => removeFile(file.id)}
+                        style={{ minWidth: 'auto', padding: '0 4px' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
               <TextArea
                 value={inputValue}
@@ -383,11 +533,27 @@ export default function LLMChat() {
                 style={{ flex: 1 }}
                 disabled={isLoading}
               />
+              
+              {/* Upload Button */}
+              <Upload
+                beforeUpload={handleFileUpload}
+                showUploadList={false}
+                multiple
+                accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
+              >
+                <Tooltip title="Upload context files">
+                  <Button
+                    icon={<UploadOutlined />}
+                    disabled={isLoading}
+                  />
+                </Tooltip>
+              </Upload>
+
               <Button
                 type="primary"
                 icon={<SendOutlined />}
                 onClick={sendMessage}
-                disabled={!inputValue.trim() || isLoading}
+                disabled={(!inputValue.trim() && uploadedFiles.length === 0) || isLoading}
                 loading={isLoading}
               />
             </div>
