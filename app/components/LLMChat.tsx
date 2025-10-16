@@ -346,15 +346,9 @@ export default function LLMChat() {
       >
       {/* Header */}
       <div style={{ padding: '8px 16px', borderBottom: '1px solid #f0f0f0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          {/* Title */}
-          <Text strong style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
-            <MessageOutlined /> AI Chat
-          </Text>
-          
-          {/* Agent Selection */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'nowrap', overflow: 'hidden' }}>
           <Select
-            style={{ minWidth: '120px', flex: '0 1 auto' }}
+            style={{ width: '160px', flexShrink: 0 }}
             size="small"
             placeholder="Agent"
             value={selectedAgent}
@@ -364,21 +358,18 @@ export default function LLMChat() {
           >
             {agents.map(agent => (
               <Option key={agent.id} value={agent.id}>
-                <Space>
-                  <Badge status={agent.isActive ? "success" : "default"} />
-                  {agent.name}
-                </Space>
+                <Badge status={agent.isActive ? "success" : "default"} style={{ marginRight: '4px' }} />
+                {agent.name}
               </Option>
             ))}
           </Select>
 
-          {/* Conversation Selection */}
           {selectedAgent && (
             <>
               <Select
-                style={{ minWidth: '140px', flex: '1 1 auto' }}
+                style={{ flex: 1, minWidth: '80px' }}
                 size="small"
-                placeholder="Conversation"
+                placeholder="Chat"
                 value={selectedConversation}
                 onChange={setSelectedConversation}
                 allowClear
@@ -386,30 +377,21 @@ export default function LLMChat() {
               >
                 {conversations.map(conv => (
                   <Option key={conv.id} value={conv.id} label={conv.title}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <Text strong style={{ fontSize: '12px' }}>{conv.title}</Text>
-                      <Text type="secondary" style={{ fontSize: '10px' }}>
-                        {conv._count?.messages || 0} messages
-                      </Text>
-                    </div>
+                    <Text strong style={{ fontSize: '12px' }}>{conv.title}</Text>
                   </Option>
                 ))}
               </Select>
-              <Tooltip title="New conversation">
-                <Button 
-                  type="primary" 
-                  icon={<PlusOutlined />} 
-                  onClick={createNewConversation}
-                  size="small"
-                />
-              </Tooltip>
+              <Button 
+                type="primary" 
+                icon={<PlusOutlined />} 
+                onClick={createNewConversation}
+                size="small" 
+                style={{ flexShrink: 0 }}
+              />
             </>
           )}
           
-          {/* Settings Button */}
-          <Tooltip title="Settings">
-            <Button type="text" icon={<SettingOutlined />} size="small" />
-          </Tooltip>
+          <Button type="text" icon={<SettingOutlined />} size="small" style={{ flexShrink: 0 }} />
         </div>
       </div>
 
@@ -419,7 +401,7 @@ export default function LLMChat() {
           flex: 1, 
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: selectedConversation ? '10 6px' : '0',
+          padding: selectedConversation ? '0 6px' : '0',
           background: selectedConversation ? '#fafafa' : 'transparent',
           minHeight: 0,
           maxHeight: 300,
