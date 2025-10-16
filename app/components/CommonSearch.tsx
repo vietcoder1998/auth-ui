@@ -39,7 +39,10 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
   filterValues = {},
   onFilterChange,
   extra,
-  style = { }
+  style = {
+    border: 'none',
+    padding: 0,
+   }
 }) => {
   return (
     <Card style={style}>
@@ -50,7 +53,6 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
             placeholder={searchPlaceholder}
             allowClear
             enterButton={<SearchOutlined />}
-            size="large"
             value={searchValue}
             onSearch={onSearch}
             onChange={(e) => onSearch(e.target.value)}
@@ -61,7 +63,6 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
           {showRefresh && onRefresh && (
             <Button 
               icon={<ReloadOutlined />} 
-              size="large"
               onClick={onRefresh}
               loading={loading}
             >

@@ -117,7 +117,10 @@ export default function AdminPermissionPage() {
 
   const handleRefresh = () => {
     setSearchText('');
-    fetchPermissions();
+    setCategoryFilter('');
+    setMethodFilter('');
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchPermissions({ search: '', category: '', method: '', page: 1 });
   };
 
   interface Permission {
@@ -308,6 +311,7 @@ export default function AdminPermissionPage() {
         
         <CommonSearch
           searchPlaceholder="Search permissions by name, description, category, route, method, or role..."
+          searchValue={searchText}
           onSearch={handleSearch}
           onRefresh={handleRefresh}
           loading={loading}
