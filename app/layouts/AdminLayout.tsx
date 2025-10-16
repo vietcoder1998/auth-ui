@@ -10,7 +10,8 @@ import {
   UserOutlined,
   ProfileOutlined,
   MessageOutlined,
-  CloseOutlined,
+  MinusOutlined,
+  ExpandOutlined,
 } from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
@@ -28,7 +29,7 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
-  const [isChatVisible, setIsChatVisible] = useState(false);
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   
   // Determine selected keys based on current path
   const selectedKeys = [pathname];
@@ -156,14 +157,6 @@ export default function AdminLayout() {
             style={{ fontSize: '14px' }}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Tooltip title={isChatVisible ? "Hide AI Chat" : "Show AI Chat"}>
-              <Button
-                type={isChatVisible ? "primary" : "default"}
-                icon={isChatVisible ? <CloseOutlined /> : <MessageOutlined />}
-                onClick={() => setIsChatVisible(!isChatVisible)}
-                style={{ marginRight: '8px' }}
-              />
-            </Tooltip>
             <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
               <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
                 {user?.nickname || user?.email || 'Unknown User'}
@@ -190,35 +183,82 @@ export default function AdminLayout() {
             </Dropdown>
           </div>
         </Header>
-        <Content style={{ minWidth: 0, background: '#f6f8fa', display: 'flex', gap: '16px',height: 'calc(' }}>
+        <Content style={{ 
+          minWidth: 0, 
+          background: '#f6f8fa', 
+          padding: '16px',
+          position: 'relative'
+        }}>
           <div
             style={{
               background: '#fff',
               borderRadius: 8,
-              minHeight: 'calc(100vh - 112px)',
-              flex: isChatVisible ? '1' : '1',
-              transition: 'all 0.3s ease',
+              height: '100%',
+              padding: '24px'
             }}
           >
             <Outlet/>
           </div>
           
-          {isChatVisible && (
+          {/* Floating Chat Box - Bottom Right */}
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '400px',
+              height: isChatCollapsed ? '60px' : '500px',
+              background: '#fff',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+              border: '1px solid #e0e0e0',
+              zIndex: 1000,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {/* Chat Header with Collapse Button */}
             <div
               style={{
-                width: '400px',
-                height: '70vh',
-                background: '#fff',
-                borderRadius: 8,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                transition: 'all 0.3s ease',
+                padding: '12px 16px',
+                borderBottom: isChatCollapsed ? 'none' : '1px solid #f0f0f0',
+                background: '#fafafa',
                 display: 'flex',
-                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                minHeight: '48px'
               }}
+              onClick={() => setIsChatCollapsed(!isChatCollapsed)}
             >
-              <LLMChat />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MessageOutlined style={{ color: '#1890ff' }} />
+                <Typography.Text strong style={{ fontSize: '14px' }}>
+                  AI Assistant
+                </Typography.Text>
+              </div>
+              <Button
+                type="text"
+                size="small"
+                icon={isChatCollapsed ? <ExpandOutlined /> : <MinusOutlined />}
+                style={{ 
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              />
             </div>
-          )}
+            
+            {/* Chat Content */}
+            {!isChatCollapsed && (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <LLMChat />
+              </div>
+            )}
+          </div>
         </Content>
       </Layout>
     </Layout>
