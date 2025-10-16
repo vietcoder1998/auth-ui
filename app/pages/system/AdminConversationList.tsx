@@ -35,7 +35,7 @@ import {
 import type { TableProps } from 'antd';
 
 type ColumnsType<T> = TableProps<T>['columns'];
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
 
 const { Title, Text, Paragraph } = Typography;
