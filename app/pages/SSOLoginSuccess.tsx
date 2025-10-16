@@ -110,14 +110,14 @@ const SSOLoginSuccess: React.FC = () => {
       const separator = callbackUrl.includes('?') ? '&' : '?';
       const finalCallbackUrl = `${callbackUrl}${separator}token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(user))}`;
       
-      setTimeout(() => {
-        window.location.href = finalCallbackUrl;
-      }, 1000);
+    //   setTimeout(() => {
+    //     window.location.replace(finalCallbackUrl);
+    //   }, 3000);
     } else {
       // No callback URL, redirect to admin dashboard
-      setTimeout(() => {
-        navigate('/admin');
-      }, 1000);
+    //   setTimeout(() => {
+    //     navigate('/admin');
+    //   }, 1000);
     }
   };
 

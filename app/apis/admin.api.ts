@@ -240,7 +240,16 @@ export const adminApi = {
     });
   },
 
-
+  // SSO Key Validation
+  async validateSSOKey(keyOrSsoKey: string, gmail?: string) {
+    const axios = getApiInstance();
+    // Send both 'key' and 'ssoKey' for compatibility, plus Gmail verification
+    return axios.post('/sso/validate-key', {
+      key: keyOrSsoKey,
+      ssoKey: keyOrSsoKey,
+      gmail: gmail,
+    });
+  },
 
   // Mail Management
   async getMails(params?: any) {

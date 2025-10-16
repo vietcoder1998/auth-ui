@@ -94,17 +94,30 @@ const AdminSSOPage: React.FC = () => {
         search
       });
       
-      if (response.data) {
-        setSSOEntries(response.data.data);
-        setTotalPages(response.data.pagination.totalPages);
-        setCurrentPage(response.data.pagination.page);
+      // Add null/undefined checks for response structure
+      if (response?.data) {
+        setSSOEntries(response.data.data || []);
+        setTotalPages(response.data.pagination?.totalPages || 1);
+        setCurrentPage(response.data.pagination?.page || 1);
+      } else {
+        // Handle case where response.data is undefined
+        console.warn('SSO API response data is undefined');
+        setSSOEntries([]);
+        setTotalPages(1);
+        setCurrentPage(1);
       }
       
-      return response.data;
+      return response?.data;
     } catch (error: any) {
       console.error('Error fetching SSO entries:', error);
       const errorMessage = error.response?.data?.error || 'Failed to fetch SSO entries';
       message.error(errorMessage);
+      
+      // Reset state on error
+      setSSOEntries([]);
+      setTotalPages(1);
+      setCurrentPage(1);
+      
       throw error;
     } finally {
       if (showLoading) {
@@ -195,23 +208,28 @@ const AdminSSOPage: React.FC = () => {
   };
 
   const openSSOLoginWindow = (ssoEntry: SSOEntry) => {
+    // Block direct SSO login if entry is inactive or expired
+    if (!ssoEntry.isActive) {
+      message.error('Cannot login: SSO entry is inactive.');
+      return;
+    }
+    if (isExpired(ssoEntry.expiresAt)) {
+      message.error('Cannot login: SSO entry is expired.');
+      return;
+    }
     try {
       const ssoKey = ssoEntry.ssoKey || ssoEntry.key;
       const baseUrl = window.location.origin;
-      
-      // Construct SSO login URL
-      const ssoLoginUrl = `${baseUrl}/sso/login?key=${encodeURIComponent(ssoKey)}&redirect=${encodeURIComponent(ssoEntry.url)}`;
-      
+      // Construct SSO login URL with Gmail and key
+      const ssoLoginUrl = `${baseUrl}/sso/login?key=${encodeURIComponent(ssoKey)}&gmail=${encodeURIComponent(ssoEntry.user.email)}&redirect=${encodeURIComponent(ssoEntry.url)}`;
       // Open in new private/incognito window
       const newWindow = window.open(
         ssoLoginUrl,
         '_blank',
         'width=500,height=800,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,status=no'
       );
-      
       if (newWindow) {
         message.success(`SSO login window opened for ${ssoEntry.user.email}`);
-        
         // Optional: Listen for window close to refresh stats
         const checkClosed = setInterval(() => {
           if (newWindow.closed) {
@@ -221,7 +239,6 @@ const AdminSSOPage: React.FC = () => {
             fetchSSOEntries(currentPage, searchTerm, false);
           }
         }, 1000);
-        
         // Clear interval after 5 minutes to prevent memory leaks
         setTimeout(() => {
           clearInterval(checkClosed);

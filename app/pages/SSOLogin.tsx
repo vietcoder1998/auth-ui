@@ -21,41 +21,33 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { ssoLogin, validateSSOKey } from '../apis/auth.api.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
+import { useSSOValidate } from '../hooks/useSSOValidate.tsx';
 import AuthStatus from '../layouts/AuthStatus.tsx';
 
 const { Title, Text, Paragraph } = Typography;
 const { Step } = Steps;
 
-interface SSOValidationResult {
-  valid: boolean;
-  matchedKeyType?: 'key' | 'ssoKey';
-  sso?: {
-    id: string;
-    url: string;
-    userId: string;
-    isActive: boolean;
-    expiresAt?: string;
-  };
-  user?: {
-    id: string;
-    email: string;
-    nickname?: string;
-  };
-  error?: string;
-}
-
 const SSOLogin: React.FC = () => {
   const [form] = Form.useForm();
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [validating, setValidating] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [validationResult, setValidationResult] = useState<SSOValidationResult | null>(null);
+  const [urlFixed, setUrlFixed] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
+  
+  // Use the SSO validation hook
+  const {
+    validating,
+    loginState,
+    validationResult,
+    error,
+    validateSSOKey,
+    performSSOLogin,
+    resetState,
+    setError
+  } = useSSOValidate();
   
   // Check if this is a popup window
   const isPopup = searchParams.get('popup') === 'true';
@@ -63,119 +55,139 @@ const SSOLogin: React.FC = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
+    // Block direct navigation if there is an SSO error or if this is a popup
+    if (isAuthenticated && !authLoading && !error && !isPopup) {
       const redirect = searchParams.get('redirect');
-      navigate(redirect || '/admin');
+      window.location.replace(redirect || '/admin');
     }
-  }, [isAuthenticated, authLoading, navigate, searchParams]);
+  }, [isAuthenticated, authLoading, navigate, searchParams, error, isPopup]);
 
-  // Get SSO key from URL parameters if available
+  // Check for malformed URL and redirect properly
   useEffect(() => {
-    const ssoKeyParam = searchParams.get('ssoKey');
-    if (ssoKeyParam) {
-      form.setFieldsValue({ ssoKey: ssoKeyParam });
-      handleValidateKey(ssoKeyParam);
+    const currentPath = window.location.pathname;
+    const expectedPath = '/sso/login';
+    
+    // If the path contains additional segments after /sso/login, it might be a malformed URL
+    if (currentPath !== expectedPath && currentPath.startsWith('/sso/login/')) {
+      // Extract the potential redirect URL from the path
+      const pathSegments = currentPath.replace('/sso/login/', '');
+      
+      // Check if it looks like a URL (contains protocol)
+      if (pathSegments.includes('://')) {
+        try {
+          const redirectUrl = decodeURIComponent(pathSegments);
+          setError(`URL was malformed. Redirecting to proper SSO login with redirect URL: ${redirectUrl}`);
+          setUrlFixed(true);
+          
+          // Redirect to proper SSO login with redirect as query param
+          setTimeout(() => {
+            debugger
+            navigate(`/sso/login?redirect=${encodeURIComponent(redirectUrl)}`, { replace: true });
+          }, 2000);
+          return;
+        } catch (err) {
+          setError('Invalid URL format detected. Please use proper SSO login link.');
+        }
+      } else {
+        setError('Invalid SSO login URL format. Redirecting to correct login page.');
+        debugger
+        setTimeout(() => {
+          navigate('/sso/login', { replace: true });
+        }, 2000);
+      }
+    }
+  }, [navigate]);
+
+  // Get SSO key and email from URL parameters if available
+  useEffect(() => {
+    const ssoKeyParam = searchParams.get('ssoKey') || searchParams.get('key');
+    const emailParam = searchParams.get('gmail') || searchParams.get('email');
+    if (ssoKeyParam && emailParam) {
+      form.setFieldsValue({ ssoKey: ssoKeyParam, gmail: emailParam });
+      handleValidateKey(ssoKeyParam, emailParam);
+    } else if (ssoKeyParam || emailParam) {
+      if (ssoKeyParam) form.setFieldsValue({ ssoKey: ssoKeyParam });
+      if (emailParam) form.setFieldsValue({ gmail: emailParam });
     }
   }, [searchParams]);
 
-  const handleValidateKey = async (ssoKey: string = form.getFieldValue('ssoKey')) => {
-    if (!ssoKey) {
-      setError('Please enter an SSO key');
-      return;
-    }
-
-    setValidating(true);
-    setError(null);
-    
-    try {
-      const result = await validateSSOKey(ssoKey);
-      setValidationResult(result);
-      
-      if (result.valid) {
-        setCurrentStep(1);
-      } else {
-        setError(result.error || 'Invalid SSO key');
-        setCurrentStep(0);
-      }
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || 'Failed to validate SSO key';
-      setError(errorMessage);
-      setValidationResult(null);
+  const handleValidateKey = async (ssoKey: string = form.getFieldValue('ssoKey'), email: string = form.getFieldValue('gmail')) => {
+    const isValid = await validateSSOKey(ssoKey, email);
+    console.log('SSO Key Validation:', isValid);
+    if (isValid) {
+      setCurrentStep(1);
+      // Auto submit login after validation
+      setTimeout(async () => {
+        await handleSSOLogin();
+      }, 1000);
+    } else {
       setCurrentStep(0);
-      
       // If this is a popup, send error message to parent window
-      if (isPopup && window.opener) {
+      if (isPopup && window.opener && error) {
         window.opener.postMessage({
           type: 'SSO_LOGIN_ERROR',
-          error: errorMessage,
-        }, redirectUrl || window.location.origin);
+          error: error,
+        });
       }
-    } finally {
-      setValidating(false);
     }
   };
 
   const handleSSOLogin = async () => {
     const ssoKey = form.getFieldValue('ssoKey');
+    const gmail = form.getFieldValue('gmail');
     
-    if (!ssoKey || !validationResult?.valid) {
-      setError('Please validate your SSO key first');
-      return;
-    }
-
     setLoading(true);
-    setError(null);
     setCurrentStep(2);
     
     try {
-      const result = await ssoLogin({
+      const loginData = {
         ssoKey,
+        gmail,
         deviceIP: undefined, // Will default to client IP
         userAgent: navigator.userAgent,
         location: 'SSO Web Login',
-      });
+      };
 
-      // The result should contain loginHistory and user info
-      if (result.data && result.data.user) {
-        // For SSO login, we need to create a compatible token format
-        const userData = result.data.user;
-        const mockToken = btoa(JSON.stringify({
-          userId: userData.id,
-          email: userData.email,
-          type: 'sso',
-          ssoId: result.data.loginHistory?.ssoId
-        }));
-
-        await login(mockToken, userData);
+      const result = await performSSOLogin(loginData, redirectUrl);
+      console.log(result)
+      if (result.success && result.userData && result.token) {
+        await login(result.token, result.userData);
         setCurrentStep(3);
-        
+
         // If this is a popup, send success message to parent window
         if (isPopup && window.opener) {
           window.opener.postMessage({
             type: 'SSO_LOGIN_SUCCESS',
-            user: userData,
-            token: mockToken,
-          }, redirectUrl || window.location.origin);
-          
+            user: result.userData,
+            token: result.token,
+          });
+
           // Close popup after a short delay
           setTimeout(() => {
             window.close();
           }, 1500);
         } else {
-          // Redirect to LoginSuccess page with user data and callback URL
+          // Direct to login success page with 2-second delay
           setTimeout(() => {
-            const loginSuccessUrl = `/sso/login-success?user=${encodeURIComponent(JSON.stringify(userData))}&ssoId=${result.data.loginHistory?.ssoId || ''}${redirectUrl ? `&callback=${encodeURIComponent(redirectUrl)}` : ''}`;
-            navigate(loginSuccessUrl);
+            if (result.loginSuccessUrl) {
+              navigate(result.loginSuccessUrl);
+            }
           }, 2000);
         }
       } else {
-        throw new Error('Invalid login response');
+        setCurrentStep(1);
+        // If this is a popup, send error message to parent window
+        if (isPopup && window.opener) {
+          window.opener.postMessage({
+            type: 'SSO_LOGIN_ERROR',
+            error: result.error || 'SSO login failed',
+          });
+        }
       }
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || 'SSO login failed';
-      setError(errorMessage);
+      const errorMessage = err?.message || 'SSO login failed';
       setCurrentStep(1);
-      
+
       // If this is a popup, send error message to parent window
       if (isPopup && window.opener) {
         window.opener.postMessage({
@@ -189,9 +201,8 @@ const SSOLogin: React.FC = () => {
   };
 
   const handleKeyChange = () => {
-    setValidationResult(null);
+    resetState();
     setCurrentStep(0);
-    setError(null);
   };
 
   // Show loading while checking auth state
@@ -213,11 +224,6 @@ const SSOLogin: React.FC = () => {
       title: 'Enter SSO Key',
       status: (currentStep > 0 ? 'finish' : currentStep === 0 ? 'process' : 'wait') as 'wait' | 'process' | 'finish' | 'error',
       icon: <KeyOutlined />
-    },
-    {
-      title: 'Validate Key',
-      status: (currentStep > 1 ? 'finish' : currentStep === 1 ? 'process' : 'wait') as 'wait' | 'process' | 'finish' | 'error',
-      icon: <SafetyCertificateOutlined />
     },
     {
       title: 'Login',
@@ -270,13 +276,47 @@ const SSOLogin: React.FC = () => {
           ))}
         </Steps>
 
-        {/* Step 0 & 1: SSO Key Input and Validation */}
-        {currentStep <= 1 && (
+        {/* URL Fix Notification */}
+        {urlFixed && (
+          <Alert
+            message="URL Format Fixed"
+            description="The URL format was corrected. You will be redirected to the proper SSO login page shortly."
+            type="info"
+            style={{ marginBottom: '24px' }}
+            showIcon
+            closable
+            onClose={() => setUrlFixed(false)}
+          />
+        )}
+
+        {/* Step 0: SSO Key Input */}
+        {currentStep === 0 && !validating && !loading && !urlFixed && (
           <Form
             form={form}
             layout="vertical"
             onFinish={() => handleValidateKey()}
           >
+            <Form.Item
+              name="gmail"
+              label="Email Address"
+              rules={[
+                { required: true, message: 'Please enter your email address' },
+                { type: 'email', message: 'Please enter a valid email address' },
+                { 
+                  pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/, 
+                  message: 'Must be a valid email address (ending with .com)' 
+                }
+              ]}
+            >
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="Enter your email address"
+                size="large"
+                onChange={handleKeyChange}
+                disabled={validating || loading}
+              />
+            </Form.Item>
+
             <Form.Item
               name="ssoKey"
               label="SSO Key"
@@ -303,59 +343,54 @@ const SSOLogin: React.FC = () => {
               />
             )}
 
-            {validationResult && validationResult.valid && (
-              <Alert
-                message="SSO Key Validated Successfully"
-                description={
-                  <div>
-                    <div><strong>User:</strong> {validationResult.user?.email}</div>
-                    {validationResult.user?.nickname && (
-                      <div><strong>Name:</strong> {validationResult.user.nickname}</div>
-                    )}
-                    <div><strong>Application:</strong> {validationResult.sso?.url}</div>
-                    <div><strong>Key Type:</strong> {validationResult.matchedKeyType === 'key' ? 'Primary Key' : 'SSO Key'}</div>
-                  </div>
-                }
-                type="success"
-                style={{ marginBottom: '16px' }}
-                showIcon
-              />
-            )}
-
             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
               {isPopup ? (
                 <Button onClick={() => window.close()}>
                   Cancel
                 </Button>
               ) : (
-                <Link to="/login">
-                  <Button>
-                    <UserOutlined /> Regular Login
-                  </Button>
-                </Link>
+                <Button onClick={() => navigate('/login')}>
+                  <UserOutlined /> Regular Login
+                </Button>
               )}
               
-              {currentStep === 0 ? (
-                <Button 
-                  type="primary" 
-                  htmlType="submit"
-                  loading={validating}
-                  size="large"
-                >
-                  <SafetyCertificateOutlined /> Validate Key
-                </Button>
-              ) : (
-                <Button 
-                  type="primary" 
-                  onClick={handleSSOLogin}
-                  loading={loading}
-                  size="large"
-                >
-                  <LoginOutlined /> Login with SSO
-                </Button>
-              )}
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={validating || loading}
+                size="large"
+              >
+                <SafetyCertificateOutlined /> Validate Email & Login
+              </Button>
             </Space>
           </Form>
+        )}
+
+        {/* Step 0: Loading State */}
+        {currentStep === 0 && (validating || loading) && (
+          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <Spin size="large" />
+            <div style={{ marginTop: '16px' }}>
+              <Text>{loginState.message}</Text>
+            </div>
+            {loginState.progress > 0 && (
+              <div style={{ 
+                marginTop: '16px', 
+                width: '100%', 
+                height: '6px', 
+                background: '#f0f0f0', 
+                borderRadius: '3px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${loginState.progress}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #1890ff, #52c41a)',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Step 2: Login in Progress */}
@@ -363,7 +398,22 @@ const SSOLogin: React.FC = () => {
           <div style={{ textAlign: 'center', padding: '40px 20px' }}>
             <Spin size="large" />
             <div style={{ marginTop: '16px' }}>
-              <Text>Logging you in...</Text>
+              <Text>{loginState.message}</Text>
+            </div>
+            <div style={{ 
+              marginTop: '16px', 
+              width: '100%', 
+              height: '6px', 
+              background: '#f0f0f0', 
+              borderRadius: '3px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${loginState.progress}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #1890ff, #52c41a)',
+                transition: 'width 0.3s ease'
+              }} />
             </div>
           </div>
         )}
@@ -383,15 +433,18 @@ const SSOLogin: React.FC = () => {
         )}
 
         {/* Help Text */}
-        {currentStep <= 1 && (
+        {currentStep === 0 && (
           <>
             <Divider />
             <div style={{ textAlign: 'center' }}>
               <Paragraph type="secondary" style={{ fontSize: '12px' }}>
-                <ExclamationCircleOutlined /> Need help? Contact your system administrator for SSO key assistance.
+                <ExclamationCircleOutlined /> Need help? Contact your system administrator for SSO key and email verification assistance.
               </Paragraph>
               <Paragraph type="secondary" style={{ fontSize: '12px' }}>
-                Don't have an SSO key? <Link to="/login">Use regular login instead</Link>
+                Don't have SSO credentials? <Button type="link" onClick={() => navigate('/login')} style={{ padding: 0, height: 'auto', fontSize: '12px' }}>Use regular login instead</Button>
+              </Paragraph>
+              <Paragraph type="secondary" style={{ fontSize: '11px', color: '#999' }}>
+                Note: Your email address must match the one associated with your SSO key.
               </Paragraph>
             </div>
           </>
