@@ -14,19 +14,76 @@ export default function AdminPermissionPage() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingPermission, setEditingPermission] = useState<any>(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [methodFilter, setMethodFilter] = useState('');
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number, range: [number, number]) => 
+      `${range[0]}-${range[1]} of ${total} permissions`,
+  });
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchPermissions();
   }, []);
 
-  const fetchPermissions = async () => {
+  const handleTableChange = (paginationConfig: any, filters: any, sorter: any) => {
+    const { current, pageSize } = paginationConfig;
+    fetchPermissions({
+      page: current,
+      pageSize: pageSize,
+    });
+  };
+
+  const fetchPermissions = async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    category?: string;
+    method?: string;
+  }) => {
     setLoading(true);
     try {
-      const res = await adminApi.getPermissions();
-      setPermissions(res.data.data);
-    } catch {
+      const queryParams = {
+        page: params?.page || pagination.current,
+        pageSize: params?.pageSize || pagination.pageSize,
+        q: params?.search || searchText,
+        category: params?.category || categoryFilter,
+        method: params?.method || methodFilter,
+      };
+
+      // Remove empty params
+      Object.keys(queryParams).forEach(key => {
+        if (!queryParams[key as keyof typeof queryParams]) {
+          delete queryParams[key as keyof typeof queryParams];
+        }
+      });
+
+      const res = await adminApi.getPermissions(queryParams);
+      const responseData = res.data;
+      
+      // Handle both direct data and wrapped data response
+      const permissionsData = responseData.data || responseData || [];
+      const total = responseData.total || permissionsData.length;
+      const currentPage = responseData.page || queryParams.page || 1;
+      const pageSize = responseData.limit || queryParams.pageSize || 10;
+
+      setPermissions(permissionsData);
+      setPagination(prev => ({
+        ...prev,
+        current: currentPage,
+        pageSize: pageSize,
+        total: total,
+      }));
+    } catch (error) {
+      console.error('Failed to fetch permissions:', error);
       setPermissions([]);
+      setPagination(prev => ({ ...prev, total: 0 }));
     }
     setLoading(false);
   };
@@ -52,10 +109,23 @@ export default function AdminPermissionPage() {
     }
   };
 
+  const handleSearch = (searchValue: string) => {
+    setSearchText(searchValue);
+    // Reset to page 1 and fetch with new search term
+    fetchPermissions({ search: searchValue, page: 1 });
+  };
+
+  const handleRefresh = () => {
+    setSearchText('');
+    fetchPermissions();
+  };
+
   interface Permission {
     id: number;
     name: string;
     createdAt: string;
+    roles?: any[];
+    usageCount?: number;
     [key: string]: any;
   }
 
@@ -149,6 +219,58 @@ export default function AdminPermissionPage() {
       }
     },
     { 
+      title: 'Roles Using', 
+      dataIndex: 'roles', 
+      key: 'roles',
+      width: 200,
+      render: (roles: any[]) => {
+        if (!roles || roles.length === 0) {
+          return <em style={{ color: '#999' }}>No roles assigned</em>;
+        }
+        return (
+          <div>
+            <div style={{ marginBottom: '4px', fontSize: '12px', color: '#666' }}>
+              {roles.length} role{roles.length > 1 ? 's' : ''}
+            </div>
+            <div>
+              {roles.slice(0, 2).map((role: any) => (
+                <Tag 
+                  key={role.id} 
+                  color={role.name === 'superadmin' ? 'red' : 
+                        role.name === 'admin' ? 'orange' : 'blue'}
+                  style={{ margin: '1px', fontSize: '11px' }}
+                >
+                  {role.name}
+                </Tag>
+              ))}
+              {roles.length > 2 && (
+                <Tag style={{ margin: '1px', fontSize: '11px' }} color="default">
+                  +{roles.length - 2} more
+                </Tag>
+              )}
+            </div>
+          </div>
+        );
+      }
+    },
+    { 
+      title: 'Usage Count', 
+      dataIndex: 'usageCount', 
+      key: 'usageCount',
+      width: 120,
+      sorter: (a: Permission, b: Permission) => (a.usageCount || 0) - (b.usageCount || 0),
+      render: (usageCount: number) => (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '16px', fontWeight: 'bold', color: usageCount > 0 ? '#1890ff' : '#999' }}>
+            {usageCount || 0}
+          </div>
+          <div style={{ fontSize: '11px', color: '#999' }}>
+            requests
+          </div>
+        </div>
+      )
+    },
+    { 
       title: 'Actions', 
       key: 'actions',
       width: 150,
@@ -168,7 +290,7 @@ export default function AdminPermissionPage() {
             icon={<DeleteOutlined />}
             onClick={() => {
               if (window.confirm(`Are you sure you want to delete permission "${p.name}"?`)) {
-                adminApi.deletePermission(p.id).then(fetchPermissions);
+                adminApi.deletePermission(p.id).then(() => fetchPermissions());
               }
             }}
           >
@@ -185,9 +307,9 @@ export default function AdminPermissionPage() {
         <Title level={2} style={{ marginBottom: '16px' }}>Permission Management</Title>
         
         <CommonSearch
-          searchPlaceholder="Search permissions..."
-          onSearch={() => {}} // No search functionality for permissions currently
-          onRefresh={fetchPermissions}
+          searchPlaceholder="Search permissions by name, description, category, route, method, or role..."
+          onSearch={handleSearch}
+          onRefresh={handleRefresh}
           loading={loading}
           extra={
             <Button 
@@ -206,12 +328,13 @@ export default function AdminPermissionPage() {
           dataSource={permissions}
           columns={columns}
           rowKey="id"
-          scroll={{ x: 1270 }}
-          pagination={{ 
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} permissions`
+          scroll={{ x: 1590 }}
+          onChange={handleTableChange}
+          pagination={pagination}
+          locale={{
+            emptyText: searchText ? 
+              `No permissions found matching "${searchText}"` : 
+              'No permissions available'
           }}
           style={{ backgroundColor: 'white', borderRadius: '8px' }}
         />
@@ -220,7 +343,10 @@ export default function AdminPermissionPage() {
       <AddPermissionModal
         visible={addModalVisible}
         onCancel={() => setAddModalVisible(false)}
-        onSuccess={fetchPermissions}
+        onSuccess={() => {
+          setAddModalVisible(false);
+          fetchPermissions();
+        }}
       />
 
       <Modal

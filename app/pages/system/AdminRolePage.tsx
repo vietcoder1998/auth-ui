@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, Space, Typography, Modal, Input, Form, Select, Tag } from 'antd';
-import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, KeyOutlined } from '@ant-design/icons';
 import AddRoleModal from '../modals/AddRoleModal.tsx';
+
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
@@ -13,10 +14,13 @@ export default function AdminRolePage() {
   const [loading, setLoading] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [addPermissionModalVisible, setAddPermissionModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
+  const [selectedRoleForPermission, setSelectedRoleForPermission] = useState<any>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [form] = Form.useForm();
+  const [permissionForm] = Form.useForm();
 
   useEffect(() => {
     fetchRoles();
@@ -70,9 +74,29 @@ export default function AdminRolePage() {
     }
   };
 
+  const handleAddPermissionToRole = (role: Role) => {
+    setSelectedRoleForPermission(role);
+    setAddPermissionModalVisible(true);
+  };
+
+  const handlePermissionCreated = () => {
+    fetchRoles();
+    fetchPermissions();
+    setAddPermissionModalVisible(false);
+    setSelectedRoleForPermission(null);
+  };
+
   interface Role {
     id: number;
     name: string;
+    createdAt?: string;
+    [key: string]: any;
+  }
+
+  interface Permission {
+    id: number;
+    name: string;
+    category?: string;
     [key: string]: any;
   }
 
@@ -82,32 +106,35 @@ export default function AdminRolePage() {
     key: string;
     width?: number;
     render?: (value: any, record: Role, index: number) => React.ReactNode;
+    fixed?: 'left' | 'right';
   }
 
   const columns: ColumnType[] = [
-    { title: 'Role Name', dataIndex: 'name', key: 'name' },
+    { title: 'Role Name', dataIndex: 'name', key: 'name', width: 150 },
     { 
       title: 'Description', 
       dataIndex: 'description', 
       key: 'description',
+      width: 200,
       render: (description: string) => description || <em style={{ color: '#999' }}>No description</em>
     },
     { 
       title: 'Permissions', 
       dataIndex: 'permissions', 
       key: 'permissions',
+      width: 350,
       render: (permissions: any[]) => (
         <div>
           <span style={{ marginRight: 8 }}>{permissions ? permissions.length : 0} permissions</span>
           {permissions && permissions.length > 0 && (
             <div style={{ marginTop: 4 }}>
               {permissions.slice(0, 3).map((perm: any) => (
-                <Tag key={perm.id} size="small" style={{ margin: '2px' }}>
+                <Tag key={perm.id} style={{ margin: '2px', fontSize: '12px' }}>
                   {perm.name}
                 </Tag>
               ))}
               {permissions.length > 3 && (
-                <Tag size="small" style={{ margin: '2px' }}>
+                <Tag style={{ margin: '2px', fontSize: '12px' }}>
                   +{permissions.length - 3} more
                 </Tag>
               )}
@@ -119,16 +146,26 @@ export default function AdminRolePage() {
     { 
       title: 'Actions', 
       key: 'actions',
-      width: 150,
+      width: 200,
+      fixed: 'right',
       render: (_, r) => (
-        <Space size="small">
-          <Button 
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(r)}
-          >
-            Edit
-          </Button>
+        <Space size="small" direction="vertical">
+          <Space size="small">
+            <Button 
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(r)}
+            >
+              Edit
+            </Button>
+            <Button 
+              size="small"
+              icon={<KeyOutlined />}
+              onClick={() => handleAddPermissionToRole(r)}
+            >
+              Add Permission
+            </Button>
+          </Space>
           <Button 
             size="small"
             danger 
@@ -138,6 +175,7 @@ export default function AdminRolePage() {
                 adminApi.deleteRole(r.id).then(fetchRoles);
               }
             }}
+            style={{ width: '100%' }}
           >
             Delete
           </Button>
@@ -173,6 +211,7 @@ export default function AdminRolePage() {
           dataSource={roles}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 1000 }}
           pagination={{ 
             pageSize: 10,
             showSizeChanger: true,
@@ -188,6 +227,82 @@ export default function AdminRolePage() {
         onCancel={() => setAddModalVisible(false)}
         onSuccess={fetchRoles}
       />
+
+      <Modal
+        title={`Add New Permission to Role: ${selectedRoleForPermission?.name}`}
+        open={addPermissionModalVisible}
+        onCancel={() => {
+          setAddPermissionModalVisible(false);
+          setSelectedRoleForPermission(null);
+          permissionForm.resetFields();
+        }}
+        onOk={async () => {
+          try {
+            const values = await permissionForm.validateFields();
+            const permissionData = {
+              ...values,
+              roles: [selectedRoleForPermission?.id]
+            };
+            await adminApi.createPermission(permissionData);
+            permissionForm.resetFields();
+            handlePermissionCreated();
+          } catch (error) {
+            console.error('Failed to create permission:', error);
+          }
+        }}
+        width={600}
+      >
+        <Form form={permissionForm} layout="vertical">
+          <Form.Item
+            name="name"
+            label="Permission Name"
+            rules={[{ required: true, message: 'Please input permission name!' }]}
+          >
+            <Input placeholder="Enter permission name (e.g., manage_reports)" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true, message: 'Please input description!' }]}
+          >
+            <Input.TextArea rows={3} placeholder="Enter permission description" />
+          </Form.Item>
+          <Form.Item
+            name="category"
+            label="Category"
+            initialValue="other"
+          >
+            <Select placeholder="Select category">
+              <Select.Option value="user">User</Select.Option>
+              <Select.Option value="role">Role</Select.Option>
+              <Select.Option value="permission">Permission</Select.Option>
+              <Select.Option value="system">System</Select.Option>
+              <Select.Option value="content">Content</Select.Option>
+              <Select.Option value="report">Report</Select.Option>
+              <Select.Option value="api">API</Select.Option>
+              <Select.Option value="other">Other</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="route"
+            label="Route (Optional)"
+          >
+            <Input placeholder="e.g., /api/admin/reports" />
+          </Form.Item>
+          <Form.Item
+            name="method"
+            label="HTTP Method (Optional)"
+          >
+            <Select placeholder="Select HTTP method" allowClear>
+              <Select.Option value="GET">GET</Select.Option>
+              <Select.Option value="POST">POST</Select.Option>
+              <Select.Option value="PUT">PUT</Select.Option>
+              <Select.Option value="DELETE">DELETE</Select.Option>
+              <Select.Option value="PATCH">PATCH</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Modal
         title="Edit Role"
@@ -233,12 +348,9 @@ export default function AdminRolePage() {
               }))}
               tagRender={(props) => {
                 const { label, closable, onClose } = props;
-                const permission = permissions.find((p: any) => p.name === label);
                 return (
                   <Tag
-                    color={permission?.category === 'system' ? 'red' : 
-                          permission?.category === 'user' ? 'blue' : 
-                          permission?.category === 'role' ? 'green' : 'default'}
+                    color="blue"
                     closable={closable}
                     onClose={onClose}
                     style={{ margin: '2px' }}
