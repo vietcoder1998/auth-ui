@@ -147,9 +147,17 @@ const Login: React.FC = () => {
                         <Link to="/register" style={{ color: '#1890ff' }}>
                             Create Account
                         </Link>
-                        <Link to="/sso-login" style={{ color: '#1890ff' }}>
+                        <Button 
+                            type="link" 
+                            style={{ color: '#1890ff', padding: 0 }}
+                            onClick={() => {
+                                const redirect = searchParams.get('redirect');
+                                const ssoUrl = `/sso/login?isSSO=true${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
+                                navigate(ssoUrl);
+                            }}
+                        >
                             SSO Login
-                        </Link>
+                        </Button>
                         <Link to="/forgot-password" style={{ color: '#1890ff' }}>
                             Forgot Password?
                         </Link>

@@ -51,16 +51,18 @@ const SSOLogin: React.FC = () => {
   
   // Check if this is a popup window
   const isPopup = searchParams.get('popup') === 'true';
+  const isSSO = searchParams.get('isSSO') === 'true';
   const redirectUrl = searchParams.get('redirect');
 
   // Redirect if already authenticated
   useEffect(() => {
     // Block direct navigation if there is an SSO error or if this is a popup
-    if (isAuthenticated && !authLoading && !error && !isPopup) {
+    // If isSSO=true, bypass token validation and allow direct login
+    if (isAuthenticated && !authLoading && !error && !isPopup && !isSSO) {
       const redirect = searchParams.get('redirect');
       window.location.replace(redirect || '/admin');
     }
-  }, [isAuthenticated, authLoading, navigate, searchParams, error, isPopup]);
+  }, [isAuthenticated, authLoading, navigate, searchParams, error, isPopup, isSSO]);
 
   // Check for malformed URL and redirect properly
   useEffect(() => {
@@ -76,23 +78,28 @@ const SSOLogin: React.FC = () => {
       if (pathSegments.includes('://')) {
         try {
           const redirectUrl = decodeURIComponent(pathSegments);
-          setError(`URL was malformed. Redirecting to proper SSO login with redirect URL: ${redirectUrl}`);
+          setError(`SSO URL Error: Malformed URL detected. Redirecting to proper SSO login with redirect URL: ${redirectUrl}`);
           setUrlFixed(true);
           
           // Redirect to proper SSO login with redirect as query param
           setTimeout(() => {
-            debugger
-            navigate(`/sso/login?redirect=${encodeURIComponent(redirectUrl)}`, { replace: true });
+            const isSSO = searchParams.get('isSSO') === 'true';
+            const ssoParams = new URLSearchParams();
+            ssoParams.set('redirect', redirectUrl);
+            if (isSSO) ssoParams.set('isSSO', 'true');
+            navigate(`/sso/login?${ssoParams.toString()}`, { replace: true });
           }, 2000);
           return;
         } catch (err) {
-          setError('Invalid URL format detected. Please use proper SSO login link.');
+          setError('SSO URL Error: Invalid URL format detected. Please use proper SSO login link.');
         }
       } else {
-        setError('Invalid SSO login URL format. Redirecting to correct login page.');
-        debugger
+        setError('SSO URL Error: Invalid SSO login URL format. Redirecting to correct login page.');
         setTimeout(() => {
-          navigate('/sso/login', { replace: true });
+          const isSSO = searchParams.get('isSSO') === 'true';
+          const ssoParams = new URLSearchParams();
+          if (isSSO) ssoParams.set('isSSO', 'true');
+          navigate(`/sso/login${ssoParams.toString() ? '?' + ssoParams.toString() : ''}`, { replace: true });
         }, 2000);
       }
     }
