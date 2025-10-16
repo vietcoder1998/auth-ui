@@ -32,9 +32,11 @@ import {
   SendOutlined,
   ClockCircleOutlined
 } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { TableProps } from 'antd';
+
+type ColumnsType<T> = TableProps<T>['columns'];
 import { useAuth } from '../../hooks/useAuth';
-import { adminApi } from '../../apis/admin.api';
+import { adminApi } from '../../apis/admin.api.ts';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -214,7 +216,8 @@ export default function AdminConversationList() {
     {
       title: 'Conversation',
       key: 'conversation',
-      render: (_, record) => (
+      width: 250,
+      render: (_: any, record: Conversation) => (
         <div>
           <div style={{ fontWeight: 500, marginBottom: '4px' }}>
             {record.title || 'Untitled Conversation'}
@@ -228,7 +231,8 @@ export default function AdminConversationList() {
     {
       title: 'Agent',
       key: 'agent',
-      render: (_, record) => (
+      width: 180,
+      render: (_: any, record: Conversation) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Avatar 
             size="small"
@@ -245,7 +249,8 @@ export default function AdminConversationList() {
     {
       title: 'User',
       key: 'user',
-      render: (_, record) => (
+      width: 180,
+      render: (_: any, record: Conversation) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Avatar size="small" icon={<UserOutlined />} />
           <div>
@@ -262,7 +267,8 @@ export default function AdminConversationList() {
     {
       title: 'Messages',
       key: 'messages',
-      render: (_, record) => (
+      width: 100,
+      render: (_: any, record: Conversation) => (
         <div style={{ textAlign: 'center' }}>
           <Badge count={record._count?.messages || 0} showZero />
         </div>
@@ -272,7 +278,8 @@ export default function AdminConversationList() {
       title: 'Status',
       dataIndex: 'isActive',
       key: 'status',
-      render: (isActive) => (
+      width: 100,
+      render: (isActive: boolean) => (
         <Badge 
           status={isActive ? "success" : "default"} 
           text={isActive ? "Active" : "Archived"} 
@@ -283,7 +290,8 @@ export default function AdminConversationList() {
       title: 'Last Updated',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (text) => (
+      width: 130,
+      render: (text: string) => (
         <div>
           <div style={{ fontSize: '12px' }}>
             {new Date(text).toLocaleDateString()}
@@ -297,7 +305,9 @@ export default function AdminConversationList() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      width: 120,
+      fixed: 'right',
+      render: (_: any, record: Conversation) => (
         <Space>
           <Tooltip title="View Conversation">
             <Button 
@@ -379,6 +389,7 @@ export default function AdminConversationList() {
           dataSource={conversations}
           loading={loading}
           rowKey="id"
+          scroll={{ x: 1200, y: 600 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

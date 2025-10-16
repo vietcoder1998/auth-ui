@@ -1,43 +1,43 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Card,
-  Table,
-  Button,
-  Space,
-  Typography,
-  Tag,
-  Modal,
-  Form,
-  Input,
-  Select,
-  Switch,
-  message,
-  Popconfirm,
-  Tooltip,
-  Badge,
-  Drawer,
-  Descriptions,
-  List,
-  Avatar,
-  Divider,
-  Tabs
-} from 'antd';
-import {
-  PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
-  RobotOutlined,
-  MessageOutlined,
-  ToolOutlined,
-  BarChartOutlined,
+  EditOutlined,
   EyeOutlined,
   MessageOutlined,
+  PauseCircleOutlined,
   PlayCircleOutlined,
-  PauseCircleOutlined
+  PlusOutlined,
+  RobotOutlined,
+  ToolOutlined
 } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import { useAuth } from '../../hooks/useAuth';
-import { adminApi } from '../../apis/admin.api';
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Descriptions,
+  Divider,
+  Drawer,
+  Form,
+  Input,
+  List,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Tabs,
+  Tag,
+  Tooltip,
+  Typography
+} from 'antd';
+import type { TableProps } from 'antd';
+
+type ColumnsType<T> = TableProps<T>['columns'];
+import { useEffect, useState } from 'react';
+import { adminApi } from '../../apis/admin.api.ts';
+import { useAuth } from '../../hooks/useAuth.ts';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -47,17 +47,16 @@ const { TabPane } = Tabs;
 interface Agent {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   model: string;
-  personality: string;
-  systemPrompt: string;
-  config: string;
+  personality?: string;
+  systemPrompt?: string;
+  config?: string;
   isActive: boolean;
   _count: {
     conversations: number;
     memories: number;
     tools: number;
-    tasks: number;
   };
   createdAt: string;
   updatedAt: string;
@@ -266,12 +265,13 @@ export default function AdminAgentPage() {
       title: 'Agent',
       dataIndex: 'name',
       key: 'name',
-      render: (text, record) => (
+      width: 250,
+      render: (text: string, record: Agent) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Avatar icon={<RobotOutlined />} style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9' }} />
           <div>
             <div style={{ fontWeight: 500 }}>{text}</div>
-            <Text type="secondary" style={{ fontSize: '12px' }}>{record.description}</Text>
+            <Text type="secondary" style={{ fontSize: '12px' }}>{record.description || 'No description'}</Text>
           </div>
         </div>
       )
@@ -280,13 +280,15 @@ export default function AdminAgentPage() {
       title: 'Model',
       dataIndex: 'model',
       key: 'model',
-      render: (text) => <Tag color="blue">{text}</Tag>
+      width: 120,
+      render: (text: string) => <Tag color="blue">{text}</Tag>
     },
     {
       title: 'Status',
       dataIndex: 'isActive',
       key: 'status',
-      render: (isActive) => (
+      width: 100,
+      render: (isActive: boolean) => (
         <Badge 
           status={isActive ? "success" : "default"} 
           text={isActive ? "Active" : "Inactive"} 
@@ -296,7 +298,8 @@ export default function AdminAgentPage() {
     {
       title: 'Usage Stats',
       key: 'stats',
-      render: (_, record) => (
+      width: 180,
+      render: (_: any, record: Agent) => (
         <Space direction="vertical" size="small">
           <Text style={{ fontSize: '12px' }}>
             <MessageOutlined /> {record._count.conversations} conversations
@@ -311,12 +314,15 @@ export default function AdminAgentPage() {
       title: 'Created',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text) => new Date(text).toLocaleDateString()
+      width: 120,
+      render: (text: string) => new Date(text).toLocaleDateString()
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      width: 200,
+      fixed: 'right',
+      render: (_: any, record: Agent) => (
         <Space>
           <Tooltip title="View Details">
             <Button 
@@ -382,6 +388,7 @@ export default function AdminAgentPage() {
           dataSource={agents}
           loading={loading}
           rowKey="id"
+          scroll={{ x: 1200, y: 600 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
