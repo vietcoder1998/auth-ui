@@ -30,6 +30,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
 
+
+
 const { TextArea } = Input;
 const { Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -88,11 +90,21 @@ export default function LLMChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest'
+      });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Small delay to ensure DOM is updated
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   // Load agents
@@ -207,7 +219,14 @@ export default function LLMChat() {
 
       // Add both user message and AI response
       if (response.data.userMessage && response.data.aiMessage) {
-        setMessages(prev => [...prev, response.data.userMessage, response.data.aiMessage]);
+        setMessages(prev => {
+          const newMessages = [...prev, response.data.userMessage, response.data.aiMessage];
+          // Scroll to bottom after messages are added
+          setTimeout(() => {
+            scrollToBottom();
+          }, 100);
+          return newMessages;
+        });
       }
 
       // Clear uploaded files after sending
@@ -280,26 +299,64 @@ export default function LLMChat() {
   const selectedAgentData = agents.find(agent => agent.id === selectedAgent);
 
   return (
-    <Card 
-      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-      bodyStyle={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}
-    >
+    <>
+      <style>{`
+        .messages-container::-webkit-scrollbar {
+          width: 6px;
+        }
+        .messages-container::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+        .messages-container::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+        .messages-container::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
+        }
+        .message-content::-webkit-scrollbar {
+          width: 4px;
+        }
+        .message-content::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .message-content::-webkit-scrollbar-thumb {
+          background: rgba(0,0,0,0.2);
+          border-radius: 2px;
+        }
+        .message-content::-webkit-scrollbar-thumb:hover {
+          background: rgba(0,0,0,0.3);
+        }
+      `}</style>
+      <Card 
+        style={{ 
+          height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column',
+          overflowY: 'auto'
+        }}
+        bodyStyle={{ 
+          padding: 0, 
+          height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+      >
       {/* Header */}
-      <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text strong style={{ fontSize: '16px' }}>
-              <MessageOutlined /> AI Chat
-            </Text>
-            <Tooltip title="Settings">
-              <Button type="text" icon={<SettingOutlined />} size="small" />
-            </Tooltip>
-          </div>
+      <div style={{ padding: '8px 16px', borderBottom: '1px solid #f0f0f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Title */}
+          <Text strong style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
+            <MessageOutlined /> AI Chat
+          </Text>
           
           {/* Agent Selection */}
           <Select
-            style={{ width: '100%' }}
-            placeholder="Select an AI Agent"
+            style={{ minWidth: '120px', flex: '0 1 auto' }}
+            size="small"
+            placeholder="Agent"
             value={selectedAgent}
             onChange={setSelectedAgent}
             loading={isLoadingAgents}
@@ -310,9 +367,6 @@ export default function LLMChat() {
                 <Space>
                   <Badge status={agent.isActive ? "success" : "default"} />
                   {agent.name}
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    ({agent.model})
-                  </Text>
                 </Space>
               </Option>
             ))}
@@ -320,10 +374,11 @@ export default function LLMChat() {
 
           {/* Conversation Selection */}
           {selectedAgent && (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <>
               <Select
-                style={{ flex: 1 }}
-                placeholder="Select conversation"
+                style={{ minWidth: '140px', flex: '1 1 auto' }}
+                size="small"
+                placeholder="Conversation"
                 value={selectedConversation}
                 onChange={setSelectedConversation}
                 allowClear
@@ -332,16 +387,8 @@ export default function LLMChat() {
                 {conversations.map(conv => (
                   <Option key={conv.id} value={conv.id} label={conv.title}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <Text strong style={{ fontSize: '14px' }}>{conv.title}</Text>
-                      {conv.lastMessage && (
-                        <Text type="secondary" style={{ fontSize: '12px' }} ellipsis>
-                          {conv.lastMessage.sender === 'user' ? 'You: ' : 'AI: '}
-                          {conv.lastMessage.content.length > 50 
-                            ? conv.lastMessage.content.substring(0, 50) + '...' 
-                            : conv.lastMessage.content}
-                        </Text>
-                      )}
-                      <Text type="secondary" style={{ fontSize: '11px' }}>
+                      <Text strong style={{ fontSize: '12px' }}>{conv.title}</Text>
+                      <Text type="secondary" style={{ fontSize: '10px' }}>
                         {conv._count?.messages || 0} messages
                       </Text>
                     </div>
@@ -356,18 +403,30 @@ export default function LLMChat() {
                   size="small"
                 />
               </Tooltip>
-            </div>
+            </>
           )}
-        </Space>
+          
+          {/* Settings Button */}
+          <Tooltip title="Settings">
+            <Button type="text" icon={<SettingOutlined />} size="small" />
+          </Tooltip>
+        </div>
       </div>
 
       {/* Messages */}
-      <div style={{ 
-        flex: 1, 
-        overflow: 'auto', 
-        padding: selectedConversation ? '16px' : '0',
-        background: selectedConversation ? '#fafafa' : 'transparent'
-      }}>
+      <div 
+        style={{ 
+          flex: 1, 
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: selectedConversation ? '10 6px' : '0',
+          background: selectedConversation ? '#fafafa' : 'transparent',
+          minHeight: 0,
+          maxHeight: 300,
+          scrollBehavior: 'smooth'
+        }}
+        className="messages-container"
+      >
         {!selectedAgent ? (
           <Empty 
             description="Select an AI Agent to start chatting"
@@ -379,64 +438,93 @@ export default function LLMChat() {
             image={<MessageOutlined style={{ fontSize: '48px', color: '#d9d9d9' }} />}
           />
         ) : (
-          <List
-            dataSource={messages}
-            renderItem={(message) => (
-              <List.Item style={{ border: 'none', padding: '8px 0' }}>
-                <div style={{ 
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
+          <div style={{ 
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <List
+              dataSource={messages}
+              style={{ 
+                flex: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                paddingBottom: '8px'
+              }}
+              renderItem={(message) => (
+                <List.Item style={{ 
+                  border: 'none', 
+                  padding: '8px 0',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word'
                 }}>
-                  <div style={{
-                    maxWidth: '80%',
+                  <div style={{ 
+                    width: '100%',
                     display: 'flex',
-                    gap: '8px',
-                    alignItems: 'flex-start',
-                    flexDirection: message.sender === 'user' ? 'row-reverse' : 'row'
+                    justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
                   }}>
-                    <Avatar 
-                      size="small"
-                      icon={message.sender === 'user' ? <UserOutlined /> : <RobotOutlined />}
-                      style={{ 
-                        backgroundColor: message.sender === 'user' ? '#1890ff' : '#52c41a',
-                        flexShrink: 0
-                      }}
-                    />
                     <div style={{
-                      background: message.sender === 'user' ? '#1890ff' : '#fff',
-                      color: message.sender === 'user' ? '#fff' : '#333',
-                      padding: '8px 12px',
-                      borderRadius: '12px',
-                      border: message.sender === 'agent' ? '1px solid #d9d9d9' : 'none',
-                      wordBreak: 'break-word'
+                      maxWidth: '80%',
+                      minWidth: '100px',
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'flex-start',
+                      flexDirection: message.sender === 'user' ? 'row-reverse' : 'row'
                     }}>
-                      <Paragraph 
+                      <Avatar 
+                        size="small"
+                        icon={message.sender === 'user' ? <UserOutlined /> : <RobotOutlined />}
                         style={{ 
-                          margin: 0, 
+                          backgroundColor: message.sender === 'user' ? '#1890ff' : '#52c41a',
+                          flexShrink: 0
+                        }}
+                      />
+                      <div 
+                        className="message-content"
+                        style={{
+                          background: message.sender === 'user' ? '#1890ff' : '#fff',
                           color: message.sender === 'user' ? '#fff' : '#333',
-                          whiteSpace: 'pre-wrap'
+                          padding: '8px 12px',
+                          borderRadius: '12px',
+                          border: message.sender === 'agent' ? '1px solid #d9d9d9' : 'none',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word',
+                          maxWidth: '100%',
+                          maxHeight: '300px',
+                          overflowY: 'auto',
+                          overflowX: 'hidden'
                         }}
                       >
-                        {message.content}
-                      </Paragraph>
-                      {message.tokens && (
-                        <Text 
+                        <Paragraph 
                           style={{ 
-                            fontSize: '11px', 
-                            opacity: 0.7,
-                            color: message.sender === 'user' ? '#fff' : '#666'
+                            margin: 0, 
+                            color: message.sender === 'user' ? '#fff' : '#333',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            lineHeight: '1.5'
                           }}
                         >
-                          {message.tokens} tokens
-                        </Text>
-                      )}
+                          {message.content}
+                        </Paragraph>
+                        {message.tokens && (
+                          <Text 
+                            style={{ 
+                              fontSize: '11px', 
+                              opacity: 0.7,
+                              color: message.sender === 'user' ? '#fff' : '#666'
+                            }}
+                          >
+                            {message.tokens} tokens
+                          </Text>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </List.Item>
-            )}
-          />
+                </List.Item>
+              )}
+            />
+          </div>
         )}
         
         {isLoading && (
@@ -566,5 +654,6 @@ export default function LLMChat() {
         </>
       )}
     </Card>
+    </>
   );
 }
