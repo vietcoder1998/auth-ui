@@ -55,6 +55,7 @@ export default function AdminPermissionPage() {
   interface Permission {
     id: number;
     name: string;
+    createdAt: string;
     [key: string]: any;
   }
 
@@ -64,25 +65,51 @@ export default function AdminPermissionPage() {
     key: string;
     width?: number;
     render?: (value: any, record: Permission, index: number) => React.ReactNode;
+    sorter?: (a: Permission, b: Permission) => number;
+    defaultSortOrder?: 'ascend' | 'descend';
+    fixed?: 'left' | 'right';
   }
 
   const columns: ColumnType[] = [
     { 
+      title: 'Created Date', 
+      dataIndex: 'createdAt', 
+      key: 'createdAt',
+      width: 180,
+      sorter: (a: Permission, b: Permission) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      defaultSortOrder: 'descend' as const,
+      render: (createdAt: string) => {
+        if (!createdAt) return <em style={{ color: '#999' }}>-</em>;
+        const date = new Date(createdAt);
+        return (
+          <div>
+            <div>{date.toLocaleDateString()}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{date.toLocaleTimeString()}</div>
+          </div>
+        );
+      }
+    },
+    { 
       title: 'Permission Name', 
       dataIndex: 'name', 
       key: 'name',
+      width: 220,
+      sorter: (a: Permission, b: Permission) => a.name.localeCompare(b.name),
       render: (name: string) => <code style={{ backgroundColor: '#f6f8fa', padding: '2px 6px', borderRadius: '3px' }}>{name}</code>
     },
     { 
       title: 'Description', 
       dataIndex: 'description', 
       key: 'description',
+      width: 250,
       render: (description: string) => description || <em style={{ color: '#999' }}>No description</em>
     },
     { 
       title: 'Category', 
       dataIndex: 'category', 
       key: 'category',
+      width: 120,
+      sorter: (a: Permission, b: Permission) => (a.category || 'other').localeCompare(b.category || 'other'),
       render: (category: string) => {
         const colors = {
           user: 'blue',
@@ -101,12 +128,14 @@ export default function AdminPermissionPage() {
       title: 'Route', 
       dataIndex: 'route', 
       key: 'route',
+      width: 200,
       render: (route: string) => route ? <code style={{ backgroundColor: '#f0f0f0', padding: '2px 4px', borderRadius: '2px' }}>{route}</code> : <em style={{ color: '#999' }}>-</em>
     },
     { 
       title: 'Method', 
       dataIndex: 'method', 
       key: 'method',
+      width: 100,
       render: (method: string) => {
         if (!method) return <em style={{ color: '#999' }}>-</em>;
         const colors = {
@@ -123,6 +152,7 @@ export default function AdminPermissionPage() {
       title: 'Actions', 
       key: 'actions',
       width: 150,
+      fixed: 'right' as const,
       render: (_, p) => (
         <Space size="small">
           <Button 
@@ -176,6 +206,7 @@ export default function AdminPermissionPage() {
           dataSource={permissions}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 1270 }}
           pagination={{ 
             pageSize: 10,
             showSizeChanger: true,
