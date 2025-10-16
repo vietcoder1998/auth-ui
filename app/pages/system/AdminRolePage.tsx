@@ -110,6 +110,22 @@ export default function AdminRolePage() {
   }
 
   const columns: ColumnType[] = [
+    { 
+      title: 'Created Date', 
+      dataIndex: 'createdAt', 
+      key: 'createdAt',
+      width: 120,
+      render: (createdAt: string) => {
+        if (!createdAt) return <em style={{ color: '#999' }}>-</em>;
+        const date = new Date(createdAt);
+        return (
+          <div>
+            <div>{date.toLocaleDateString()}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{date.toLocaleTimeString()}</div>
+          </div>
+        );
+      }
+    },
     { title: 'Role Name', dataIndex: 'name', key: 'name', width: 150 },
     { 
       title: 'Description', 

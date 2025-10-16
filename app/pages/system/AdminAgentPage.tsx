@@ -37,7 +37,7 @@ import type { TableProps } from 'antd';
 type ColumnsType<T> = TableProps<T>['columns'];
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { useAuth } from '../../hooks/useAuth.ts';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
