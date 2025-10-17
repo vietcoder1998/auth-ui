@@ -10,10 +10,43 @@ export default function AdminUserPage() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [openWindows, setOpenWindows] = useState<{[key: string]: Window | null}>({});
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Cleanup effect to track window states
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOpenWindows(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+        
+        Object.entries(prev).forEach(([key, window]) => {
+          if (window && window.closed) {
+            delete updated[key];
+            hasChanges = true;
+          }
+        });
+        
+        return hasChanges ? updated : prev;
+      });
+    }, 2000); // Check every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Cleanup on unmount - close all open windows
+  useEffect(() => {
+    return () => {
+      Object.values(openWindows).forEach(window => {
+        if (window && !window.closed) {
+          window.close();
+        }
+      });
+    };
+  }, [openWindows]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -27,7 +60,27 @@ export default function AdminUserPage() {
   };
 
   const handleLoginAsUser = async (email: string, nickname: string) => {
-    if (!window.confirm(`Login as "${nickname}" (${email})?\n\nThis will log you out of your admin session and log you in as this user.`)) {
+    const windowKey = email; // Use email as unique key for the window
+    
+    // Check if window is already open for this user
+    const existingWindow = openWindows[windowKey];
+    if (existingWindow && !existingWindow.closed) {
+      // If window exists and is not closed, focus it and close it first
+      existingWindow.focus();
+      existingWindow.close();
+      
+      // Remove from tracking
+      setOpenWindows(prev => {
+        const updated = { ...prev };
+        delete updated[windowKey];
+        return updated;
+      });
+      
+      // Wait a bit before opening new window
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    if (!window.confirm(`Login as "${nickname}" (${email})?\n\nThis will open a new window with user authentication.`)) {
       return;
     }
 
@@ -36,20 +89,47 @@ export default function AdminUserPage() {
       const response = await adminApi.loginAsUser(email);
       
       if (response.data.success) {
-        // Store the new token
         const token = response.data.data.token || response.data.data.accessToken;
+        
         if (token) {
-          localStorage.setItem('token', token);
-          localStorage.setItem('userEmail', email);
-          localStorage.setItem('userNickname', nickname);
+          // Create validation URL with token
+          const validationUrl = `/token-validation?token=${encodeURIComponent(token)}`;
           
-          // Show success message and redirect
-          alert(`Successfully logged in as ${nickname}!\n\nRedirecting to dashboard...`);
+          // Open new window for token validation
+          const newWindow = window.open(
+            validationUrl, 
+            `user_session_${email.replace(/[^a-zA-Z0-9]/g, '_')}`,
+            'width=800,height=600,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no'
+          );
           
-          // Redirect to main dashboard or user area
-          window.location.href = '/dashboard'; // Adjust this to your app's main user area
+          if (newWindow) {
+            // Track the opened window
+            setOpenWindows(prev => ({
+              ...prev,
+              [windowKey]: newWindow
+            }));
+            
+            // Focus the new window
+            newWindow.focus();
+            
+            // Optional: Monitor window close event
+            const checkWindowClosed = setInterval(() => {
+              if (newWindow.closed) {
+                setOpenWindows(prev => {
+                  const updated = { ...prev };
+                  delete updated[windowKey];
+                  return updated;
+                });
+                clearInterval(checkWindowClosed);
+              }
+            }, 1000);
+            
+            console.log(`Opened impersonation window for ${nickname} (${email})`);
+          } else {
+            throw new Error('Failed to open new window. Please check popup blocker settings.');
+          }
         } else {
-          throw new Error('No token received');
+          throw new Error('No token received from login response');
         }
       } else {
         throw new Error(response.data.message || 'Login failed');
@@ -120,41 +200,50 @@ export default function AdminUserPage() {
       title: 'Actions', 
       key: 'actions',
       width: 220,
-      render: (_: any, u: User) => (
-        <Space size="small">
-          <Button 
-            size="small"
-            type="primary"
-            ghost
-            icon={<LoginOutlined />}
-            onClick={() => handleLoginAsUser(u.email, u.nickname)}
-            title="Login as this user"
-          >
-            Login As
-          </Button>
-          <Button 
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => alert('Edit ' + u.email)}
-            title="Edit user"
-          >
-            Edit
-          </Button>
-          <Button 
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              if (window.confirm(`Are you sure you want to delete user ${u.email}?`)) {
-                adminApi.deleteUser(u.email).then(fetchUsers);
-              }
-            }}
-            title="Delete user"
-          >
-            Delete
-          </Button>
-        </Space>
-      ) 
+      render: (_: any, u: User) => {
+        const windowKey = u.email;
+        const hasOpenWindow = openWindows[windowKey] && !openWindows[windowKey]?.closed;
+        
+        return (
+          <Space size="small">
+            <Button 
+              size="small"
+              type={hasOpenWindow ? "default" : "primary"}
+              ghost={!hasOpenWindow}
+              icon={<LoginOutlined />}
+              onClick={() => handleLoginAsUser(u.email, u.nickname)}
+              title={hasOpenWindow ? "Close current window and open new session" : "Login as this user in new window"}
+              style={{
+                borderColor: hasOpenWindow ? '#fa8c16' : undefined,
+                color: hasOpenWindow ? '#fa8c16' : undefined
+              }}
+            >
+              {hasOpenWindow ? 'Reopen' : 'Login As'}
+            </Button>
+            <Button 
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => alert('Edit ' + u.email)}
+              title="Edit user"
+            >
+              Edit
+            </Button>
+            <Button 
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                if (window.confirm(`Are you sure you want to delete user ${u.email}?`)) {
+                  adminApi.deleteUser(u.email).then(fetchUsers);
+                }
+              }}
+              title="Delete user"
+            >
+              Delete
+            </Button>
+          </Space>
+        );
+      } 
     },
   ];
 
@@ -165,7 +254,7 @@ export default function AdminUserPage() {
         
         <Alert
           message="Admin Impersonation Feature"
-          description="Use 'Login As' to impersonate any user for testing or support purposes. This will log you out of your admin session."
+          description="Use 'Login As' to impersonate any user in a new window for testing or support purposes. The new window will validate the user token and redirect to the main application. If a window is already open for a user, clicking 'Reopen' will close the current window and open a fresh session."
           type="info"
           showIcon
           closable

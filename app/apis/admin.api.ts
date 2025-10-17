@@ -152,8 +152,13 @@ export const adminApi = {
   // User impersonation
   async loginAsUser(email: string) {
     const axios = getApiInstance();
-
     return axios.post('/admin/users/login-as', { email });
+  },
+  
+  // Token validation for impersonation
+  async validateUserToken(token: string) {
+    const axios = getApiInstance();
+    return axios.post('/admin/users/validate-token', { token });
   },
 
   // SSO Management

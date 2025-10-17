@@ -9,6 +9,7 @@ export default [
   route("/forgot-password", "pages/ForgotPassword.tsx"),
   route("/reset-password", "pages/ResetPassword.tsx"),
   route("/login-success", "pages/LoginSuccess.tsx"),
+  route("/token-validation", "pages/system/TokenValidationPage.tsx"), // Token validation for admin impersonation
 
   // Protected dashboard
   route("/dashboard", "pages/Dashboard.tsx"),
