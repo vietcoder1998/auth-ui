@@ -39,9 +39,9 @@ const AdminSocketPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await adminApi.getSockets();
-      setSockets(res.data);
-      if (res.data.length && !selectedSocketId) {
-        setSelectedSocketId(res.data[0].id);
+      setSockets(res.data.data);
+      if (res.data.data.length && !selectedSocketId) {
+        setSelectedSocketId(res.data.data[0].id);
       }
     } catch (e) {
       message.error('Failed to load sockets');
@@ -53,7 +53,7 @@ const AdminSocketPage: React.FC = () => {
   const fetchEvents = async (socketConfigId: string) => {
     try {
       const res = await adminApi.getSocketEvents(socketConfigId);
-      setEvents(res.data);
+      setEvents(res.data.data);
     } catch (e) {
       message.error('Failed to load events');
     }
