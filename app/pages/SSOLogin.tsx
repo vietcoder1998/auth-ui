@@ -156,7 +156,7 @@ const SSOLogin: React.FC = () => {
       };
 
       console.log('SSO Login Data:', { ...loginData, isSSO, redirectUrl });
-      const result = await performSSOLogin(loginData, redirectUrl);
+      const result = await performSSOLogin(loginData, redirectUrl ?? undefined);
       console.log('SSO Login Result:', result);
       if (result.success && result.userData && result.token) {
         await login(result.token, result.userData);
