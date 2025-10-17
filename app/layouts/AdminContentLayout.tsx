@@ -315,10 +315,16 @@ export default function AdminContentLayout() {
       <Menu
         mode="inline"
         selectedKeys={selectedKeys}
-        style={{ borderRight: 0, flex: 1 }}
+        style={{ borderRight: 0, flex: 1, textAlign: 'center', padding: 0, paddingLeft: 0, marginLeft: 0 }}
         items={adminLinks.map(link => ({
           key: link.path,
-          icon: <Link to={link.path}>{link.icon}</Link>,
+          icon: (
+            <Tooltip title={link.label} placement="right">
+              <Link to={link.path} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                {link.icon}
+              </Link>
+            </Tooltip>
+          ),
         }))}
       />
       <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
@@ -471,9 +477,6 @@ export default function AdminContentLayout() {
               top: 0, 
               zIndex: 999,
               marginBottom: '0',
-              paddingTop: isMainAdmin ? '0' : (isSettingsSection ? '0' : '16px'),
-              paddingLeft: isMainAdmin ? '0' : (isSettingsSection ? '0' : '16px'),
-              paddingRight: isMainAdmin ? '0' : (isSettingsSection ? '0' : '16px'),
             }} />
             
             <Outlet/>

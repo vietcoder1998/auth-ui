@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Card, Input, Space, Button, Select, Form } from 'antd';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 
@@ -44,6 +44,24 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
     padding: 0,
    }
 }) => {
+  // Debounce search
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      onSearch(value);
+    }, 400);
+  };
+
+  // If searchValue changes externally, clear debounce
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
   return (
     <Card style={style}>
       <Space direction="vertical" style={{ width: '100%' }}>
@@ -55,11 +73,10 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
             enterButton={<SearchOutlined />}
             value={searchValue}
             onSearch={onSearch}
-            onChange={(e) => onSearch(e.target.value)}
+            onChange={handleChange}
             style={{ flex: 1, minWidth: '300px' }}
             loading={loading}
           />
-          
           {showRefresh && onRefresh && (
             <Button 
               icon={<ReloadOutlined />} 
@@ -69,7 +86,6 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
               Refresh
             </Button>
           )}
-          
           {extra}
         </div>
 
