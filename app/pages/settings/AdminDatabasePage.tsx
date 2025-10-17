@@ -123,13 +123,17 @@ export default function AdminDatabasePage() {
     setLoading(true);
     try {
       const response = await adminApi.getDatabaseConnections();
-      if (response.data.success) {
-        setConnections(response.data.data || []);
+      // Updated to match the new controller response format: { data: T[], total: number }
+      if (response.data && Array.isArray(response.data.data.data)) {
+        setConnections(response.data.data.data);
       } else {
+        console.error('Invalid response format:', response.data.data.data);
+        setConnections([]);
         message.error('Failed to fetch database connections');
       }
     } catch (error) {
       console.error('Failed to fetch database connections:', error);
+      setConnections([]);
       message.error('Failed to fetch database connections');
     } finally {
       setLoading(false);
@@ -139,8 +143,9 @@ export default function AdminDatabasePage() {
   const fetchStats = async () => {
     try {
       const response = await adminApi.getDatabaseConnectionStats();
-      if (response.data.success) {
-        setStats(response.data.data);
+      // Updated to match the new controller response format
+      if (response.data) {
+        setStats(response.data);
       }
     } catch (error) {
       console.error('Failed to fetch database connection stats:', error);
@@ -150,14 +155,15 @@ export default function AdminDatabasePage() {
   const handleCreateConnection = async (values: any) => {
     try {
       const response = await adminApi.createDatabaseConnection(values);
-      if (response.data.success) {
+      // Updated to match the new controller response format
+      if (response.data) {
         message.success('Database connection created successfully');
         setCreateModalVisible(false);
         form.resetFields();
         fetchConnections();
         fetchStats();
       } else {
-        message.error(response.data.message || 'Failed to create connection');
+        message.error('Failed to create connection');
       }
     } catch (error) {
       console.error('Failed to create database connection:', error);
@@ -170,7 +176,8 @@ export default function AdminDatabasePage() {
 
     try {
       const response = await adminApi.updateDatabaseConnection(selectedConnection.id, values);
-      if (response.data.success) {
+      // Updated to match the new controller response format
+      if (response.data) {
         message.success('Database connection updated successfully');
         setEditModalVisible(false);
         setSelectedConnection(null);
@@ -178,7 +185,7 @@ export default function AdminDatabasePage() {
         fetchConnections();
         fetchStats();
       } else {
-        message.error(response.data.message || 'Failed to update connection');
+        message.error('Failed to update connection');
       }
     } catch (error) {
       console.error('Failed to update database connection:', error);
@@ -189,12 +196,13 @@ export default function AdminDatabasePage() {
   const handleDeleteConnection = async (id: string, name: string) => {
     try {
       const response = await adminApi.deleteDatabaseConnection(id);
-      if (response.data.success) {
+      // Updated to match the new controller response format
+      if (response.data && response.data.message) {
         message.success(`Database connection "${name}" deleted successfully`);
         fetchConnections();
         fetchStats();
       } else {
-        message.error(response.data.message || 'Failed to delete connection');
+        message.error('Failed to delete connection');
       }
     } catch (error) {
       console.error('Failed to delete database connection:', error);
@@ -207,8 +215,9 @@ export default function AdminDatabasePage() {
     
     try {
       const response = await adminApi.testDatabaseConnection(id);
-      if (response.data.success) {
-        const testResult = response.data.data;
+      // Updated to match the new controller response format
+      if (response.data) {
+        const testResult = response.data;
         setTestResults(prev => ({
           ...prev,
           [id]: testResult
@@ -222,7 +231,7 @@ export default function AdminDatabasePage() {
         
         fetchConnections(); // Refresh to get updated test status
       } else {
-        message.error(response.data.message || 'Test failed');
+        message.error('Test failed');
       }
     } catch (error) {
       console.error('Failed to test database connection:', error);
@@ -239,13 +248,14 @@ export default function AdminDatabasePage() {
   const handleCheckConnection = async (id: string, name: string) => {
     try {
       const response = await adminApi.checkDatabaseConnection(id);
-      if (response.data.success) {
-        const check = response.data.data;
+      // Updated to match the new controller response format
+      if (response.data) {
+        const check = response.data;
         
         if (check.success) {
           message.success(`✅ Connection "${name}" configuration is valid!`);
         } else {
-          const issues = Object.entries(check.details).filter(([, valid]) => !valid);
+          const issues = Object.entries(check.details || {}).filter(([, valid]) => !valid);
           const issueList = issues.map(([key]) => `• ${key.replace('has', '').replace(/([A-Z])/g, ' $1')}`).join('\n');
           
           Modal.warning({
@@ -261,7 +271,7 @@ export default function AdminDatabasePage() {
           });
         }
       } else {
-        message.error(response.data.message || 'Check failed');
+        message.error('Check failed');
       }
     } catch (error) {
       console.error('Failed to check database connection:', error);
@@ -281,8 +291,9 @@ export default function AdminDatabasePage() {
 
     try {
       const response = await adminApi.createDatabaseBackup(id);
-      if (response.data.success) {
-        const backup = response.data.data;
+      // Updated to match the new controller response format
+      if (response.data) {
+        const backup = response.data;
         if (backup.success) {
           message.success(`✅ Backup created successfully for "${name}"!`);
           fetchConnections(); // Refresh to get updated backup status
@@ -290,7 +301,7 @@ export default function AdminDatabasePage() {
           message.error(`❌ Backup failed for "${name}": ${backup.message || backup.error}`);
         }
       } else {
-        message.error(response.data.message || 'Backup failed');
+        message.error('Backup failed');
       }
     } catch (error) {
       console.error('Failed to create database backup:', error);
@@ -658,7 +669,7 @@ export default function AdminDatabasePage() {
       )}
 
       {/* Database Type Distribution */}
-      {stats && Object.keys(stats.byType).length > 0 && (
+      {stats && stats.byType && Object.keys(stats.byType).length > 0 && (
         <Card title="Database Types" style={{ marginBottom: '24px' }}>
           <Space wrap>
             {Object.entries(stats.byType).map(([type, count]) => (
