@@ -2,6 +2,7 @@ import {
     AuditOutlined,
     BellOutlined,
     DatabaseOutlined,
+    DragOutlined,
     ExpandOutlined,
     HistoryOutlined,
     HomeOutlined,
@@ -165,12 +166,31 @@ export default function AdminContentLayout() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
+  const [chatPosition, setChatPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
 
-  // Load chat collapse state from cookie on mount
+  // Load chat collapse state and position from cookie on mount
   useEffect(() => {
     const collapsed = Cookies.get('admin_chat_collapsed');
     setIsChatCollapsed(collapsed === 'true');
+    
+    const savedPosition = Cookies.get('admin_chat_position');
+    if (savedPosition) {
+      try {
+        const position = savedPosition as 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+        if (['bottom-right', 'bottom-left', 'top-right', 'top-left'].includes(position)) {
+          setChatPosition(position);
+        }
+      } catch (error) {
+        console.error('Failed to parse chat position from cookie:', error);
+      }
+    }
   }, []);
+
+  // Handle chat position change via buttons
+  const handlePositionChange = (position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left') => {
+    setChatPosition(position);
+    Cookies.set('admin_chat_position', position, { expires: 365 });
+  };
 
   // Determine which section we're in
   const isMainAdmin = pathname === '/admin';
@@ -426,25 +446,28 @@ export default function AdminContentLayout() {
             <Outlet/>
           </div>
           
-          {/* Floating Chat Box - Bottom Right */}
+          {/* Floating Chat Box - With Position Buttons */}
           <div
             style={{
               position: 'fixed',
-              bottom: '20px',
-              right: '20px',
               width: '400px',
               height: isChatCollapsed ? '60px' : '500px',
               background: '#fff',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
               border: '1px solid #e0e0e0',
+              borderRadius: '8px',
               zIndex: 1000,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              ...(chatPosition === 'bottom-right' && { bottom: '20px', right: '20px' }),
+              ...(chatPosition === 'bottom-left' && { bottom: '20px', left: '20px' }),
+              ...(chatPosition === 'top-right' && { top: '20px', right: '20px' }),
+              ...(chatPosition === 'top-left' && { top: '20px', left: '20px' }),
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
-              transition: 'all 0.3s ease',
             }}
           >
-            {/* Chat Header with Collapse Button */}
+            {/* Chat Header with Collapse Button and Position Controls */}
             <div
               style={{
                 padding: '12px 16px',
@@ -453,13 +476,9 @@ export default function AdminContentLayout() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                cursor: 'pointer',
-                minHeight: '48px'
-              }}
-              onClick={() => {
-                const newCollapsed = !isChatCollapsed;
-                setIsChatCollapsed(newCollapsed);
-                Cookies.set('admin_chat_collapsed', newCollapsed.toString(), { expires: 365 });
+                minHeight: '48px',
+                borderTopLeftRadius: '8px',
+                borderTopRightRadius: '8px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -468,22 +487,82 @@ export default function AdminContentLayout() {
                   AI Assistant
                 </Typography.Text>
               </div>
-              <Button
-                type="text"
-                size="small"
-                icon={isChatCollapsed ? <ExpandOutlined /> : <MinusOutlined />}
-                style={{ 
-                  color: '#666',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              />
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {/* Position Control Buttons */}
+                <Tooltip title="Change Position" placement="bottom">
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: 'top-left',
+                          label: 'Top Left',
+                          onClick: () => handlePositionChange('top-left'),
+                        },
+                        {
+                          key: 'top-right',
+                          label: 'Top Right',
+                          onClick: () => handlePositionChange('top-right'),
+                        },
+                        {
+                          key: 'bottom-left',
+                          label: 'Bottom Left',
+                          onClick: () => handlePositionChange('bottom-left'),
+                        },
+                        {
+                          key: 'bottom-right',
+                          label: 'Bottom Right',
+                          onClick: () => handlePositionChange('bottom-right'),
+                        },
+                      ]
+                    }}
+                    trigger={['click']}
+                    placement="bottomRight"
+                  >
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<DragOutlined />}
+                      style={{ 
+                        color: '#666',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    />
+                  </Dropdown>
+                </Tooltip>
+                
+                {/* Collapse Button */}
+                <Button
+                  type="text"
+                  size="small"
+                  icon={isChatCollapsed ? <ExpandOutlined /> : <MinusOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newCollapsed = !isChatCollapsed;
+                    setIsChatCollapsed(newCollapsed);
+                    Cookies.set('admin_chat_collapsed', newCollapsed.toString(), { expires: 365 });
+                  }}
+                  style={{ 
+                    color: '#666',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                />
+              </div>
             </div>
             
             {/* Chat Content */}
             {!isChatCollapsed && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div 
+                style={{ 
+                  flex: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                }}
+              >
                 <LLMChat />
               </div>
             )}
