@@ -635,7 +635,7 @@ export default function LLMChat() {
             <Divider style={{ margin: 0 }} />
             <div 
               style={{ 
-                padding: '16px',
+                padding: '6px',
                 position: 'relative'
               }}
               onDragOver={handleDragOver}
