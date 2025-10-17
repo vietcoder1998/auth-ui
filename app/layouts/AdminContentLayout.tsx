@@ -66,6 +66,11 @@ const settingsMenuItems = [
     icon: <DatabaseOutlined />,
     label: 'Database Seed',
   },
+  {
+    key: '/admin/settings/database',
+    icon: <DatabaseOutlined />,
+    label: 'Database Connections',
+  },
 ];
 
 const systemMenuItems = [

@@ -39,6 +39,7 @@ export default [
     route("settings/notifications", "pages/settings/AdminNotificationPage.tsx"), // /admin/settings/notifications
     route("settings/config", "pages/settings/AdminConfigPage.tsx"), // /admin/settings/config
     route("settings/seed", "pages/settings/AdminSeedPage.tsx"), // /admin/settings/seed
+    route("settings/database", "pages/settings/AdminDatabasePage.tsx"), // /admin/settings/database
   ]),
 
   // Root redirect (redirect to dashboard if authenticated, login if not)

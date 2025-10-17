@@ -451,4 +451,38 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.post('/admin/logs', data);
   },
+
+  // Database Connection Management APIs
+  async getDatabaseConnections(params?: any) {
+    const axios = getApiInstance();
+    return axios.get('/admin/database-connections', { params });
+  },
+  async createDatabaseConnection(data: any) {
+    const axios = getApiInstance();
+    return axios.post('/admin/database-connections', data);
+  },
+  async updateDatabaseConnection(id: string, data: any) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/database-connections/${id}`, data);
+  },
+  async deleteDatabaseConnection(id: string) {
+    const axios = getApiInstance();
+    return axios.delete(`/admin/database-connections/${id}`);
+  },
+  async testDatabaseConnection(id: string) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/database-connections/${id}/test`);
+  },
+  async checkDatabaseConnection(id: string) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/database-connections/${id}/check`);
+  },
+  async createDatabaseBackup(id: string) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/database-connections/${id}/backup`);
+  },
+  async getDatabaseConnectionStats() {
+    const axios = getApiInstance();
+    return axios.get('/admin/database-connections/stats');
+  },
 };
