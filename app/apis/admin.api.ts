@@ -371,4 +371,8 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.post(`/admin/conversations/${conversationId}/messages`, data);
   },
+  async getMessages(conversationId: string, params?: any) {
+    const axios = getApiInstance();
+    return axios.get(`/admin/conversations/${conversationId}/messages`, { params });
+  },
 };

@@ -174,13 +174,20 @@ export default function LLMChat() {
 
   const fetchMessages = async () => {
     try {
-      const response = await adminApi.getConversation(selectedConversation);
-      // Handle both direct messages array and paginated messages structure
-      console.log(response.data.data.messages.data)
-      const messages = response.data.data.messages.data || response.data.messages || [];
+      // Use the dedicated getMessages endpoint for better performance
+      const response = await adminApi.getMessages(selectedConversation);
+      const messages = response.data.data || [];
       setMessages(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
+      // Fallback to getConversation if getMessages fails
+      try {
+        const response = await adminApi.getConversation(selectedConversation);
+        const messages = response.data.messages?.data || response.data.messages || [];
+        setMessages(messages);
+      } catch (fallbackError) {
+        console.error('Error fetching messages (fallback):', fallbackError);
+      }
     }
   };
 
@@ -227,16 +234,53 @@ export default function LLMChat() {
     setInputValue('');
     setIsLoading(true);
 
+    // Create optimistic user message to show immediately
+    const optimisticUserMessage: Message = {
+      id: `temp-${Date.now()}`,
+      content: messageContent,
+      sender: 'user',
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add optimistic message immediately
+    setMessages(prev => {
+      const newMessages = [...prev, optimisticUserMessage];
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      return newMessages;
+    });
+
     try {
       const response = await adminApi.sendMessage(selectedConversation, {
         content: messageContent,
         sender: 'user'
       });
 
-      // Add both user message and AI response
-      if (response.data.userMessage && response.data.aiMessage) {
+      // Handle response and add messages
+      const messagesToAdd: Message[] = [];
+      
+      // Always add user message first if available (replace optimistic)
+      if (response.data.userMessage) {
+        messagesToAdd.push(response.data.userMessage);
+      }
+      
+      // Add AI message if available
+      if (response.data.aiMessage) {
+        messagesToAdd.push(response.data.aiMessage);
+      }
+      
+      // Fallback to messages array if direct messages not available
+      if (messagesToAdd.length === 0 && response.data.messages) {
+        messagesToAdd.push(...response.data.messages);
+      }
+      
+      // Replace optimistic message with real messages
+      if (messagesToAdd.length > 0) {
         setMessages(prev => {
-          const newMessages = [...prev, response.data.userMessage, response.data.aiMessage];
+          // Remove the optimistic message and add real messages
+          const withoutOptimistic = prev.filter(msg => msg.id !== optimisticUserMessage.id);
+          const newMessages = [...withoutOptimistic, ...messagesToAdd];
           // Scroll to bottom after messages are added
           setTimeout(() => {
             scrollToBottom();
@@ -244,11 +288,24 @@ export default function LLMChat() {
           return newMessages;
         });
       }
+      
+      // Show error if AI failed
+      if (response.data.aiError) {
+        console.warn('AI response failed:', response.data.aiError);
+        // You could also show a toast notification here
+        // message.warning('AI response failed, but your message was saved');
+      }
 
       // Clear uploaded files after sending
       setUploadedFiles([]);
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== optimisticUserMessage.id));
+      
+      // Show error message
+      message.error('Failed to send message. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -524,13 +581,50 @@ export default function LLMChat() {
                   </List.Item>
                 )}
               />
-            </div>
-          )}
-          
-          {isLoading && (
-            <div style={{ textAlign: 'center', padding: '16px' }}>
-              <Spin size="small" />
-              <Text style={{ marginLeft: '8px', color: '#666' }}>AI is thinking...</Text>
+              
+              {/* Loading indicator for AI response */}
+              {isLoading && (
+                <List.Item style={{ 
+                  border: 'none', 
+                  padding: '8px 0',
+                }}>
+                  <div style={{ 
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'flex-start'
+                  }}>
+                    <div style={{
+                      maxWidth: '80%',
+                      minWidth: '100px',
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'flex-start',
+                    }}>
+                      <Avatar 
+                        size="small"
+                        icon={<RobotOutlined />}
+                        style={{ 
+                          backgroundColor: '#52c41a',
+                          flexShrink: 0
+                        }}
+                      />
+                      <div style={{
+                        background: '#fff',
+                        color: '#333',
+                        padding: '8px 12px',
+                        borderRadius: '12px',
+                        border: '1px solid #d9d9d9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}>
+                        <Spin size="small" />
+                        <Text style={{ color: '#666' }}>AI is thinking...</Text>
+                      </div>
+                    </div>
+                  </div>
+                </List.Item>
+              )}
             </div>
           )}
           
