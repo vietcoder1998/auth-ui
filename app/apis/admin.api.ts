@@ -485,4 +485,34 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.get('/admin/database-connections/stats');
   },
+
+  // --- Socket Config & Event Management ---
+  async getSockets() {
+    const axios = getApiInstance();
+    return axios.get('/admin/sockets');
+  },
+  async createSocket(data: any) {
+    const axios = getApiInstance();
+    return axios.post('/admin/sockets', data);
+  },
+  async updateSocket(id: string, data: any) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/sockets/${id}`, data);
+  },
+  async deleteSocket(id: string) {
+    const axios = getApiInstance();
+    return axios.delete(`/admin/sockets/${id}`);
+  },
+  async getSocketEvents(socketConfigId: string) {
+    const axios = getApiInstance();
+    return axios.get(`/admin/sockets/${socketConfigId}/events`);
+  },
+  async createSocketEvent(socketConfigId: string, data: any) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/sockets/${socketConfigId}/events`, data);
+  },
+  async deleteSocketEvent(id: string) {
+    const axios = getApiInstance();
+    return axios.delete(`/admin/sockets/events/${id}`);
+  },
 };
