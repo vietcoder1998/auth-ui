@@ -9,11 +9,9 @@ import {
 
 import type { Route } from "./+types/root.ts";
 import { AuthProvider } from "./hooks/useAuth.tsx";
-import { setupAxiosErrorInterceptor } from "./utils/axiosErrorInterceptor.ts";
+import AuthDebugComponent from "./components/AuthDebugComponent.tsx";
+import "./utils/apiSetup.ts"; // Initialize axios instance early
 import "./app.css";
-
-// Setup axios error interceptor when module loads
-setupAxiosErrorInterceptor();
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -49,6 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <AuthProvider>
+      <AuthDebugComponent />
       <Outlet />
     </AuthProvider>
   );

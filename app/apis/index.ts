@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { message } from 'antd';
+import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
 
 // Cookie utility function
 const getCookie = (name: string): string | null => {
@@ -71,7 +72,25 @@ export function getApiInstance(): AxiosInstance {
                 errorMessage = error.message;
             }
             
-            // Handle different error status codes
+            // Add error to cookie for ErrorDisplay component
+            const errorDetails = {
+                url: error.config?.url,
+                method: error.config?.method?.toUpperCase(),
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                responseData: error.response?.data,
+                requestHeaders: error.config?.headers,
+                timestamp: new Date().toISOString(),
+            };
+            
+            addErrorToCookie({
+                message: errorMessage,
+                status: error.response?.status,
+                code: error.code || 'AXIOS_ERROR',
+                details: errorDetails,
+            });
+            
+            // Handle different error status codes with toasts
             if (error.response?.status === 401) {
                 errorMessage = 'Authentication failed. Please login again.';
                 

@@ -180,7 +180,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    console.error('useAuth hook called outside of AuthProvider. Current location:', window.location.href);
+    console.error('Component stack:', new Error().stack);
+    throw new Error('useAuth must be used within an AuthProvider. Make sure your component is wrapped in <AuthProvider>.');
   }
   return context;
 };

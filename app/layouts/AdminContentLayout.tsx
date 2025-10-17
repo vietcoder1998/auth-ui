@@ -166,7 +166,24 @@ const systemMenuItems = [
 export default function AdminContentLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  
+  // Add error handling for useAuth
+  let auth;
+  try {
+    auth = useAuth();
+  } catch (error) {
+    console.error('useAuth error in AdminContentLayout:', error);
+    // Fallback UI when AuthProvider is not available
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h2>Authentication Error</h2>
+        <p>Please reload the page or contact support if the issue persists.</p>
+        <button onClick={() => window.location.reload()}>Reload Page</button>
+      </div>
+    );
+  }
+  
+  const { logout, user } = auth;
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const [chatPosition, setChatPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
 
