@@ -234,7 +234,7 @@ export default function AdminTokenPage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '16px' }}>
         <h2 style={{ margin: 0, marginBottom: '16px' }}>Token Management</h2>
         

@@ -74,11 +74,11 @@ export default function AdminSettingsLayout() {
           mode="inline"
           selectedKeys={[location.pathname]}
           items={settingsMenuItems}
-          style={{ borderRight: 0, height: 'calc(100% - 112px)' }}
+          style={{ borderRight: 0, height: 'calc(100% - 122px)', overflowY: 'auto' }}
         />
       </Sider>
       <Layout>
-        <Content style={{ padding: '24px', background: '#f5f5f5' }}>
+        <Content style={{ background: '#f5f5f5' }}>
           <div
             style={{
               padding: 12,

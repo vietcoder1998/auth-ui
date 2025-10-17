@@ -123,7 +123,7 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '100vh',
-        padding: '24px'
+        
       }}>
         <Card style={{ maxWidth: 500, width: '100%' }}>
           <div style={{ textAlign: 'center' }}>
@@ -154,7 +154,6 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
       justifyContent: 'center', 
       alignItems: 'center', 
       minHeight: '100vh',
-      padding: '24px',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
       <Card style={{ maxWidth: 600, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>

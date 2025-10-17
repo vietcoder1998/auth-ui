@@ -188,7 +188,7 @@ export default function AdminSeedPage() {
   const totalItems = Object.values(stats).reduce((sum, count) => sum + (count || 0), 0);
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>
           <DatabaseOutlined style={{ marginRight: '12px' }} />

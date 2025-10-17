@@ -349,7 +349,7 @@ export default function AdminApiKeysPage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       {/* Usage Statistics */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={4}>

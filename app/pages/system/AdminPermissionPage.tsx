@@ -305,7 +305,7 @@ export default function AdminPermissionPage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2} style={{ marginBottom: '16px' }}>Permission Management</Title>
         

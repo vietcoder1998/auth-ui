@@ -248,7 +248,7 @@ export default function AdminUserPage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '24px' }}>
         <h2 style={{ marginBottom: '16px' }}>User Management</h2>
         

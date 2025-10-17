@@ -301,7 +301,7 @@ const AdminCachePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <Title level={2}>Cache Management</Title>
       
       {/* Statistics Cards */}

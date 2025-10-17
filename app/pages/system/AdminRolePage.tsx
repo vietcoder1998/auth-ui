@@ -225,7 +225,7 @@ export default function AdminRolePage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2} style={{ marginBottom: '16px' }}>Role Management</Title>
         

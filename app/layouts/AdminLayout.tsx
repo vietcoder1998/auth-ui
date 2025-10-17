@@ -193,7 +193,6 @@ export default function AdminLayout() {
         <Content style={{ 
           minWidth: 0, 
           background: '#f6f8fa', 
-          padding: '16px',
           position: 'relative'
         }}>
           <div
@@ -201,7 +200,7 @@ export default function AdminLayout() {
               background: '#fff',
               borderRadius: 8,
               height: '100%',
-              padding: '24px'
+              overflowY: 'auto',
             }}
           >
             <Outlet/>

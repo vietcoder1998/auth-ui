@@ -423,7 +423,7 @@ const AdminSSOPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <Title level={2}>SSO Management</Title>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>

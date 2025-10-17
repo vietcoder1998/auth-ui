@@ -187,7 +187,7 @@ export default function AdminConfigPage() {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>Configuration Management</Title>
       </div>

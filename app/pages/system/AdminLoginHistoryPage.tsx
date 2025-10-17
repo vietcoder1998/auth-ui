@@ -233,7 +233,7 @@ const AdminLoginHistoryPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{  }}>
       <div style={{ marginBottom: '24px' }}>
         <Typography.Title level={2}>Login History</Typography.Title>
       </div>
