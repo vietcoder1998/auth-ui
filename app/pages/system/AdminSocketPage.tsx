@@ -34,6 +34,11 @@ const AdminSocketPage: React.FC = () => {
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [selectedSocketId, setSelectedSocketId] = useState<string | null>(null);
   const [selectedSocket, setSelectedSocket] = useState<SocketConfig | null>(null);
+  const [testEventModalOpen, setTestEventModalOpen] = useState(false);
+  const [testEventName, setTestEventName] = useState('');
+  const [testEventPayload, setTestEventPayload] = useState('{}');
+  const [testEventResult, setTestEventResult] = useState<string | null>(null);
+  const [testEventLoading, setTestEventLoading] = useState(false);
 
   const fetchSockets = async () => {
     setLoading(true);
@@ -130,6 +135,46 @@ const AdminSocketPage: React.FC = () => {
     if (selectedSocket) fetchEvents(selectedSocket.id);
   };
 
+  // Ping socket action
+  const handlePingSocket = async (socket: SocketConfig) => {
+    try {
+      // You should implement this endpoint in your backend
+      const res = await adminApi.pingSocket(socket.id);
+      message.success(res.data?.message || 'Ping successful');
+    } catch (e: any) {
+      message.error(e?.response?.data?.message || 'Ping failed');
+    }
+  };
+
+  // Test event modal handler
+  const handleOpenTestEventModal = () => {
+    setTestEventName('');
+    setTestEventPayload('{}');
+    setTestEventResult(null);
+    setTestEventModalOpen(true);
+  };
+  const handleSendTestEvent = async () => {
+    if (!selectedSocket) return;
+    setTestEventLoading(true);
+    setTestEventResult(null);
+    try {
+      const payloadObj = testEventPayload ? JSON.parse(testEventPayload) : {};
+      const res = await adminApi.testSocketEvent(selectedSocket.id, { event: testEventName, payload: payloadObj });
+      setTestEventResult(res.data?.message || 'Event sent');
+    } catch (e: any) {
+      setTestEventResult(e?.response?.data?.message || 'Test event failed');
+    } finally {
+      setTestEventLoading(false);
+    }
+  };
+
+  const handleTestEventFromRow = (event: SocketEvent) => {
+    setTestEventName(event.event);
+    setTestEventPayload('{}');
+    setTestEventResult(null);
+    setTestEventModalOpen(true);
+  };
+
   // Menu for sockets
   const menuItems = sockets.map((s) => ({
     key: s.id,
@@ -145,7 +190,10 @@ const AdminSocketPage: React.FC = () => {
     { title: 'Event', dataIndex: 'event', key: 'event' },
     { title: 'Created', dataIndex: 'createdAt', key: 'createdAt', render: (d: string) => d ? new Date(d).toLocaleString() : '' },
     { title: 'Actions', key: 'actions', render: (_: any, record: SocketEvent) => (
-      <Button icon={<DeleteOutlined />} danger onClick={() => handleDeleteEvent(record.id)} />
+      <Space>
+        <Button onClick={() => handleTestEventFromRow(record)}>Test Event</Button>
+        <Button icon={<DeleteOutlined />} danger onClick={() => handleDeleteEvent(record.id)} />
+      </Space>
     ) },
   ];
 
@@ -169,6 +217,8 @@ const AdminSocketPage: React.FC = () => {
             title={<span>{selectedSocket.name} <Tag color={selectedSocket.isActive ? 'green' : 'red'}>{selectedSocket.isActive ? 'Active' : 'Inactive'}</Tag></span>}
             extra={
               <Space>
+                <Button icon={<ThunderboltOutlined />} onClick={() => handlePingSocket(selectedSocket)}>Ping Socket</Button>
+                <Button onClick={handleOpenTestEventModal}>Test Event</Button>
                 <Button icon={<EditOutlined />} onClick={() => handleEdit(selectedSocket)}>Edit</Button>
                 <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(selectedSocket.id)}>Delete</Button>
               </Space>
@@ -200,6 +250,38 @@ const AdminSocketPage: React.FC = () => {
           <Form.Item name="port" label="Port" rules={[{ required: true }]}> <Input type="number" /> </Form.Item>
           <Form.Item name="isActive" label="Active" valuePropName="checked"> <Switch /> </Form.Item>
         </Form>
+        {/* Show socket info if editing */}
+        {editing && (
+          <div style={{ marginTop: 24, background: '#f6f6f6', padding: 12, borderRadius: 6 }}>
+            <b>Socket Info</b><br />
+            <b>ID:</b> {editing.id}<br />
+            <b>Created:</b> {editing.createdAt ? new Date(editing.createdAt).toLocaleString() : ''}<br />
+            <b>Updated:</b> {editing.updatedAt ? new Date(editing.updatedAt).toLocaleString() : ''}
+          </div>
+        )}
+      </Modal>
+      <Modal
+        open={testEventModalOpen}
+        title={`Test Event for ${selectedSocket?.name || ''}`}
+        onCancel={() => setTestEventModalOpen(false)}
+        onOk={handleSendTestEvent}
+        okText={testEventLoading ? 'Sending...' : 'Send Event'}
+        confirmLoading={testEventLoading}
+      >
+        <Form layout="vertical">
+          <Form.Item label="Event Name" required>
+            <Input value={testEventName} onChange={e => setTestEventName(e.target.value)} placeholder="event name" />
+          </Form.Item>
+          <Form.Item label="Payload (JSON)">
+            <Input.TextArea value={testEventPayload} onChange={e => setTestEventPayload(e.target.value)} rows={4} placeholder="{ }" />
+          </Form.Item>
+        </Form>
+        {testEventResult && (
+          <div style={{ marginTop: 16, background: '#f6f6f6', padding: 12, borderRadius: 6 }}>
+            <b>Result:</b><br />
+            <span>{testEventResult}</span>
+          </div>
+        )}
       </Modal>
     </Layout>
   );

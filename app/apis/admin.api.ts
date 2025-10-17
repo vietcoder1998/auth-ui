@@ -515,4 +515,12 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.delete(`/admin/sockets/events/${id}`);
   },
+  async pingSocket(id: string) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/sockets/${id}/ping`);
+  },
+  async testSocketEvent(id: string, data: { event: string; payload: any }) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/sockets/${id}/test-event`, data);
+  },
 };
