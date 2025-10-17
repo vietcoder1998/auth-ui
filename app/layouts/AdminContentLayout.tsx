@@ -142,6 +142,11 @@ const systemMenuItems = [
         label: 'Logic History',
       },
       {
+        key: '/admin/system/logs',
+        icon: <AuditOutlined />,
+        label: 'Application Logs',
+      },
+      {
         key: '/admin/system/cache',
         icon: <DatabaseOutlined />,
         label: 'Cache',
