@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, Space, Typography, Modal, Input, Form, Select, Tag } from 'antd';
-import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, KeyOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, KeyOutlined, SearchOutlined } from '@ant-design/icons';
 import AddRoleModal from '../modals/AddRoleModal.tsx';
+import AddMissingPermissionsModal from './modals/AddMissingPermissionsModal.tsx';
 
 import CommonSearch from '../../components/CommonSearch.tsx';
 
@@ -15,8 +16,10 @@ export default function AdminRolePage() {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [addPermissionModalVisible, setAddPermissionModalVisible] = useState(false);
+  const [missingPermissionsModalVisible, setMissingPermissionsModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
   const [selectedRoleForPermission, setSelectedRoleForPermission] = useState<any>(null);
+  const [selectedRoleForMissingPermissions, setSelectedRoleForMissingPermissions] = useState<any>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [form] = Form.useForm();
@@ -84,6 +87,17 @@ export default function AdminRolePage() {
     fetchPermissions();
     setAddPermissionModalVisible(false);
     setSelectedRoleForPermission(null);
+  };
+
+  const handleFindMissingPermissions = (role: Role) => {
+    setSelectedRoleForMissingPermissions(role);
+    setMissingPermissionsModalVisible(true);
+  };
+
+  const handleMissingPermissionsSuccess = () => {
+    fetchRoles();
+    setMissingPermissionsModalVisible(false);
+    setSelectedRoleForMissingPermissions(null);
   };
 
   interface Role {
@@ -180,6 +194,16 @@ export default function AdminRolePage() {
               onClick={() => handleAddPermissionToRole(r)}
             >
               Add Permission
+            </Button>
+          </Space>
+          <Space size="small">
+            <Button 
+              size="small"
+              icon={<SearchOutlined />}
+              onClick={() => handleFindMissingPermissions(r)}
+              type="dashed"
+            >
+              Find Missing
             </Button>
           </Space>
           <Button 
@@ -379,6 +403,14 @@ export default function AdminRolePage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Add Missing Permissions Modal */}
+      <AddMissingPermissionsModal
+        visible={missingPermissionsModalVisible}
+        onCancel={() => setMissingPermissionsModalVisible(false)}
+        onSuccess={handleMissingPermissionsSuccess}
+        role={selectedRoleForMissingPermissions}
+      />
     </div>
   );
 }

@@ -50,6 +50,14 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.delete(`/admin/roles/${id}`);
   },
+  async getPermissionsNotInRole(roleId: string, params?: any) {
+    const axios = getApiInstance();
+    return axios.get(`/admin/roles/${roleId}/permissions/available`, { params });
+  },
+  async addPermissionsToRole(roleId: string, permissionIds: string[]) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/roles/${roleId}/permissions/add`, { permissionIds });
+  },
   async getPermissions(params?: any) {
     const axios = getApiInstance();
     return axios.get('/admin/permissions', { params });
