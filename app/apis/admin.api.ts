@@ -427,4 +427,28 @@ export const adminApi = {
       data: { confirm: confirmation }
     });
   },
+
+  // Log Management APIs
+  async getLogs(params?: any) {
+    const axios = getApiInstance();
+    return axios.get('/admin/logs', { params });
+  },
+  async getLogStats() {
+    const axios = getApiInstance();
+    return axios.get('/admin/logs/stats');
+  },
+  async exportLogs(params?: any) {
+    const axios = getApiInstance();
+    return axios.get('/admin/logs/export', { params });
+  },
+  async clearOldLogs(daysToKeep: number) {
+    const axios = getApiInstance();
+    return axios.delete('/admin/logs/clear', {
+      data: { daysToKeep }
+    });
+  },
+  async createLogEntry(data: any) {
+    const axios = getApiInstance();
+    return axios.post('/admin/logs', data);
+  },
 };

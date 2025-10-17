@@ -28,6 +28,7 @@ export default [
     route("system/login-history", "pages/system/AdminLoginHistoryPage.tsx"), // /admin/system/login-history
     route("system/logic-history", "pages/system/AdminLogicHistoryPage.tsx"), // /admin/system/logic-history
     route("system/cache", "pages/system/AdminCachePage.tsx"), // /admin/system/cache
+    route("system/logs", "pages/system/AdminLogPage.tsx"), // /admin/system/logs
     route("system/agents", "pages/system/AdminAgentPage.tsx"), // /admin/system/agents
     route("system/conversations", "pages/system/AdminConversationList.tsx"), // /admin/system/conversations
     

@@ -9,7 +9,8 @@ import {
   ReloadOutlined,
   LinkOutlined,
   HistoryOutlined,
-  AuditOutlined 
+  AuditOutlined,
+  FileTextOutlined 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -26,6 +27,7 @@ export default function AdminSystemIndexPage() {
     sso: 0,
     loginHistory: 0,
     logicHistory: 0,
+    logs: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -43,10 +45,11 @@ export default function AdminSystemIndexPage() {
         adminApi.getTokens(),
       ]);
 
-      // Fetch additional stats for SSO and History (with fallbacks)
+      // Fetch additional stats for SSO, History, and Logs (with fallbacks)
       let ssoCount = 0;
       let loginHistoryCount = 0;
       let logicHistoryCount = 0;
+      let logsCount = 0;
 
       try {
         const ssoResponse = await fetch('/api/admin/sso/stats');
@@ -78,6 +81,15 @@ export default function AdminSystemIndexPage() {
         console.warn('Failed to fetch logic history stats:', error);
       }
 
+      try {
+        const logsResponse = await adminApi.getLogStats();
+        if (logsResponse.data.success) {
+          logsCount = logsResponse.data.data.totalLogs || 0;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch logs stats:', error);
+      }
+
       setStats({
         users: usersRes.status === 'fulfilled' ? usersRes.value.data.data?.length || 0 : 0,
         roles: rolesRes.status === 'fulfilled' ? rolesRes.value.data.data?.length || 0 : 0,
@@ -86,6 +98,7 @@ export default function AdminSystemIndexPage() {
         sso: ssoCount,
         loginHistory: loginHistoryCount,
         logicHistory: logicHistoryCount,
+        logs: logsCount,
       });
     } catch (error) {
       console.error('Failed to fetch system statistics:', error);
@@ -150,6 +163,14 @@ export default function AdminSystemIndexPage() {
       color: '#f5222d',
       path: '/admin/system/logic-history',
       description: 'Audit trail of system changes and actions',
+    },
+    {
+      title: 'Application Logs',
+      count: stats.logs,
+      icon: <FileTextOutlined />,
+      color: '#faad14',
+      path: '/admin/system/logs',
+      description: 'Monitor application logs and system events',
     },
   ];
 
