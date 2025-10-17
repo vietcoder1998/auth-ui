@@ -36,7 +36,46 @@ export const ErrorTestComponent: React.FC = () => {
       
       console.log('Request succeeded!');
     } catch (error) {
-      handleApiError(error, 'Test 403 Error');
+      handleApiError(error, 'Test 403 Error with Fix Button');
+    }
+  };
+
+  const testPermissionError = async () => {
+    // Test different permission scenarios
+    const testUrls = [
+      { url: '/api/admin/users', method: 'GET', description: 'Users Read Permission' },
+      { url: '/api/admin/roles', method: 'POST', description: 'Roles Write Permission' },
+      { url: '/api/admin/cache', method: 'DELETE', description: 'Cache Delete Permission' },
+    ];
+
+    for (const test of testUrls) {
+      try {
+        const response = await fetch(test.url, {
+          method: test.method,
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' },
+          body: test.method !== 'GET' ? JSON.stringify({}) : undefined,
+        });
+        
+        if (!response.ok && response.status === 403) {
+          const errorData = await response.json().catch(() => ({}));
+          const error = new Error(`Access denied for ${test.description}`);
+          (error as any).response = {
+            status: 403,
+            statusText: 'Forbidden',
+            data: errorData,
+          };
+          (error as any).config = {
+            url: test.url,
+            method: test.method,
+          };
+          (error as any).code = 'ERR_FORBIDDEN';
+          
+          handleApiError(error, `Permission Test: ${test.description}`);
+        }
+      } catch (error) {
+        handleApiError(error, `Permission Test: ${test.description}`);
+      }
     }
   };
 
@@ -85,7 +124,11 @@ export const ErrorTestComponent: React.FC = () => {
       
       <Space direction="vertical" style={{ width: '100%' }}>
         <Button type="primary" onClick={test403Error}>
-          Test 403 Forbidden Error (Like Your Example)
+          Test 403 Forbidden Error (With Fix Button)
+        </Button>
+        
+        <Button onClick={testPermissionError}>
+          Test Multiple Permission Errors
         </Button>
         
         <Button onClick={testNetworkError}>
