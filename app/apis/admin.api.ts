@@ -389,6 +389,10 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.get('/admin/seed/stats');
   },
+  async getSeedData() {
+    const axios = getApiInstance();
+    return axios.get('/admin/seed/data');
+  },
   async seedAll() {
     const axios = getApiInstance();
     return axios.post('/admin/seed/all');
