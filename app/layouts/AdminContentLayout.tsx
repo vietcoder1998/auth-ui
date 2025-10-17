@@ -24,7 +24,9 @@ import { Avatar, Breadcrumb, Button, Dropdown, Layout, Menu, Tooltip, Typography
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import ErrorDisplay from '../components/ErrorDisplay.tsx';
 import LLMChat from '../components/LLMChat.tsx';
+import StatusIndicator from '../components/StatusIndicator.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 
 const { Sider, Content, Header } = Layout;
@@ -402,6 +404,9 @@ export default function AdminContentLayout() {
             style={{ fontSize: '14px' }}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* System Status Indicator */}
+            <StatusIndicator />
+            
             <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
               <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
                 {user?.nickname || user?.email || 'Unknown User'}
@@ -443,6 +448,17 @@ export default function AdminContentLayout() {
               minHeight: 360,
             }}
           >
+            {/* Error Display at the top */}
+            <ErrorDisplay style={{ 
+              position: 'sticky', 
+              top: 0, 
+              zIndex: 999,
+              marginBottom: '0',
+              paddingTop: isMainAdmin ? '0' : (isSettingsSection ? '0' : '16px'),
+              paddingLeft: isMainAdmin ? '0' : (isSettingsSection ? '0' : '16px'),
+              paddingRight: isMainAdmin ? '0' : (isSettingsSection ? '0' : '16px'),
+            }} />
+            
             <Outlet/>
           </div>
           

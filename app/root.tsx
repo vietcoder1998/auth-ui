@@ -9,7 +9,11 @@ import {
 
 import type { Route } from "./+types/root.ts";
 import { AuthProvider } from "./hooks/useAuth.tsx";
+import { setupAxiosErrorInterceptor } from "./utils/axiosErrorInterceptor.ts";
 import "./app.css";
+
+// Setup axios error interceptor when module loads
+setupAxiosErrorInterceptor();
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
