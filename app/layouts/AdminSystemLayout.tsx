@@ -120,22 +120,23 @@ export default function AdminSystemLayout() {
         style={{
           background: '#fff',
           borderRight: '1px solid #f0f0f0',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 999
         }}
         collapsed={false}
       >
-        <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
-          <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
-            System Management
-          </Title>
-        </div>
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
+          title='System Management'
           items={systemMenuItems} 
           style={{ borderRight: 0, height: 'calc(100% - 112px)' }}
         />
       </Sider>
-      <Layout>
+      <Layout style={{ marginLeft: '250px' }}>
         <Content style={{ background: '#f5f5f5' }}>
           <div
             style={{

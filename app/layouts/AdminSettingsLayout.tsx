@@ -62,6 +62,11 @@ export default function AdminSettingsLayout() {
         style={{
           background: '#fff',
           borderRight: '1px solid #f0f0f0',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 999
         }}
         collapsed={false}
       >
@@ -77,7 +82,7 @@ export default function AdminSettingsLayout() {
           style={{ borderRight: 0, height: 'calc(100% - 122px)', overflowY: 'auto' }}
         />
       </Sider>
-      <Layout>
+      <Layout style={{ marginLeft: '250px' }}>
         <Content style={{ background: '#f5f5f5' }}>
           <div
             style={{

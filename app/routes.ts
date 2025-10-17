@@ -15,33 +15,29 @@ export default [
   route("/dashboard", "pages/Dashboard.tsx"),
 
   // Admin layout with protected subroutes
-  route("/admin", "layouts/AdminLayout.tsx", [
+  route("/admin", "layouts/AdminContentLayout.tsx", [
     route("", "pages/AdminIndexPage.tsx"), // /admin
     
     // System management routes (including AI Management)
-    route("system", "layouts/AdminSystemLayout.tsx", [
-      route("", "pages/system/AdminSystemIndexPage.tsx"), // /admin/system
-      route("users", "pages/system/AdminUserPage.tsx"), // /admin/system/users
-      route("tokens", "pages/system/AdminTokenPage.tsx"), // /admin/system/tokens
-      route("roles", "pages/system/AdminRolePage.tsx"), // /admin/system/roles
-      route("permissions", "pages/system/AdminPermissionPage.tsx"), // /admin/system/permissions
-      route("sso", "pages/system/AdminSSOPage.tsx"), // /admin/system/sso
-      route("login-history", "pages/system/AdminLoginHistoryPage.tsx"), // /admin/system/login-history
-      route("logic-history", "pages/system/AdminLogicHistoryPage.tsx"), // /admin/system/logic-history
-      route("cache", "pages/system/AdminCachePage.tsx"), // /admin/system/cache
-      route("agents", "pages/system/AdminAgentPage.tsx"), // /admin/system/agents
-      route("conversations", "pages/system/AdminConversationList.tsx"), // /admin/system/conversations
-    ]),
+    route("system", "pages/system/AdminSystemIndexPage.tsx"), // /admin/system
+    route("system/users", "pages/system/AdminUserPage.tsx"), // /admin/system/users
+    route("system/tokens", "pages/system/AdminTokenPage.tsx"), // /admin/system/tokens
+    route("system/roles", "pages/system/AdminRolePage.tsx"), // /admin/system/roles
+    route("system/permissions", "pages/system/AdminPermissionPage.tsx"), // /admin/system/permissions
+    route("system/sso", "pages/system/AdminSSOPage.tsx"), // /admin/system/sso
+    route("system/login-history", "pages/system/AdminLoginHistoryPage.tsx"), // /admin/system/login-history
+    route("system/logic-history", "pages/system/AdminLogicHistoryPage.tsx"), // /admin/system/logic-history
+    route("system/cache", "pages/system/AdminCachePage.tsx"), // /admin/system/cache
+    route("system/agents", "pages/system/AdminAgentPage.tsx"), // /admin/system/agents
+    route("system/conversations", "pages/system/AdminConversationList.tsx"), // /admin/system/conversations
     
     // Settings management routes
-    route("settings", "layouts/AdminSettingsLayout.tsx", [
-      route("", "pages/settings/AdminSettingsIndexPage.tsx"), // /admin/settings
-      route("api-keys", "pages/settings/AdminApiKeysPage.tsx"), // /admin/settings/api-keys
-      route("mail", "pages/settings/AdminMailPage.tsx"), // /admin/settings/mail
-      route("notifications", "pages/settings/AdminNotificationPage.tsx"), // /admin/settings/notifications
-      route("config", "pages/settings/AdminConfigPage.tsx"), // /admin/settings/config
-      route("seed", "pages/settings/AdminSeedPage.tsx"), // /admin/settings/seed
-    ]),
+    route("settings", "pages/settings/AdminSettingsIndexPage.tsx"), // /admin/settings
+    route("settings/api-keys", "pages/settings/AdminApiKeysPage.tsx"), // /admin/settings/api-keys
+    route("settings/mail", "pages/settings/AdminMailPage.tsx"), // /admin/settings/mail
+    route("settings/notifications", "pages/settings/AdminNotificationPage.tsx"), // /admin/settings/notifications
+    route("settings/config", "pages/settings/AdminConfigPage.tsx"), // /admin/settings/config
+    route("settings/seed", "pages/settings/AdminSeedPage.tsx"), // /admin/settings/seed
   ]),
 
   // Root redirect (redirect to dashboard if authenticated, login if not)

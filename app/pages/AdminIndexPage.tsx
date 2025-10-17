@@ -147,7 +147,7 @@ export default function AdminIndexPage() {
   const overallProgress = Math.round((completedFeatures / totalFeatures) * 100);
 
   return (
-    <div style={{ , backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
         <Card style={{ marginBottom: '24px', textAlign: 'center' }}>
