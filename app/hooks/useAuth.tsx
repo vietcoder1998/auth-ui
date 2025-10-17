@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Try to get fresh user data from API
         try {
-          const userData = await getMe();
+          const {data: userData} = await getMe();
           setUser(userData);
           // Update user cookie with fresh data
           setCookie('auth_user', JSON.stringify(userData));
