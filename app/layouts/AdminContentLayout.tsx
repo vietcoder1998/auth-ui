@@ -17,6 +17,7 @@ import {
     SafetyOutlined,
     SettingOutlined,
     TeamOutlined,
+    ThunderboltOutlined,
     UserOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
@@ -158,6 +159,11 @@ const systemMenuItems = [
         key: '/admin/system/cache',
         icon: <DatabaseOutlined />,
         label: 'Cache',
+      },
+      {
+        key: '/admin/system/sockets',
+        icon: <ThunderboltOutlined />,
+        label: 'Socket Connections',
       },
     ],
   },

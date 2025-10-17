@@ -11,7 +11,7 @@ export const extractPermissionFromUrl = (url: string, method: string = 'GET'): P
   if (!url) return null;
 
   const normalizedMethod = method.toUpperCase();
-  const isWriteOperation = ['POST', 'PUT', 'PATCH'].includes(normalizedMethod);
+  const isWriteOperation = ['POST', 'PUT', 'PATCH', 'GET'].includes(normalizedMethod);
   const isDeleteOperation = normalizedMethod === 'DELETE';
 
   // Define URL to permission mappings
@@ -50,6 +50,9 @@ export const extractPermissionFromUrl = (url: string, method: string = 'GET'): P
     
     // Configuration
     { pattern: /\/config/, resource: 'admin:config', description: 'System Configuration' },
+
+    // Socket Management
+    { pattern: /\/admin\/sockets/, resource: 'admin:sockets', description: 'Socket Management' },
   ];
 
   // Find matching pattern

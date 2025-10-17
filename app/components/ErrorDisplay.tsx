@@ -113,8 +113,8 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
 
   // Check if user is super admin
   const isSuperAdmin = () => {
-    console.log(user)
-    return user?.role?.name === 'superadmin' || user?.role?.name === 'admin';
+    console.log(user?.role?.name)
+    return user?.role?.name === "superadmin" || user?.role?.name === 'admin';
   };
 
   // Extract permission from URL for 403 errors
