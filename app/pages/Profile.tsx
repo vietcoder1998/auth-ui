@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
               Refresh User
             </button>
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               Logout
@@ -137,4 +137,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default Profile;

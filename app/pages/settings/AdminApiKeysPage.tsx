@@ -34,14 +34,10 @@ import {
 } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 
 const { TextArea } = Input;
 const { Option } = Select;
 const { Text, Paragraph } = Typography;
-
-// Extend dayjs with relativeTime plugin
-dayjs.extend(relativeTime);
 
 interface ApiKey {
   id: string;
@@ -292,7 +288,7 @@ export default function AdminApiKeysPage() {
           <div>{record._count?.apiUsageLogs || 0} requests</div>
           {record.lastUsedAt && (
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              Last used: {dayjs(record.lastUsedAt).fromNow()}
+              Last used: {dayjs(record.lastUsedAt).format('YYYY-MM-DD HH:mm')}
             </Text>
           )}
         </div>

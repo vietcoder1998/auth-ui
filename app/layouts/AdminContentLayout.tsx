@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Menu, Typography, Button, Tooltip, Avatar, Dropdown, Breadcrumb } from 'antd';
-import type { MenuProps } from 'antd';
-import Cookies from 'js-cookie';
 import {
-  DatabaseOutlined,
-  SettingOutlined,
-  HomeOutlined,
-  LogoutOutlined,
-  UserOutlined,
-  ProfileOutlined,
-  MessageOutlined,
-  MinusOutlined,
-  ExpandOutlined,
-  MailOutlined,
-  BellOutlined,
-  KeyOutlined,
-  TeamOutlined,
-  SafetyOutlined,
-  LinkOutlined,
-  HistoryOutlined,
-  AuditOutlined,
-  RobotOutlined,
+    AuditOutlined,
+    BellOutlined,
+    DatabaseOutlined,
+    ExpandOutlined,
+    HistoryOutlined,
+    HomeOutlined,
+    KeyOutlined,
+    LinkOutlined,
+    LogoutOutlined,
+    MailOutlined,
+    MessageOutlined,
+    MinusOutlined,
+    ProfileOutlined,
+    RobotOutlined,
+    SafetyOutlined,
+    SettingOutlined,
+    TeamOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
-import { Outlet } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.tsx';
+import type { MenuProps } from 'antd';
+import { Avatar, Breadcrumb, Button, Dropdown, Layout, Menu, Tooltip, Typography } from 'antd';
+import Cookies from 'js-cookie';
+import React, { useEffect, useState } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import LLMChat from '../components/LLMChat.tsx';
+import { useAuth } from '../hooks/useAuth.tsx';
 
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
@@ -403,12 +402,11 @@ export default function AdminContentLayout() {
         <Content style={{ 
           minWidth: 0, 
           background: isMainAdmin ? '#f6f8fa' : '#f5f5f5', 
-          position: 'relative'
+          position: 'relative',
         }}>
           <div
             style={{
               background: '#fff',
-              borderRadius: 8,
               height: '100%',
               overflowY: 'auto',
               padding: isMainAdmin ? '24px' : (isSettingsSection ? '12px' : '0px'),
@@ -427,14 +425,13 @@ export default function AdminContentLayout() {
               width: '400px',
               height: isChatCollapsed ? '60px' : '500px',
               background: '#fff',
-              borderRadius: '12px',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
               border: '1px solid #e0e0e0',
               zIndex: 1000,
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
             }}
           >
             {/* Chat Header with Collapse Button */}

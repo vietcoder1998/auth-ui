@@ -21,7 +21,7 @@ import {
   CopyOutlined,
   SyncOutlined
 } from '@ant-design/icons';
-import { adminApi } from '../../../apis/admin.api';
+import { adminApi } from '../../../apis/admin.api.ts';
 import dayjs from 'dayjs';
 
 interface SSOEntry {

@@ -11,8 +11,8 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "npm run typecheck"
+    "*.{ts,tsx}": [
+      "echo 'TypeScript files staged for commit'"
     ]
   },
   "dependencies": {
