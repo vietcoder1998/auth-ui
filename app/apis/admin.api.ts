@@ -383,4 +383,44 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.get(`/admin/conversations/${conversationId}/messages`, { params });
   },
+
+  // Database Seed Management
+  async getSeedStats() {
+    const axios = getApiInstance();
+    return axios.get('/admin/seed/stats');
+  },
+  async seedAll() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/all');
+  },
+  async seedPermissions() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/permissions');
+  },
+  async seedRoles() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/roles');
+  },
+  async seedUsers() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/users');
+  },
+  async seedConfigs() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/configs');
+  },
+  async seedAgents() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/agents');
+  },
+  async seedApiKeys() {
+    const axios = getApiInstance();
+    return axios.post('/admin/seed/api-keys');
+  },
+  async clearAllData(confirmation: string = 'DELETE_ALL_DATA') {
+    const axios = getApiInstance();
+    return axios.delete('/admin/seed/clear-all', {
+      data: { confirm: confirmation }
+    });
+  },
 };

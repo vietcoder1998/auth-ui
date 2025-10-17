@@ -6,6 +6,7 @@ import {
   BellOutlined,
   SettingOutlined,
   KeyOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 
 const { Content, Sider } = Layout;
@@ -45,6 +46,12 @@ export default function AdminSettingsLayout() {
       icon: <SettingOutlined />,
       label: 'Configuration',
       onClick: () => navigate('/admin/settings/config'),
+    },
+    {
+      key: '/admin/settings/seed',
+      icon: <DatabaseOutlined />,
+      label: 'Database Seed',
+      onClick: () => navigate('/admin/settings/seed'),
     },
   ];
 

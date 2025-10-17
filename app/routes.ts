@@ -40,6 +40,7 @@ export default [
       route("mail", "pages/settings/AdminMailPage.tsx"), // /admin/settings/mail
       route("notifications", "pages/settings/AdminNotificationPage.tsx"), // /admin/settings/notifications
       route("config", "pages/settings/AdminConfigPage.tsx"), // /admin/settings/config
+      route("seed", "pages/settings/AdminSeedPage.tsx"), // /admin/settings/seed
     ]),
   ]),
 
