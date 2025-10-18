@@ -309,10 +309,31 @@ export default function AdminContentLayout() {
       label: 'Dashboard',
     },
     { type: 'divider' as const },
-    ...systemMenuItems.filter(i => !i.type).map(i => ({ ...i })),
-    ...systemMenuItems.filter(i => i.type === 'group').flatMap(i => (i.children ? i.children : [])),
+    {
+      type: 'group' as const,
+      label: 'AI Management',
+      key: 'ai-section',
+      children: systemMenuItems.find(i => i.key === 'ai-section')?.children || [],
+    },
+    {
+      type: 'group' as const,
+      label: 'User Management',
+      key: 'user-section',
+      children: systemMenuItems.find(i => i.key === 'user-section')?.children || [],
+    },
+    {
+      type: 'group' as const,
+      label: 'Monitoring & Logs',
+      key: 'monitoring-section',
+      children: systemMenuItems.find(i => i.key === 'monitoring-section')?.children || [],
+    },
     { type: 'divider' as const },
-    ...settingsMenuItems.map(i => ({ ...i })),
+    {
+      type: 'group' as const,
+      label: 'Settings',
+      key: 'settings-section',
+      children: settingsMenuItems,
+    },
   ];
 
   return (
@@ -328,7 +349,6 @@ export default function AdminContentLayout() {
           zIndex: 1001,
         }}
         width={250}
-        collapsed={false}
       >
         <Menu
           mode="inline"
