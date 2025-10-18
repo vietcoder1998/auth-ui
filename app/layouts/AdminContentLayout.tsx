@@ -301,128 +301,59 @@ export default function AdminContentLayout() {
     }
   ];
 
-  // Render main admin sidebar (narrow)
-  const renderMainSidebar = () => (
-    <Sider
-      style={{ 
-        background: '#fff', 
-        borderRight: '1px solid #eee',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 1001
-      }}
-      width={80}
-      collapsed={false}
-    >
-      <Menu
-        mode="inline"
-        selectedKeys={selectedKeys}
-        style={{ borderRight: 0, flex: 1, textAlign: 'center', padding: 0, paddingLeft: 0, marginLeft: 0 }}
-        items={adminLinks.map(link => ({
-          key: link.path,
-          icon: (
-            <Tooltip title={link.label} placement="right">
-              <Link to={link.path} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                {link.icon}
-              </Link>
-            </Tooltip>
-          ),
-        }))}
-      />
-      <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
-        <Tooltip title="Logout" placement="right">
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            onClick={handleLogout}
-            style={{ width: '100%', height: '40px' }}
-            danger
-          />
-        </Tooltip>
-      </div>
-    </Sider>
-  );
-
-  // Render section sidebar (wide)
-  const renderSectionSidebar = () => {
-    if (isMainAdmin) return null;
-
-    const menuItems = isSystemSection ? systemMenuItems : settingsMenuItems;
-    const sectionTitle = isSystemSection ? 'System Management' : 'Settings Management';
-    const sectionColor = isSystemSection ? '#1890ff' : '#52c41a';
-
-    return (
-      <Sider
-        width={250}
-        style={{
-          background: '#fff',
-          borderRight: '1px solid #f0f0f0',
-          position: 'fixed',
-          left: '80px',
-          top: 0,
-          bottom: 0,
-          zIndex: 999
-        }}
-        collapsed={false}
-      >
-        {isSettingsSection && (
-          <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
-            <Title level={4} style={{ margin: 0, color: sectionColor }}>
-              {sectionTitle}
-            </Title>
-          </div>
-        )}
-        <Menu
-          mode="inline"
-          selectedKeys={[pathname]}
-          items={menuItems.map(item => {
-            if ('children' in item && item.children) {
-              return {
-                ...item,
-                children: item.children.map((child: any) => ({
-                  ...child,
-                  onClick: () => handleMenuClick(child.key as string)
-                }))
-              };
-            }
-            return {
-              ...item,
-              onClick: item.key ? () => handleMenuClick(item.key as string) : undefined,
-            };
-          })}
-          style={{ 
-            borderRight: 0, 
-            height: isSettingsSection ? 'calc(100% - 122px)' : 'calc(100% - 112px)', 
-            overflowY: 'auto' 
-          }}
-        />
-      </Sider>
-    );
-  };
-
-  // Calculate left margin based on active sidebars
-  const getContentMarginLeft = () => {
-    if (isMainAdmin) return '80px';
-    return '330px'; // 80px (main) + 250px (section)
-  };
+  // Build merged sidebar items with correct Ant Design Menu structure
+  const mergedSidebarItems = [
+    {
+      key: '/admin',
+      icon: <HomeOutlined />,
+      label: 'Dashboard',
+    },
+    { type: 'divider' as const },
+    ...systemMenuItems.filter(i => !i.type).map(i => ({ ...i })),
+    ...systemMenuItems.filter(i => i.type === 'group').flatMap(i => (i.children ? i.children : [])),
+    { type: 'divider' as const },
+    ...settingsMenuItems.map(i => ({ ...i })),
+  ];
 
   return (
     <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
-      {renderMainSidebar()}
-      {renderSectionSidebar()}
-      
-      <Layout style={{ marginLeft: getContentMarginLeft() }}>
+      <Sider
+        style={{
+          background: '#fff',
+          borderRight: '1px solid #eee',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 1001,
+        }}
+        width={250}
+        collapsed={false}
+      >
+        <Menu
+          mode="inline"
+          selectedKeys={[pathname]}
+          style={{ borderRight: 0, flex: 1, padding: 0, marginLeft: 0 }}
+          items={mergedSidebarItems}
+          onClick={({ key }) => navigate(key)}
+        />
+        <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
+          <Tooltip title="Logout" placement="right">
+            <Button
+              type="text"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              style={{ width: '100%', height: '40px' }}
+              danger
+            />
+          </Tooltip>
+        </div>
+      </Sider>
+      <Layout style={{ marginLeft: 250 }}>
         <Header style={{ 
           background: '#fff', 
           borderBottom: '1px solid #eee',
           padding: '0 24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
           height: 64,
           position: 'sticky',
           top: 0,
