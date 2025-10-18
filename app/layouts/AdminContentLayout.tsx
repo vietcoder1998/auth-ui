@@ -33,6 +33,8 @@ import LLMChat from '../components/LLMChat.tsx';
 import StatusIndicator from '../components/StatusIndicator.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import useCookie from '../hooks/useCookie.tsx';
+import AdminHeader from './AdminHeader.tsx';
+import AdminSidebar from './AdminSidebar.tsx';
 
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
@@ -372,173 +374,23 @@ export default function AdminContentLayout() {
 
   return (
     <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
-      <Sider
-        style={{
-          background: '#fff',
-          borderRight: '1px solid #eee',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 1001,
-          overflowY: 'auto',
-        }}
-        width={250}
-      >
-        {/* Sidebar header with search and edit button */}
-        <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', gap: 8 }}>
-          <input
-            type="text"
-            placeholder="Search menu..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ flex: 1, border: '1px solid #eee', borderRadius: 4, padding: '4px 8px', fontSize: 14 }}
-          />
-          <Button
-            icon={<EditOutlined />}
-            type={editSidebar ? 'primary' : 'default'}
-            size="small"
-            onClick={() => setEditSidebar(!editSidebar)}
-            style={{ marginLeft: 4 }}
-          />
-        </div>
-        <DragDropContext onDragEnd={editSidebar ? onDragEnd : () => {}}>
-          <Droppable droppableId="sidebar-menu" isDropDisabled={!editSidebar} isCombineEnabled={false} ignoreContainerClipping={false}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                {filteredSidebarItems.map((item, index) => (
-                  item.type === 'divider' ? (
-                    <div key={`divider-${index}`} style={{ height: 16 }} />
-                  ) : item.type === 'group' ? (
-                    <div key={item.key} style={{ marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', fontWeight: 600, padding: '8px 16px', color: '#888' }}>
-                        {item.label}
-                        {editSidebar ? (
-                          <DragOutlined style={{ marginLeft: 'auto', color: '#1890ff', cursor: 'grab' }} />
-                        ) : (
-                          <Button
-                            icon={<DragOutlined />}
-                            type="text"
-                            size="small"
-                            style={{ marginLeft: 'auto', color: '#aaa' }}
-                            onClick={() => setEditSidebar(true)}
-                          />
-                        )}
-                      </div>
-                      {item.children && item.children.map((child: any, childIdx: number) => (
-                        <Draggable key={child.key} draggableId={child.key} index={index + childIdx} isDragDisabled={!editSidebar}>
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...(editSidebar ? provided.dragHandleProps : {})}
-                              style={{
-                                userSelect: 'none',
-                                padding: '8px 16px',
-                                margin: '0 0 4px 0',
-                                background: pathname === child.key ? '#e6f7ff' : 'transparent',
-                                borderRadius: 4,
-                                cursor: editSidebar ? 'grab' : 'pointer',
-                                opacity: editSidebar ? 1 : 0.95,
-                                ...provided.draggableProps.style,
-                              }}
-                              onClick={() => !editSidebar && navigate(child.key)}
-                            >
-                              {child.icon} <span style={{ marginLeft: 8 }}>{child.label}</span>
-                              {editSidebar && <DragOutlined style={{ float: 'right', color: '#aaa', marginLeft: 8 }} />}
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    </div>
-                  ) : (
-                    <Draggable key={item.key} draggableId={item.key} index={index} isDragDisabled={!editSidebar}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...(editSidebar ? provided.dragHandleProps : {})}
-                          style={{
-                            userSelect: 'none',
-                            padding: '8px 16px',
-                            margin: '0 0 4px 0',
-                            background: pathname === item.key ? '#e6f7ff' : 'transparent',
-                            borderRadius: 4,
-                            cursor: editSidebar ? 'grab' : 'pointer',
-                            opacity: editSidebar ? 1 : 0.95,
-                            ...provided.draggableProps.style,
-                          }}
-                          onClick={() => !editSidebar && navigate(item.key)}
-                        >
-                          {item.icon} <span style={{ marginLeft: 8 }}>{item.label}</span>
-                          {editSidebar && <DragOutlined style={{ float: 'right', color: '#aaa', marginLeft: 8 }} />}
-                        </div>
-                      )}
-                    </Draggable>
-                  )
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
-          <Tooltip title="Logout" placement="right">
-            <Button
-              type="text"
-              icon={<LogoutOutlined />}
-              onClick={handleLogout}
-              style={{ width: '100%', height: '40px' }}
-              danger
-            />
-          </Tooltip>
-        </div>
-      </Sider>
+      <AdminSidebar
+        sidebarItems={sidebarItems}
+        editSidebar={editSidebar}
+        setEditSidebar={setEditSidebar}
+        search={search}
+        setSearch={setSearch}
+        onDragEnd={onDragEnd}
+        filteredSidebarItems={filteredSidebarItems}
+        pathname={pathname}
+        navigate={navigate}
+        handleLogout={handleLogout}
+      />
       <Layout style={{ marginLeft: 250 }}>
-        <Header style={{
-          background: '#fff',
-          borderBottom: '1px solid #eee',
-          padding: '0 24px',
-          height: 64,
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000
-        }}>
-          <Breadcrumb
-            items={generateBreadcrumb()}
-            style={{ fontSize: '14px' }}
-          />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* System Status Indicator */}
-            <StatusIndicator />
-
-            <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
-              <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
-                {user?.nickname || user?.email || 'Unknown User'}
-              </div>
-              {user?.role && (
-                <div style={{ color: '#666', fontSize: '12px' }}>
-                  {user.role.name || 'No Role'}
-                </div>
-              )}
-            </div>
-            <Dropdown
-              menu={{ items: profileMenuItems }}
-              placement="bottomRight"
-              trigger={['click']}
-            >
-              <Avatar
-                size={32}
-                icon={<UserOutlined />}
-                style={{
-                  backgroundColor: '#1890ff',
-                  cursor: 'pointer'
-                }}
-              />
-            </Dropdown>
-          </div>
-        </Header>
-
+        <AdminHeader
+          profileMenuItems={profileMenuItems}
+          generateBreadcrumb={generateBreadcrumb}
+        />
         <Content style={{
           minWidth: 0,
           background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
@@ -553,17 +405,14 @@ export default function AdminContentLayout() {
               minHeight: 360,
             }}
           >
-            {/* Error Display at the top */}
             <ErrorDisplay style={{
               position: 'sticky',
               top: 0,
               zIndex: 999,
               marginBottom: '0',
             }} />
-
             <Outlet />
           </div>
-
           {/* Floating Chat Box - With Position Buttons */}
           <div
             style={{

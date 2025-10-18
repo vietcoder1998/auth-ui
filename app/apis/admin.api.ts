@@ -523,4 +523,8 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.post(`/admin/sockets/${id}/test-event`, data);
   },
+  async searchAll(query: string) {
+    const axios = getApiInstance();
+    return axios.get('/admin/search', { params: { q: query } });
+  },
 };
