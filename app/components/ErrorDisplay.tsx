@@ -167,7 +167,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
         const rolesResponse = await adminApi.getRoles();
         const roles = rolesResponse.data || [];
         const superAdminRole = roles.find((role: any) => 
-          role.name === 'super_admin' || role.name === 'admin'
+          role.name === 'superadmin' || role.name === 'admin'
         );
 
         if (superAdminRole) {
@@ -213,7 +213,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
   return (
     <div className={className} style={{ marginBottom: '12px', ...style }}>
       {errors.map((error) => {
-        const canFix = error.status === 403 && isSuperAdmin() && extractPermissionFromError(error);
+        const canFix = error.status === 403 && extractPermissionFromError(error);
         const isFixing = fixingErrors.has(error.id);
         
         return (

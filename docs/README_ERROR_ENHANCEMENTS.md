@@ -9,7 +9,7 @@ When a 403 (Forbidden) error occurs and the user is a super admin, a "Fix" butto
 **How it works:**
 1. **Detection**: Automatically detects 403 errors from API calls
 2. **Permission Mapping**: Maps the failed request URL to the required permission
-3. **Super Admin Check**: Only shows fix button for users with super_admin or admin roles
+3. **Super Admin Check**: Only shows fix button for users with superadmin or admin roles
 4. **Auto-Fix**: Creates missing permission and adds it to super admin role
 5. **Auto-Reload**: Refreshes the page after successful fix
 

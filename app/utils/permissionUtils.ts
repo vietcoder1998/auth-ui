@@ -59,13 +59,11 @@ export const extractPermissionFromUrl = (url: string, method: string = 'GET'): P
   for (const mapping of urlMappings) {
     if (mapping.pattern.test(url)) {
       let action: 'read' | 'write' | 'delete' = 'read';
-      
       if (isDeleteOperation) {
         action = 'delete';
       } else if (isWriteOperation) {
         action = 'write';
       }
-
       return {
         resource: `${mapping.resource}:${action}`,
         action,
@@ -74,7 +72,20 @@ export const extractPermissionFromUrl = (url: string, method: string = 'GET'): P
     }
   }
 
-  return null;
+  // If no mapping found, generate resource from URL
+  const urlParts = url.split('/').filter(Boolean);
+  const lastSegment = urlParts[urlParts.length - 1] || 'unknown';
+  let action: 'read' | 'write' | 'delete' = 'read';
+  if (isDeleteOperation) {
+    action = 'delete';
+  } else if (isWriteOperation) {
+    action = 'write';
+  }
+  return {
+    resource: `custom:${lastSegment}:${action}`,
+    action,
+    description: `Custom resource for ${lastSegment} (${action})`
+  };
 };
 
 // Generate permission suggestions based on common admin operations
