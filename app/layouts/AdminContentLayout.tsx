@@ -1,34 +1,38 @@
 import {
-    AuditOutlined,
-    BellOutlined,
-    DatabaseOutlined,
-    DragOutlined,
-    ExpandOutlined,
-    HistoryOutlined,
-    HomeOutlined,
-    KeyOutlined,
-    LinkOutlined,
-    LogoutOutlined,
-    MailOutlined,
-    MessageOutlined,
-    MinusOutlined,
-    ProfileOutlined,
-    RobotOutlined,
-    SafetyOutlined,
-    SettingOutlined,
-    TeamOutlined,
-    ThunderboltOutlined,
-    UserOutlined,
+  AuditOutlined,
+  BellOutlined,
+  DatabaseOutlined,
+  DragOutlined,
+  EditOutlined,
+  ExpandOutlined,
+  HistoryOutlined,
+  HomeOutlined,
+  KeyOutlined,
+  LinkOutlined,
+  LogoutOutlined,
+  MailOutlined,
+  MessageOutlined,
+  MinusOutlined,
+  ProfileOutlined,
+  RobotOutlined,
+  SafetyOutlined,
+  SearchOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Avatar, Breadcrumb, Button, Dropdown, Layout, Menu, Tooltip, Typography } from 'antd';
+import { Avatar, Breadcrumb, Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ErrorDisplay from '../components/ErrorDisplay.tsx';
 import LLMChat from '../components/LLMChat.tsx';
 import StatusIndicator from '../components/StatusIndicator.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
+import useCookie from '../hooks/useCookie.tsx';
 
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
@@ -172,7 +176,7 @@ const systemMenuItems = [
 export default function AdminContentLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  
+
   // Add error handling for useAuth
   let auth;
   try {
@@ -188,16 +192,18 @@ export default function AdminContentLayout() {
       </div>
     );
   }
-  
+
   const { logout, user } = auth;
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const [chatPosition, setChatPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
+  const [editSidebar, setEditSidebar] = useState(false);
+  const [search, setSearch] = useState('');
 
   // Load chat collapse state and position from cookie on mount
   useEffect(() => {
     const collapsed = Cookies.get('admin_chat_collapsed');
     setIsChatCollapsed(collapsed === 'true');
-    
+
     const savedPosition = Cookies.get('admin_chat_position');
     if (savedPosition) {
       try {
@@ -302,7 +308,7 @@ export default function AdminContentLayout() {
   ];
 
   // Build merged sidebar items with correct Ant Design Menu structure
-  const mergedSidebarItems = [
+  const defaultSidebarItems = [
     {
       key: '/admin',
       icon: <HomeOutlined />,
@@ -336,6 +342,34 @@ export default function AdminContentLayout() {
     },
   ];
 
+  // Use cookie for sidebar order
+  const [sidebarItems, setSidebarItems] = useCookie<any[]>('admin_sidebar_order', defaultSidebarItems);
+
+  // Filter sidebar items by search
+  const filteredSidebarItems = sidebarItems.map(item => {
+    if (item.type === 'group') {
+      return {
+        ...item,
+        children: item.children?.filter((child: any) =>
+          child.label.toLowerCase().includes(search.toLowerCase())
+        ) || [],
+      };
+    }
+    if (item.label && typeof item.label === 'string') {
+      return item.label.toLowerCase().includes(search.toLowerCase()) ? item : null;
+    }
+    return item;
+  }).filter(Boolean);
+
+  // Drag and drop handler
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(sidebarItems);
+    const [removed] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, removed);
+    setSidebarItems(items);
+  };
+
   return (
     <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
       <Sider
@@ -347,16 +381,107 @@ export default function AdminContentLayout() {
           top: 0,
           bottom: 0,
           zIndex: 1001,
+          overflowY: 'auto',
         }}
         width={250}
       >
-        <Menu
-          mode="inline"
-          selectedKeys={[pathname]}
-          style={{ borderRight: 0, flex: 1, padding: 0, marginLeft: 0 }}
-          items={mergedSidebarItems}
-          onClick={({ key }) => navigate(key)}
-        />
+        {/* Sidebar header with search and edit button */}
+        <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', gap: 8 }}>
+          <input
+            type="text"
+            placeholder="Search menu..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ flex: 1, border: '1px solid #eee', borderRadius: 4, padding: '4px 8px', fontSize: 14 }}
+          />
+          <Button
+            icon={<EditOutlined />}
+            type={editSidebar ? 'primary' : 'default'}
+            size="small"
+            onClick={() => setEditSidebar(!editSidebar)}
+            style={{ marginLeft: 4 }}
+          />
+        </div>
+        <DragDropContext onDragEnd={editSidebar ? onDragEnd : () => {}}>
+          <Droppable droppableId="sidebar-menu" isDropDisabled={!editSidebar} isCombineEnabled={false} ignoreContainerClipping={false}>
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {filteredSidebarItems.map((item, index) => (
+                  item.type === 'divider' ? (
+                    <div key={`divider-${index}`} style={{ height: 16 }} />
+                  ) : item.type === 'group' ? (
+                    <div key={item.key} style={{ marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', fontWeight: 600, padding: '8px 16px', color: '#888' }}>
+                        {item.label}
+                        {editSidebar ? (
+                          <DragOutlined style={{ marginLeft: 'auto', color: '#1890ff', cursor: 'grab' }} />
+                        ) : (
+                          <Button
+                            icon={<DragOutlined />}
+                            type="text"
+                            size="small"
+                            style={{ marginLeft: 'auto', color: '#aaa' }}
+                            onClick={() => setEditSidebar(true)}
+                          />
+                        )}
+                      </div>
+                      {item.children && item.children.map((child: any, childIdx: number) => (
+                        <Draggable key={child.key} draggableId={child.key} index={index + childIdx} isDragDisabled={!editSidebar}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...(editSidebar ? provided.dragHandleProps : {})}
+                              style={{
+                                userSelect: 'none',
+                                padding: '8px 16px',
+                                margin: '0 0 4px 0',
+                                background: pathname === child.key ? '#e6f7ff' : 'transparent',
+                                borderRadius: 4,
+                                cursor: editSidebar ? 'grab' : 'pointer',
+                                opacity: editSidebar ? 1 : 0.95,
+                                ...provided.draggableProps.style,
+                              }}
+                              onClick={() => !editSidebar && navigate(child.key)}
+                            >
+                              {child.icon} <span style={{ marginLeft: 8 }}>{child.label}</span>
+                              {editSidebar && <DragOutlined style={{ float: 'right', color: '#aaa', marginLeft: 8 }} />}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    </div>
+                  ) : (
+                    <Draggable key={item.key} draggableId={item.key} index={index} isDragDisabled={!editSidebar}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...(editSidebar ? provided.dragHandleProps : {})}
+                          style={{
+                            userSelect: 'none',
+                            padding: '8px 16px',
+                            margin: '0 0 4px 0',
+                            background: pathname === item.key ? '#e6f7ff' : 'transparent',
+                            borderRadius: 4,
+                            cursor: editSidebar ? 'grab' : 'pointer',
+                            opacity: editSidebar ? 1 : 0.95,
+                            ...provided.draggableProps.style,
+                          }}
+                          onClick={() => !editSidebar && navigate(item.key)}
+                        >
+                          {item.icon} <span style={{ marginLeft: 8 }}>{item.label}</span>
+                          {editSidebar && <DragOutlined style={{ float: 'right', color: '#aaa', marginLeft: 8 }} />}
+                        </div>
+                      )}
+                    </Draggable>
+                  )
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
         <div style={{ padding: '16px 8px', borderTop: '1px solid #eee' }}>
           <Tooltip title="Logout" placement="right">
             <Button
@@ -370,8 +495,8 @@ export default function AdminContentLayout() {
         </div>
       </Sider>
       <Layout style={{ marginLeft: 250 }}>
-        <Header style={{ 
-          background: '#fff', 
+        <Header style={{
+          background: '#fff',
           borderBottom: '1px solid #eee',
           padding: '0 24px',
           height: 64,
@@ -386,7 +511,7 @@ export default function AdminContentLayout() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* System Status Indicator */}
             <StatusIndicator />
-            
+
             <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
               <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
                 {user?.nickname || user?.email || 'Unknown User'}
@@ -405,7 +530,7 @@ export default function AdminContentLayout() {
               <Avatar
                 size={32}
                 icon={<UserOutlined />}
-                style={{ 
+                style={{
                   backgroundColor: '#1890ff',
                   cursor: 'pointer'
                 }}
@@ -413,10 +538,10 @@ export default function AdminContentLayout() {
             </Dropdown>
           </div>
         </Header>
-        
-        <Content style={{ 
-          minWidth: 0, 
-          background: isMainAdmin ? '#f6f8fa' : '#f5f5f5', 
+
+        <Content style={{
+          minWidth: 0,
+          background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
           position: 'relative',
         }}>
           <div
@@ -429,16 +554,16 @@ export default function AdminContentLayout() {
             }}
           >
             {/* Error Display at the top */}
-            <ErrorDisplay style={{ 
-              position: 'sticky', 
-              top: 0, 
+            <ErrorDisplay style={{
+              position: 'sticky',
+              top: 0,
               zIndex: 999,
               marginBottom: '0',
             }} />
-            
-            <Outlet/>
+
+            <Outlet />
           </div>
-          
+
           {/* Floating Chat Box - With Position Buttons */}
           <div
             style={{
@@ -480,7 +605,7 @@ export default function AdminContentLayout() {
                   AI Assistant
                 </Typography.Text>
               </div>
-              
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {/* Position Control Buttons */}
                 <Tooltip title="Change Position" placement="bottom">
@@ -516,7 +641,7 @@ export default function AdminContentLayout() {
                       type="text"
                       size="small"
                       icon={<DragOutlined />}
-                      style={{ 
+                      style={{
                         color: '#666',
                         display: 'flex',
                         alignItems: 'center',
@@ -525,7 +650,7 @@ export default function AdminContentLayout() {
                     />
                   </Dropdown>
                 </Tooltip>
-                
+
                 {/* Collapse Button */}
                 <Button
                   type="text"
@@ -537,7 +662,7 @@ export default function AdminContentLayout() {
                     setIsChatCollapsed(newCollapsed);
                     Cookies.set('admin_chat_collapsed', newCollapsed.toString(), { expires: 365 });
                   }}
-                  style={{ 
+                  style={{
                     color: '#666',
                     display: 'flex',
                     alignItems: 'center',
@@ -546,13 +671,13 @@ export default function AdminContentLayout() {
                 />
               </div>
             </div>
-            
+
             {/* Chat Content */}
             {!isChatCollapsed && (
-              <div 
-                style={{ 
-                  flex: 1, 
-                  display: 'flex', 
+              <div
+                style={{
+                  flex: 1,
+                  display: 'flex',
                   flexDirection: 'column',
                 }}
               >

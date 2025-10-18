@@ -242,7 +242,7 @@ const AdminSocketPage: React.FC = () => {
         title={editing ? 'Edit Socket' : 'Add Socket'}
         onCancel={() => setModalOpen(false)}
         onOk={handleModalOk}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
           <Form.Item name="name" label="Name" rules={[{ required: true }]}> <Input /> </Form.Item>

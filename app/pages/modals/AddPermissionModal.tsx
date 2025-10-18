@@ -117,7 +117,7 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
       onCancel={handleCancel}
       footer={null}
       width={600}
-      destroyOnClose
+      destroyOnHidden
     >
       <Divider />
       

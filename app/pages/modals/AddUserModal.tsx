@@ -113,7 +113,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       onCancel={handleCancel}
       footer={null}
       width={600}
-      destroyOnClose
+      destroyOnHidden
     >
       <Divider />
       

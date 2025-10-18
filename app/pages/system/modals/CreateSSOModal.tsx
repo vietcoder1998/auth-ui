@@ -145,7 +145,7 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
         </Button>
       ]}
       width={600}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}

@@ -140,7 +140,7 @@ const AddRoleModal: React.FC<AddRoleModalProps> = ({
       onCancel={handleCancel}
       footer={null}
       width={700}
-      destroyOnClose
+      destroyOnHidden
     >
       <Divider />
       
