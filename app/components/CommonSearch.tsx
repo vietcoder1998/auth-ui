@@ -52,7 +52,7 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       onSearch(value);
-    }, 400);
+    }, 300);
   };
 
   // If searchValue changes externally, clear debounce
@@ -71,7 +71,6 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
             placeholder={searchPlaceholder}
             allowClear
             enterButton={<SearchOutlined />}
-            value={searchValue}
             onSearch={onSearch}
             onChange={handleChange}
             style={{ flex: 1, minWidth: '300px' }}
