@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { adminApi } from '../apis/admin.api.ts';
 import { extractPermissionFromUrl } from '../utils/permissionUtils.ts';
+import { useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
 
 interface ErrorDisplayProps {
   className?: string;
@@ -22,7 +23,7 @@ interface ErrorInfo {
 
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) => {
   const [errors, setErrors] = useState<ErrorInfo[]>([]);
-  const [fixingErrors, setFixingErrors] = useState<Set<string>>(new Set());
+  const { fixingErrors, fixPermission } = useUpdatePermissions();
   
   // Get user info for super admin check
   let user = null;
@@ -128,84 +129,6 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
     return permissionInfo?.resource || null;
   };
 
-  // Fix permission by adding it to super admin role
-  const fixPermission = async (error: ErrorInfo) => {
-    const permission = extractPermissionFromError(error);
-    if (!permission) return;
-
-    setFixingErrors(prev => new Set(prev).add(error.id));
-
-    try {
-      // Remove client cookies for auth_token and auth_user to ensure clean state
-      Cookies.remove('auth_token');
-      Cookies.remove('auth_user');
-
-      // First, try to find or create the permission
-      let permissionId: string | null = null;
-      try {
-        // Get all permissions and find the one we need
-        const permissionsResponse = await adminApi.getPermissions();
-        const permissions = permissionsResponse.data || [];
-        const existingPermission = permissions.find((p: any) => p.resource === permission);
-        if (existingPermission) {
-          permissionId = existingPermission.id;
-        } else {
-          // Create the permission if it doesn't exist
-          const newPermissionResponse = await adminApi.createPermission({
-            resource: permission,
-            action: permission.includes(':write') ? 'write' : 'read',
-            description: `Auto-generated permission for ${permission}`,
-          });
-          permissionId = newPermissionResponse.data?.id;
-        }
-      } catch (permError) {
-        console.error('Error handling permission:', permError);
-      }
-
-      if (permissionId) {
-        // Find super admin role
-        const rolesResponse = await adminApi.getRoles();
-        const roles = rolesResponse.data || [];
-        const superAdminRole = roles.find((role: any) => 
-          role.name === 'superadmin' || role.name === 'admin'
-        );
-
-        if (superAdminRole) {
-          // Add permission to super admin role
-          await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
-
-          // Show success message
-          console.log(`Permission ${permission} added to ${superAdminRole.name} role`);
-
-          // Remove the error from display
-          dismissError(error.id);
-
-          // Recall getMe to refresh user info (role/permissions)
-          try {
-            // Use direct import with extension to avoid import error
-            const { getMe } = await import('../apis/auth.api.ts');
-            await getMe();
-          } catch (refreshError) {
-            console.error('Failed to refresh user info after fixing permission:', refreshError);
-          }
-
-          // Optionally refresh the page after a short delay
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fix permission:', error);
-    } finally {
-      setFixingErrors(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(error.id);
-        return newSet;
-      });
-    }
-  };
-
   if (errors.length === 0) {
     return null;
   }
@@ -251,7 +174,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
                     type="primary"
                     icon={<ToolOutlined />}
                     loading={isFixing}
-                    onClick={() => fixPermission(error)}
+                    onClick={() => fixPermission(error, extractPermissionFromError, dismissError)}
                     style={{ 
                       fontSize: '11px',
                       height: '24px',
