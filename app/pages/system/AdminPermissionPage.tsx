@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, Space, Typography, Tag, Modal, Input, Form, Select } from 'antd';
+import { Table, Button, Spin, Space, Typography, Tag, Modal, Input, Form, Select, Popconfirm } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddPermissionModal from '../modals/AddPermissionModal.tsx';
 import CommonSearch from '../../components/CommonSearch.tsx';
@@ -287,18 +287,22 @@ export default function AdminPermissionPage() {
           >
             Edit
           </Button>
-          <Button 
-            size="small"
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              if (window.confirm(`Are you sure you want to delete permission "${p.name}"?`)) {
-                adminApi.deletePermission(p.id).then(() => fetchPermissions());
-              }
-            }}
+          <Popconfirm
+            title={`Delete Permission`}
+            description={`Are you sure you want to delete permission "${p.name}"?`}
+            okText="Delete"
+            cancelText="Cancel"
+            okType="danger"
+            onConfirm={() => adminApi.deletePermission(p.id).then(() => fetchPermissions())}
           >
-            Delete
-          </Button>
+            <Button 
+              size="small"
+              danger 
+              icon={<DeleteOutlined />}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ) 
     },
