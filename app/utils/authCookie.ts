@@ -1,6 +1,6 @@
 import { setCookie } from './cookie.js';
-import { COOKIE_DOMAIN, COOKIE_PATH } from '../env.ts';
+import { env } from '../config/env.ts';
 
 export function saveAuthToken(token: string, domain?: string, path?: string) {
-  setCookie('token', token, 7, domain ?? COOKIE_DOMAIN, path ?? COOKIE_PATH);
+  setCookie('token', token, 7, domain ?? env.COOKIE_DOMAIN, path ?? env.COOKIE_PATH);
 }

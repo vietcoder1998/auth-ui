@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
 import { adminApi } from '../apis/admin.api.ts';
+import { env } from '../config/env.ts';
 
 export function useUpdatePermissions() {
   const [fixingErrors, setFixingErrors] = useState<Set<string>>(new Set());
@@ -41,15 +42,15 @@ export function useUpdatePermissions() {
     const updatedErrors = errors.filter(error => error.id !== errorId);
     setErrors(updatedErrors);
     if (updatedErrors.length > 0) {
-      Cookies.set('app_errors', JSON.stringify(updatedErrors), { expires: 1 });
+      Cookies.set('app_errors', JSON.stringify(updatedErrors), { expires: 1, domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
     } else {
-      Cookies.remove('app_errors');
+      Cookies.remove('app_errors', { domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
     }
   };
 
   const dismissAllErrors = () => {
     setErrors([]);
-    Cookies.remove('app_errors');
+    Cookies.remove('app_errors', { domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
   };
 
   const fixPermission = async (
@@ -92,24 +93,22 @@ export function useUpdatePermissions() {
       } catch (permError) {
         console.error('Error handling permission:', permError);
       }
-      if (permissionId) {
-        const rolesResponse = await adminApi.getRoles();
-        const roles = rolesResponse.data || [];
-        const superAdminRole = roles.find((role: any) => role.name === 'superadmin' || role.name === 'admin');
-        if (superAdminRole) {
-          await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
-          dismissErrorFn(error.id);
-          try {
-            const { getMe } = await import('../apis/auth.api.ts');
-            await getMe();
-          } catch (refreshError) {
-            console.error('Failed to refresh user info after fixing permission:', refreshError);
-          }
-          if (onRefreshPermissions) onRefreshPermissions();
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
+      const rolesResponse = await adminApi.getRoles();
+      const roles = rolesResponse.data || [];
+      const superAdminRole = Array.isArray(roles) ? roles.find((role: any) => role.name === 'superadmin' || role.name === 'admin') : null;
+      if (superAdminRole && typeof permissionId === 'string') {
+        await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
+        dismissErrorFn(error.id);
+        try {
+          const { getMe } = await import('../apis/auth.api.ts');
+          await getMe();
+        } catch (refreshError) {
+          console.error('Failed to refresh user info after fixing permission:', refreshError);
         }
+        if (onRefreshPermissions) onRefreshPermissions();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
     } catch (error) {
       console.error('Failed to fix permission:', error);
