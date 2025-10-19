@@ -35,9 +35,9 @@ export const defaultSidebarMenu: MenuItem[] = [
         label: 'Dashboard',
     },
     {
-        key: '/admin/system',
-        icon: <DatabaseOutlined />,
-        label: 'System Management',
+        key: '/admin/system/ai',
+        icon: <RobotOutlined />,
+        label: 'AI',
         children: [
             {
                 key: '/admin/system/agents',
@@ -49,6 +49,13 @@ export const defaultSidebarMenu: MenuItem[] = [
                 icon: <MessageOutlined />,
                 label: 'Conversations',
             },
+        ],
+    },
+    {
+        key: '/admin/system/documents-group',
+        icon: <FileTextOutlined />,
+        label: 'Documents',
+        children: [
             {
                 key: '/admin/system/documents',
                 icon: <FileTextOutlined />,
@@ -59,6 +66,14 @@ export const defaultSidebarMenu: MenuItem[] = [
                 icon: <FileOutlined />,
                 label: 'File List',
             },
+        ],
+    },
+    {
+        key: '/admin/system',
+        icon: <DatabaseOutlined />,
+        label: 'System Management',
+        children: [
+
             {
                 key: '/admin/system/users',
                 icon: <UserOutlined />,
