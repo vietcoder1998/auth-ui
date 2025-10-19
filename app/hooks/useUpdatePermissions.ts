@@ -33,7 +33,7 @@ export function useUpdatePermissions() {
             resource: permission,
             name: permission, // Add name field for backend validation
             action: permission.includes(':write') ? 'write' : 'read',
-            description: `Auto-generated permission for ${permission}`,
+          description: `Auto-generated permission for ${permission}`,
             route: `/api${error.details?.url || ''}`,
             method: error.details?.method || 'GET',
           });
