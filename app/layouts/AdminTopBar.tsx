@@ -1,8 +1,9 @@
 import React from 'react';
-import { Input, Dropdown, Avatar, Tag, List, Spin } from 'antd';
-import { SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { Input, Dropdown, Avatar, Tag, List, Spin, Badge, Button } from 'antd';
+import { SearchOutlined, UserOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import StatusIndicator from '../components/StatusIndicator.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
+import { useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
 import { adminApi } from '../apis/admin.api.ts';
 
 export default function AdminTopBar({ profileMenuItems }: any) {
@@ -17,6 +18,8 @@ export default function AdminTopBar({ profileMenuItems }: any) {
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
   const [searchVisible, setSearchVisible] = React.useState(false);
   const [searchLoading, setSearchLoading] = React.useState(false);
+  const { errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors } = useUpdatePermissions();
+
   React.useEffect(() => {
     if (search.length < 2) {
       setSearchResults([]);
@@ -93,6 +96,54 @@ export default function AdminTopBar({ profileMenuItems }: any) {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <StatusIndicator />
+        <Dropdown
+          open={notifOpen}
+          onOpenChange={setNotifOpen}
+          dropdownRender={() => (
+            <div style={{ background: 'white', minWidth: 350, maxWidth: 500, boxShadow: '0 2px 8px #ccc', borderRadius: 8 }}>
+              <List
+                header={<div style={{ fontWeight: 600 }}>Notifications</div>}
+                dataSource={errors}
+                locale={{ emptyText: 'No notifications' }}
+                style={{ maxHeight: 350, overflowY: 'auto', background: 'white' }}
+                renderItem={error => (
+                  <List.Item
+                    style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '12px 16px' }}
+                    actions={[
+                      <Button size="small" type="text" onClick={() => dismissError(error.id)} key="close">Dismiss</Button>
+                    ]}
+                  >
+                    <div style={{ fontWeight: 500, color: error.status >= 500 ? '#d4380d' : '#faad14' }}>
+                      <ExclamationCircleOutlined style={{ marginRight: 8 }} />
+                      {error.message}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                      {error.details && typeof error.details === 'string'
+                        ? error.details
+                        : error.details && JSON.stringify(error.details)}
+                    </div>
+                  </List.Item>
+                )}
+              />
+              {errors.length > 1 && (
+                <div style={{ textAlign: 'right', padding: '8px 16px' }}>
+                  <Button size="small" type="link" onClick={dismissAllErrors} style={{ fontSize: '11px' }}>
+                    Dismiss All
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        >
+          <Badge count={errors.length} size="small" offset={[0, 0]}>
+            <Button
+              type="text"
+              icon={<ExclamationCircleOutlined style={{ fontSize: 22, color: errors.length ? '#d4380d' : '#aaa' }} />}
+              style={{ background: 'transparent', boxShadow: 'none', padding: 0 }}
+              onClick={() => setNotifOpen(!notifOpen)}
+            />
+          </Badge>
+        </Dropdown>
         <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
           <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
             {user?.nickname || user?.email || 'Unknown User'}

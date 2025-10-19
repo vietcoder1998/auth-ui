@@ -1,14 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
 import { adminApi } from '../apis/admin.api.ts';
 
 export function useUpdatePermissions() {
   const [fixingErrors, setFixingErrors] = useState<Set<string>>(new Set());
+  const [errors, setErrors] = useState<any[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const prevErrorCount = useRef(0);
+
+  // Poll for errors
+  useEffect(() => {
+    const loadErrorsFromCookie = () => {
+      try {
+        const errorsCookie = Cookies.get('app_errors');
+        if (errorsCookie) {
+          const parsedErrors = JSON.parse(errorsCookie);
+          const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+          const recentErrors = parsedErrors.filter((error: any) => error.timestamp > fiveMinutesAgo);
+          setErrors(recentErrors);
+          // Auto open dropdown if new error
+          if (recentErrors.length > prevErrorCount.current) {
+            setNotifOpen(true);
+          }
+          prevErrorCount.current = recentErrors.length;
+        } else {
+          setErrors([]);
+          prevErrorCount.current = 0;
+        }
+      } catch {
+        setErrors([]);
+        prevErrorCount.current = 0;
+      }
+    };
+    loadErrorsFromCookie();
+    const interval = setInterval(loadErrorsFromCookie, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const dismissError = (errorId: string) => {
+    const updatedErrors = errors.filter(error => error.id !== errorId);
+    setErrors(updatedErrors);
+    if (updatedErrors.length > 0) {
+      Cookies.set('app_errors', JSON.stringify(updatedErrors), { expires: 1 });
+    } else {
+      Cookies.remove('app_errors');
+    }
+  };
+
+  const dismissAllErrors = () => {
+    setErrors([]);
+    Cookies.remove('app_errors');
+  };
 
   const fixPermission = async (
     error: any,
     extractPermissionFromError: (error: any) => string | null,
-    dismissError: (id: string) => void,
+    dismissErrorFn: (id: string) => void,
     onRefreshPermissions?: () => void // optional callback
   ) => {
     const permission = extractPermissionFromError(error);
@@ -33,7 +80,7 @@ export function useUpdatePermissions() {
             resource: permission,
             name: permission, // Add name field for backend validation
             action: permission.includes(':write') ? 'write' : 'read',
-          description: `Auto-generated permission for ${permission}`,
+            description: `Auto-generated permission for ${permission}`,
             route: `/api${error.details?.url || ''}`,
             method: error.details?.method || 'GET',
           });
@@ -51,7 +98,7 @@ export function useUpdatePermissions() {
         const superAdminRole = roles.find((role: any) => role.name === 'superadmin' || role.name === 'admin');
         if (superAdminRole) {
           await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
-          dismissError(error.id);
+          dismissErrorFn(error.id);
           try {
             const { getMe } = await import('../apis/auth.api.ts');
             await getMe();
@@ -75,5 +122,5 @@ export function useUpdatePermissions() {
     }
   };
 
-  return { fixingErrors, fixPermission };
+  return { fixingErrors, fixPermission, errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors };
 }
