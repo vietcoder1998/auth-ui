@@ -34,6 +34,7 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import useCookie from '../hooks/useCookie.tsx';
 import AdminHeader from './AdminHeader.tsx';
 import AdminSidebar from './AdminSidebar.tsx';
+import AdminSidebarMenu, { useSidebarMenu } from '../components/AdminSidebarMenu.tsx';
 
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;
@@ -42,146 +43,6 @@ const adminLinks = [
   { path: '/admin', label: 'Dashboard', icon: <HomeOutlined /> },
   { path: '/admin/system', label: 'System Management', icon: <DatabaseOutlined /> },
   { path: '/admin/settings', label: 'Settings Management', icon: <SettingOutlined /> },
-];
-
-const settingsMenuItems = [
-  {
-    key: '/admin/settings',
-    icon: <SettingOutlined />,
-    label: 'Settings Overview',
-  },
-  {
-    key: '/admin/settings/api-keys',
-    icon: <KeyOutlined />,
-    label: 'API Keys',
-  },
-  {
-    key: '/admin/settings/mail',
-    icon: <MailOutlined />,
-    label: 'Mail Templates',
-  },
-  {
-    key: '/admin/settings/notifications',
-    icon: <BellOutlined />,
-    label: 'Notifications',
-  },
-  {
-    key: '/admin/settings/config',
-    icon: <SettingOutlined />,
-    label: 'Configuration',
-  },
-  {
-    key: '/admin/settings/seed',
-    icon: <DatabaseOutlined />,
-    label: 'Database Seed',
-  },
-  {
-    key: '/admin/settings/database',
-    icon: <DatabaseOutlined />,
-    label: 'Database Connections',
-  },
-];
-
-const systemMenuItems = [
-  {
-    key: '/admin/system',
-    icon: <DatabaseOutlined />,
-    label: 'System Overview',
-  },
-  { type: 'divider' as const },
-  {
-    type: 'group' as const,
-    label: 'AI Management',
-    key: 'ai-section',
-    children: [
-      {
-        key: '/admin/system/agents',
-        icon: <RobotOutlined />,
-        label: 'AI Agents',
-      },
-      {
-        key: '/admin/system/conversations',
-        icon: <MessageOutlined />,
-        label: 'Conversations',
-      },
-      {
-        key: '/admin/system/documents',
-        icon: <FileTextOutlined />,
-        label: 'Document List',
-      },
-      {
-        key: '/admin/system/files',
-        icon: <FileOutlined />,
-        label: 'File List',
-      },
-    ],
-  },
-  { type: 'divider' as const },
-  {
-    type: 'group' as const,
-    label: 'User Management',
-    key: 'user-section',
-    children: [
-      {
-        key: '/admin/system/users',
-        icon: <UserOutlined />,
-        label: 'Users',
-      },
-      {
-        key: '/admin/system/tokens',
-        icon: <KeyOutlined />,
-        label: 'Tokens',
-      },
-      {
-        key: '/admin/system/roles',
-        icon: <TeamOutlined />,
-        label: 'Roles',
-      },
-      {
-        key: '/admin/system/permissions',
-        icon: <SafetyOutlined />,
-        label: 'Permissions',
-      },
-      {
-        key: '/admin/system/sso',
-        icon: <LinkOutlined />,
-        label: 'SSO Management',
-      },
-    ],
-  },
-  { type: 'divider' as const },
-  {
-    type: 'group' as const,
-    label: 'Monitoring & Logs',
-    key: 'monitoring-section',
-    children: [
-      {
-        key: '/admin/system/login-history',
-        icon: <HistoryOutlined />,
-        label: 'Login History',
-      },
-      {
-        key: '/admin/system/logic-history',
-        icon: <AuditOutlined />,
-        label: 'Logic History',
-      },
-      {
-        key: '/admin/system/logs',
-        icon: <AuditOutlined />,
-        label: 'Application Logs',
-      },
-      {
-        key: '/admin/system/cache',
-        icon: <DatabaseOutlined />,
-        label: 'Cache',
-      },
-      {
-        key: '/admin/system/sockets',
-        icon: <ThunderboltOutlined />,
-        label: 'Socket Connections',
-      },
-    ],
-  },
 ];
 
 export default function AdminContentLayout() {
@@ -318,43 +179,8 @@ export default function AdminContentLayout() {
     }
   ];
 
-  // Build merged sidebar items with correct Ant Design Menu structure
-  const defaultSidebarItems = [
-    {
-      key: '/admin',
-      icon: <HomeOutlined />,
-      label: 'Dashboard',
-    },
-    { type: 'divider' as const },
-    {
-      type: 'group' as const,
-      label: 'AI Management',
-      key: 'ai-section',
-      children: systemMenuItems.find(i => i.key === 'ai-section')?.children || [],
-    },
-    {
-      type: 'group' as const,
-      label: 'User Management',
-      key: 'user-section',
-      children: systemMenuItems.find(i => i.key === 'user-section')?.children || [],
-    },
-    {
-      type: 'group' as const,
-      label: 'Monitoring & Logs',
-      key: 'monitoring-section',
-      children: systemMenuItems.find(i => i.key === 'monitoring-section')?.children || [],
-    },
-    { type: 'divider' as const },
-    {
-      type: 'group' as const,
-      label: 'Settings',
-      key: 'settings-section',
-      children: settingsMenuItems,
-    },
-  ];
-
   // Use cookie for sidebar order
-  const [sidebarItems, setSidebarItems] = useCookie<any[]>('admin_sidebar_order', defaultSidebarItems);
+  const [sidebarItems, setSidebarItems] = useCookie<any[]>('admin_sidebar_order', []);
 
   // Filter sidebar items by search
   const filteredSidebarItems = sidebarItems.map(item => {
