@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { getApiInstance } from '../../apis/index.ts';
+import UploadFileModal from '../modals/UploadFileModal.tsx';
 
 export default function AdminFileListPage() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploadModalVisible, setUploadModalVisible] = useState(false);
 
   useEffect(() => {
     fetchFiles();
@@ -56,9 +58,20 @@ export default function AdminFileListPage() {
   return (
     <div style={{ padding: 24 }}>
       <h2>Admin File List</h2>
+      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => setUploadModalVisible(true)}>
+        Upload File
+      </Button>
       <Spin spinning={loading}>
         <Table rowKey="id" columns={columns} dataSource={files} pagination={{ pageSize: 10 }} />
       </Spin>
+      <UploadFileModal
+        visible={uploadModalVisible}
+        onCancel={() => setUploadModalVisible(false)}
+        onSuccess={() => {
+          setUploadModalVisible(false);
+          fetchFiles();
+        }}
+      />
     </div>
   );
 }

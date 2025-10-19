@@ -95,7 +95,7 @@ export function useUpdatePermissions() {
       }
       const rolesResponse = await adminApi.getRoles();
       const roles = rolesResponse.data || [];
-      const superAdminRole = Array.isArray(roles) ? roles.find((role: any) => role.name === 'superadmin' || role.name === 'admin') : null;
+      const superAdminRole = Array.isArray(roles) ? roles.find((role: any) => role.name === 'superadmin') : null;
       if (superAdminRole && typeof permissionId === 'string') {
         await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
         dismissErrorFn(error.id);
