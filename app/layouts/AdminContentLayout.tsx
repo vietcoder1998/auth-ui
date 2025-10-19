@@ -3,8 +3,9 @@ import {
   BellOutlined,
   DatabaseOutlined,
   DragOutlined,
-  EditOutlined,
   ExpandOutlined,
+  FileOutlined,
+  FileTextOutlined,
   HistoryOutlined,
   HomeOutlined,
   KeyOutlined,
@@ -16,21 +17,19 @@ import {
   ProfileOutlined,
   RobotOutlined,
   SafetyOutlined,
-  SearchOutlined,
   SettingOutlined,
   TeamOutlined,
   ThunderboltOutlined,
-  UserOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Avatar, Breadcrumb, Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
+import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { DropResult } from 'react-beautiful-dnd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ErrorDisplay from '../components/ErrorDisplay.tsx';
 import LLMChat from '../components/LLMChat.tsx';
-import StatusIndicator from '../components/StatusIndicator.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import useCookie from '../hooks/useCookie.tsx';
 import AdminHeader from './AdminHeader.tsx';
@@ -105,6 +104,16 @@ const systemMenuItems = [
         icon: <MessageOutlined />,
         label: 'Conversations',
       },
+      {
+        key: '/admin/system/documents',
+        icon: <FileTextOutlined />,
+        label: 'Document List',
+      },
+      {
+        key: '/admin/system/files',
+        icon: <FileOutlined />,
+        label: 'File List',
+      },
     ],
   },
   { type: 'divider' as const },
@@ -170,16 +179,6 @@ const systemMenuItems = [
         key: '/admin/system/sockets',
         icon: <ThunderboltOutlined />,
         label: 'Socket Connections',
-      },
-      {
-        key: '/admin/system/files',
-        icon: <DatabaseOutlined />,
-        label: 'File List',
-      },
-      {
-        key: '/admin/system/documents',
-        icon: <DatabaseOutlined />,
-        label: 'Document List',
       },
     ],
   },

@@ -32,6 +32,8 @@ export default [
     route("system/agents", "pages/system/AdminAgentPage.tsx"), // /admin/system/agents
     route("system/conversations", "pages/system/AdminConversationList.tsx"), // /admin/system/conversations
     route("system/sockets", "pages/system/AdminSocketPage.tsx"), // /admin/system/sockets
+    route("system/documents", "pages/system/AdminDocumentPage.tsx"), // /admin/system/documents
+    route("system/files", "pages/system/AdminFileListPage.tsx"), // /admin/system/files
     
     // Settings management routes
     route("settings", "pages/settings/AdminSettingsIndexPage.tsx"), // /admin/settings
