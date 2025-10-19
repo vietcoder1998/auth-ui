@@ -171,6 +171,16 @@ const systemMenuItems = [
         icon: <ThunderboltOutlined />,
         label: 'Socket Connections',
       },
+      {
+        key: '/admin/system/files',
+        icon: <DatabaseOutlined />,
+        label: 'File List',
+      },
+      {
+        key: '/admin/system/documents',
+        icon: <DatabaseOutlined />,
+        label: 'Document List',
+      },
     ],
   },
 ];
