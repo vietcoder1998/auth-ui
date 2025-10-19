@@ -122,6 +122,10 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.delete(`/config/${key}`);
   },
+  async getHealthStatus() {
+    const axios = getApiInstance();
+    return axios.get('/config/health');
+  },
   
   // Cache API methods
   async getCacheKeys(params?: any) {

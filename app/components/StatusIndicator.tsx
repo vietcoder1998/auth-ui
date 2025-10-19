@@ -1,6 +1,7 @@
 import { CheckCircleOutlined, ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Badge, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { adminApi } from '../apis/admin.api.ts';
 
 interface StatusIndicatorProps {
   className?: string;
@@ -30,33 +31,16 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
         redis: 'checking',
       }));
 
-      // Check API status by making a simple request
-      const response = await fetch('/api/config/health', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-        },
+      // Use adminApi for health check
+      const response = await adminApi.getHealthStatus();
+      const healthData = response.data.data;
+      setStatus({
+        api: healthData.api ? 'online' : 'offline',
+        database: healthData.database ? 'online' : 'offline',
+        redis: healthData.redis ? 'online' : 'offline',
+        lastCheck: new Date(),
       });
-
-      if (response.ok) {
-        const healthData = await response.json();
-        setStatus({
-          api: 'online',
-          database: healthData.database ? 'online' : 'offline',
-          redis: healthData.redis ? 'online' : 'offline',
-          lastCheck: new Date(),
-        });
-      } else {
-        setStatus({
-          api: response.status === 403 ? 'online' : 'offline', // 403 means API is up but no permission
-          database: 'offline',
-          redis: 'offline',
-          lastCheck: new Date(),
-        });
-      }
     } catch (error) {
-      console.error('Status check failed:', error);
       setStatus({
         api: 'offline',
         database: 'offline',
@@ -103,11 +87,11 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
   const getStatusText = () => {
     const onlineCount = [status.api, status.database, status.redis].filter(s => s === 'online').length;
     const totalCount = 3;
-    
+
     if (status.api === 'checking') {
       return 'Checking...';
     }
-    
+
     return `${onlineCount}/${totalCount} Services Online`;
   };
 
@@ -138,8 +122,8 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
       placement="bottomRight"
     >
       <div className={className} style={{ cursor: 'pointer' }} onClick={checkSystemStatus}>
-        <Badge 
-          status={getOverallStatus()} 
+        <Badge
+          status={getOverallStatus()}
           text={getStatusText()}
           style={{ fontSize: '12px' }}
         />
