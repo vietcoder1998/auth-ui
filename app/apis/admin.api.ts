@@ -66,9 +66,11 @@ export const adminApi = {
     const axios = getApiInstance();
     return axios.post('/admin/permissions', data);
   },
-  async updatePermission(id: string | number, data: any) {
+  async updatePermission(id: string | number, data: any, roles?: string[]) {
     const axios = getApiInstance();
-    return axios.put(`/admin/permissions/${id}`, data);
+    // If roles are provided, include them in the payload
+    const payload = roles ? { ...data, roles } : data;
+    return axios.put(`/admin/permissions/${id}`, payload);
   },
   async deletePermission(id: string | number) {
     const axios = getApiInstance();

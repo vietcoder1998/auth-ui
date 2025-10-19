@@ -1,9 +1,10 @@
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Popconfirm, Select, Space, Spin, Table, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, Space, Typography, Tag, Modal, Input, Form, Select, Popconfirm } from 'antd';
-import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import AddPermissionModal from '../modals/AddPermissionModal.tsx';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import AddPermissionModal from '../modals/AddPermissionModal.tsx';
+import EditPermissionModal from '../modals/EditPermissionModal.tsx';
 
 const { Title } = Typography;
 
@@ -23,14 +24,25 @@ export default function AdminPermissionPage() {
     total: 0,
     showSizeChanger: true,
     showQuickJumper: true,
-    showTotal: (total: number, range: [number, number]) => 
+    showTotal: (total: number, range: [number, number]) =>
       `${range[0]}-${range[1]} of ${total} permissions`,
   });
   const [form] = Form.useForm();
+  const [roles, setRoles] = useState<any[]>([]);
 
   useEffect(() => {
     fetchPermissions();
+    fetchRoles();
   }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const res = await adminApi.getRoles();
+      setRoles(res.data.data || res.data || []);
+    } catch (error) {
+      setRoles([]);
+    }
+  };
 
   const handleTableChange = (paginationConfig: any, filters: any, sorter: any) => {
     const { current, pageSize } = paginationConfig;
@@ -66,7 +78,7 @@ export default function AdminPermissionPage() {
 
       const res = await adminApi.getPermissions(queryParams);
       const responseData = res.data;
-      
+
       // Handle both direct data and wrapped data response
       const permissionsData = responseData.data || responseData || [];
       const total = responseData.total || permissionsData.length;
@@ -98,7 +110,7 @@ export default function AdminPermissionPage() {
     try {
       const values = await form.validateFields();
       setEditLoading(true);
-      await adminApi.updatePermission(editingPermission.id, values);
+      await adminApi.updatePermission(editingPermission.id, values, values.roles);
       setEditModalVisible(false);
       setEditingPermission(null);
       fetchPermissions();
@@ -144,9 +156,9 @@ export default function AdminPermissionPage() {
   }
 
   const columns: ColumnType[] = [
-    { 
-      title: 'Created Date', 
-      dataIndex: 'createdAt', 
+    {
+      title: 'Created Date',
+      dataIndex: 'createdAt',
       key: 'createdAt',
       width: 180,
       sorter: (a: Permission, b: Permission) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -162,24 +174,24 @@ export default function AdminPermissionPage() {
         );
       }
     },
-    { 
-      title: 'Permission Name', 
-      dataIndex: 'name', 
+    {
+      title: 'Permission Name',
+      dataIndex: 'name',
       key: 'name',
       width: 220,
       sorter: (a: Permission, b: Permission) => a.name.localeCompare(b.name),
       render: (name: string) => <code style={{ backgroundColor: '#f6f8fa', padding: '2px 6px', borderRadius: '3px' }}>{name}</code>
     },
-    { 
-      title: 'Description', 
-      dataIndex: 'description', 
+    {
+      title: 'Description',
+      dataIndex: 'description',
       key: 'description',
       width: 250,
       render: (description: string) => description || <em style={{ color: '#999' }}>No description</em>
     },
-    { 
-      title: 'Category', 
-      dataIndex: 'category', 
+    {
+      title: 'Category',
+      dataIndex: 'category',
       key: 'category',
       width: 120,
       sorter: (a: Permission, b: Permission) => (a.category || 'other').localeCompare(b.category || 'other'),
@@ -197,16 +209,16 @@ export default function AdminPermissionPage() {
         return <Tag color={colors[category as keyof typeof colors] || 'default'}>{category || 'other'}</Tag>;
       }
     },
-    { 
-      title: 'Route', 
-      dataIndex: 'route', 
+    {
+      title: 'Route',
+      dataIndex: 'route',
       key: 'route',
       width: 200,
       render: (route: string) => route ? <code style={{ backgroundColor: '#f0f0f0', padding: '2px 4px', borderRadius: '2px' }}>{route}</code> : <em style={{ color: '#999' }}>-</em>
     },
-    { 
-      title: 'Method', 
-      dataIndex: 'method', 
+    {
+      title: 'Method',
+      dataIndex: 'method',
       key: 'method',
       width: 100,
       render: (method: string) => {
@@ -221,9 +233,9 @@ export default function AdminPermissionPage() {
         return <Tag color={colors[method as keyof typeof colors] || 'default'}>{method}</Tag>;
       }
     },
-    { 
-      title: 'Roles Using', 
-      dataIndex: 'roles', 
+    {
+      title: 'Roles Using',
+      dataIndex: 'roles',
       key: 'roles',
       width: 200,
       render: (roles: any[]) => {
@@ -237,10 +249,10 @@ export default function AdminPermissionPage() {
             </div>
             <div>
               {roles.slice(0, 2).map((role: any) => (
-                <Tag 
-                  key={role.id} 
-                  color={role.name === 'superadmin' ? 'red' : 
-                        role.name === 'admin' ? 'orange' : 'blue'}
+                <Tag
+                  key={role.id}
+                  color={role.name === 'superadmin' ? 'red' :
+                    role.name === 'admin' ? 'orange' : 'blue'}
                   style={{ margin: '1px', fontSize: '11px' }}
                 >
                   {role.name}
@@ -256,9 +268,9 @@ export default function AdminPermissionPage() {
         );
       }
     },
-    { 
-      title: 'Usage Count', 
-      dataIndex: 'usageCount', 
+    {
+      title: 'Usage Count',
+      dataIndex: 'usageCount',
       key: 'usageCount',
       width: 120,
       sorter: (a: Permission, b: Permission) => (a.usageCount || 0) - (b.usageCount || 0),
@@ -273,14 +285,14 @@ export default function AdminPermissionPage() {
         </div>
       )
     },
-    { 
-      title: 'Actions', 
+    {
+      title: 'Actions',
       key: 'actions',
       width: 150,
       fixed: 'right' as const,
       render: (_, p) => (
         <Space size="small">
-          <Button 
+          <Button
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(p)}
@@ -295,24 +307,24 @@ export default function AdminPermissionPage() {
             okType="danger"
             onConfirm={() => adminApi.deletePermission(p.id).then(() => fetchPermissions())}
           >
-            <Button 
+            <Button
               size="small"
-              danger 
+              danger
               icon={<DeleteOutlined />}
             >
               Delete
             </Button>
           </Popconfirm>
         </Space>
-      ) 
+      )
     },
   ];
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2} style={{ marginBottom: '16px' }}>Permission Management</Title>
-        
+
         <CommonSearch
           searchPlaceholder="Search permissions by name, description, category, route, method, or role..."
           searchValue={searchText}
@@ -320,8 +332,8 @@ export default function AdminPermissionPage() {
           onRefresh={handleRefresh}
           loading={loading}
           extra={
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<PlusOutlined />}
               onClick={() => setAddModalVisible(true)}
             >
@@ -340,8 +352,8 @@ export default function AdminPermissionPage() {
           onChange={handleTableChange}
           pagination={pagination}
           locale={{
-            emptyText: searchText ? 
-              `No permissions found matching "${searchText}"` : 
+            emptyText: searchText ?
+              `No permissions found matching "${searchText}"` :
               'No permissions available'
           }}
           style={{ backgroundColor: 'white', borderRadius: '8px' }}
@@ -357,66 +369,19 @@ export default function AdminPermissionPage() {
         }}
       />
 
-      <Modal
-        title="Edit Permission"
-        open={editModalVisible}
+      <EditPermissionModal
+        visible={editModalVisible}
+        permission={editingPermission}
+        roles={roles}
+        form={form}
+        loading={editLoading}
         onCancel={() => {
           setEditModalVisible(false);
           setEditingPermission(null);
           form.resetFields();
         }}
-        onOk={handleEditSave}
-        confirmLoading={editLoading}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Permission Name"
-            rules={[{ required: true, message: 'Please input permission name!' }]}
-          >
-            <Input placeholder="Enter permission name" />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-          >
-            <Input.TextArea rows={3} placeholder="Enter permission description" />
-          </Form.Item>
-          <Form.Item
-            name="category"
-            label="Category"
-          >
-            <Select placeholder="Select category">
-              <Select.Option value="user">User</Select.Option>
-              <Select.Option value="role">Role</Select.Option>
-              <Select.Option value="permission">Permission</Select.Option>
-              <Select.Option value="system">System</Select.Option>
-              <Select.Option value="content">Content</Select.Option>
-              <Select.Option value="report">Report</Select.Option>
-              <Select.Option value="api">API</Select.Option>
-              <Select.Option value="other">Other</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="route"
-            label="Route (Optional)"
-          >
-            <Input placeholder="e.g., /admin/users, /api/reports" />
-          </Form.Item>
-          <Form.Item
-            name="method"
-            label="HTTP Method (Optional)"
-          >
-            <Select placeholder="Select HTTP method" allowClear>
-              <Select.Option value="GET">GET</Select.Option>
-              <Select.Option value="POST">POST</Select.Option>
-              <Select.Option value="PUT">PUT</Select.Option>
-              <Select.Option value="DELETE">DELETE</Select.Option>
-              <Select.Option value="PATCH">PATCH</Select.Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+        onSave={handleEditSave}
+      />
     </div>
   );
 }
