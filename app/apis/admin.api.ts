@@ -1,5 +1,6 @@
 import { FaqApi } from './adminApi/FaqApi.ts';
 import { JobApi } from './adminApi/JobApi.ts';
+import { FileApi } from './adminApi/FileApi.ts';
 
 import { AgentApi } from './adminApi/AgentApi.ts';
 import { ApiKeyApi } from './adminApi/ApiKeyApi.ts';
@@ -196,6 +197,8 @@ export const adminApi = {
   deleteSocketEvent: SocketApi.deleteSocketEvent,
   pingSocket: SocketApi.pingSocket,
   testSocketEvent: SocketApi.testSocketEvent,
+  // FileApi
+  getFiles: FileApi.getFiles,
   searchAll: SocketApi.searchAll,
 
   // PromptHistoryApi

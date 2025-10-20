@@ -155,20 +155,14 @@ export default function AdminJobList() {
           </div>
         )}
       </Modal>
-      {/* Create Job Modal (simple example) */}
-      <Modal
+      <JobCreateModal
         open={createModalVisible}
-        title="Create Job"
         onCancel={() => setCreateModalVisible(false)}
-        onOk={() => {
-          // TODO: handle job creation
+        onCreated={() => {
           setCreateModalVisible(false);
           fetchJobs();
         }}
-      >
-        {/* TODO: Add form fields for job creation */}
-        <p>Job creation form goes here.</p>
-      </Modal>
+      />
     </div>
   );
 }
