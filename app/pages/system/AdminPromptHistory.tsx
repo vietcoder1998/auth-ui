@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
 import AddPromptModal from './modals/AddPromptModal.tsx';
@@ -12,11 +13,30 @@ export default function AdminPromptHistory() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<any | null>(null);
   const [conversations, setConversations] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchPrompts();
     fetchConversations();
   }, []);
+
+  useEffect(() => {
+    if (search.length === 0) {
+      fetchPrompts();
+      return;
+    }
+    setLoading(true);
+    adminApi
+      .getPrompts(search)
+      .then((response: any) => {
+        setPrompts(response.data?.data || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setPrompts([]);
+        setLoading(false);
+      });
+  }, [search]);
 
   const fetchConversations = async () => {
     try {
@@ -77,16 +97,26 @@ export default function AdminPromptHistory() {
   return (
     <div>
       <Title level={2}>Prompt History</Title>
+      <CommonSearch
+        searchPlaceholder="Search prompt..."
+        searchValue={search}
+        onSearch={setSearch}
+        loading={loading}
+        showRefresh={true}
+        onRefresh={fetchPrompts}
+        style={{ marginBottom: 12, border: 'none', boxShadow: 'none', padding: 0 }}
+      />
       <Button
         type="primary"
         onClick={() => {
           setEditingPrompt(null);
           setModalVisible(true);
         }}
+        style={{ marginBottom: 16 }}
       >
         Add Prompt
       </Button>
-      <Card style={{ marginTop: 24 }}>
+      <Card style={{ marginTop: 0 }}>
         <List
           loading={loading}
           dataSource={prompts}

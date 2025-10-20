@@ -1,9 +1,10 @@
 import { getApiInstance } from '../index.ts';
 
 export const FaqApi = {
-  getFaqs: async () => {
+  getFaqs: async (search?: string) => {
     const axios = getApiInstance();
-    return axios.get('/admin/faqs');
+    const params = search ? { params: { q: search } } : undefined;
+    return axios.get('/admin/faqs', params);
   },
   createFaq: async (data: any) => {
     const axios = getApiInstance();

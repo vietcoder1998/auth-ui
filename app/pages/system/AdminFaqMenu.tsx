@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm } from 'antd';
 import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
 import AdminFaqCreateModal from './modals/AdminFaqCreateModal.tsx';
 import EditFaqModal from './modals/EditFaqModal.tsx';
@@ -12,11 +13,30 @@ export default function AdminFaqMenu() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingFaq, setEditingFaq] = useState<any>(null);
   const [promptOptions, setPromptOptions] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchFaqs();
     fetchPromptOptions();
   }, []);
+
+  useEffect(() => {
+    if (search.length === 0) {
+      fetchFaqs();
+      return;
+    }
+    setLoading(true);
+    adminApi
+      .getFaqs(search)
+      .then((res: any) => {
+        setFaqs(res.data.data.data || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setFaqs([]);
+        setLoading(false);
+      });
+  }, [search]);
 
   const fetchFaqs = async () => {
     setLoading(true);
@@ -174,6 +194,15 @@ export default function AdminFaqMenu() {
   return (
     <div style={{ padding: '8px 8px 0 8px' }}>
       <h2>Admin FAQ List</h2>
+      <CommonSearch
+        searchPlaceholder="Search FAQ..."
+        searchValue={search}
+        onSearch={setSearch}
+        loading={loading}
+        showRefresh={true}
+        onRefresh={fetchFaqs}
+        style={{ marginBottom: 12, border: 'none', boxShadow: 'none', padding: 0 }}
+      />
       <Button type="primary" style={{ marginBottom: 16 }} onClick={() => setModalVisible(true)}>
         Add FAQ
       </Button>

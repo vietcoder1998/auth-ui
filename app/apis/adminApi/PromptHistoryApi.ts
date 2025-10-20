@@ -1,9 +1,10 @@
 import { getApiInstance } from '../index.ts';
 
 export class PromptHistoryApi {
-  static async getPrompts() {
+  static async getPrompts(search?: string) {
     const axios = getApiInstance();
-    return axios.get(`/admin/prompts`);
+    const params = search ? { params: { q: search } } : undefined;
+    return axios.get(`/admin/prompts`, params);
   }
   static async createPrompt(conversationId: string, prompt: string) {
     const axios = getApiInstance();
