@@ -204,7 +204,7 @@ export default function AdminSystemIndexPage() {
                 cursor: 'pointer',
                 borderLeft: `4px solid ${card.color}`,
               }}
-              bodyStyle={{ padding: '20px' }}
+              styles={{ body: { padding: '20px' } }}
             >
               <Statistic
                 title={card.title}

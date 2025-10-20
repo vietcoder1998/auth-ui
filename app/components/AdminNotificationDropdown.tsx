@@ -13,7 +13,7 @@ export default function AdminNotificationDropdown() {
       open={notifOpen}
       onOpenChange={setNotifOpen}
       trigger={['click']}
-      dropdownRender={() => (
+      popupRender={() => (
         <div
           style={{
             background: 'white',

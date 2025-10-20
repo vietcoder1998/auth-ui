@@ -413,12 +413,14 @@ export default function LLMChat() {
             flexDirection: 'column',
             overflowY: 'auto',
           }}
-          bodyStyle={{
-            padding: 0,
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
+          styles={{
+            body: {
+              padding: 0,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            },
           }}
         >
           {/* Header */}

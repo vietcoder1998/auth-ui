@@ -49,7 +49,7 @@ export function useUpdatePermissions() {
   // Sync fixingErrors to cookie
   useEffect(() => {
     setFixingErrorsArr(Array.from(fixingErrors));
-  }, [fixingErrors]);
+  }, []);
 
   const [appErrors, setAppErrors, removeAppErrorsCookie] = useCookie<any[]>('app_errors', []);
   const dismissError = (errorId: string) => {

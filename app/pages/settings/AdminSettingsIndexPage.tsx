@@ -113,7 +113,7 @@ export default function AdminSettingsIndexPage() {
                 cursor: 'pointer',
                 borderLeft: `4px solid ${card.color}`,
               }}
-              bodyStyle={{ padding: '20px' }}
+              styles={{ body: { padding: '20px' } }}
             >
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                 {React.cloneElement(card.icon, {

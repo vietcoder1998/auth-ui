@@ -15,7 +15,6 @@ import React, { useState } from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AIGenerateProvider } from '~/providers/AIGenerateProvider.tsx';
-import ErrorDisplay from '../components/ErrorDisplay.tsx';
 import LLMChat from '../components/LLMChat.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import useCookie, { useBooleanCookie, useStringCookie } from '../hooks/useCookie.tsx';

@@ -59,11 +59,6 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <FileTextOutlined />,
         label: 'FAQ',
       },
-      {
-        key: '/admin/system/jobs',
-        icon: <ThunderboltOutlined />,
-        label: 'Jobs',
-      },
     ],
   },
   {

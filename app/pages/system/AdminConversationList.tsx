@@ -377,7 +377,7 @@ export default function AdminConversationList() {
         style={{ marginBottom: 24, border: 'none', padding: 0 }}
       />
 
-      <Card bodyStyle={{ padding: 0 }}>
+      <Card styles={{ body: { padding: 0 } }}>
         <Table
           columns={columns}
           dataSource={conversations}
