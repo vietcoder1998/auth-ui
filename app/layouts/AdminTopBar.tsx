@@ -92,7 +92,7 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
         );
       })()
     )}
-    {status.disk && (
+    {status.disk ? (
       (() => {
         const color = getResourceColor(status.disk, 'disk');
         return (
@@ -101,6 +101,8 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
           </span>
         );
       })()
+    ) : (
+      <span title="Disk" style={{ color: '#888' }}>Disk: <span style={{ color: '#888', fontWeight: 500 }}>N/A</span></span>
     )}
   </div>
 );
