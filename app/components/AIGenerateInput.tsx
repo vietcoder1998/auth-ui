@@ -1,5 +1,5 @@
 
-import { ThunderboltOutlined } from '@ant-design/icons'; // Remove after replacement
+// import { ThunderboltOutlined } from '@ant-design/icons'; // No longer used
 import { RobotFilled } from '@ant-design/icons';
 import { Input, message } from 'antd';
 import React, { useState, useEffect } from 'react';
@@ -20,10 +20,21 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({ value, onChange, prom
 	const { value: contextValue, setValue: setContextValue } = useAIGenerateProvider();
 	const [inputValue, setInputValue] = useState(value || contextValue || '');
 	const [loading, setLoading] = useState(false);
+	const inputRef = React.useRef<any>(null);
 
-	// Sync context value to local input
+	// Sync context value to local input and move cursor to end
 	useEffect(() => {
-		setInputValue(value ?? contextValue ?? '');
+		const newValue = value ?? contextValue ?? '';
+		setInputValue(newValue);
+		// Move cursor to end if inputRef is available
+		if (inputRef.current) {
+			const el = inputRef.current.resizableTextArea ? inputRef.current.resizableTextArea.textArea : inputRef.current.input;
+			if (el && typeof el.setSelectionRange === 'function') {
+				setTimeout(() => {
+					el.setSelectionRange(newValue.length, newValue.length);
+				}, 0);
+			}
+		}
 	}, [value, contextValue]);
 
 		const handleGenerate = async () => {
@@ -31,10 +42,10 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({ value, onChange, prom
 			try {
 				const axios = getApiInstance();
 				const res = await axios.post(apiPath || '/admin/prompts/generate', { prompt });
-				if (res.data && res.data.data) {
-					setInputValue(res.data.data);
-					setContextValue(res.data.data);
-					onChange?.(res.data.data);
+				if (res.data && res.data.data.data) {
+					setInputValue(res.data.data.data);
+					setContextValue(res.data.data.data);
+					onChange?.(res.data.data.data);
 				} else {
 					message.error('No data returned from AI');
 				}
@@ -53,13 +64,7 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({ value, onChange, prom
 			},
 			placeholder: placeholder || 'Enter or generate content...',
 			disabled: loading,
-			suffix: (
-				<ThunderboltOutlined
-					style={{ color: loading ? '#1890ff' : undefined, cursor: loading ? 'not-allowed' : 'pointer', fontSize: 18 }}
-					spin={loading}
-					onClick={loading ? undefined : handleGenerate}
-				/>
-			),
+			ref: inputRef,
 		};
 
 		if (textarea) {
