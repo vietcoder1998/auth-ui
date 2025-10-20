@@ -11,14 +11,13 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
-import Cookies from 'js-cookie';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ErrorDisplay from '../components/ErrorDisplay.tsx';
 import LLMChat from '../components/LLMChat.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
-import useCookie from '../hooks/useCookie.tsx';
+import useCookie, { useBooleanCookie, useStringCookie } from '../hooks/useCookie.tsx';
 import AdminHeader from './AdminHeader.tsx';
 import AdminSidebar from './AdminSidebar.tsx';
 
@@ -52,33 +51,15 @@ export default function AdminContentLayout() {
   }
 
   const { logout, user } = auth;
-  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
-  const [chatPosition, setChatPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
+  const [isChatCollapsed, setIsChatCollapsed] = useBooleanCookie('admin_chat_collapsed', false);
+  const [chatPosition, setChatPosition] = useStringCookie('admin_chat_position', 'bottom-right');
   const [editSidebar, setEditSidebar] = useState(false);
   const [search, setSearch] = useState('');
 
-  // Load chat collapse state and position from cookie on mount
-  useEffect(() => {
-    const collapsed = Cookies.get('admin_chat_collapsed');
-    setIsChatCollapsed(collapsed === 'true');
-
-    const savedPosition = Cookies.get('admin_chat_position');
-    if (savedPosition) {
-      try {
-        const position = savedPosition as 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
-        if (['bottom-right', 'bottom-left', 'top-right', 'top-left'].includes(position)) {
-          setChatPosition(position);
-        }
-      } catch (error) {
-        console.error('Failed to parse chat position from cookie:', error);
-      }
-    }
-  }, []);
 
   // Handle chat position change via buttons
   const handlePositionChange = (position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left') => {
     setChatPosition(position);
-    Cookies.set('admin_chat_position', position, { expires: 365 });
   };
 
   // Determine which section we're in
@@ -216,14 +197,15 @@ export default function AdminContentLayout() {
           minWidth: 0,
           background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
           position: 'relative',
+          padding: '0', // Remove section-based padding from Content
         }}>
           <div
             style={{
               background: '#fff',
               height: '100%',
               overflowY: 'auto',
-              padding: isMainAdmin ? '24px' : (isSettingsSection ? '12px' : '0px'),
               minHeight: 360,
+              padding: '24px', // Always use 24px padding for header/content
             }}
           >
             <ErrorDisplay style={{
@@ -328,9 +310,7 @@ export default function AdminContentLayout() {
                   icon={isChatCollapsed ? <ExpandOutlined /> : <MinusOutlined />}
                   onClick={(e) => {
                     e.stopPropagation();
-                    const newCollapsed = !isChatCollapsed;
-                    setIsChatCollapsed(newCollapsed);
-                    Cookies.set('admin_chat_collapsed', newCollapsed.toString(), { expires: 365 });
+                    setIsChatCollapsed(!isChatCollapsed);
                   }}
                   style={{
                     color: '#666',
