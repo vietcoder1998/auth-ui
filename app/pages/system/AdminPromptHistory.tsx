@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
+import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
@@ -123,16 +124,28 @@ export default function AdminPromptHistory() {
           renderItem={(item) => (
             <List.Item
               actions={[
-                <Button type="link" onClick={() => showEditModal(item)}>
-                  Edit
-                </Button>,
+                <Button
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={() => showEditModal(item)}
+                  title="Edit"
+                  key="edit"
+                />,
+                <Button
+                  type="text"
+                  icon={<TagOutlined />}
+                  title="Label"
+                  key="label"
+                  onClick={() => {
+                    /* TODO: Label action */
+                  }}
+                />,
                 <Popconfirm
                   title="Delete this prompt?"
                   onConfirm={() => handleDeletePrompt(item.id)}
+                  key="delete"
                 >
-                  <Button type="link" danger>
-                    Delete
-                  </Button>
+                  <Button type="text" icon={<DeleteOutlined />} danger title="Delete" />
                 </Popconfirm>,
               ]}
             >

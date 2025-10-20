@@ -31,8 +31,8 @@ export function useUpdatePermissions() {
             (error: any) => error.timestamp > fiveMinutesAgo
           );
           setErrors(recentErrors);
-          // Auto open dropdown if new error
-          if (recentErrors.length > prevErrorCount.current) {
+          // Always open dropdown if there are errors and not already open
+          if (recentErrors.length > 0 && !notifOpen) {
             setNotifOpen(true);
           }
           prevErrorCount.current = recentErrors.length;
@@ -48,7 +48,7 @@ export function useUpdatePermissions() {
     loadErrorsFromCookie();
     const interval = setInterval(loadErrorsFromCookie, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [notifOpen]);
 
   // Sync fixingErrors to cookie
   useEffect(() => {
