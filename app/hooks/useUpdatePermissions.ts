@@ -1,23 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 // Remove direct js-cookie usage
-import { useLoginCookie } from './useCookie.tsx';
-import { useCookie } from './useCookie.tsx';
+import { COOKIE_FIXING_ERRORS } from '~/env.ts';
 import { adminApi } from '../apis/admin.api.ts';
-import { env } from '../config/env.ts';
+import { useCookie, useLoginCookie } from './useCookie.tsx';
 
 export function useUpdatePermissions() {
   // Use useLoginCookie for all login cookie handling
   const [, , removeLoginCookie] = useLoginCookie();
   // Use useCookie for fixing_errors
   const [fixingErrorsArr, setFixingErrorsArr, removeFixingErrorsCookie] = useCookie<string[]>(
-    'fixing_errors',
+    COOKIE_FIXING_ERRORS,
     []
   );
   const fixingErrors = new Set<string>(fixingErrorsArr);
   const [errors, setErrors] = useState<any[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const prevErrorCount = useRef(0);
-  const [, getAppErrors] = useCookie<any[]>('app_errors', []);
 
   // Poll for errors and sync fixingErrors to cookie
   useEffect(() => {
@@ -25,8 +23,7 @@ export function useUpdatePermissions() {
     // import { useCookie } from './useCookie.tsx' at the top if not already
     const loadErrorsFromCookie = () => {
       try {
-        const errorsCookie = getAppErrors;
-        const parsedErrors = Array.isArray(errorsCookie) ? errorsCookie : [];
+        const parsedErrors = Array.isArray(fixingErrorsArr) ? fixingErrorsArr : [];
         const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
         const recentErrors = parsedErrors.filter((error: any) => error.timestamp > fiveMinutesAgo);
         console.log(recentErrors);
@@ -44,27 +41,26 @@ export function useUpdatePermissions() {
     loadErrorsFromCookie();
     const interval = setInterval(loadErrorsFromCookie, 1000);
     return () => clearInterval(interval);
-  }, [notifOpen]);
+  }, [notifOpen, fixingErrorsArr]);
 
   // Sync fixingErrors to cookie
   useEffect(() => {
     setFixingErrorsArr(Array.from(fixingErrors));
   }, []);
 
-  const [appErrors, setAppErrors, removeAppErrorsCookie] = useCookie<any[]>('app_errors', []);
   const dismissError = (errorId: string) => {
     const updatedErrors = errors.filter((error) => error.id !== errorId);
     setErrors(updatedErrors);
     if (updatedErrors.length > 0) {
-      setAppErrors(updatedErrors);
+      setFixingErrorsArr(updatedErrors);
     } else {
-      removeAppErrorsCookie();
+      removeFixingErrorsCookie();
     }
   };
 
   const dismissAllErrors = () => {
     setErrors([]);
-    removeAppErrorsCookie();
+    removeFixingErrorsCookie();
   };
 
   const fixPermission = async (

@@ -2,6 +2,8 @@ import { message } from 'antd';
 import axios, { AxiosInstance } from 'axios';
 import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
 import { COOKIE_DOMAIN, COOKIE_PATH } from '../env.ts';
+import { COOKIE_FIXING_ERRORS } from '../env.ts';
+import Cookies from 'js-cookie';
 
 // Cookie utility function
 const getCookie = (name: string): string | null => {
@@ -107,6 +109,28 @@ export function getApiInstance(): AxiosInstance {
           break;
         case error.response?.status === 403:
           errorMessage = "Access denied. You don't have permission to perform this action.";
+          // Write error to fixing_errors cookie using js-cookie
+          try {
+            const prevErrors = Cookies.get(COOKIE_FIXING_ERRORS);
+            let errorsArr = [];
+            if (prevErrors) {
+              errorsArr = JSON.parse(prevErrors);
+              if (!Array.isArray(errorsArr)) errorsArr = [];
+            }
+            errorsArr.push(errorDetails);
+            Cookies.set(COOKIE_FIXING_ERRORS, JSON.stringify(errorsArr), {
+              path: COOKIE_PATH,
+              domain: COOKIE_DOMAIN,
+              expires: 365,
+            });
+          } catch (e) {
+            // fallback: just set the error
+            Cookies.set(COOKIE_FIXING_ERRORS, JSON.stringify([errorDetails]), {
+              path: COOKIE_PATH,
+              domain: COOKIE_DOMAIN,
+              expires: 365,
+            });
+          }
           message.error(errorMessage);
           break;
         case error.response?.status === 404:
