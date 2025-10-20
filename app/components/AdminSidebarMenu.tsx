@@ -49,6 +49,11 @@ export const defaultSidebarMenu: MenuItem[] = [
                 icon: <MessageOutlined />,
                 label: 'Conversations',
             },
+            {
+                key: '/admin/system/prompt-history',
+                icon: <MessageOutlined />,
+                label: 'Prompt History',
+            },
         ],
     },
     {
@@ -114,6 +119,7 @@ export const defaultSidebarMenu: MenuItem[] = [
                 icon: <AuditOutlined />,
                 label: 'Application Logs',
             },
+
             {
                 key: '/admin/system/cache',
                 icon: <DatabaseOutlined />,

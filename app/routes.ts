@@ -31,6 +31,7 @@ export default [
     route("system/logs", "pages/system/AdminLogPage.tsx"), // /admin/system/logs
     route("system/agents", "pages/system/AdminAgentPage.tsx"), // /admin/system/agents
     route("system/conversations", "pages/system/AdminConversationList.tsx"), // /admin/system/conversations
+    route("system/prompt-history", "pages/system/AdminPromptHistory.tsx"), // /admin/system/prompt-history
     route("system/sockets", "pages/system/AdminSocketPage.tsx"), // /admin/system/sockets
     route("system/documents", "pages/system/AdminDocumentPage.tsx"), // /admin/system/documents
     route("system/files", "pages/system/AdminFileListPage.tsx"), // /admin/system/files
