@@ -1,4 +1,4 @@
-import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
+import { addErrorToCookie } from '~/apis/index.ts';
 
 // Utility function to handle axios errors in components
 export const handleApiError = (error: any, context?: string) => {

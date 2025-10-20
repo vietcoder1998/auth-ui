@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dropdown, List, Button, Badge } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
+import { FixingError, useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
 import { ReloadOutlined } from '@ant-design/icons';
 
 export default function AdminNotificationDropdown() {
@@ -29,7 +29,7 @@ export default function AdminNotificationDropdown() {
             dataSource={errors}
             locale={{ emptyText: 'No notifications' }}
             style={{ maxHeight: 350, overflowY: 'auto', background: 'white' }}
-            renderItem={(error) => (
+            renderItem={(error: FixingError) => (
               <List.Item
                 style={{
                   background: 'white',
@@ -47,13 +47,32 @@ export default function AdminNotificationDropdown() {
                     }}
                   >
                     <ExclamationCircleOutlined style={{ marginRight: 8 }} />
-                    {error.message}
+                    {error.responseData.message}
+                    {error.statusText && (
+                      <span style={{ marginLeft: 8, color: '#888', fontWeight: 400 }}>
+                        [Status: {error.statusText}]
+                      </span>
+                    )}
+                    {error.code && (
+                      <span style={{ marginLeft: 8, color: '#888', fontWeight: 400 }}>
+                        [Code: {error.code}]
+                      </span>
+                    )}
                   </div>
-                  <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
-                    {error.details && typeof error.details === 'string'
-                      ? error.details
-                      : error.details && JSON.stringify(error.details)}
-                  </div>
+                  {error.responseData && (
+                    <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+                      {typeof error.responseData === 'string'
+                        ? error.responseData
+                        : Object.keys(error.responseData).length > 0
+                          ? Object.entries(error.responseData)
+                              .map(
+                                ([key, value]) =>
+                                  `${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
+                              )
+                              .join(' | ')
+                          : null}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                     <Button
                       size="small"

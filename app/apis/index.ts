@@ -1,9 +1,61 @@
 import { message } from 'antd';
 import axios, { AxiosInstance } from 'axios';
-import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
 import { COOKIE_DOMAIN, COOKIE_PATH } from '../env.ts';
 import { COOKIE_FIXING_ERRORS } from '../env.ts';
 import Cookies from 'js-cookie';
+import { FixingError } from '~/hooks/useUpdatePermissions.ts';
+
+// Utility function to add errors to cookie from anywhere in the app
+export const addErrorToCookie = (error: {
+  message: string;
+  status?: number;
+  code?: string;
+  details?: any;
+  url?: string;
+  method?: string;
+}) => {
+  try {
+    const errorInfo: FixingError = {
+      id: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      message: error.message,
+      status: error.status ?? 0,
+      code: error.code ?? 'UNKNOWN_ERROR',
+      timestamp: Date.now(),
+      responseData: error.details,
+      statusText: error.status ? String(error.status) : 'N/A',
+      url: error?.url || 'N/A',
+      method: error?.method || 'N/A',
+    };
+
+    // Get existing errors
+    const existingErrorsCookie = Cookies.get('app_errors');
+    let existingErrors: FixingError[] = [];
+
+    if (existingErrorsCookie) {
+      try {
+        existingErrors = JSON.parse(existingErrorsCookie);
+      } catch (parseError) {
+        console.error('Failed to parse existing errors:', parseError);
+        existingErrors = [];
+      }
+    }
+
+    // Add new error
+    existingErrors.push(errorInfo);
+
+    // Keep only the last 10 errors to prevent cookie from getting too large
+    if (existingErrors.length > 10) {
+      existingErrors = existingErrors.slice(-10);
+    }
+
+    // Save to cookie (expires in 1 day)
+    Cookies.set('app_errors', JSON.stringify(existingErrors), { expires: 1 });
+
+    console.error('Error added to cookie:', errorInfo);
+  } catch (error) {
+    console.error('Failed to add error to cookie:', error);
+  }
+};
 
 // Cookie utility function
 const getCookie = (name: string): string | null => {

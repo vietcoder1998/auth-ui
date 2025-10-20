@@ -1,6 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
-
+import { addErrorToCookie } from '~/apis/index.ts';
 // Create axios interceptor for error handling that works with existing axios instances
 export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
   const axiosInstance = instance || axios;

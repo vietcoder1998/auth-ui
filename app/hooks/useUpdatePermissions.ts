@@ -1,38 +1,68 @@
 import { useEffect, useRef, useState } from 'react';
 // Remove direct js-cookie usage
 import { COOKIE_FIXING_ERRORS } from '~/env.ts';
+import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
 import { adminApi } from '../apis/admin.api.ts';
 import { useCookie, useLoginCookie } from './useCookie.tsx';
+// Type for errors saved in fixing_errors cookie
+export interface FixingError {
+  id: string;
+  message: string;
+  status: number;
+  code: string;
+  timestamp: number;
+  statusText: string;
+  url: string;
+  method?: string;
+  responseData: {
+    url?: string;
+    method?: string;
+    status?: number;
+    statusText?: string;
+    responseData?: any;
+    requestHeaders?: any;
+    [key: string]: any;
+  };
+}
 
 export function useUpdatePermissions() {
   // Use useLoginCookie for all login cookie handling
   const [, , removeLoginCookie] = useLoginCookie();
   // Use useCookie for fixing_errors
-  const [fixingErrorsArr, setFixingErrorsArr, removeFixingErrorsCookie] = useCookie<string[]>(
+  const [fixingErrorsArr, setFixingErrorsArr, removeFixingErrorsCookie] = useCookie<FixingError[]>(
     COOKIE_FIXING_ERRORS,
     []
   );
-  const fixingErrors = new Set<string>(fixingErrorsArr);
-  const [errors, setErrors] = useState<any[]>([]);
+  // ...existing code...
+  console.log('fixingErrorsArr:', fixingErrorsArr);
+  // Set of error ids for quick lookup
+  const fixingErrorIds = new Set<string>(fixingErrorsArr.map((e) => e.id));
+  const [errors, setErrors] = useState<FixingError[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const prevErrorCount = useRef(0);
+  // Extract permission from URL for 403 errors
 
+  const extractPermissionFromError = (error: FixingError): string | null => {
+    if (error.status !== 403) return null;
+
+    const url = error?.url;
+    const method = error?.method || 'GET';
+
+    const permissionInfo = extractPermissionFromUrl(url ?? '', method);
+    return permissionInfo?.resource || null;
+  };
   // Poll for errors and sync fixingErrors to cookie
   useEffect(() => {
-    // Use useCookie for reading 'app_errors' cookie
-    // import { useCookie } from './useCookie.tsx' at the top if not already
+    // Use useCookie for reading fixing_errors cookie
     const loadErrorsFromCookie = () => {
       try {
         const parsedErrors = Array.isArray(fixingErrorsArr) ? fixingErrorsArr : [];
-        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-        const recentErrors = parsedErrors.filter((error: any) => error.timestamp > fiveMinutesAgo);
-        console.log(recentErrors);
-        setErrors(recentErrors);
+        setErrors(parsedErrors);
         // Always open dropdown if there are errors and not already open
-        if (recentErrors.length > 0 && !notifOpen) {
+        if (parsedErrors.length > 0 && !notifOpen) {
           setNotifOpen(true);
         }
-        prevErrorCount.current = recentErrors.length;
+        prevErrorCount.current = parsedErrors.length;
       } catch {
         setErrors([]);
         prevErrorCount.current = 0;
@@ -43,13 +73,10 @@ export function useUpdatePermissions() {
     return () => clearInterval(interval);
   }, [notifOpen, fixingErrorsArr]);
 
-  // Sync fixingErrors to cookie
-  useEffect(() => {
-    setFixingErrorsArr(Array.from(fixingErrors));
-  }, []);
+  // No need to sync fixingErrors to cookie, handled by setFixingErrorsArr when updating
 
   const dismissError = (errorId: string) => {
-    const updatedErrors = errors.filter((error) => error.id !== errorId);
+    const updatedErrors = fixingErrorsArr.filter((error) => error.id !== errorId);
     setErrors(updatedErrors);
     if (updatedErrors.length > 0) {
       setFixingErrorsArr(updatedErrors);
@@ -64,29 +91,38 @@ export function useUpdatePermissions() {
   };
 
   const fixPermission = async (
-    error: any,
-    extractPermissionFromError: (error: any) => string | null,
+    error: FixingError,
     dismissErrorFn: (id: string) => void,
     onRefreshPermissions?: () => void // optional callback
   ) => {
+    console.log(error);
     const permission = extractPermissionFromError(error);
     if (!permission) return;
-    setFixingErrorsArr(Array.from(new Set<string>([...fixingErrorsArr, error.id])));
+    // Add error to fixingErrorsArr if not present
+    if (!fixingErrorIds.has(error.id)) {
+      setFixingErrorsArr([...fixingErrorsArr, error]);
+    }
     try {
       let permissionId: string | null = null;
       try {
         const permissionsResponse = await adminApi.getPermissions();
         let permissions: any[] = [];
-        if (Array.isArray(permissionsResponse.data)) {
-          permissions = permissionsResponse.data;
-        } else if (permissionsResponse.data && Array.isArray(permissionsResponse.data.data)) {
-          permissions = permissionsResponse.data.data;
+        switch (true) {
+          case Array.isArray(permissionsResponse.data):
+            permissions = permissionsResponse.data;
+            break;
+          case permissionsResponse.data && Array.isArray(permissionsResponse.data.data):
+            permissions = permissionsResponse.data.data;
+            break;
+          default:
+            permissions = [];
+            break;
         }
         const existingPermission = permissions.find((p: any) => p.resource === permission);
         if (existingPermission) permissionId = existingPermission.id;
         if (!existingPermission) {
           // Replace /...id/... with /:id/ in the route if detected
-          let route = `/api${error.details?.url || ''}`;
+          let route = `/api${error?.url || ''}`;
           route = route.replace(/\/(\w*id)\b/g, '/:id');
           const newPermResponse = await adminApi.createPermission({
             resource: permission,
@@ -94,7 +130,7 @@ export function useUpdatePermissions() {
             action: permission.includes(':write') ? 'write' : 'read',
             description: `Auto-generated permission for ${permission}`,
             route,
-            method: error.details?.method || 'GET',
+            method: error.responseData?.method || 'GET',
             category: 'custom',
           });
           if (!newPermResponse.data || !newPermResponse.data.id) {
@@ -128,14 +164,13 @@ export function useUpdatePermissions() {
     } catch (error) {
       console.error('Failed to fix permission:', error);
     } finally {
-      const newSet = new Set<string>(fixingErrorsArr);
-      newSet.delete(error.id);
-      setFixingErrorsArr(Array.from(newSet));
+      // Remove error from fixingErrorsArr
+      setFixingErrorsArr(fixingErrorsArr.filter((e) => e.id !== error.id));
     }
   };
 
   return {
-    fixingErrors,
+    fixingErrorsArr,
     fixPermission,
     errors,
     notifOpen,
