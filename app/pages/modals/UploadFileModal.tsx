@@ -13,6 +13,12 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
   const [uploading, setUploading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
 
+  // Clear fileList when modal is closed
+  const handleCancel = () => {
+    setFileList([]);
+    onCancel();
+  };
+
   const handleUpload = async () => {
     if (fileList.length === 0) {
       message.warning('Please select a file to upload.');
@@ -43,24 +49,24 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
     <Modal
       title="Upload File"
       open={visible}
-      onCancel={onCancel}
+      onCancel={handleCancel}
       onOk={handleUpload}
       confirmLoading={uploading}
       okText="Upload"
-  destroyOnHidden
+      destroyOnHidden
     >
       <Upload.Dragger
-        multiple
+        multiple={false}
         fileList={fileList}
         beforeUpload={() => false}
-        onChange={({ fileList }) => setFileList(fileList)}
+        onChange={({ fileList }) => setFileList(fileList.slice(-1))}
         accept="*"
         style={{ marginBottom: 16 }}
       >
         <p className="ant-upload-drag-icon">
           <UploadOutlined style={{ fontSize: 32 }} />
         </p>
-        <p className="ant-upload-text">Click or drag file(s) to this area to upload</p>
+        <p className="ant-upload-text">Click or drag a file to this area to upload</p>
       </Upload.Dragger>
     </Modal>
   );
