@@ -14,6 +14,7 @@ import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
 import React, { useState } from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { AIGenerateProvider } from '~/providers/AIGenerateProvider.tsx';
 import ErrorDisplay from '../components/ErrorDisplay.tsx';
 import LLMChat from '../components/LLMChat.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
@@ -213,7 +214,10 @@ export default function AdminContentLayout() {
               zIndex: 999,
               marginBottom: '0',
             }} />
-            <Outlet />
+            {/* Provide AI context for all admin content */}
+            <AIGenerateProvider>
+              <Outlet />
+            </AIGenerateProvider>
           </div>
           {/* Floating Chat Box - With Position Buttons */}
           <div

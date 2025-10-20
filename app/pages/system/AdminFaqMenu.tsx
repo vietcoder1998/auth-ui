@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm } from 'antd';
-import { getApiInstance } from '../../apis/index.ts';
+import { adminApi } from '../../apis/admin.api.ts';
+import AdminFaqCreateModal from './modals/AdminFaqCreateModal.tsx';
 
 export default function AdminFaqMenu() {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [promptOptions, setPromptOptions] = useState<any[]>([]);
 
   useEffect(() => {
     fetchFaqs();
+    fetchPromptOptions();
   }, []);
 
   const fetchFaqs = async () => {
     setLoading(true);
     try {
-      const axios = getApiInstance();
-      const res = await axios.get('/admin/faqs');
+      const res = await adminApi.getFaqs();
       setFaqs(res.data.data || []);
     } catch (error) {
       message.error('Failed to load FAQs');
@@ -23,17 +26,36 @@ export default function AdminFaqMenu() {
     setLoading(false);
   };
 
+  const fetchPromptOptions = async () => {
+    try {
+      const res = await adminApi.getPrompts();
+      setPromptOptions((res.data.data || []).map((p: any) => ({ value: p.id, label: p.prompt })));
+    } catch {
+      setPromptOptions([]);
+    }
+  };
+
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: 'Delete FAQ',
       content: 'Are you sure you want to delete this FAQ?',
       okType: 'danger',
       onOk: async () => {
-        const axios = getApiInstance();
-        await axios.delete(`/admin/faqs/${id}`);
+        await adminApi.deleteFaq(id);
         fetchFaqs();
       },
     });
+  };
+
+  const handleCreateFaq = async (values: any) => {
+    try {
+      await adminApi.createFaq(values);
+      message.success('FAQ created');
+      setModalVisible(false);
+      fetchFaqs();
+    } catch (error) {
+      message.error('Failed to create FAQ');
+    }
   };
 
   const columns = [
@@ -56,13 +78,19 @@ export default function AdminFaqMenu() {
   return (
     <div style={{ padding: 24 }}>
       <h2>Admin FAQ List</h2>
-      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => {/* TODO: Show add modal */}}>
+      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => setModalVisible(true)}>
         Add FAQ
       </Button>
       <Spin spinning={loading}>
         <Table rowKey="id" columns={columns} dataSource={faqs} pagination={{ pageSize: 10 }} />
       </Spin>
-      {/* TODO: Add/Edit FAQ Modal */}
+      <AdminFaqCreateModal
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={handleCreateFaq}
+        loading={loading}
+        promptOptions={promptOptions}
+      />
     </div>
   );
 }

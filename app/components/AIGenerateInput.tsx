@@ -1,5 +1,6 @@
 
-import { ThunderboltOutlined } from '@ant-design/icons';
+import { ThunderboltOutlined } from '@ant-design/icons'; // Remove after replacement
+import { RobotFilled } from '@ant-design/icons';
 import { Input, message } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { getApiInstance } from '../apis/index.ts';
@@ -62,7 +63,30 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({ value, onChange, prom
 		};
 
 		if (textarea) {
-			return <Input.TextArea {...commonProps} autoSize={rows ? { minRows: rows, maxRows: rows } : undefined} />;
+			return (
+				<div style={{ position: 'relative' }}>
+					<Input.TextArea {...commonProps} autoSize={rows ? { minRows: rows, maxRows: rows } : undefined} />
+					<div
+						style={{
+							position: 'absolute',
+							right: 8,
+							bottom: 8,
+							zIndex: 2,
+							cursor: loading ? 'not-allowed' : 'pointer',
+							background: '#fff',
+							borderRadius: '50%',
+							boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+							padding: 2,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+						onClick={loading ? undefined : handleGenerate}
+					>
+						<RobotFilled style={{ color: loading ? '#1890ff' : '#888', fontSize: 16 }} spin={loading} />
+					</div>
+				</div>
+			);
 		}
 		return <Input {...commonProps} />;
 };
