@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm } from 'antd';
+import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 import AdminFaqCreateModal from './modals/AdminFaqCreateModal.tsx';
 import EditFaqModal from './modals/EditFaqModal.tsx';
@@ -148,21 +149,22 @@ export default function AdminFaqMenu() {
       width: 140,
       render: (_: any, faq: any) => (
         <Space>
-          <Button type="link" onClick={() => handleEdit(faq)}>
-            Edit
-          </Button>
           <Button
-            type="link"
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(faq)}
+            title="Edit"
+          />
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
             onClick={() => {
               /* TODO: View modal */
             }}
-          >
-            View
-          </Button>
+            title="View"
+          />
           <Popconfirm title="Delete this FAQ?" onConfirm={() => handleDelete(faq.id)}>
-            <Button type="link" danger>
-              Delete
-            </Button>
+            <Button type="text" icon={<DeleteOutlined />} danger title="Delete" />
           </Popconfirm>
         </Space>
       ),
