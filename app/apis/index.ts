@@ -1,6 +1,7 @@
-import axios, { AxiosInstance } from 'axios';
 import { message } from 'antd';
+import axios, { AxiosInstance } from 'axios';
 import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
+import { COOKIE_DOMAIN, COOKIE_PATH } from '../env.ts';
 
 // Cookie utility function
 const getCookie = (name: string): string | null => {
@@ -91,38 +92,38 @@ export function getApiInstance(): AxiosInstance {
       });
 
       // Handle different error status codes with toasts
-      if (error.response?.status === 401) {
-        errorMessage = 'Authentication failed. Please login again.';
-
-        // Token might be expired, clear auth data
-        document.cookie = 'auth_token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
-        document.cookie = 'auth_user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
-        localStorage.removeItem('token');
-
-        // Show toast before redirect
-        message.error(errorMessage);
-
-        // Redirect to login if not already there
-        setTimeout(() => {
-          if (!window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
-          }
-        }, 1000); // Delay to show toast
-      } else if (error.response?.status === 403) {
-        errorMessage = "Access denied. You don't have permission to perform this action.";
-        message.error(errorMessage);
-      } else if (error.response?.status === 404) {
-        errorMessage = 'Resource not found.';
-        message.error(errorMessage);
-      } else if (error.response?.status >= 500) {
-        errorMessage = 'Server error. Please try again later.';
-        message.error(errorMessage);
-      } else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNABORTED') {
-        errorMessage = 'Network error. Please check your connection.';
-        message.error(errorMessage);
-      } else {
-        // Show toast for other errors
-        message.error(errorMessage);
+      switch (true) {
+        case error.response?.status === 401:
+          errorMessage = 'Authentication failed. Please login again.';
+          document.cookie = `auth_token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=${COOKIE_PATH};domain=${COOKIE_DOMAIN};`;
+          document.cookie = `auth_user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=${COOKIE_PATH};domain=${COOKIE_DOMAIN};`;
+          localStorage.removeItem('token');
+          message.error(errorMessage);
+          setTimeout(() => {
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
+          }, 1000);
+          break;
+        case error.response?.status === 403:
+          errorMessage = "Access denied. You don't have permission to perform this action.";
+          message.error(errorMessage);
+          break;
+        case error.response?.status === 404:
+          errorMessage = 'Resource not found.';
+          message.error(errorMessage);
+          break;
+        case error.response?.status >= 500:
+          errorMessage = 'Server error. Please try again later.';
+          message.error(errorMessage);
+          break;
+        case error.code === 'NETWORK_ERROR' || error.code === 'ECONNABORTED':
+          errorMessage = 'Network error. Please check your connection.';
+          message.error(errorMessage);
+          break;
+        default:
+          message.error(errorMessage);
+          break;
       }
 
       return Promise.reject(error);
