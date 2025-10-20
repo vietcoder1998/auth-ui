@@ -1,4 +1,5 @@
 import { FaqApi } from './adminApi/FaqApi.ts';
+import { JobApi } from './adminApi/JobApi.ts';
 
 import { AgentApi } from './adminApi/AgentApi.ts';
 import { ApiKeyApi } from './adminApi/ApiKeyApi.ts';
@@ -208,4 +209,9 @@ export const adminApi = {
   createFaq: FaqApi.createFaq,
   updateFaq: FaqApi.updateFaq,
   deleteFaq: FaqApi.deleteFaq,
+  getJobs: JobApi.getJobs,
+  createJob: JobApi.createJob,
+  startJob: JobApi.startJob,
+  restartJob: JobApi.restartJob,
+  cancelJob: JobApi.cancelJob,
 };

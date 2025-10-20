@@ -111,6 +111,11 @@ export const defaultSidebarMenu: MenuItem[] = [
     label: 'System Management',
     children: [
       {
+        key: '/admin/system/jobs',
+        icon: <ThunderboltOutlined />,
+        label: 'Jobs',
+      },
+      {
         key: '/admin/system/permissions',
         icon: <SafetyOutlined />,
         label: 'Permissions',
