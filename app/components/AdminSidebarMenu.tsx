@@ -54,6 +54,11 @@ export const defaultSidebarMenu: MenuItem[] = [
                 icon: <MessageOutlined />,
                 label: 'Prompt History',
             },
+            {
+                key: '/admin/system/faqs',
+                icon: <FileTextOutlined />,
+                label: 'FAQ',
+            },
         ],
     },
     {

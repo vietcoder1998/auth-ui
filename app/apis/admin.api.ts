@@ -1,3 +1,4 @@
+import { FaqApi } from './adminApi/FaqApi.ts';
 
 import { AgentApi } from './adminApi/AgentApi.ts';
 import { ApiKeyApi } from './adminApi/ApiKeyApi.ts';
@@ -181,4 +182,10 @@ export const adminApi = {
   createPrompt: PromptHistoryApi.createPrompt,
   updatePrompt: PromptHistoryApi.updatePrompt,
   deletePrompt: PromptHistoryApi.deletePrompt,
+
+  // FAQ API
+  getFaqs: FaqApi.getFaqs,
+  createFaq: FaqApi.createFaq,
+  updateFaq: FaqApi.updateFaq,
+  deleteFaq: FaqApi.deleteFaq,
 };
