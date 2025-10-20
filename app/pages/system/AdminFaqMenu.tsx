@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm } from 'antd';
-import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
-import CommonSearch from '../../components/CommonSearch.tsx';
+import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, message, Modal, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
+import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
+import CommonSearch from '../../components/CommonSearch.tsx';
 import AdminFaqCreateModal from './modals/AdminFaqCreateModal.tsx';
 import EditFaqModal from './modals/EditFaqModal.tsx';
+const { Title } = Typography;
 
 export default function AdminFaqMenu() {
   const [faqs, setFaqs] = useState([]);
@@ -193,7 +194,7 @@ export default function AdminFaqMenu() {
 
   return (
     <div style={{ padding: '8px 8px 0 8px' }}>
-      <h2>Admin FAQ List</h2>
+      <Title level={2}>Admin FAQ List</Title>
       <CommonSearch
         searchPlaceholder="Search FAQ..."
         searchValue={search}
