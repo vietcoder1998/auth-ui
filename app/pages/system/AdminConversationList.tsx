@@ -1,42 +1,37 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Card,
-  Table,
-  Button,
-  Space,
-  Typography,
-  Tag,
-  Modal,
-  Input,
-  Select,
-  message,
-  Tooltip,
-  Badge,
-  Drawer,
-  List,
-  Avatar,
-  Divider,
-  Empty,
-  Spin,
-  Popconfirm,
-} from 'antd';
-import {
-  MessageOutlined,
-  RobotOutlined,
-  UserOutlined,
-  EyeOutlined,
   DeleteOutlined,
-  SearchOutlined,
-  FilterOutlined,
-  PlusOutlined,
+  EyeOutlined,
+  RobotOutlined,
   SendOutlined,
-  ClockCircleOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import type { TableProps } from 'antd';
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Drawer,
+  Empty,
+  Input,
+  List,
+  message,
+  Popconfirm,
+  Select,
+  Space,
+  Spin,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+} from 'antd';
+import React, { useEffect, useState } from 'react';
+import { adminApi } from '../../apis/admin.api.ts';
+import CommonSearch from '../../components/CommonSearch.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
 
 type ColumnsType<T> = TableProps<T>['columns'];
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { adminApi } from '../../apis/admin.api.ts';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -325,8 +320,38 @@ export default function AdminConversationList() {
     },
   ];
 
+  // Prepare filters for CommonSearch
+  const filters = [
+    {
+      key: 'agent',
+      label: 'Agent',
+      options: agents.map((agent) => ({
+        value: agent.id,
+        label: agent.name,
+      })),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'active', label: 'Active' },
+        { value: 'archived', label: 'Archived' },
+      ],
+    },
+  ];
+
+  const filterValues = {
+    agent: selectedAgent,
+    status: statusFilter,
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    if (key === 'agent') setSelectedAgent(value);
+    if (key === 'status') setStatusFilter(value);
+  };
+
   return (
-    <div style={{}}>
+    <div>
       <div
         style={{
           display: 'flex',
@@ -339,47 +364,20 @@ export default function AdminConversationList() {
       </div>
 
       {/* Filters */}
-      <Card style={{ marginBottom: '24px' }}>
-        <Space wrap style={{ width: '100%' }}>
-          <Search
-            placeholder="Search conversations..."
-            style={{ width: 300 }}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            prefix={<SearchOutlined />}
-          />
+      <CommonSearch
+        searchPlaceholder="Search conversations..."
+        searchValue={searchText}
+        onSearch={setSearchText}
+        onRefresh={fetchConversations}
+        loading={loading}
+        filters={filters}
+        filterValues={filterValues}
+        onFilterChange={handleFilterChange}
+        showRefresh
+        style={{ marginBottom: 24, border: 'none', padding: 0 }}
+      />
 
-          <Select
-            placeholder="Filter by Agent"
-            style={{ width: 200 }}
-            value={selectedAgent}
-            onChange={setSelectedAgent}
-            allowClear
-          >
-            {agents.map((agent) => (
-              <Option key={agent.id} value={agent.id}>
-                <Space>
-                  <Badge status={agent.isActive ? 'success' : 'default'} />
-                  {agent.name}
-                </Space>
-              </Option>
-            ))}
-          </Select>
-
-          <Select
-            placeholder="Filter by Status"
-            style={{ width: 150 }}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            allowClear
-          >
-            <Option value="active">Active</Option>
-            <Option value="archived">Archived</Option>
-          </Select>
-        </Space>
-      </Card>
-
-      <Card>
+      <Card bodyStyle={{ padding: 0 }}>
         <Table
           columns={columns}
           dataSource={conversations}
