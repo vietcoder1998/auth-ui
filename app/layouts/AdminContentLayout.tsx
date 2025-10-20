@@ -197,7 +197,6 @@ export default function AdminContentLayout() {
           minWidth: 0,
           background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
           position: 'relative',
-          padding: '0', // Remove section-based padding from Content
         }}>
           <div
             style={{

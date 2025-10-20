@@ -12,7 +12,7 @@ export default function AdminNotificationDropdown() {
       onOpenChange={setNotifOpen}
       trigger={['click']}
       dropdownRender={() => (
-        <div style={{ background: 'white', minWidth: 350, maxWidth: 500, boxShadow: '0 2px 8px #ccc', borderRadius: 8 }}>
+        <div style={{ background: 'white', minWidth: 350, maxWidth: 500, boxShadow: '0 2px 8px #ccc', padding: 10, borderRadius: 8 }}>
           <List
             header={<div style={{ fontWeight: 600 }}>Notifications</div>}
             dataSource={errors}

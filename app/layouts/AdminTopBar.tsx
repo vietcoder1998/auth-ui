@@ -59,7 +59,7 @@ export default function AdminTopBar({ profileMenuItems }: any) {
           popupRender={() => (
             <div style={{ background: 'white', padding: 0, minWidth: 350, maxWidth: 600 }}>
               {searchLoading ? (
-                <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <div style={{ textAlign: 'center', padding: '24px 10px' }}>
                   <Spin />
                 </div>
               ) : (

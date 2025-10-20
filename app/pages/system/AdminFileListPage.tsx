@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { getApiInstance } from '../../apis/index.ts';
 import UploadFileModal from '../modals/UploadFileModal.tsx';
 
@@ -47,6 +47,15 @@ export default function AdminFileListPage() {
     {
       title: 'Actions', key: 'actions', render: (_: any, file: any) => (
         <Space>
+          <Button
+            icon={<DownloadOutlined />}
+            size="small"
+            onClick={() => {
+              window.open(`/api/admin/files/download/${encodeURIComponent(file.filename)}`);
+            }}
+          >
+            Download
+          </Button>
           <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(file.id)}>
             Delete
           </Button>
