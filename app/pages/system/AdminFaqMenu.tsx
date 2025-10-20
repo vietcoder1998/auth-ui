@@ -18,7 +18,7 @@ export default function AdminFaqMenu() {
     setLoading(true);
     try {
       const res = await adminApi.getFaqs();
-      setFaqs(res.data.data || []);
+      setFaqs(res.data.data.data || []);
     } catch (error) {
       message.error('Failed to load FAQs');
       setFaqs([]);
@@ -58,15 +58,63 @@ export default function AdminFaqMenu() {
     }
   };
 
-  const columns = [
-    { title: 'Question', dataIndex: 'question', key: 'question', render: (q: string) => <pre>{q}</pre> },
-    { title: 'Answer', dataIndex: 'answer', key: 'answer', render: (a: string) => <pre>{a}</pre> },
-    { title: 'Type', dataIndex: 'type', key: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
-    { title: 'Created', dataIndex: 'createdAt', key: 'createdAt', render: (d: string) => new Date(d).toLocaleString() },
+  const MAX_CELL_LENGTH = 60;
+  const columns: any[] = [
     {
-      title: 'Actions', key: 'actions', render: (_: any, faq: any) => (
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      width: 80,
+      render: (t: string) => <Tag color="blue" style={{ fontSize: 12, padding: '2px 6px' }}>{t}</Tag>,
+    },
+    {
+      title: 'Question',
+      dataIndex: 'question',
+      key: 'question',
+      width: 180,
+      render: (q: string) =>
+        q.length > MAX_CELL_LENGTH ? (
+          <span title={q} style={{ cursor: 'pointer' }}>{q.slice(0, MAX_CELL_LENGTH)}... </span>
+        ) : (
+          <span>{q}</span>
+        ),
+    },
+    {
+      title: 'Answer',
+      dataIndex: 'answer',
+      key: 'answer',
+      width: 180,
+      render: (a: string) =>
+        a.length > MAX_CELL_LENGTH ? (
+          <span title={a} style={{ cursor: 'pointer' }}>{a.slice(0, MAX_CELL_LENGTH)}... </span>
+        ) : (
+          <span>{a}</span>
+        ),
+    },
+    {
+      title: 'Prompt',
+      dataIndex: 'prompt',
+      key: 'prompt',
+      width: 120,
+      render: (_: any, faq: any) => (
+        faq.prompt ? <span title={faq.prompt.prompt} style={{ cursor: 'pointer' }}>{faq.prompt.prompt?.slice(0, MAX_CELL_LENGTH) + (faq.prompt.prompt.length > MAX_CELL_LENGTH ? '...' : '')}</span> : <span style={{ color: '#aaa' }}>-</span>
+      ),
+    },
+    {
+      title: 'Created',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 110,
+      render: (d: string) => <span style={{ fontSize: 12 }}>{new Date(d).toLocaleString()}</span>,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      fixed: 'right' as 'right',
+      width: 120,
+      render: (_: any, faq: any) => (
         <Space>
-          <Button type="link" onClick={() => {/* TODO: Edit modal */}}>Edit</Button>
+          <Button type="link" onClick={() => {/* TODO: Edit modal */}}>View</Button>
           <Popconfirm title="Delete this FAQ?" onConfirm={() => handleDelete(faq.id)}>
             <Button type="link" danger>Delete</Button>
           </Popconfirm>
@@ -76,13 +124,19 @@ export default function AdminFaqMenu() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+  <div style={{ padding: '8px 8px 0 8px' }}>
       <h2>Admin FAQ List</h2>
       <Button type="primary" style={{ marginBottom: 16 }} onClick={() => setModalVisible(true)}>
         Add FAQ
       </Button>
       <Spin spinning={loading}>
-        <Table rowKey="id" columns={columns} dataSource={faqs} pagination={{ pageSize: 10 }} />
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={faqs}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: 'max-content' }}
+        />
       </Spin>
       <AdminFaqCreateModal
         open={modalVisible}
