@@ -137,8 +137,32 @@ export default function AdminPromptHistory() {
               ]}
             >
               <List.Item.Meta
-                title={<span>Prompt ID: {item.id}</span>}
-                description={<pre style={{ whiteSpace: 'pre-wrap' }}>{item.prompt}</pre>}
+                title={
+                  <span>
+                    Prompt ID: {item.id}
+                    {item.conversationId && (
+                      <span style={{ marginLeft: 12, color: '#888', fontSize: 13 }}>
+                        Conversation: <b>{item.conversationTitle || item.conversationId}</b>
+                      </span>
+                    )}
+                    {item.agent && (
+                      <span style={{ marginLeft: 12, color: '#888', fontSize: 13 }}>
+                        Agent: <b>{item.agent.name || item.agent.id}</b> ({item.agent.type || 'N/A'}
+                        )
+                      </span>
+                    )}
+                  </span>
+                }
+                description={
+                  <div>
+                    <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{item.prompt}</pre>
+                    {item.updatedAt && (
+                      <span style={{ fontSize: 12, color: '#aaa' }}>
+                        Updated: {new Date(item.updatedAt).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                }
               />
             </List.Item>
           )}

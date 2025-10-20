@@ -1,8 +1,6 @@
-import React from 'react';
-import { Dropdown, List, Button, Badge } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Badge, Button, Dropdown, List } from 'antd';
 import { useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
-import { ReloadOutlined } from '@ant-design/icons';
 
 export default function AdminNotificationDropdown() {
   const { errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors, fixPermission } =

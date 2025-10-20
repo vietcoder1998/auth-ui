@@ -1,5 +1,5 @@
-import { Form, Input, Modal, Select } from 'antd';
-import { useEffect } from 'react';
+import { Form, Input, Modal, Select, Spin } from 'antd';
+import { useEffect, useState } from 'react';
 
 export default function AddPromptModal({
   open,
@@ -19,6 +19,11 @@ export default function AddPromptModal({
   initialPrompt?: string;
 }) {
   const [form] = Form.useForm();
+  const [selectedConversation, setSelectedConversation] = useState<string | undefined>(
+    defaultConversationId
+  );
+  const [agent, setAgent] = useState<any>(null);
+  const [agentLoading, setAgentLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -26,8 +31,23 @@ export default function AddPromptModal({
         conversationId: defaultConversationId || undefined,
         prompt: initialPrompt || '',
       });
+      setSelectedConversation(defaultConversationId);
     }
   }, [open, defaultConversationId, initialPrompt]);
+
+  useEffect(() => {
+    if (!selectedConversation) {
+      setAgent(null);
+      return;
+    }
+    setAgentLoading(true);
+    // Simulate fetch agent by conversationId (replace with actual API if available)
+    const conv = conversations.find((c: any) => c.id === selectedConversation);
+    setTimeout(() => {
+      setAgent(conv?.agent || null);
+      setAgentLoading(false);
+    }, 300);
+  }, [selectedConversation, conversations]);
 
   return (
     <Modal
@@ -51,6 +71,8 @@ export default function AddPromptModal({
             showSearch
             placeholder="Select a conversation"
             optionFilterProp="children"
+            value={selectedConversation}
+            onChange={(val) => setSelectedConversation(val)}
             filterOption={(input, option) => {
               const children = option?.children;
               let text = '';
@@ -71,6 +93,17 @@ export default function AddPromptModal({
             ))}
           </Select>
         </Form.Item>
+        <div style={{ marginBottom: 12 }}>
+          {agentLoading ? (
+            <Spin size="small" />
+          ) : agent ? (
+            <span style={{ fontSize: 13, color: '#555' }}>
+              Agent: <b>{agent.name || agent.id}</b> ({agent.type || 'N/A'})
+            </span>
+          ) : (
+            <span style={{ fontSize: 13, color: '#aaa' }}>No agent info</span>
+          )}
+        </div>
         <Form.Item
           name="prompt"
           label="Prompt"
