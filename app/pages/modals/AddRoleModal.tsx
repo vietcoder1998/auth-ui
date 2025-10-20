@@ -14,11 +14,7 @@ import {
   Card,
   Typography,
 } from 'antd';
-import {
-  SafetyOutlined,
-  SettingOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { SafetyOutlined, SettingOutlined, PlusOutlined } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
 const { Option } = Select;
@@ -43,11 +39,7 @@ interface AddRoleModalProps {
   onSuccess: () => void;
 }
 
-const AddRoleModal: React.FC<AddRoleModalProps> = ({
-  visible,
-  onCancel,
-  onSuccess,
-}) => {
+const AddRoleModal: React.FC<AddRoleModalProps> = ({ visible, onCancel, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -95,7 +87,7 @@ const AddRoleModal: React.FC<AddRoleModalProps> = ({
       };
 
       const response = await adminApi.createRole(roleData);
-      
+
       if (response.data.success) {
         message.success('Role created successfully!');
         form.resetFields();
@@ -125,7 +117,7 @@ const AddRoleModal: React.FC<AddRoleModalProps> = ({
   };
 
   const selectAllPermissions = () => {
-    const allPermissionIds = permissions.map(p => p.id);
+    const allPermissionIds = permissions.map((p) => p.id);
     setSelectedPermissions(allPermissionIds);
   };
 
@@ -143,13 +135,8 @@ const AddRoleModal: React.FC<AddRoleModalProps> = ({
       destroyOnHidden
     >
       <Divider />
-      
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        autoComplete="off"
-      >
+
+      <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
         <Row gutter={16}>
           <Col span={24}>
             <Form.Item
@@ -171,10 +158,7 @@ const AddRoleModal: React.FC<AddRoleModalProps> = ({
 
         <Row gutter={16}>
           <Col span={24}>
-            <Form.Item
-              name="description"
-              label="Description (Optional)"
-            >
+            <Form.Item name="description" label="Description (Optional)">
               <Input.TextArea
                 placeholder="Describe the role's purpose and responsibilities..."
                 rows={3}
@@ -192,24 +176,20 @@ const AddRoleModal: React.FC<AddRoleModalProps> = ({
           </Space>
         </Divider>
 
-        <Card 
-          size="small" 
-          style={{ marginBottom: 16 }}
-          loading={permissionsLoading}
-        >
+        <Card size="small" style={{ marginBottom: 16 }} loading={permissionsLoading}>
           <div style={{ marginBottom: 16 }}>
             <Space>
-              <Button 
-                size="small" 
-                type="link" 
+              <Button
+                size="small"
+                type="link"
                 onClick={selectAllPermissions}
                 disabled={permissions.length === 0}
               >
                 Select All
               </Button>
-              <Button 
-                size="small" 
-                type="link" 
+              <Button
+                size="small"
+                type="link"
                 onClick={clearAllPermissions}
                 disabled={selectedPermissions.length === 0}
               >

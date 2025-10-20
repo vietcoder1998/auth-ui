@@ -30,9 +30,9 @@ export default function AdminPromptHistory() {
   const fetchPrompts = async () => {
     setLoading(true);
     try {
-  // Fetch all prompts (not bound to conversationId)
-  const response = await adminApi.getPrompts();
-  setPrompts(response.data?.data || []);
+      // Fetch all prompts (not bound to conversationId)
+      const response = await adminApi.getPrompts();
+      setPrompts(response.data?.data || []);
     } catch (error) {
       message.error('Failed to fetch prompts');
     } finally {
@@ -77,20 +77,33 @@ export default function AdminPromptHistory() {
   return (
     <div>
       <Title level={2}>Prompt History</Title>
-      <Button type="primary" onClick={() => { setEditingPrompt(null); setModalVisible(true); }}>
+      <Button
+        type="primary"
+        onClick={() => {
+          setEditingPrompt(null);
+          setModalVisible(true);
+        }}
+      >
         Add Prompt
       </Button>
       <Card style={{ marginTop: 24 }}>
         <List
           loading={loading}
           dataSource={prompts}
-          renderItem={item => (
+          renderItem={(item) => (
             <List.Item
               actions={[
-                <Button type="link" onClick={() => showEditModal(item)}>Edit</Button>,
-                <Popconfirm title="Delete this prompt?" onConfirm={() => handleDeletePrompt(item.id)}>
-                  <Button type="link" danger>Delete</Button>
-                </Popconfirm>
+                <Button type="link" onClick={() => showEditModal(item)}>
+                  Edit
+                </Button>,
+                <Popconfirm
+                  title="Delete this prompt?"
+                  onConfirm={() => handleDeletePrompt(item.id)}
+                >
+                  <Button type="link" danger>
+                    Delete
+                  </Button>
+                </Popconfirm>,
               ]}
             >
               <List.Item.Meta
@@ -103,7 +116,10 @@ export default function AdminPromptHistory() {
       </Card>
       <AddPromptModal
         open={modalVisible}
-        onCancel={() => { setModalVisible(false); setEditingPrompt(null); }}
+        onCancel={() => {
+          setModalVisible(false);
+          setEditingPrompt(null);
+        }}
         onOk={handlePromptModalOk}
         loading={loading}
         conversations={conversations}

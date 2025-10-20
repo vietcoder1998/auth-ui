@@ -16,7 +16,7 @@ export class LogApi {
   static async clearOldLogs(daysToKeep: number) {
     const axios = getApiInstance();
     return axios.delete('/admin/logs/clear', {
-      data: { daysToKeep }
+      data: { daysToKeep },
     });
   }
   static async createLogEntry(data: any) {

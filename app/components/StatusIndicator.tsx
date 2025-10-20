@@ -24,7 +24,7 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
 
   const checkSystemStatus = async () => {
     try {
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
         api: 'checking',
         database: 'checking',
@@ -72,7 +72,11 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
   };
 
   const getOverallStatus = () => {
-    if (status.api === 'checking' || status.database === 'checking' || status.redis === 'checking') {
+    if (
+      status.api === 'checking' ||
+      status.database === 'checking' ||
+      status.redis === 'checking'
+    ) {
       return 'processing';
     }
     if (status.api === 'online' && status.database === 'online' && status.redis === 'online') {
@@ -85,7 +89,9 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
   };
 
   const getStatusText = () => {
-    const onlineCount = [status.api, status.database, status.redis].filter(s => s === 'online').length;
+    const onlineCount = [status.api, status.database, status.redis].filter(
+      (s) => s === 'online'
+    ).length;
     const totalCount = 3;
 
     if (status.api === 'checking') {
@@ -122,11 +128,7 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ className }) =
       placement="bottomRight"
     >
       <div className={className} style={{ cursor: 'pointer' }} onClick={checkSystemStatus}>
-        <Badge
-          status={getOverallStatus()}
-          text={getStatusText()}
-          style={{ fontSize: '12px' }}
-        />
+        <Badge status={getOverallStatus()} text={getStatusText()} style={{ fontSize: '12px' }} />
       </div>
     </Tooltip>
   );

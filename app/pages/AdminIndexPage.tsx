@@ -1,16 +1,16 @@
 import React from 'react';
 import { Timeline, Card, Row, Col, Typography, Tag, Progress, Space, Divider } from 'antd';
-import { 
-  CheckCircleOutlined, 
-  ClockCircleOutlined, 
-  RocketOutlined, 
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  RocketOutlined,
   BulbOutlined,
   UserOutlined,
   SecurityScanOutlined,
   MailOutlined,
   SettingOutlined,
   ApiOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -30,7 +30,7 @@ const roadmapData = [
       { name: 'Permission System', completed: true },
     ],
     icon: <UserOutlined />,
-    color: '#52c41a'
+    color: '#52c41a',
   },
   {
     id: 2,
@@ -47,7 +47,7 @@ const roadmapData = [
       { name: 'Security Alerts', completed: false },
     ],
     icon: <SecurityScanOutlined />,
-    color: '#1890ff'
+    color: '#1890ff',
   },
   {
     id: 3,
@@ -64,7 +64,7 @@ const roadmapData = [
       { name: 'Webhook Support', completed: false },
     ],
     icon: <MailOutlined />,
-    color: '#722ed1'
+    color: '#722ed1',
   },
   {
     id: 4,
@@ -81,7 +81,7 @@ const roadmapData = [
       { name: 'Multi-model Support', completed: false },
     ],
     icon: <RocketOutlined />,
-    color: '#fa8c16'
+    color: '#fa8c16',
   },
   {
     id: 5,
@@ -98,7 +98,7 @@ const roadmapData = [
       { name: 'Real-time Dashboard', completed: false },
     ],
     icon: <DatabaseOutlined />,
-    color: '#eb2f96'
+    color: '#eb2f96',
   },
   {
     id: 6,
@@ -115,33 +115,44 @@ const roadmapData = [
       { name: 'API Marketplace', completed: false },
     ],
     icon: <BulbOutlined />,
-    color: '#13c2c2'
-  }
+    color: '#13c2c2',
+  },
 ];
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'completed': return 'success';
-    case 'in-progress': return 'processing';
-    case 'planned': return 'warning';
-    case 'future': return 'default';
-    default: return 'default';
+    case 'completed':
+      return 'success';
+    case 'in-progress':
+      return 'processing';
+    case 'planned':
+      return 'warning';
+    case 'future':
+      return 'default';
+    default:
+      return 'default';
   }
 };
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'completed': return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-    case 'in-progress': return <ClockCircleOutlined style={{ color: '#1890ff' }} />;
-    case 'planned': return <ClockCircleOutlined style={{ color: '#faad14' }} />;
-    case 'future': return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />;
-    default: return <ClockCircleOutlined />;
+    case 'completed':
+      return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
+    case 'in-progress':
+      return <ClockCircleOutlined style={{ color: '#1890ff' }} />;
+    case 'planned':
+      return <ClockCircleOutlined style={{ color: '#faad14' }} />;
+    case 'future':
+      return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />;
+    default:
+      return <ClockCircleOutlined />;
   }
 };
 
 export default function AdminIndexPage() {
-  const completedFeatures = roadmapData.reduce((acc, item) => 
-    acc + item.features.filter(f => f.completed).length, 0
+  const completedFeatures = roadmapData.reduce(
+    (acc, item) => acc + item.features.filter((f) => f.completed).length,
+    0
   );
   const totalFeatures = roadmapData.reduce((acc, item) => acc + item.features.length, 0);
   const overallProgress = Math.round((completedFeatures / totalFeatures) * 100);
@@ -160,8 +171,8 @@ export default function AdminIndexPage() {
             </Paragraph>
             <div>
               <Text style={{ fontSize: '18px', fontWeight: 'bold' }}>Overall Progress: </Text>
-              <Progress 
-                percent={overallProgress} 
+              <Progress
+                percent={overallProgress}
                 style={{ width: '300px', display: 'inline-block', marginLeft: '16px' }}
                 strokeColor="#1890ff"
               />
@@ -170,7 +181,14 @@ export default function AdminIndexPage() {
         </Card>
 
         {/* Timeline */}
-        <Card title={<><ClockCircleOutlined /> Development Timeline</>} style={{ marginBottom: '24px' }}>
+        <Card
+          title={
+            <>
+              <ClockCircleOutlined /> Development Timeline
+            </>
+          }
+          style={{ marginBottom: '24px' }}
+        >
           <Timeline
             mode="left"
             items={roadmapData.map((item) => ({
@@ -208,8 +226,8 @@ export default function AdminIndexPage() {
                           color={feature.completed ? 'success' : 'default'}
                           style={{ margin: '2px' }}
                         >
-                          {feature.completed ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
-                          {' '}{feature.name}
+                          {feature.completed ? <CheckCircleOutlined /> : <ClockCircleOutlined />}{' '}
+                          {feature.name}
                         </Tag>
                       ))}
                     </div>
@@ -225,7 +243,7 @@ export default function AdminIndexPage() {
           <Col xs={24} sm={12} md={6}>
             <Card style={{ textAlign: 'center' }}>
               <Title level={2} style={{ color: '#52c41a', margin: 0 }}>
-                {roadmapData.filter(item => item.status === 'completed').length}
+                {roadmapData.filter((item) => item.status === 'completed').length}
               </Title>
               <Text>Completed Phases</Text>
             </Card>
@@ -233,7 +251,7 @@ export default function AdminIndexPage() {
           <Col xs={24} sm={12} md={6}>
             <Card style={{ textAlign: 'center' }}>
               <Title level={2} style={{ color: '#1890ff', margin: 0 }}>
-                {roadmapData.filter(item => item.status === 'in-progress').length}
+                {roadmapData.filter((item) => item.status === 'in-progress').length}
               </Title>
               <Text>In Progress</Text>
             </Card>
@@ -241,7 +259,7 @@ export default function AdminIndexPage() {
           <Col xs={24} sm={12} md={6}>
             <Card style={{ textAlign: 'center' }}>
               <Title level={2} style={{ color: '#faad14', margin: 0 }}>
-                {roadmapData.filter(item => item.status === 'planned').length}
+                {roadmapData.filter((item) => item.status === 'planned').length}
               </Title>
               <Text>Planned</Text>
             </Card>

@@ -19,7 +19,27 @@ import { SocketApi } from './adminApi/SocketApi.ts';
 import { SSOApi } from './adminApi/SSOApi.ts';
 import { TokenApi } from './adminApi/TokenApi.ts';
 import { UserApi } from './adminApi/UserApi.ts';
-export { AgentApi, ApiKeyApi, CacheApi, ConfigApi, ConversationApi, DatabaseConnectionApi, LogApi, LogicHistoryApi, LoginHistoryApi, MailApi, NotificationApi, PermissionApi, PromptHistoryApi, RoleApi, SeedApi, SocketApi, SSOApi, TokenApi, UserApi };
+export {
+  AgentApi,
+  ApiKeyApi,
+  CacheApi,
+  ConfigApi,
+  ConversationApi,
+  DatabaseConnectionApi,
+  LogApi,
+  LogicHistoryApi,
+  LoginHistoryApi,
+  MailApi,
+  NotificationApi,
+  PermissionApi,
+  PromptHistoryApi,
+  RoleApi,
+  SeedApi,
+  SocketApi,
+  SSOApi,
+  TokenApi,
+  UserApi,
+};
 
 export const adminApi = {
   // UserApi

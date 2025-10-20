@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Card, 
-  Button, 
-  Space, 
-  Typography, 
-  Statistic, 
-  Row, 
-  Col, 
-  Alert, 
-  Modal, 
-  message, 
+import {
+  Card,
+  Button,
+  Space,
+  Typography,
+  Statistic,
+  Row,
+  Col,
+  Alert,
+  Modal,
+  message,
   Divider,
   Spin,
   Tag,
@@ -17,11 +17,11 @@ import {
   Table,
   Tabs,
   Descriptions,
-  Drawer
+  Drawer,
 } from 'antd';
-import { 
-  DatabaseOutlined, 
-  ReloadOutlined, 
+import {
+  DatabaseOutlined,
+  ReloadOutlined,
   WarningOutlined,
   CheckCircleOutlined,
   UserOutlined,
@@ -32,7 +32,7 @@ import {
   TeamOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
-  EyeOutlined
+  EyeOutlined,
 } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
@@ -70,7 +70,7 @@ export default function AdminSeedPage() {
     agents: 0,
     apiKeys: 0,
     conversations: 0,
-    messages: 0
+    messages: 0,
   });
   const [loading, setLoading] = useState(false);
   const [seedLoading, setSeedLoading] = useState<string | null>(null);
@@ -126,7 +126,7 @@ export default function AdminSeedPage() {
       const response = await apiCall();
       const result = response.data;
       setLastResult(result);
-      
+
       if (result.success) {
         message.success(result.message);
         await fetchStats(); // Refresh stats
@@ -154,9 +154,7 @@ export default function AdminSeedPage() {
             showIcon
             style={{ marginBottom: 16 }}
           />
-          <Paragraph strong>
-            Are you absolutely sure you want to proceed?
-          </Paragraph>
+          <Paragraph strong>Are you absolutely sure you want to proceed?</Paragraph>
         </div>
       ),
       okText: 'Yes, Delete Everything',
@@ -175,7 +173,7 @@ export default function AdminSeedPage() {
       description: 'Seed system permissions and API routes',
       icon: <SafetyCertificateOutlined style={{ color: '#1890ff' }} />,
       action: () => adminApi.seedPermissions(),
-      count: stats.permissions
+      count: stats.permissions,
     },
     {
       key: 'roles',
@@ -183,7 +181,7 @@ export default function AdminSeedPage() {
       description: 'Seed default roles (superadmin, admin, user)',
       icon: <TeamOutlined style={{ color: '#52c41a' }} />,
       action: () => adminApi.seedRoles(),
-      count: stats.roles
+      count: stats.roles,
     },
     {
       key: 'users',
@@ -191,7 +189,7 @@ export default function AdminSeedPage() {
       description: 'Seed default admin and test users',
       icon: <UserOutlined style={{ color: '#722ed1' }} />,
       action: () => adminApi.seedUsers(),
-      count: stats.users
+      count: stats.users,
     },
     {
       key: 'configs',
@@ -199,7 +197,7 @@ export default function AdminSeedPage() {
       description: 'Seed system configuration values',
       icon: <SettingOutlined style={{ color: '#fa8c16' }} />,
       action: () => adminApi.seedConfigs(),
-      count: stats.configs
+      count: stats.configs,
     },
     {
       key: 'agents',
@@ -207,7 +205,7 @@ export default function AdminSeedPage() {
       description: 'Seed default AI agents and assistants',
       icon: <RobotOutlined style={{ color: '#eb2f96' }} />,
       action: () => adminApi.seedAgents(),
-      count: stats.agents
+      count: stats.agents,
     },
     {
       key: 'apiKeys',
@@ -215,34 +213,34 @@ export default function AdminSeedPage() {
       description: 'Seed development API keys',
       icon: <KeyOutlined style={{ color: '#13c2c2' }} />,
       action: () => adminApi.seedApiKeys(),
-      count: stats.apiKeys
-    }
+      count: stats.apiKeys,
+    },
   ];
 
   const totalItems = Object.values(stats).reduce((sum, count) => sum + (count || 0), 0);
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>
           <DatabaseOutlined style={{ marginRight: '12px' }} />
           Database Seed Management
         </Title>
         <Paragraph type="secondary">
-          Manage database seeding operations and view current data statistics.
-          Use these tools to populate the database with default data for development and testing.
+          Manage database seeding operations and view current data statistics. Use these tools to
+          populate the database with default data for development and testing.
         </Paragraph>
       </div>
 
       {/* Database Statistics */}
-      <Card 
+      <Card
         title={
           <Space>
             <DatabaseOutlined />
             <span>Current Database Statistics</span>
-            <Button 
-              type="text" 
-              icon={<ReloadOutlined />} 
+            <Button
+              type="text"
+              icon={<ReloadOutlined />}
               onClick={fetchStats}
               loading={loading}
               size="small"
@@ -322,9 +320,9 @@ export default function AdminSeedPage() {
             </Col>
           )}
         </Row>
-        
+
         <Divider />
-        
+
         <div style={{ textAlign: 'center' }}>
           <Text strong>Total Database Items: </Text>
           <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>
@@ -334,10 +332,7 @@ export default function AdminSeedPage() {
       </Card>
 
       {/* Quick Actions */}
-      <Card 
-        title="Quick Actions"
-        style={{ marginBottom: '24px' }}
-      >
+      <Card title="Quick Actions" style={{ marginBottom: '24px' }}>
         <Space wrap>
           <Button
             type="primary"
@@ -348,18 +343,10 @@ export default function AdminSeedPage() {
           >
             Seed All Data
           </Button>
-          <Button
-            icon={<EyeOutlined />}
-            onClick={handleViewSeedData}
-            loading={seedDataLoading}
-          >
+          <Button icon={<EyeOutlined />} onClick={handleViewSeedData} loading={seedDataLoading}>
             View Seed Data
           </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={fetchStats}
-            loading={loading}
-          >
+          <Button icon={<ReloadOutlined />} onClick={fetchStats} loading={loading}>
             Refresh Statistics
           </Button>
           <Button
@@ -392,7 +379,7 @@ export default function AdminSeedPage() {
                     style={{ width: '80%' }}
                   >
                     Seed {operation.title}
-                  </Button>
+                  </Button>,
                 ]}
               >
                 <Card.Meta
@@ -400,9 +387,7 @@ export default function AdminSeedPage() {
                   title={
                     <Space>
                       <span>{operation.title}</span>
-                      <Tag color={operation.count > 0 ? 'green' : 'default'}>
-                        {operation.count}
-                      </Tag>
+                      <Tag color={operation.count > 0 ? 'green' : 'default'}>{operation.count}</Tag>
                     </Space>
                   }
                   description={operation.description}
@@ -415,10 +400,7 @@ export default function AdminSeedPage() {
 
       {/* Last Operation Result */}
       {lastResult && (
-        <Card 
-          title="Last Operation Result" 
-          style={{ marginTop: '24px' }}
-        >
+        <Card title="Last Operation Result" style={{ marginTop: '24px' }}>
           <Alert
             message={lastResult.message}
             type={lastResult.success ? 'success' : 'error'}
@@ -426,7 +408,7 @@ export default function AdminSeedPage() {
             icon={lastResult.success ? <CheckCircleOutlined /> : <WarningOutlined />}
             style={{ marginBottom: lastResult.errors ? '16px' : 0 }}
           />
-          
+
           {lastResult.errors && lastResult.errors.length > 0 && (
             <Alert
               message="Errors encountered:"
@@ -441,7 +423,7 @@ export default function AdminSeedPage() {
               showIcon
             />
           )}
-          
+
           {lastResult.data && (
             <div style={{ marginTop: '16px' }}>
               <Text strong>Operation Results:</Text>
@@ -465,11 +447,7 @@ export default function AdminSeedPage() {
         open={viewSeedVisible}
         onClose={() => setViewSeedVisible(false)}
         extra={
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={fetchSeedData}
-            loading={seedDataLoading}
-          >
+          <Button icon={<ReloadOutlined />} onClick={fetchSeedData} loading={seedDataLoading}>
             Refresh
           </Button>
         }
@@ -491,8 +469,8 @@ export default function AdminSeedPage() {
                   {key === 'permissions' && <SafetyCertificateOutlined />}
                   {key === 'configs' && <SettingOutlined />}
                   {key === 'agents' && <RobotOutlined />}
-                  {key === 'apiKeys' && <KeyOutlined />}
-                  {' '}{key.charAt(0).toUpperCase() + key.slice(1)} ({seedData[key]?.length || 0})
+                  {key === 'apiKeys' && <KeyOutlined />}{' '}
+                  {key.charAt(0).toUpperCase() + key.slice(1)} ({seedData[key]?.length || 0})
                 </span>
               ),
               children: (
@@ -504,7 +482,9 @@ export default function AdminSeedPage() {
                       pagination={{ pageSize: 10 }}
                       scroll={{ x: true }}
                       size="small"
-                      rowKey={(record) => record.id || record.email || record.name || record.key || record.code}
+                      rowKey={(record) =>
+                        record.id || record.email || record.name || record.key || record.code
+                      }
                     />
                   ) : (
                     <Alert
@@ -536,11 +516,7 @@ export default function AdminSeedPage() {
         if (typeof value === 'boolean') return value ? 'Yes' : 'No';
         if (typeof value === 'object') return JSON.stringify(value, null, 2);
         if (typeof value === 'string' && value.length > 50) {
-          return (
-            <span title={value}>
-              {value.substring(0, 50)}...
-            </span>
-          );
+          return <span title={value}>{value.substring(0, 50)}...</span>;
         }
         return value;
       },

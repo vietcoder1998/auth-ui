@@ -70,7 +70,7 @@ export default function AdminPermissionPage() {
       };
 
       // Remove empty params
-      Object.keys(queryParams).forEach(key => {
+      Object.keys(queryParams).forEach((key) => {
         if (!queryParams[key as keyof typeof queryParams]) {
           delete queryParams[key as keyof typeof queryParams];
         }
@@ -86,7 +86,7 @@ export default function AdminPermissionPage() {
       const pageSize = responseData.limit || queryParams.pageSize || 10;
 
       setPermissions(permissionsData);
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         current: currentPage,
         pageSize: pageSize,
@@ -95,7 +95,7 @@ export default function AdminPermissionPage() {
     } catch (error) {
       console.error('Failed to fetch permissions:', error);
       setPermissions([]);
-      setPagination(prev => ({ ...prev, total: 0 }));
+      setPagination((prev) => ({ ...prev, total: 0 }));
     }
     setLoading(false);
   };
@@ -131,7 +131,7 @@ export default function AdminPermissionPage() {
     setSearchText('');
     setCategoryFilter('');
     setMethodFilter('');
-    setPagination(prev => ({ ...prev, current: 1 }));
+    setPagination((prev) => ({ ...prev, current: 1 }));
     fetchPermissions({ search: '', category: '', method: '', page: 1 });
   };
 
@@ -161,7 +161,8 @@ export default function AdminPermissionPage() {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 180,
-      sorter: (a: Permission, b: Permission) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      sorter: (a: Permission, b: Permission) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       defaultSortOrder: 'descend' as const,
       render: (createdAt: string) => {
         if (!createdAt) return <em style={{ color: '#999' }}>-</em>;
@@ -172,7 +173,7 @@ export default function AdminPermissionPage() {
             <div style={{ fontSize: '12px', color: '#666' }}>{date.toLocaleTimeString()}</div>
           </div>
         );
-      }
+      },
     },
     {
       title: 'Permission Name',
@@ -180,21 +181,27 @@ export default function AdminPermissionPage() {
       key: 'name',
       width: 220,
       sorter: (a: Permission, b: Permission) => a.name.localeCompare(b.name),
-      render: (name: string) => <code style={{ backgroundColor: '#f6f8fa', padding: '2px 6px', borderRadius: '3px' }}>{name}</code>
+      render: (name: string) => (
+        <code style={{ backgroundColor: '#f6f8fa', padding: '2px 6px', borderRadius: '3px' }}>
+          {name}
+        </code>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       width: 250,
-      render: (description: string) => description || <em style={{ color: '#999' }}>No description</em>
+      render: (description: string) =>
+        description || <em style={{ color: '#999' }}>No description</em>,
     },
     {
       title: 'Category',
       dataIndex: 'category',
       key: 'category',
       width: 120,
-      sorter: (a: Permission, b: Permission) => (a.category || 'other').localeCompare(b.category || 'other'),
+      sorter: (a: Permission, b: Permission) =>
+        (a.category || 'other').localeCompare(b.category || 'other'),
       render: (category: string) => {
         const colors = {
           user: 'blue',
@@ -204,17 +211,28 @@ export default function AdminPermissionPage() {
           content: 'orange',
           report: 'cyan',
           api: 'magenta',
-          other: 'default'
+          other: 'default',
         };
-        return <Tag color={colors[category as keyof typeof colors] || 'default'}>{category || 'other'}</Tag>;
-      }
+        return (
+          <Tag color={colors[category as keyof typeof colors] || 'default'}>
+            {category || 'other'}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Route',
       dataIndex: 'route',
       key: 'route',
       width: 200,
-      render: (route: string) => route ? <code style={{ backgroundColor: '#f0f0f0', padding: '2px 4px', borderRadius: '2px' }}>{route}</code> : <em style={{ color: '#999' }}>-</em>
+      render: (route: string) =>
+        route ? (
+          <code style={{ backgroundColor: '#f0f0f0', padding: '2px 4px', borderRadius: '2px' }}>
+            {route}
+          </code>
+        ) : (
+          <em style={{ color: '#999' }}>-</em>
+        ),
     },
     {
       title: 'Method',
@@ -228,10 +246,10 @@ export default function AdminPermissionPage() {
           POST: 'blue',
           PUT: 'orange',
           DELETE: 'red',
-          PATCH: 'purple'
+          PATCH: 'purple',
         };
         return <Tag color={colors[method as keyof typeof colors] || 'default'}>{method}</Tag>;
-      }
+      },
     },
     {
       title: 'Roles Using',
@@ -251,8 +269,9 @@ export default function AdminPermissionPage() {
               {roles.slice(0, 2).map((role: any) => (
                 <Tag
                   key={role.id}
-                  color={role.name === 'superadmin' ? 'red' :
-                    role.name === 'admin' ? 'orange' : 'blue'}
+                  color={
+                    role.name === 'superadmin' ? 'red' : role.name === 'admin' ? 'orange' : 'blue'
+                  }
                   style={{ margin: '1px', fontSize: '11px' }}
                 >
                   {role.name}
@@ -266,7 +285,7 @@ export default function AdminPermissionPage() {
             </div>
           </div>
         );
-      }
+      },
     },
     {
       title: 'Usage Count',
@@ -276,14 +295,18 @@ export default function AdminPermissionPage() {
       sorter: (a: Permission, b: Permission) => (a.usageCount || 0) - (b.usageCount || 0),
       render: (usageCount: number) => (
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', color: usageCount > 0 ? '#1890ff' : '#999' }}>
+          <div
+            style={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: usageCount > 0 ? '#1890ff' : '#999',
+            }}
+          >
             {usageCount || 0}
           </div>
-          <div style={{ fontSize: '11px', color: '#999' }}>
-            requests
-          </div>
+          <div style={{ fontSize: '11px', color: '#999' }}>requests</div>
         </div>
-      )
+      ),
     },
     {
       title: 'Actions',
@@ -292,11 +315,7 @@ export default function AdminPermissionPage() {
       fixed: 'right' as const,
       render: (_, p) => (
         <Space size="small">
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(p)}
-          >
+          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(p)}>
             Edit
           </Button>
           <Popconfirm
@@ -307,23 +326,21 @@ export default function AdminPermissionPage() {
             okType="danger"
             onConfirm={() => adminApi.deletePermission(p.id).then(() => fetchPermissions())}
           >
-            <Button
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            >
+            <Button size="small" danger icon={<DeleteOutlined />}>
               Delete
             </Button>
           </Popconfirm>
         </Space>
-      )
+      ),
     },
   ];
 
   return (
     <div style={{}}>
       <div style={{ marginBottom: '24px' }}>
-        <Title level={2} style={{ marginBottom: '16px' }}>Permission Management</Title>
+        <Title level={2} style={{ marginBottom: '16px' }}>
+          Permission Management
+        </Title>
 
         <CommonSearch
           searchPlaceholder="Search permissions by name, description, category, route, method, or role..."
@@ -332,11 +349,7 @@ export default function AdminPermissionPage() {
           onRefresh={handleRefresh}
           loading={loading}
           extra={
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setAddModalVisible(true)}
-            >
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalVisible(true)}>
               Create Permission
             </Button>
           }
@@ -352,9 +365,9 @@ export default function AdminPermissionPage() {
           onChange={handleTableChange}
           pagination={pagination}
           locale={{
-            emptyText: searchText ?
-              `No permissions found matching "${searchText}"` :
-              'No permissions available'
+            emptyText: searchText
+              ? `No permissions found matching "${searchText}"`
+              : 'No permissions available',
           }}
           style={{ backgroundColor: 'white', borderRadius: '8px' }}
         />

@@ -1,32 +1,32 @@
 import {
-    ClearOutlined,
-    ExportOutlined,
-    EyeOutlined,
-    InfoCircleOutlined,
-    PlusOutlined
+  ClearOutlined,
+  ExportOutlined,
+  EyeOutlined,
+  InfoCircleOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
 import {
-    Alert,
-    Button,
-    Card,
-    Col,
-    DatePicker,
-    Descriptions,
-    Drawer,
-    Form,
-    Input,
-    InputNumber,
-    message,
-    Modal,
-    Popconfirm,
-    Row,
-    Select,
-    Space,
-    Statistic,
-    Table,
-    Tag,
-    Tooltip,
-    Typography
+  Alert,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Descriptions,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -43,7 +43,7 @@ const LOG_LEVELS = {
   ERROR: { color: 'red', label: 'Error' },
   WARN: { color: 'orange', label: 'Warning' },
   INFO: { color: 'blue', label: 'Info' },
-  DEBUG: { color: 'green', label: 'Debug' }
+  DEBUG: { color: 'green', label: 'Debug' },
 };
 
 interface LogEntry {
@@ -104,15 +104,15 @@ const AdminLogPage: React.FC = () => {
     page: 1,
     limit: 50,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
-  
+
   // Modals and drawers
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [clearModalVisible, setClearModalVisible] = useState(false);
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
-  
+
   // Forms and filters
   const [createForm] = Form.useForm();
   const [clearForm] = Form.useForm();
@@ -125,14 +125,14 @@ const AdminLogPage: React.FC = () => {
       const allFilters = { ...filters, ...newFilters };
       const response = await adminApi.getLogs(allFilters);
       const result = response.data;
-      
+
       if (result.success) {
         setLogs(result.data.logs || []);
         setPagination({
           page: result.data.page || 1,
           limit: result.data.limit || 50,
           total: result.data.total || 0,
-          totalPages: result.data.totalPages || 0
+          totalPages: result.data.totalPages || 0,
         });
         setFilters(allFilters);
       } else {
@@ -152,7 +152,7 @@ const AdminLogPage: React.FC = () => {
     try {
       const response = await adminApi.getLogStats();
       const result = response.data;
-      
+
       if (result.success) {
         setLogStats(result.data);
       } else {
@@ -171,7 +171,7 @@ const AdminLogPage: React.FC = () => {
     try {
       const response = await adminApi.exportLogs(filters);
       const result = response.data;
-      
+
       if (result.success) {
         message.success('Logs exported successfully');
       } else {
@@ -188,7 +188,7 @@ const AdminLogPage: React.FC = () => {
     try {
       const response = await adminApi.clearOldLogs(values.daysToKeep);
       const result = response.data;
-      
+
       if (result.success) {
         message.success(`Successfully deleted ${result.data?.deletedCount || 0} old log entries`);
         setClearModalVisible(false);
@@ -214,7 +214,7 @@ const AdminLogPage: React.FC = () => {
 
       const response = await adminApi.createLogEntry(logData);
       const result = response.data;
-      
+
       if (result.success) {
         message.success('Log entry created successfully');
         setCreateModalVisible(false);
@@ -344,7 +344,9 @@ const AdminLogPage: React.FC = () => {
               <Tag color="blue" style={{ fontSize: '10px', padding: '0 4px' }}>
                 {record.method}
               </Tag>
-              <Text code style={{ fontSize: '11px' }}>{endpoint}</Text>
+              <Text code style={{ fontSize: '11px' }}>
+                {endpoint}
+              </Text>
             </Space>
           );
         }
@@ -362,14 +364,12 @@ const AdminLogPage: React.FC = () => {
           if (statusCode >= 200 && statusCode < 300) color = 'success';
           else if (statusCode >= 400 && statusCode < 500) color = 'warning';
           else if (statusCode >= 500) color = 'error';
-          
+
           return (
             <div>
               <Tag color={color}>{statusCode}</Tag>
               {record.responseTime && (
-                <div style={{ fontSize: '10px', color: '#666' }}>
-                  {record.responseTime}ms
-                </div>
+                <div style={{ fontSize: '10px', color: '#666' }}>{record.responseTime}ms</div>
               )}
             </div>
           );
@@ -398,7 +398,7 @@ const AdminLogPage: React.FC = () => {
       <Text type="secondary" style={{ marginBottom: '24px', display: 'block' }}>
         View and manage application logs, monitor system activity, and track user actions.
       </Text>
-      
+
       {/* Statistics Cards */}
       {logStats && (
         <Row gutter={16} style={{ marginBottom: '24px' }}>
@@ -551,10 +551,7 @@ const AdminLogPage: React.FC = () => {
             >
               Create Log
             </Button>
-            <Button
-              icon={<ExportOutlined />}
-              onClick={handleExportLogs}
-            >
+            <Button icon={<ExportOutlined />} onClick={handleExportLogs}>
               Export
             </Button>
             <Popconfirm
@@ -564,10 +561,7 @@ const AdminLogPage: React.FC = () => {
               okText="Yes"
               cancelText="No"
             >
-              <Button
-                icon={<ClearOutlined />}
-                danger
-              >
+              <Button icon={<ClearOutlined />} danger>
                 Clear Old Logs
               </Button>
             </Popconfirm>
@@ -588,8 +582,7 @@ const AdminLogPage: React.FC = () => {
             total: pagination.total,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} logs`,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} logs`,
             pageSizeOptions: ['20', '50', '100', '200'],
             onChange: handleTableChange,
             onShowSizeChange: handleTableChange,
@@ -610,11 +603,7 @@ const AdminLogPage: React.FC = () => {
         footer={null}
         width={600}
       >
-        <Form
-          form={createForm}
-          layout="vertical"
-          onFinish={handleCreateLog}
-        >
+        <Form form={createForm} layout="vertical" onFinish={handleCreateLog}>
           <Form.Item
             name="level"
             label="Log Level"
@@ -637,21 +626,12 @@ const AdminLogPage: React.FC = () => {
           >
             <TextArea rows={3} placeholder="Enter log message" />
           </Form.Item>
-          <Form.Item
-            name="metadata"
-            label="Metadata (JSON)"
-            help="Optional JSON metadata object"
-          >
-            <TextArea
-              rows={4}
-              placeholder='{"key": "value", "another": 123}'
-            />
+          <Form.Item name="metadata" label="Metadata (JSON)" help="Optional JSON metadata object">
+            <TextArea rows={4} placeholder='{"key": "value", "another": 123}' />
           </Form.Item>
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => setCreateModalVisible(false)}>
-                Cancel
-              </Button>
+              <Button onClick={() => setCreateModalVisible(false)}>Cancel</Button>
               <Button type="primary" htmlType="submit">
                 Create Log
               </Button>
@@ -701,9 +681,7 @@ const AdminLogPage: React.FC = () => {
           </Form.Item>
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => setClearModalVisible(false)}>
-                Cancel
-              </Button>
+              <Button onClick={() => setClearModalVisible(false)}>Cancel</Button>
               <Button type="primary" danger htmlType="submit">
                 Clear Old Logs
               </Button>
@@ -734,22 +712,24 @@ const AdminLogPage: React.FC = () => {
                   {LOG_LEVELS[selectedLog.level].label}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Message">
-                {selectedLog.message}
-              </Descriptions.Item>
+              <Descriptions.Item label="Message">{selectedLog.message}</Descriptions.Item>
               {selectedLog.user && (
                 <Descriptions.Item label="User">
                   <div>
-                    <div><strong>Name:</strong> {selectedLog.user.nickname || 'N/A'}</div>
-                    <div><strong>Email:</strong> {selectedLog.user.email}</div>
-                    <div><strong>ID:</strong> {selectedLog.user.id}</div>
+                    <div>
+                      <strong>Name:</strong> {selectedLog.user.nickname || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Email:</strong> {selectedLog.user.email}
+                    </div>
+                    <div>
+                      <strong>ID:</strong> {selectedLog.user.id}
+                    </div>
                   </div>
                 </Descriptions.Item>
               )}
               {selectedLog.userId && !selectedLog.user && (
-                <Descriptions.Item label="User ID">
-                  {selectedLog.userId}
-                </Descriptions.Item>
+                <Descriptions.Item label="User ID">{selectedLog.userId}</Descriptions.Item>
               )}
               {selectedLog.endpoint && (
                 <Descriptions.Item label="Endpoint">
@@ -760,9 +740,7 @@ const AdminLogPage: React.FC = () => {
                 </Descriptions.Item>
               )}
               {selectedLog.statusCode && (
-                <Descriptions.Item label="Status Code">
-                  {selectedLog.statusCode}
-                </Descriptions.Item>
+                <Descriptions.Item label="Status Code">{selectedLog.statusCode}</Descriptions.Item>
               )}
               {selectedLog.responseTime && (
                 <Descriptions.Item label="Response Time">
@@ -770,9 +748,7 @@ const AdminLogPage: React.FC = () => {
                 </Descriptions.Item>
               )}
               {selectedLog.ipAddress && (
-                <Descriptions.Item label="IP Address">
-                  {selectedLog.ipAddress}
-                </Descriptions.Item>
+                <Descriptions.Item label="IP Address">{selectedLog.ipAddress}</Descriptions.Item>
               )}
               {selectedLog.userAgent && (
                 <Descriptions.Item label="User Agent">
@@ -783,13 +759,15 @@ const AdminLogPage: React.FC = () => {
               )}
               {selectedLog.metadata && (
                 <Descriptions.Item label="Metadata">
-                  <pre style={{ 
-                    background: '#f5f5f5', 
-                    padding: 8, 
-                    borderRadius: 4,
-                    overflow: 'auto',
-                    maxHeight: 200
-                  }}>
+                  <pre
+                    style={{
+                      background: '#f5f5f5',
+                      padding: 8,
+                      borderRadius: 4,
+                      overflow: 'auto',
+                      maxHeight: 200,
+                    }}
+                  >
                     {JSON.stringify(selectedLog.metadata, null, 2)}
                   </pre>
                 </Descriptions.Item>

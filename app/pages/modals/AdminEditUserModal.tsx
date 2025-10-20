@@ -9,7 +9,13 @@ interface AdminEditUserModalProps {
   onSave: (values: any) => void;
 }
 
-const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({ visible, user, roles = [], onCancel, onSave }) => {
+const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
+  visible,
+  user,
+  roles = [],
+  onCancel,
+  onSave,
+}) => {
   const [form] = Form.useForm();
 
   React.useEffect(() => {
@@ -28,13 +34,7 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({ visible, user, 
   };
 
   return (
-    <Modal
-      title="Edit User"
-      open={visible}
-      onCancel={onCancel}
-      onOk={handleOk}
-      footer={null}
-    >
+    <Modal title="Edit User" open={visible} onCancel={onCancel} onOk={handleOk} footer={null}>
       <Form form={form} layout="vertical" initialValues={user || {}}>
         <Form.Item name="id" style={{ display: 'none' }}>
           <Input type="hidden" />
@@ -52,10 +52,12 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({ visible, user, 
             <Select.Option value="pending">Pending</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item name={["role", "id"]} label="Role">
+        <Form.Item name={['role', 'id']} label="Role">
           <Select placeholder="Select role">
-            {roles.map(r => (
-              <Select.Option key={r.id} value={r.id}>{r.name}</Select.Option>
+            {roles.map((r) => (
+              <Select.Option key={r.id} value={r.id}>
+                {r.name}
+              </Select.Option>
             ))}
           </Select>
         </Form.Item>

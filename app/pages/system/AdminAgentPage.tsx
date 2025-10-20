@@ -7,7 +7,7 @@ import {
   PlayCircleOutlined,
   PlusOutlined,
   RobotOutlined,
-  ToolOutlined
+  ToolOutlined,
 } from '@ant-design/icons';
 import type { TableProps } from 'antd';
 import {
@@ -30,7 +30,7 @@ import {
   Tabs,
   Tag,
   Tooltip,
-  Typography
+  Typography,
 } from 'antd';
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -94,18 +94,26 @@ const modelOptions = [
   { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
   { label: 'Claude-3 Opus', value: 'claude-3-opus' },
-  { label: 'Claude-3 Sonnet', value: 'claude-3-sonnet' }
+  { label: 'Claude-3 Sonnet', value: 'claude-3-sonnet' },
 ];
 
 const personalityTraits = [
-  'helpful', 'friendly', 'professional', 'analytical', 'creative',
-  'patient', 'encouraging', 'technical', 'strategic', 'empathetic'
+  'helpful',
+  'friendly',
+  'professional',
+  'analytical',
+  'creative',
+  'patient',
+  'encouraging',
+  'technical',
+  'strategic',
+  'empathetic',
 ];
 
 const memoryTypes = [
   { label: 'Short Term', value: 'short_term' },
   { label: 'Long Term', value: 'long_term' },
-  { label: 'Knowledge Base', value: 'knowledge_base' }
+  { label: 'Knowledge Base', value: 'knowledge_base' },
 ];
 
 export default function AdminAgentPage() {
@@ -145,7 +153,7 @@ export default function AdminAgentPage() {
         traits: values.traits || [],
         tone: values.tone || 'professional',
         style: values.style || 'helpful',
-        expertise: values.expertise?.split(',').map((s: string) => s.trim()) || []
+        expertise: values.expertise?.split(',').map((s: string) => s.trim()) || [],
       };
 
       const config = {
@@ -153,13 +161,13 @@ export default function AdminAgentPage() {
         maxTokens: values.maxTokens || 1000,
         topP: values.topP || 1,
         frequencyPenalty: values.frequencyPenalty || 0,
-        presencePenalty: values.presencePenalty || 0
+        presencePenalty: values.presencePenalty || 0,
       };
 
       await adminApi.createAgent({
         ...values,
         personality: JSON.stringify(personality),
-        config: JSON.stringify(config)
+        config: JSON.stringify(config),
       });
 
       message.success('Agent created successfully');
@@ -209,7 +217,7 @@ export default function AdminAgentPage() {
       setAgentDetails({
         memories,
         tools: [],
-        tasks: []
+        tasks: [],
       });
     } catch (error) {
       console.error('Error fetching agent details:', error);
@@ -241,7 +249,7 @@ export default function AdminAgentPage() {
       topP: config.topP || 1,
       frequencyPenalty: config.frequencyPenalty || 0,
       presencePenalty: config.presencePenalty || 0,
-      isActive: agent.isActive
+      isActive: agent.isActive,
     });
     setSelectedAgent(agent);
     setModalVisible(true);
@@ -249,12 +257,12 @@ export default function AdminAgentPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      'active': 'green',
-      'inactive': 'red',
-      'pending': 'orange',
-      'running': 'blue',
-      'completed': 'green',
-      'failed': 'red'
+      active: 'green',
+      inactive: 'red',
+      pending: 'orange',
+      running: 'blue',
+      completed: 'green',
+      failed: 'red',
     };
     return colors[status] || 'default';
   };
@@ -267,20 +275,25 @@ export default function AdminAgentPage() {
       width: 250,
       render: (text: string, record: Agent) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar icon={<RobotOutlined />} style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9', width: 80 }} />
+          <Avatar
+            icon={<RobotOutlined />}
+            style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9', width: 80 }}
+          />
           <div>
             <div style={{ fontWeight: 500 }}>{text}</div>
-            <Text type="secondary" style={{ fontSize: '12px' }}>{record.description || 'No description'}</Text>
+            <Text type="secondary" style={{ fontSize: '12px' }}>
+              {record.description || 'No description'}
+            </Text>
           </div>
         </div>
-      )
+      ),
     },
     {
       title: 'Model',
       dataIndex: 'model',
       key: 'model',
       width: 120,
-      render: (text: string) => <Tag color="blue">{text}</Tag>
+      render: (text: string) => <Tag color="blue">{text}</Tag>,
     },
     {
       title: 'Status',
@@ -288,11 +301,8 @@ export default function AdminAgentPage() {
       key: 'status',
       width: 100,
       render: (isActive: boolean) => (
-        <Badge 
-          status={isActive ? "success" : "default"} 
-          text={isActive ? "Active" : "Inactive"} 
-        />
-      )
+        <Badge status={isActive ? 'success' : 'default'} text={isActive ? 'Active' : 'Inactive'} />
+      ),
     },
     {
       title: 'Usage Stats',
@@ -307,14 +317,14 @@ export default function AdminAgentPage() {
             <MessageOutlined /> {record._count.memories} memories
           </Text>
         </Space>
-      )
+      ),
     },
     {
       title: 'Created',
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 120,
-      render: (text: string) => new Date(text).toLocaleDateString()
+      render: (text: string) => new Date(text).toLocaleDateString(),
     },
     {
       title: 'Actions',
@@ -324,20 +334,12 @@ export default function AdminAgentPage() {
       render: (_: any, record: Agent) => (
         <Space>
           <Tooltip title="View Details">
-            <Button 
-              type="text" 
-              icon={<EyeOutlined />} 
-              onClick={() => showAgentDetails(record)}
-            />
+            <Button type="text" icon={<EyeOutlined />} onClick={() => showAgentDetails(record)} />
           </Tooltip>
           <Tooltip title="Edit">
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
-              onClick={() => editAgent(record)}
-            />
+            <Button type="text" icon={<EditOutlined />} onClick={() => editAgent(record)} />
           </Tooltip>
-          <Tooltip title={record.isActive ? "Deactivate" : "Activate"}>
+          <Tooltip title={record.isActive ? 'Deactivate' : 'Activate'}>
             <Button
               type="text"
               icon={record.isActive ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
@@ -352,24 +354,27 @@ export default function AdminAgentPage() {
             cancelText="No"
           >
             <Tooltip title="Delete">
-              <Button 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />}
-              />
+              <Button type="text" danger icon={<DeleteOutlined />} />
             </Tooltip>
           </Popconfirm>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   return (
-    <div style={{  }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div style={{}}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+        }}
+      >
         <Title level={2}>🤖 AI Agents</Title>
-        <Button 
-          type="primary" 
+        <Button
+          type="primary"
           icon={<PlusOutlined />}
           onClick={() => {
             setSelectedAgent(null);
@@ -381,23 +386,23 @@ export default function AdminAgentPage() {
         </Button>
       </div>
 
-        <Table
-          columns={columns}
-          dataSource={agents}
-          loading={loading}
-          rowKey="id"
-          scroll={{ x: 1200, y: 600}}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `Total ${total} agents`
-          }}
-        />
+      <Table
+        columns={columns}
+        dataSource={agents}
+        loading={loading}
+        rowKey="id"
+        scroll={{ x: 1200, y: 600 }}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total) => `Total ${total} agents`,
+        }}
+      />
 
       {/* Create/Edit Agent Modal */}
       <Modal
-        title={selectedAgent ? "Edit Agent" : "Create New Agent"}
+        title={selectedAgent ? 'Edit Agent' : 'Create New Agent'}
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false);
@@ -410,9 +415,8 @@ export default function AdminAgentPage() {
         <Form
           form={form}
           layout="vertical"
-          onFinish={selectedAgent ? 
-            (values) => handleUpdateAgent(selectedAgent, values) : 
-            handleCreateAgent
+          onFinish={
+            selectedAgent ? (values) => handleUpdateAgent(selectedAgent, values) : handleCreateAgent
           }
         >
           <Form.Item
@@ -424,8 +428,8 @@ export default function AdminAgentPage() {
           </Form.Item>
 
           <Form.Item name="description" label="Description">
-            <TextArea 
-              rows={2} 
+            <TextArea
+              rows={2}
               placeholder="Brief description of the agent's purpose and capabilities"
             />
           </Form.Item>
@@ -436,7 +440,7 @@ export default function AdminAgentPage() {
             rules={[{ required: true, message: 'Please select an AI model' }]}
           >
             <Select placeholder="Select AI model">
-              {modelOptions.map(option => (
+              {modelOptions.map((option) => (
                 <Option key={option.value} value={option.value}>
                   {option.label}
                 </Option>
@@ -445,8 +449,8 @@ export default function AdminAgentPage() {
           </Form.Item>
 
           <Form.Item name="systemPrompt" label="System Prompt">
-            <TextArea 
-              rows={4} 
+            <TextArea
+              rows={4}
               placeholder="System instructions that define the agent's behavior and role"
             />
           </Form.Item>
@@ -459,8 +463,10 @@ export default function AdminAgentPage() {
               placeholder="Select personality traits"
               style={{ width: '100%' }}
             >
-              {personalityTraits.map(trait => (
-                <Option key={trait} value={trait}>{trait}</Option>
+              {personalityTraits.map((trait) => (
+                <Option key={trait} value={trait}>
+                  {trait}
+                </Option>
               ))}
             </Select>
           </Form.Item>
@@ -491,24 +497,18 @@ export default function AdminAgentPage() {
           <Divider>Model Configuration</Divider>
 
           <Form.Item name="temperature" label="Temperature">
-            <Input 
-              type="number" 
-              min={0} 
-              max={2} 
-              step={0.1} 
-              placeholder="0.7" 
+            <Input
+              type="number"
+              min={0}
+              max={2}
+              step={0.1}
+              placeholder="0.7"
               style={{ width: '100%' }}
             />
           </Form.Item>
 
           <Form.Item name="maxTokens" label="Max Tokens">
-            <Input 
-              type="number" 
-              min={1} 
-              max={4000} 
-              placeholder="1000" 
-              style={{ width: '100%' }}
-            />
+            <Input type="number" min={1} max={4000} placeholder="1000" style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item name="isActive" label="Status" valuePropName="checked">
@@ -518,11 +518,9 @@ export default function AdminAgentPage() {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit">
-                {selectedAgent ? "Update Agent" : "Create Agent"}
+                {selectedAgent ? 'Update Agent' : 'Create Agent'}
               </Button>
-              <Button onClick={() => setModalVisible(false)}>
-                Cancel
-              </Button>
+              <Button onClick={() => setModalVisible(false)}>Cancel</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -532,9 +530,9 @@ export default function AdminAgentPage() {
       <Drawer
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Avatar 
-              icon={<RobotOutlined />} 
-              style={{ backgroundColor: selectedAgent?.isActive ? '#52c41a' : '#d9d9d9' }} 
+            <Avatar
+              icon={<RobotOutlined />}
+              style={{ backgroundColor: selectedAgent?.isActive ? '#52c41a' : '#d9d9d9' }}
             />
             {selectedAgent?.name}
           </div>
@@ -549,14 +547,16 @@ export default function AdminAgentPage() {
             <TabPane tab="Overview" key="overview">
               <Descriptions column={1} bordered>
                 <Descriptions.Item label="Name">{selectedAgent.name}</Descriptions.Item>
-                <Descriptions.Item label="Description">{selectedAgent.description}</Descriptions.Item>
+                <Descriptions.Item label="Description">
+                  {selectedAgent.description}
+                </Descriptions.Item>
                 <Descriptions.Item label="Model">
                   <Tag color="blue">{selectedAgent.model}</Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
-                  <Badge 
-                    status={selectedAgent.isActive ? "success" : "default"} 
-                    text={selectedAgent.isActive ? "Active" : "Inactive"} 
+                  <Badge
+                    status={selectedAgent.isActive ? 'success' : 'default'}
+                    text={selectedAgent.isActive ? 'Active' : 'Inactive'}
                   />
                 </Descriptions.Item>
                 <Descriptions.Item label="System Prompt">

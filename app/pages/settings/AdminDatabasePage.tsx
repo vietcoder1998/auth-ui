@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Card, 
-  Button, 
-  Space, 
-  Typography, 
-  Statistic, 
-  Row, 
-  Col, 
-  Alert, 
-  Modal, 
-  message, 
+import {
+  Card,
+  Button,
+  Space,
+  Typography,
+  Statistic,
+  Row,
+  Col,
+  Alert,
+  Modal,
+  message,
   Divider,
   Spin,
   Tag,
@@ -23,11 +23,11 @@ import {
   Descriptions,
   Badge,
   Tooltip,
-  Popconfirm
+  Popconfirm,
 } from 'antd';
-import { 
-  DatabaseOutlined, 
-  ReloadOutlined, 
+import {
+  DatabaseOutlined,
+  ReloadOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
@@ -39,7 +39,7 @@ import {
   CloudDownloadOutlined,
   InfoCircleOutlined,
   EyeOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
@@ -52,14 +52,14 @@ const DATABASE_TYPES = {
   mysql: { label: 'MySQL', color: 'orange', defaultPort: 3306 },
   postgresql: { label: 'PostgreSQL', color: 'blue', defaultPort: 5432 },
   mongodb: { label: 'MongoDB', color: 'green', defaultPort: 27017 },
-  sqlite: { label: 'SQLite', color: 'purple', defaultPort: 0 }
+  sqlite: { label: 'SQLite', color: 'purple', defaultPort: 0 },
 };
 
 const STATUS_COLORS: Record<string, 'success' | 'error' | 'warning' | 'default'> = {
   success: 'success',
   failed: 'error',
   pending: 'warning',
-  unknown: 'default'
+  unknown: 'default',
 };
 
 interface DatabaseConnection {
@@ -211,24 +211,26 @@ export default function AdminDatabasePage() {
   };
 
   const handleTestConnection = async (id: string, name: string) => {
-    setTestingConnections(prev => new Set(prev).add(id));
-    
+    setTestingConnections((prev) => new Set(prev).add(id));
+
     try {
       const response = await adminApi.testDatabaseConnection(id);
       // Updated to match the new controller response format
       if (response.data) {
         const testResult = response.data;
-        setTestResults(prev => ({
+        setTestResults((prev) => ({
           ...prev,
-          [id]: testResult
+          [id]: testResult,
         }));
-        
+
         if (testResult.success) {
-          message.success(`Connection "${name}" tested successfully (${testResult.responseTime}ms)`);
+          message.success(
+            `Connection "${name}" tested successfully (${testResult.responseTime}ms)`
+          );
         } else {
           message.error(`Connection "${name}" test failed: ${testResult.message}`);
         }
-        
+
         fetchConnections(); // Refresh to get updated test status
       } else {
         message.error('Test failed');
@@ -237,7 +239,7 @@ export default function AdminDatabasePage() {
       console.error('Failed to test database connection:', error);
       message.error('Failed to test database connection');
     } finally {
-      setTestingConnections(prev => {
+      setTestingConnections((prev) => {
         const newSet = new Set(prev);
         newSet.delete(id);
         return newSet;
@@ -251,13 +253,15 @@ export default function AdminDatabasePage() {
       // Updated to match the new controller response format
       if (response.data) {
         const check = response.data;
-        
+
         if (check.success) {
           message.success(`✅ Connection "${name}" configuration is valid!`);
         } else {
           const issues = Object.entries(check.details || {}).filter(([, valid]) => !valid);
-          const issueList = issues.map(([key]) => `• ${key.replace('has', '').replace(/([A-Z])/g, ' $1')}`).join('\n');
-          
+          const issueList = issues
+            .map(([key]) => `• ${key.replace('has', '').replace(/([A-Z])/g, ' $1')}`)
+            .join('\n');
+
           Modal.warning({
             title: 'Configuration Issues Found',
             content: (
@@ -280,7 +284,7 @@ export default function AdminDatabasePage() {
   };
 
   const handleCreateBackup = async (id: string, name: string) => {
-    const connection = connections.find(c => c.id === id);
+    const connection = connections.find((c) => c.id === id);
     if (!connection?.backupEnabled) {
       Modal.warning({
         title: 'Backup Not Enabled',
@@ -325,7 +329,7 @@ export default function AdminDatabasePage() {
 
   const handleTypeChange = (type: keyof typeof DATABASE_TYPES) => {
     form.setFieldsValue({
-      port: DATABASE_TYPES[type].defaultPort
+      port: DATABASE_TYPES[type].defaultPort,
     });
   };
 
@@ -363,9 +367,9 @@ export default function AdminDatabasePage() {
       title: 'Status',
       key: 'status',
       render: (record: DatabaseConnection) => (
-        <Badge 
-          status={record.isActive ? 'success' : 'error'} 
-          text={record.isActive ? 'Active' : 'Inactive'} 
+        <Badge
+          status={record.isActive ? 'success' : 'error'}
+          text={record.isActive ? 'Active' : 'Inactive'}
         />
       ),
     },
@@ -374,9 +378,9 @@ export default function AdminDatabasePage() {
       key: 'testStatus',
       render: (record: DatabaseConnection) => (
         <div>
-          <Badge 
-            status={STATUS_COLORS[record.testStatus || 'unknown']} 
-            text={record.testStatus || 'Unknown'} 
+          <Badge
+            status={STATUS_COLORS[record.testStatus || 'unknown']}
+            text={record.testStatus || 'Unknown'}
           />
           {testResults[record.id] && (
             <div style={{ fontSize: '11px', color: '#666', marginTop: 2 }}>
@@ -397,9 +401,9 @@ export default function AdminDatabasePage() {
       key: 'backup',
       render: (record: DatabaseConnection) => (
         <div>
-          <Badge 
-            status={record.backupEnabled ? 'success' : 'default'} 
-            text={record.backupEnabled ? 'Enabled' : 'Disabled'} 
+          <Badge
+            status={record.backupEnabled ? 'success' : 'default'}
+            text={record.backupEnabled ? 'Enabled' : 'Disabled'}
           />
           {record.lastBackup && (
             <div style={{ fontSize: '11px', color: '#666', marginTop: 2 }}>
@@ -441,18 +445,10 @@ export default function AdminDatabasePage() {
             />
           </Tooltip>
           <Tooltip title="View Details">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => openDetailDrawer(record)}
-            />
+            <Button type="text" icon={<EyeOutlined />} onClick={() => openDetailDrawer(record)} />
           </Tooltip>
           <Tooltip title="Edit">
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => openEditModal(record)}
-            />
+            <Button type="text" icon={<EditOutlined />} onClick={() => openEditModal(record)} />
           </Tooltip>
           <Popconfirm
             title={`Delete connection "${record.name}"?`}
@@ -462,11 +458,7 @@ export default function AdminDatabasePage() {
             cancelText="Cancel"
             okType="danger"
           >
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              style={{ color: '#ff4d4f' }}
-            />
+            <Button type="text" icon={<DeleteOutlined />} style={{ color: '#ff4d4f' }} />
           </Popconfirm>
         </Space>
       ),
@@ -498,14 +490,12 @@ export default function AdminDatabasePage() {
           </Form.Item>
         </Col>
         <Col span={12}>
-          <Form.Item
-            name="type"
-            label="Database Type"
-            rules={[{ required: true }]}
-          >
+          <Form.Item name="type" label="Database Type" rules={[{ required: true }]}>
             <Select onChange={handleTypeChange}>
               {Object.entries(DATABASE_TYPES).map(([key, value]) => (
-                <Option key={key} value={key}>{value.label}</Option>
+                <Option key={key} value={key}>
+                  {value.label}
+                </Option>
               ))}
             </Select>
           </Form.Item>
@@ -561,8 +551,8 @@ export default function AdminDatabasePage() {
             label="Password"
             rules={isEdit ? [] : [{ required: true, message: 'Please enter password' }]}
           >
-            <Input.Password 
-              placeholder={isEdit ? "Leave blank to keep current password" : "password"} 
+            <Input.Password
+              placeholder={isEdit ? 'Leave blank to keep current password' : 'password'}
             />
           </Form.Item>
         </Col>
@@ -588,7 +578,9 @@ export default function AdminDatabasePage() {
 
       <Form.Item
         noStyle
-        shouldUpdate={(prevValues, currentValues) => prevValues.backupEnabled !== currentValues.backupEnabled}
+        shouldUpdate={(prevValues, currentValues) =>
+          prevValues.backupEnabled !== currentValues.backupEnabled
+        }
       >
         {({ getFieldValue }) =>
           getFieldValue('backupEnabled') ? (
@@ -617,8 +609,8 @@ export default function AdminDatabasePage() {
           Database Connections
         </Title>
         <Paragraph type="secondary">
-          Manage database connections for testing, backup, and administration.
-          Test connectivity, validate configurations, and create backups.
+          Manage database connections for testing, backup, and administration. Test connectivity,
+          validate configurations, and create backups.
         </Paragraph>
       </div>
 
@@ -697,7 +689,10 @@ export default function AdminDatabasePage() {
           </Button>
           <Button
             icon={<ReloadOutlined />}
-            onClick={() => { fetchConnections(); fetchStats(); }}
+            onClick={() => {
+              fetchConnections();
+              fetchStats();
+            }}
             loading={loading}
           >
             Refresh
@@ -721,7 +716,9 @@ export default function AdminDatabasePage() {
           locale={{
             emptyText: (
               <div style={{ textAlign: 'center', padding: '50px' }}>
-                <DatabaseOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
+                <DatabaseOutlined
+                  style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }}
+                />
                 <div style={{ fontSize: '16px', color: '#999' }}>No database connections found</div>
                 <Button
                   type="primary"
@@ -747,10 +744,13 @@ export default function AdminDatabasePage() {
         }}
         width={800}
         footer={[
-          <Button key="cancel" onClick={() => {
-            setCreateModalVisible(false);
-            form.resetFields();
-          }}>
+          <Button
+            key="cancel"
+            onClick={() => {
+              setCreateModalVisible(false);
+              form.resetFields();
+            }}
+          >
             Cancel
           </Button>,
           <Button key="submit" type="primary" onClick={() => form.submit()}>
@@ -772,11 +772,14 @@ export default function AdminDatabasePage() {
         }}
         width={800}
         footer={[
-          <Button key="cancel" onClick={() => {
-            setEditModalVisible(false);
-            setSelectedConnection(null);
-            form.resetFields();
-          }}>
+          <Button
+            key="cancel"
+            onClick={() => {
+              setEditModalVisible(false);
+              setSelectedConnection(null);
+              form.resetFields();
+            }}
+          >
             Cancel
           </Button>,
           <Button key="submit" type="primary" onClick={() => form.submit()}>
@@ -799,7 +802,9 @@ export default function AdminDatabasePage() {
           <div>
             <Descriptions title="Basic Information" bordered column={1}>
               <Descriptions.Item label="Name">{selectedConnection.name}</Descriptions.Item>
-              <Descriptions.Item label="Description">{selectedConnection.description || 'No description'}</Descriptions.Item>
+              <Descriptions.Item label="Description">
+                {selectedConnection.description || 'No description'}
+              </Descriptions.Item>
               <Descriptions.Item label="Type">
                 <Tag color={DATABASE_TYPES[selectedConnection.type].color}>
                   {DATABASE_TYPES[selectedConnection.type].label}
@@ -810,7 +815,10 @@ export default function AdminDatabasePage() {
               <Descriptions.Item label="Database">{selectedConnection.database}</Descriptions.Item>
               <Descriptions.Item label="Username">{selectedConnection.username}</Descriptions.Item>
               <Descriptions.Item label="SSL">
-                <Badge status={selectedConnection.ssl ? 'success' : 'default'} text={selectedConnection.ssl ? 'Enabled' : 'Disabled'} />
+                <Badge
+                  status={selectedConnection.ssl ? 'success' : 'default'}
+                  text={selectedConnection.ssl ? 'Enabled' : 'Disabled'}
+                />
               </Descriptions.Item>
               <Descriptions.Item label="Timeout">{selectedConnection.timeout}ms</Descriptions.Item>
             </Descriptions>
@@ -819,12 +827,20 @@ export default function AdminDatabasePage() {
 
             <Descriptions title="Status Information" bordered column={1}>
               <Descriptions.Item label="Status">
-                <Badge status={selectedConnection.isActive ? 'success' : 'error'} text={selectedConnection.isActive ? 'Active' : 'Inactive'} />
+                <Badge
+                  status={selectedConnection.isActive ? 'success' : 'error'}
+                  text={selectedConnection.isActive ? 'Active' : 'Inactive'}
+                />
               </Descriptions.Item>
               <Descriptions.Item label="Test Status">
-                <Badge status={STATUS_COLORS[selectedConnection.testStatus || 'unknown']} text={selectedConnection.testStatus || 'Unknown'} />
+                <Badge
+                  status={STATUS_COLORS[selectedConnection.testStatus || 'unknown']}
+                  text={selectedConnection.testStatus || 'Unknown'}
+                />
               </Descriptions.Item>
-              <Descriptions.Item label="Last Tested">{formatDate(selectedConnection.lastTested)}</Descriptions.Item>
+              <Descriptions.Item label="Last Tested">
+                {formatDate(selectedConnection.lastTested)}
+              </Descriptions.Item>
               {selectedConnection.testError && (
                 <Descriptions.Item label="Test Error">
                   <Text type="danger">{selectedConnection.testError}</Text>
@@ -836,19 +852,30 @@ export default function AdminDatabasePage() {
 
             <Descriptions title="Backup Information" bordered column={1}>
               <Descriptions.Item label="Backup Enabled">
-                <Badge status={selectedConnection.backupEnabled ? 'success' : 'default'} text={selectedConnection.backupEnabled ? 'Yes' : 'No'} />
+                <Badge
+                  status={selectedConnection.backupEnabled ? 'success' : 'default'}
+                  text={selectedConnection.backupEnabled ? 'Yes' : 'No'}
+                />
               </Descriptions.Item>
               {selectedConnection.backupPath && (
-                <Descriptions.Item label="Backup Path">{selectedConnection.backupPath}</Descriptions.Item>
+                <Descriptions.Item label="Backup Path">
+                  {selectedConnection.backupPath}
+                </Descriptions.Item>
               )}
-              <Descriptions.Item label="Last Backup">{formatDate(selectedConnection.lastBackup)}</Descriptions.Item>
+              <Descriptions.Item label="Last Backup">
+                {formatDate(selectedConnection.lastBackup)}
+              </Descriptions.Item>
             </Descriptions>
 
             <Divider />
 
             <Descriptions title="Metadata" bordered column={1}>
-              <Descriptions.Item label="Created">{formatDate(selectedConnection.createdAt)}</Descriptions.Item>
-              <Descriptions.Item label="Updated">{formatDate(selectedConnection.updatedAt)}</Descriptions.Item>
+              <Descriptions.Item label="Created">
+                {formatDate(selectedConnection.createdAt)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Updated">
+                {formatDate(selectedConnection.updatedAt)}
+              </Descriptions.Item>
             </Descriptions>
 
             {testResults[selectedConnection.id] && (
@@ -856,11 +883,18 @@ export default function AdminDatabasePage() {
                 <Divider />
                 <Descriptions title="Last Test Results" bordered column={1}>
                   <Descriptions.Item label="Success">
-                    <Badge status={testResults[selectedConnection.id].success ? 'success' : 'error'} text={testResults[selectedConnection.id].success ? 'Yes' : 'No'} />
+                    <Badge
+                      status={testResults[selectedConnection.id].success ? 'success' : 'error'}
+                      text={testResults[selectedConnection.id].success ? 'Yes' : 'No'}
+                    />
                   </Descriptions.Item>
-                  <Descriptions.Item label="Message">{testResults[selectedConnection.id].message}</Descriptions.Item>
+                  <Descriptions.Item label="Message">
+                    {testResults[selectedConnection.id].message}
+                  </Descriptions.Item>
                   {testResults[selectedConnection.id].responseTime && (
-                    <Descriptions.Item label="Response Time">{testResults[selectedConnection.id].responseTime}ms</Descriptions.Item>
+                    <Descriptions.Item label="Response Time">
+                      {testResults[selectedConnection.id].responseTime}ms
+                    </Descriptions.Item>
                   )}
                   {testResults[selectedConnection.id].error && (
                     <Descriptions.Item label="Error">

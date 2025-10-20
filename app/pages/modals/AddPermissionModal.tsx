@@ -1,20 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  message,
-  Space,
-  Divider,
-  Select,
-  Typography,
-} from 'antd';
-import {
-  SettingOutlined,
-  PlusOutlined,
-  SecurityScanOutlined,
-} from '@ant-design/icons';
+import { Modal, Form, Input, Button, message, Space, Divider, Select, Typography } from 'antd';
+import { SettingOutlined, PlusOutlined, SecurityScanOutlined } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
 const { Option } = Select;
@@ -71,7 +57,7 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
       };
 
       const response = await adminApi.createPermission(permissionData);
-      
+
       if (response.data.success) {
         message.success('Permission created successfully!');
         form.resetFields();
@@ -99,9 +85,21 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
     const suggestions: { [key: string]: string[] } = {
       user: ['create_user', 'read_user', 'update_user', 'delete_user', 'manage_users'],
       role: ['create_role', 'read_role', 'update_role', 'delete_role', 'manage_roles'],
-      permission: ['create_permission', 'read_permission', 'update_permission', 'delete_permission', 'manage_permissions'],
+      permission: [
+        'create_permission',
+        'read_permission',
+        'update_permission',
+        'delete_permission',
+        'manage_permissions',
+      ],
       system: ['system_admin', 'system_config', 'system_logs', 'system_backup'],
-      content: ['create_content', 'read_content', 'update_content', 'delete_content', 'publish_content'],
+      content: [
+        'create_content',
+        'read_content',
+        'update_content',
+        'delete_content',
+        'publish_content',
+      ],
       report: ['view_reports', 'create_reports', 'export_reports'],
       api: ['api_access', 'api_read', 'api_write', 'api_admin'],
     };
@@ -120,13 +118,8 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
       destroyOnHidden
     >
       <Divider />
-      
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        autoComplete="off"
-      >
+
+      <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
         <Form.Item
           name="category"
           label="Category"
@@ -152,9 +145,9 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
           rules={[
             { required: true, message: 'Please enter permission name' },
             { min: 3, message: 'Permission name must be at least 3 characters' },
-            { 
-              pattern: /^[a-z_]+$/, 
-              message: 'Permission name should contain only lowercase letters and underscores' 
+            {
+              pattern: /^[a-z_]+$/,
+              message: 'Permission name should contain only lowercase letters and underscores',
             },
           ]}
           extra="Use lowercase with underscores (e.g., create_user, manage_content)"
@@ -169,7 +162,8 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
         {selectedCategory && getPermissionSuggestions(selectedCategory).length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              Suggested names for {permissionCategories.find(c => c.value === selectedCategory)?.label}:
+              Suggested names for{' '}
+              {permissionCategories.find((c) => c.value === selectedCategory)?.label}:
             </Text>
             <div style={{ marginTop: 4 }}>
               {getPermissionSuggestions(selectedCategory).map((suggestion) => (
@@ -205,10 +199,7 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
           label="Route (Optional)"
           extra="API route pattern (e.g., /admin/users, /api/reports)"
         >
-          <Input
-            placeholder="e.g., /admin/users, /api/reports"
-            size="large"
-          />
+          <Input placeholder="e.g., /admin/users, /api/reports" size="large" />
         </Form.Item>
 
         <Form.Item
@@ -216,11 +207,7 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
           label="HTTP Method (Optional)"
           extra="HTTP method for route-based permissions"
         >
-          <Select
-            placeholder="Select HTTP method"
-            size="large"
-            allowClear
-          >
+          <Select placeholder="Select HTTP method" size="large" allowClear>
             <Option value="GET">GET</Option>
             <Option value="POST">POST</Option>
             <Option value="PUT">PUT</Option>
@@ -233,11 +220,13 @@ const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
 
         <div style={{ marginBottom: 16, padding: 12, backgroundColor: '#f0f2f5', borderRadius: 6 }}>
           <Text type="secondary" style={{ fontSize: '12px' }}>
-            <strong>Naming Convention:</strong><br />
-            • Use lowercase letters and underscores only<br />
-            • Follow pattern: {`{action}_{resource}`} (e.g., create_user, view_reports)<br />
-            • Be specific and descriptive<br />
-            • Avoid spaces and special characters
+            <strong>Naming Convention:</strong>
+            <br />
+            • Use lowercase letters and underscores only
+            <br />• Follow pattern: {`{action}_{resource}`} (e.g., create_user, view_reports)
+            <br />
+            • Be specific and descriptive
+            <br />• Avoid spaces and special characters
           </Text>
         </div>
 

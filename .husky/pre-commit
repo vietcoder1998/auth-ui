@@ -2,5 +2,6 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx lint-staged
+npx prettier --check .
 npm run typecheck
 npm test

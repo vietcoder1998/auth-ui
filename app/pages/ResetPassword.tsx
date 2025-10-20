@@ -22,7 +22,7 @@ const ResetPassword: React.FC = () => {
     }
     setLoading(true);
     try {
-  await resetPassword({ token: token || '', password });
+      await resetPassword({ token: token || '', password });
       setMessage('Password reset successful. You can now login.');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
@@ -63,7 +63,9 @@ const ResetPassword: React.FC = () => {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <a href="/login" className="text-blue-600 hover:underline">Back to Login</a>
+        <a href="/login" className="text-blue-600 hover:underline">
+          Back to Login
+        </a>
       </div>
     </div>
   );

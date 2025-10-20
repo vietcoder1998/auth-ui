@@ -29,8 +29,8 @@ interface CommonSearchProps {
 }
 
 const CommonSearch: React.FC<CommonSearchProps> = ({
-  searchPlaceholder = "Search...",
-  searchValue = "",
+  searchPlaceholder = 'Search...',
+  searchValue = '',
   onSearch,
   onRefresh,
   loading = false,
@@ -42,7 +42,7 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
   style = {
     border: 'none',
     padding: 0,
-   }
+  },
 }) => {
   // Debounce search
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -77,11 +77,7 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
             loading={loading}
           />
           {showRefresh && onRefresh && (
-            <Button 
-              icon={<ReloadOutlined />} 
-              onClick={onRefresh}
-              loading={loading}
-            >
+            <Button icon={<ReloadOutlined />} onClick={onRefresh} loading={loading}>
               Refresh
             </Button>
           )}

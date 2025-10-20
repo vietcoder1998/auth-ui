@@ -27,7 +27,9 @@ export function useUpdatePermissions() {
         if (errorsCookie) {
           const parsedErrors = JSON.parse(errorsCookie);
           const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-          const recentErrors = parsedErrors.filter((error: any) => error.timestamp > fiveMinutesAgo);
+          const recentErrors = parsedErrors.filter(
+            (error: any) => error.timestamp > fiveMinutesAgo
+          );
           setErrors(recentErrors);
           // Auto open dropdown if new error
           if (recentErrors.length > prevErrorCount.current) {
@@ -54,10 +56,14 @@ export function useUpdatePermissions() {
   }, [fixingErrors]);
 
   const dismissError = (errorId: string) => {
-    const updatedErrors = errors.filter(error => error.id !== errorId);
+    const updatedErrors = errors.filter((error) => error.id !== errorId);
     setErrors(updatedErrors);
     if (updatedErrors.length > 0) {
-      Cookies.set('app_errors', JSON.stringify(updatedErrors), { expires: 1, domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
+      Cookies.set('app_errors', JSON.stringify(updatedErrors), {
+        expires: 1,
+        domain: env.COOKIE_DOMAIN,
+        path: env.COOKIE_PATH,
+      });
     } else {
       Cookies.remove('app_errors', { domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
     }
@@ -76,7 +82,7 @@ export function useUpdatePermissions() {
   ) => {
     const permission = extractPermissionFromError(error);
     if (!permission) return;
-    setFixingErrors(prev => {
+    setFixingErrors((prev) => {
       const next = new Set(prev).add(error.id);
       Cookies.set('fixing_errors', JSON.stringify(Array.from(next)), { expires: 1 });
       return next;
@@ -116,11 +122,13 @@ export function useUpdatePermissions() {
       }
       const rolesResponse = await adminApi.getRoles();
       const roles = rolesResponse.data || [];
-      const superAdminRole = Array.isArray(roles) ? roles.find((role: any) => role.name === 'superadmin') : null;
+      const superAdminRole = Array.isArray(roles)
+        ? roles.find((role: any) => role.name === 'superadmin')
+        : null;
       if (superAdminRole && typeof permissionId === 'string') {
         await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
         dismissErrorFn(error.id);
-  removeLoginCookie();
+        removeLoginCookie();
         try {
           const { getMe } = await import('../apis/auth.api.ts');
           await getMe();
@@ -135,7 +143,7 @@ export function useUpdatePermissions() {
     } catch (error) {
       console.error('Failed to fix permission:', error);
     } finally {
-      setFixingErrors(prev => {
+      setFixingErrors((prev) => {
         const newSet = new Set(prev);
         newSet.delete(error.id);
         Cookies.set('fixing_errors', JSON.stringify(Array.from(newSet)), { expires: 1 });
@@ -144,5 +152,13 @@ export function useUpdatePermissions() {
     }
   };
 
-  return { fixingErrors, fixPermission, errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors };
+  return {
+    fixingErrors,
+    fixPermission,
+    errors,
+    notifOpen,
+    setNotifOpen,
+    dismissError,
+    dismissAllErrors,
+  };
 }

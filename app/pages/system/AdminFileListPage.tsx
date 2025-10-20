@@ -41,11 +41,28 @@ export default function AdminFileListPage() {
 
   const columns = [
     { title: 'Name', dataIndex: 'originalname', key: 'originalname' },
-    { title: 'Type', dataIndex: 'type', key: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
-    { title: 'Size', dataIndex: 'size', key: 'size', render: (s: number) => `${(s / 1024).toFixed(2)} KB` },
-    { title: 'Uploaded', dataIndex: 'createdAt', key: 'createdAt', render: (d: string) => new Date(d).toLocaleString() },
     {
-      title: 'Actions', key: 'actions', render: (_: any, file: any) => (
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      render: (t: string) => <Tag color="blue">{t}</Tag>,
+    },
+    {
+      title: 'Size',
+      dataIndex: 'size',
+      key: 'size',
+      render: (s: number) => `${(s / 1024).toFixed(2)} KB`,
+    },
+    {
+      title: 'Uploaded',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (d: string) => new Date(d).toLocaleString(),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, file: any) => (
         <Space>
           <Button
             icon={<DownloadOutlined />}
@@ -56,7 +73,12 @@ export default function AdminFileListPage() {
           >
             Download
           </Button>
-          <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(file.id)}>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            size="small"
+            onClick={() => handleDelete(file.id)}
+          >
             Delete
           </Button>
         </Space>
@@ -67,7 +89,11 @@ export default function AdminFileListPage() {
   return (
     <div style={{ padding: 24 }}>
       <h2>Admin File List</h2>
-      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => setUploadModalVisible(true)}>
+      <Button
+        type="primary"
+        style={{ marginBottom: 16 }}
+        onClick={() => setUploadModalVisible(true)}
+      >
         Upload File
       </Button>
       <Spin spinning={loading}>

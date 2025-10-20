@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { Table, Button, Spin, message, Modal, Form, Select, Space, Tag, Tooltip } from 'antd';
-import { PlusOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, CopyOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  ReloadOutlined,
+  EyeOutlined,
+  CopyOutlined,
+} from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 interface Token {
@@ -131,15 +137,9 @@ export default function AdminTokenPage() {
         <div>
           <div>{record.user?.email || record.userId}</div>
           {record.user?.nickname && (
-            <div style={{ fontSize: '12px', color: '#666' }}>
-              {record.user.nickname}
-            </div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{record.user.nickname}</div>
           )}
-          {record.user?.role && (
-            <Tag color="blue">
-              {record.user.role.name}
-            </Tag>
-          )}
+          {record.user?.role && <Tag color="blue">{record.user.role.name}</Tag>}
         </div>
       ),
     },
@@ -182,7 +182,9 @@ export default function AdminTokenPage() {
                   content: (
                     <div>
                       <div style={{ marginBottom: '16px' }}>
-                        <p><strong>Access Token:</strong></p>
+                        <p>
+                          <strong>Access Token:</strong>
+                        </p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <code style={{ wordBreak: 'break-all', fontSize: '11px', flex: 1 }}>
                             {record.accessToken}
@@ -195,7 +197,9 @@ export default function AdminTokenPage() {
                         </div>
                       </div>
                       <div>
-                        <p><strong>Refresh Token:</strong></p>
+                        <p>
+                          <strong>Refresh Token:</strong>
+                        </p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <code style={{ wordBreak: 'break-all', fontSize: '11px', flex: 1 }}>
                             {record.refreshToken}
@@ -234,10 +238,10 @@ export default function AdminTokenPage() {
   ];
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <div style={{ marginBottom: '16px' }}>
         <h2 style={{ margin: 0, marginBottom: '16px' }}>Token Management</h2>
-        
+
         <CommonSearch
           searchPlaceholder="Search tokens..."
           onSearch={() => {}} // No search functionality for tokens currently
@@ -245,8 +249,8 @@ export default function AdminTokenPage() {
           loading={loading}
           showRefresh={true}
           extra={
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<PlusOutlined />}
               onClick={() => setCreateModalVisible(true)}
             >
@@ -256,17 +260,17 @@ export default function AdminTokenPage() {
           style={{ marginBottom: '0px' }}
         />
       </div>
-      
+
       <Spin spinning={loading}>
         <Table
           dataSource={tokens}
           columns={columns}
           rowKey="id"
-          pagination={{ 
+          pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} tokens`
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} tokens`,
           }}
           scroll={{ x: 800 }}
         />
@@ -282,11 +286,7 @@ export default function AdminTokenPage() {
         onOk={() => form.submit()}
         confirmLoading={loading}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleCreateToken}
-        >
+        <Form form={form} layout="vertical" onFinish={handleCreateToken}>
           <Form.Item
             name="userId"
             label="Select User"
@@ -299,7 +299,7 @@ export default function AdminTokenPage() {
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
-              options={users.map(user => ({
+              options={users.map((user) => ({
                 value: user.id,
                 label: `${user.email} ${user.nickname ? `(${user.nickname})` : ''}`,
               }))}

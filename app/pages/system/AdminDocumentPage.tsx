@@ -56,13 +56,35 @@ export default function AdminDocumentPage() {
 
   const columns = [
     { title: 'Name', dataIndex: 'originalname', key: 'originalname' },
-    { title: 'Type', dataIndex: 'type', key: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
-    { title: 'Size', dataIndex: 'size', key: 'size', render: (s: number) => `${(s / 1024).toFixed(2)} KB` },
-    { title: 'Uploaded', dataIndex: 'createdAt', key: 'createdAt', render: (d: string) => new Date(d).toLocaleString() },
     {
-      title: 'Actions', key: 'actions', render: (_: any, doc: any) => (
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      render: (t: string) => <Tag color="blue">{t}</Tag>,
+    },
+    {
+      title: 'Size',
+      dataIndex: 'size',
+      key: 'size',
+      render: (s: number) => `${(s / 1024).toFixed(2)} KB`,
+    },
+    {
+      title: 'Uploaded',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (d: string) => new Date(d).toLocaleString(),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, doc: any) => (
         <Space>
-          <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(doc.id)}>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            size="small"
+            onClick={() => handleDelete(doc.id)}
+          >
             Delete
           </Button>
         </Space>

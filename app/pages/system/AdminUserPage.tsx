@@ -23,7 +23,7 @@ export default function AdminUserPage() {
   // Cleanup effect to track window states
   useEffect(() => {
     const interval = setInterval(() => {
-      setOpenWindows(prev => {
+      setOpenWindows((prev) => {
         const updated = { ...prev };
         let hasChanges = false;
 
@@ -44,7 +44,7 @@ export default function AdminUserPage() {
   // Cleanup on unmount - close all open windows
   useEffect(() => {
     return () => {
-      Object.values(openWindows).forEach(window => {
+      Object.values(openWindows).forEach((window) => {
         if (window && !window.closed) {
           window.close();
         }
@@ -53,7 +53,7 @@ export default function AdminUserPage() {
   }, [openWindows]);
 
   useEffect(() => {
-    adminApi.getRoles().then(res => {
+    adminApi.getRoles().then((res) => {
       setRoles(res.data.data || []);
     });
   }, []);
@@ -80,17 +80,21 @@ export default function AdminUserPage() {
       existingWindow.close();
 
       // Remove from tracking
-      setOpenWindows(prev => {
+      setOpenWindows((prev) => {
         const updated = { ...prev };
         delete updated[windowKey];
         return updated;
       });
 
       // Wait a bit before opening new window
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    if (!window.confirm(`Login as "${nickname}" (${email})?\n\nThis will open a new window with user authentication.`)) {
+    if (
+      !window.confirm(
+        `Login as "${nickname}" (${email})?\n\nThis will open a new window with user authentication.`
+      )
+    ) {
       return;
     }
 
@@ -114,9 +118,9 @@ export default function AdminUserPage() {
 
           if (newWindow) {
             // Track the opened window
-            setOpenWindows(prev => ({
+            setOpenWindows((prev) => ({
               ...prev,
-              [windowKey]: newWindow
+              [windowKey]: newWindow,
             }));
 
             // Focus the new window
@@ -125,7 +129,7 @@ export default function AdminUserPage() {
             // Optional: Monitor window close event
             const checkWindowClosed = setInterval(() => {
               if (newWindow.closed) {
-                setOpenWindows(prev => {
+                setOpenWindows((prev) => {
                   const updated = { ...prev };
                   delete updated[windowKey];
                   return updated;
@@ -146,7 +150,8 @@ export default function AdminUserPage() {
       }
     } catch (error: any) {
       console.error('Error logging in as user:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to login as user';
+      const errorMessage =
+        error.response?.data?.message || error.message || 'Failed to login as user';
       alert(`Login failed: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -185,18 +190,18 @@ export default function AdminUserPage() {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      render: (email: string) => <strong>{email}</strong>
+      render: (email: string) => <strong>{email}</strong>,
     },
     {
       title: 'Display Name',
       dataIndex: 'nickname',
-      key: 'nickname'
+      key: 'nickname',
     },
     {
       title: 'Role',
       dataIndex: ['role', 'name'],
       key: 'role',
-      render: (roleName: string) => roleName || <em style={{ color: '#999' }}>No role</em>
+      render: (roleName: string) => roleName || <em style={{ color: '#999' }}>No role</em>,
     },
     {
       title: 'Status',
@@ -206,18 +211,20 @@ export default function AdminUserPage() {
         const colors = {
           active: 'green',
           inactive: 'red',
-          pending: 'orange'
+          pending: 'orange',
         };
         return (
-          <span style={{
-            color: colors[status as keyof typeof colors] || '#666',
-            fontWeight: 'bold',
-            textTransform: 'capitalize'
-          }}>
+          <span
+            style={{
+              color: colors[status as keyof typeof colors] || '#666',
+              fontWeight: 'bold',
+              textTransform: 'capitalize',
+            }}
+          >
             {status || 'unknown'}
           </span>
         );
-      }
+      },
     },
     {
       title: 'Actions',
@@ -231,14 +238,18 @@ export default function AdminUserPage() {
           <Space size="small">
             <Button
               size="small"
-              type={hasOpenWindow ? "default" : "primary"}
+              type={hasOpenWindow ? 'default' : 'primary'}
               ghost={!hasOpenWindow}
               icon={<LoginOutlined />}
               onClick={() => handleLoginAsUser(u.email, u.nickname)}
-              title={hasOpenWindow ? "Close current window and open new session" : "Login as this user in new window"}
+              title={
+                hasOpenWindow
+                  ? 'Close current window and open new session'
+                  : 'Login as this user in new window'
+              }
               style={{
                 borderColor: hasOpenWindow ? '#fa8c16' : undefined,
-                color: hasOpenWindow ? '#fa8c16' : undefined
+                color: hasOpenWindow ? '#fa8c16' : undefined,
               }}
             >
               {hasOpenWindow ? 'Reopen' : 'Login As'}
@@ -266,7 +277,7 @@ export default function AdminUserPage() {
             </Button>
           </Space>
         );
-      }
+      },
     },
   ];
 
@@ -294,11 +305,7 @@ export default function AdminUserPage() {
           onRefresh={fetchUsers}
           loading={loading}
           extra={
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setAddModalVisible(true)}
-            >
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalVisible(true)}>
               Add User
             </Button>
           }
@@ -315,7 +322,7 @@ export default function AdminUserPage() {
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} users`
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} users`,
           }}
           style={{ backgroundColor: 'white', borderRadius: '8px' }}
         />

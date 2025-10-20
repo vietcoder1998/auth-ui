@@ -254,12 +254,12 @@ export const mockConfig = [
 // Mock API functions that simulate network delays
 export const adminApiMock = {
   async getUsers(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     return { data: { data: mockUsers, total: mockUsers.length, message: 'Success' } };
   },
-  
+
   async createUser(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 800));
     const newUser = {
       id: (mockUsers.length + 1).toString(),
       ...data,
@@ -269,24 +269,24 @@ export const adminApiMock = {
     mockUsers.push(newUser);
     return { data: { data: newUser, message: 'User created successfully' } };
   },
-  
+
   async deleteUser(email: string) {
-    await new Promise(resolve => setTimeout(resolve, 600));
-    const index = mockUsers.findIndex(user => user.email === email);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    const index = mockUsers.findIndex((user) => user.email === email);
     if (index > -1) {
       mockUsers.splice(index, 1);
       return { data: { message: 'User deleted successfully' } };
     }
     throw new Error('User not found');
   },
-  
+
   async getTokens(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 400));
     return { data: { data: mockTokens, total: mockTokens.length, message: 'Success' } };
   },
-  
+
   async createToken(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 700));
+    await new Promise((resolve) => setTimeout(resolve, 700));
     const newToken = {
       id: (mockTokens.length + 1).toString(),
       ...data,
@@ -296,24 +296,24 @@ export const adminApiMock = {
     mockTokens.push(newToken);
     return { data: { data: newToken, message: 'Token created successfully' } };
   },
-  
+
   async revokeToken(token: string) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const tokenObj = mockTokens.find(t => t.token === token);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const tokenObj = mockTokens.find((t) => t.token === token);
     if (tokenObj) {
       tokenObj.isRevoked = true;
       return { data: { message: 'Token revoked successfully' } };
     }
     throw new Error('Token not found');
   },
-  
+
   async getRoles(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     return { data: { data: mockRoles, total: mockRoles.length, message: 'Success' } };
   },
-  
+
   async createRole(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 600));
     const newRole = {
       id: (mockRoles.length + 1).toString(),
       ...data,
@@ -322,24 +322,24 @@ export const adminApiMock = {
     mockRoles.push(newRole);
     return { data: { data: newRole, message: 'Role created successfully' } };
   },
-  
+
   async deleteRole(id: string | number) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const index = mockRoles.findIndex(role => role.id === id.toString());
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const index = mockRoles.findIndex((role) => role.id === id.toString());
     if (index > -1) {
       mockRoles.splice(index, 1);
       return { data: { message: 'Role deleted successfully' } };
     }
     throw new Error('Role not found');
   },
-  
+
   async getPermissions(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 350));
+    await new Promise((resolve) => setTimeout(resolve, 350));
     return { data: { data: mockPermissions, total: mockPermissions.length, message: 'Success' } };
   },
-  
+
   async createPermission(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 650));
+    await new Promise((resolve) => setTimeout(resolve, 650));
     const newPermission = {
       id: (mockPermissions.length + 1).toString(),
       ...data,
@@ -348,24 +348,26 @@ export const adminApiMock = {
     mockPermissions.push(newPermission);
     return { data: { data: newPermission, message: 'Permission created successfully' } };
   },
-  
+
   async deletePermission(id: string | number) {
-    await new Promise(resolve => setTimeout(resolve, 450));
-    const index = mockPermissions.findIndex(perm => perm.id === id.toString());
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    const index = mockPermissions.findIndex((perm) => perm.id === id.toString());
     if (index > -1) {
       mockPermissions.splice(index, 1);
       return { data: { message: 'Permission deleted successfully' } };
     }
     throw new Error('Permission not found');
   },
-  
+
   async getMailTemplates(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return { data: { data: mockMailTemplates, total: mockMailTemplates.length, message: 'Success' } };
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    return {
+      data: { data: mockMailTemplates, total: mockMailTemplates.length, message: 'Success' },
+    };
   },
-  
+
   async createMailTemplate(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 700));
+    await new Promise((resolve) => setTimeout(resolve, 700));
     const newTemplate = {
       id: (mockMailTemplates.length + 1).toString(),
       ...data,
@@ -375,24 +377,30 @@ export const adminApiMock = {
     mockMailTemplates.push(newTemplate);
     return { data: { data: newTemplate, message: 'Mail template created successfully' } };
   },
-  
+
   async deleteMailTemplate(id: string | number) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const index = mockMailTemplates.findIndex(template => template.id === id.toString());
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const index = mockMailTemplates.findIndex((template) => template.id === id.toString());
     if (index > -1) {
       mockMailTemplates.splice(index, 1);
       return { data: { message: 'Mail template deleted successfully' } };
     }
     throw new Error('Mail template not found');
   },
-  
+
   async getNotificationTemplates(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 380));
-    return { data: { data: mockNotificationTemplates, total: mockNotificationTemplates.length, message: 'Success' } };
+    await new Promise((resolve) => setTimeout(resolve, 380));
+    return {
+      data: {
+        data: mockNotificationTemplates,
+        total: mockNotificationTemplates.length,
+        message: 'Success',
+      },
+    };
   },
-  
+
   async createNotificationTemplate(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 720));
+    await new Promise((resolve) => setTimeout(resolve, 720));
     const newTemplate = {
       id: (mockNotificationTemplates.length + 1).toString(),
       ...data,
@@ -402,24 +410,24 @@ export const adminApiMock = {
     mockNotificationTemplates.push(newTemplate);
     return { data: { data: newTemplate, message: 'Notification template created successfully' } };
   },
-  
+
   async deleteNotificationTemplate(id: string | number) {
-    await new Promise(resolve => setTimeout(resolve, 520));
-    const index = mockNotificationTemplates.findIndex(template => template.id === id.toString());
+    await new Promise((resolve) => setTimeout(resolve, 520));
+    const index = mockNotificationTemplates.findIndex((template) => template.id === id.toString());
     if (index > -1) {
       mockNotificationTemplates.splice(index, 1);
       return { data: { message: 'Notification template deleted successfully' } };
     }
     throw new Error('Notification template not found');
   },
-  
+
   async getConfig(params?: any) {
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     return { data: { data: mockConfig, total: mockConfig.length, message: 'Success' } };
   },
-  
+
   async createConfig(data: any) {
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 600));
     const newConfig = {
       id: (mockConfig.length + 1).toString(),
       ...data,
@@ -429,20 +437,20 @@ export const adminApiMock = {
     mockConfig.push(newConfig);
     return { data: { data: newConfig, message: 'Config created successfully' } };
   },
-  
+
   async updateConfig(id: string | number, data: any) {
-    await new Promise(resolve => setTimeout(resolve, 550));
-    const config = mockConfig.find(c => c.id === id.toString());
+    await new Promise((resolve) => setTimeout(resolve, 550));
+    const config = mockConfig.find((c) => c.id === id.toString());
     if (config) {
       Object.assign(config, data, { updatedAt: new Date().toISOString() });
       return { data: { data: config, message: 'Config updated successfully' } };
     }
     throw new Error('Config not found');
   },
-  
+
   async deleteConfig(id: string | number) {
-    await new Promise(resolve => setTimeout(resolve, 480));
-    const index = mockConfig.findIndex(config => config.id === id.toString());
+    await new Promise((resolve) => setTimeout(resolve, 480));
+    const index = mockConfig.findIndex((config) => config.id === id.toString());
     if (index > -1) {
       mockConfig.splice(index, 1);
       return { data: { message: 'Config deleted successfully' } };

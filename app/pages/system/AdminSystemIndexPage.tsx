@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, Typography, Space, Button } from 'antd';
-import { 
-  UserOutlined, 
-  TeamOutlined, 
-  SafetyOutlined, 
+import {
+  UserOutlined,
+  TeamOutlined,
+  SafetyOutlined,
   KeyOutlined,
   DatabaseOutlined,
   ReloadOutlined,
   LinkOutlined,
   HistoryOutlined,
   AuditOutlined,
-  FileTextOutlined 
+  FileTextOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -93,7 +93,8 @@ export default function AdminSystemIndexPage() {
       setStats({
         users: usersRes.status === 'fulfilled' ? usersRes.value.data.data?.length || 0 : 0,
         roles: rolesRes.status === 'fulfilled' ? rolesRes.value.data.data?.length || 0 : 0,
-        permissions: permissionsRes.status === 'fulfilled' ? permissionsRes.value.data.data?.length || 0 : 0,
+        permissions:
+          permissionsRes.status === 'fulfilled' ? permissionsRes.value.data.data?.length || 0 : 0,
         tokens: tokensRes.status === 'fulfilled' ? tokensRes.value.data.data?.length || 0 : 0,
         sso: ssoCount,
         loginHistory: loginHistoryCount,
@@ -187,11 +188,7 @@ export default function AdminSystemIndexPage() {
               Monitor and manage system users, roles, permissions, and authentication
             </Paragraph>
           </div>
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={fetchStats}
-            loading={loading}
-          >
+          <Button icon={<ReloadOutlined />} onClick={fetchStats} loading={loading}>
             Refresh
           </Button>
         </Space>
@@ -203,7 +200,7 @@ export default function AdminSystemIndexPage() {
             <Card
               hoverable
               onClick={() => navigate(card.path)}
-              style={{ 
+              style={{
                 cursor: 'pointer',
                 borderLeft: `4px solid ${card.color}`,
               }}
@@ -212,18 +209,18 @@ export default function AdminSystemIndexPage() {
               <Statistic
                 title={card.title}
                 value={card.count}
-                prefix={React.cloneElement(card.icon, { 
-                  style: { color: card.color, fontSize: '20px' } 
+                prefix={React.cloneElement(card.icon, {
+                  style: { color: card.color, fontSize: '20px' },
                 })}
                 loading={loading}
                 valueStyle={{ color: card.color }}
               />
-              <Paragraph 
-                type="secondary" 
-                style={{ 
-                  margin: '12px 0 0 0', 
+              <Paragraph
+                type="secondary"
+                style={{
+                  margin: '12px 0 0 0',
                   fontSize: '12px',
-                  minHeight: '32px' 
+                  minHeight: '32px',
                 }}
               >
                 {card.description}
@@ -245,18 +242,10 @@ export default function AdminSystemIndexPage() {
                 />
               </Col>
               <Col span={8}>
-                <Statistic
-                  title="Cache Status"
-                  value="Active"
-                  valueStyle={{ color: '#52c41a' }}
-                />
+                <Statistic title="Cache Status" value="Active" valueStyle={{ color: '#52c41a' }} />
               </Col>
               <Col span={8}>
-                <Statistic
-                  title="API Status"
-                  value="Running"
-                  valueStyle={{ color: '#52c41a' }}
-                />
+                <Statistic title="API Status" value="Running" valueStyle={{ color: '#52c41a' }} />
               </Col>
             </Row>
           </Card>

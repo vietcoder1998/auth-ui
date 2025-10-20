@@ -22,7 +22,7 @@ const Profile: React.FC = () => {
     setIsEditing(true);
     form.setFieldsValue({
       nickname: user?.nickname,
-      email: user?.email
+      email: user?.email,
     });
   };
 
@@ -44,7 +44,14 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '200px',
+        }}
+      >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -52,8 +59,17 @@ const Profile: React.FC = () => {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={2} style={{ margin: 0 }}>My Profile</Title>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
+        <Title level={2} style={{ margin: 0 }}>
+          My Profile
+        </Title>
         <Button onClick={handleRefreshUser} loading={loading}>
           Refresh Data
         </Button>
@@ -66,9 +82,9 @@ const Profile: React.FC = () => {
             <Avatar
               size={120}
               icon={<UserOutlined />}
-              style={{ 
+              style={{
                 backgroundColor: '#1890ff',
-                marginBottom: 16
+                marginBottom: 16,
               }}
             />
             <Title level={4} style={{ margin: '8px 0' }}>
@@ -96,8 +112,8 @@ const Profile: React.FC = () => {
 
         <Col xs={24} lg={16}>
           {/* Profile Information Card */}
-          <Card 
-            title="Profile Information" 
+          <Card
+            title="Profile Information"
             extra={
               !isEditing ? (
                 <Button type="primary" icon={<EditOutlined />} onClick={handleEdit}>
@@ -108,11 +124,7 @@ const Profile: React.FC = () => {
                   <Button icon={<CloseOutlined />} onClick={handleCancel}>
                     Cancel
                   </Button>
-                  <Button 
-                    type="primary" 
-                    icon={<SaveOutlined />} 
-                    onClick={() => form.submit()}
-                  >
+                  <Button type="primary" icon={<SaveOutlined />} onClick={() => form.submit()}>
                     Save
                   </Button>
                 </Space>
@@ -160,11 +172,7 @@ const Profile: React.FC = () => {
                 </Row>
               </div>
             ) : (
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSave}
-              >
+              <Form form={form} layout="vertical" onFinish={handleSave}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <Form.Item
@@ -176,10 +184,7 @@ const Profile: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item
-                      label="Email Address"
-                      name="email"
-                    >
+                    <Form.Item label="Email Address" name="email">
                       <Input disabled placeholder="Email cannot be changed" />
                     </Form.Item>
                   </Col>
@@ -223,13 +228,15 @@ const Profile: React.FC = () => {
       {/* Debug Information (Development only) */}
       {process.env.NODE_ENV === 'development' && (
         <Card title="Debug Information" style={{ marginTop: 24 }}>
-          <pre style={{ 
-            background: '#f5f5f5', 
-            padding: 16, 
-            borderRadius: 4, 
-            overflow: 'auto',
-            fontSize: 12
-          }}>
+          <pre
+            style={{
+              background: '#f5f5f5',
+              padding: 16,
+              borderRadius: 4,
+              overflow: 'auto',
+              fontSize: 12,
+            }}
+          >
             {JSON.stringify(user, null, 2)}
           </pre>
         </Card>

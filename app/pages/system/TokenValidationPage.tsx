@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Spin, Alert, Button, Card, Descriptions, Space } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  UserOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
 interface TokenValidationPageProps {
@@ -62,16 +67,15 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
 
       // Validate token through API
       const response = await adminApi.validateUserToken(token);
-      
+
       if (response.data.success && response.data.data) {
         setIsValid(true);
         setUserInfo(response.data.data);
-        
+
         // Store token in localStorage for the new session
         localStorage.setItem('token', token);
         localStorage.setItem('userEmail', response.data.data.email);
         localStorage.setItem('userNickname', response.data.data.nickname);
-        
       } else {
         setError(response.data.message || 'Token validation failed');
         setIsValid(false);
@@ -103,13 +107,15 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        flexDirection: 'column'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          flexDirection: 'column',
+        }}
+      >
         <Spin size="large" />
         <p style={{ marginTop: 16, fontSize: 16 }}>Validating token...</p>
       </div>
@@ -118,13 +124,14 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
 
   if (error || !isValid) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
         <Card style={{ maxWidth: 500, width: '100%' }}>
           <div style={{ textAlign: 'center' }}>
             <CloseCircleOutlined style={{ fontSize: 48, color: '#ff4d4f', marginBottom: 16 }} />
@@ -149,13 +156,15 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
       <Card style={{ maxWidth: 600, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <CheckCircleOutlined style={{ fontSize: 48, color: '#52c41a', marginBottom: 16 }} />
@@ -173,52 +182,54 @@ export default function TokenValidationPage({ token: propToken }: TokenValidatio
           style={{ marginBottom: 24 }}
         />
 
-        <Descriptions 
-          title="User Information" 
-          bordered 
-          column={1}
-          style={{ marginBottom: 24 }}
-        >
-          <Descriptions.Item label={<><UserOutlined style={{ marginRight: 8 }} />Email</>}>
+        <Descriptions title="User Information" bordered column={1} style={{ marginBottom: 24 }}>
+          <Descriptions.Item
+            label={
+              <>
+                <UserOutlined style={{ marginRight: 8 }} />
+                Email
+              </>
+            }
+          >
             {userInfo?.email}
           </Descriptions.Item>
-          <Descriptions.Item label="Display Name">
-            {userInfo?.nickname}
-          </Descriptions.Item>
+          <Descriptions.Item label="Display Name">{userInfo?.nickname}</Descriptions.Item>
           <Descriptions.Item label="Status">
-            <span style={{ 
-              color: userInfo?.status === 'active' ? '#52c41a' : '#fa8c16',
-              fontWeight: 'bold',
-              textTransform: 'capitalize'
-            }}>
+            <span
+              style={{
+                color: userInfo?.status === 'active' ? '#52c41a' : '#fa8c16',
+                fontWeight: 'bold',
+                textTransform: 'capitalize',
+              }}
+            >
               {userInfo?.status}
             </span>
           </Descriptions.Item>
           <Descriptions.Item label="Role">
             {userInfo?.role?.name || <em style={{ color: '#999' }}>No role assigned</em>}
           </Descriptions.Item>
-          <Descriptions.Item label={<><ClockCircleOutlined style={{ marginRight: 8 }} />Member Since</>}>
+          <Descriptions.Item
+            label={
+              <>
+                <ClockCircleOutlined style={{ marginRight: 8 }} />
+                Member Since
+              </>
+            }
+          >
             {userInfo?.createdAt ? new Date(userInfo.createdAt).toLocaleDateString() : 'N/A'}
           </Descriptions.Item>
         </Descriptions>
 
         <div style={{ textAlign: 'center' }}>
           <Space size="large">
-            <Button 
-              type="primary" 
-              size="large"
-              onClick={handleManualRedirect}
-            >
+            <Button type="primary" size="large" onClick={handleManualRedirect}>
               Go to Dashboard Now
             </Button>
-            <Button 
-              size="large"
-              onClick={() => window.close()}
-            >
+            <Button size="large" onClick={() => window.close()}>
               Close Window
             </Button>
           </Space>
-          
+
           <div style={{ marginTop: 16, color: '#666' }}>
             <ClockCircleOutlined style={{ marginRight: 8 }} />
             Auto-redirecting in {countdown} seconds...

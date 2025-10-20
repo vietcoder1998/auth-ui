@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Input, Switch, Space, Tag, message, Menu, Layout, Table, Typography } from 'antd';
+import {
+  Card,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Switch,
+  Space,
+  Tag,
+  message,
+  Menu,
+  Layout,
+  Table,
+  Typography,
+} from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
@@ -70,7 +84,7 @@ const AdminSocketPage: React.FC = () => {
 
   useEffect(() => {
     if (selectedSocketId) {
-      const found = sockets.find(s => s.id === selectedSocketId) || null;
+      const found = sockets.find((s) => s.id === selectedSocketId) || null;
       setSelectedSocket(found);
       if (found) fetchEvents(found.id);
     }
@@ -114,8 +128,14 @@ const AdminSocketPage: React.FC = () => {
       title: 'Add Event',
       content: (
         <Form layout="vertical" id="eventForm">
-          <Form.Item name="type" label="Type" rules={[{ required: true }]}> <Input /> </Form.Item>
-          <Form.Item name="event" label="Event" rules={[{ required: true }]}> <Input /> </Form.Item>
+          <Form.Item name="type" label="Type" rules={[{ required: true }]}>
+            {' '}
+            <Input />{' '}
+          </Form.Item>
+          <Form.Item name="event" label="Event" rules={[{ required: true }]}>
+            {' '}
+            <Input />{' '}
+          </Form.Item>
         </Form>
       ),
       onOk: async () => {
@@ -159,7 +179,10 @@ const AdminSocketPage: React.FC = () => {
     setTestEventResult(null);
     try {
       const payloadObj = testEventPayload ? JSON.parse(testEventPayload) : {};
-      const res = await adminApi.testSocketEvent(selectedSocket.id, { event: testEventName, payload: payloadObj });
+      const res = await adminApi.testSocketEvent(selectedSocket.id, {
+        event: testEventName,
+        payload: payloadObj,
+      });
       setTestEventResult(res.data?.message || 'Event sent');
     } catch (e: any) {
       setTestEventResult(e?.response?.data?.message || 'Test event failed');
@@ -188,21 +211,45 @@ const AdminSocketPage: React.FC = () => {
   const eventColumns = [
     { title: 'Type', dataIndex: 'type', key: 'type' },
     { title: 'Event', dataIndex: 'event', key: 'event' },
-    { title: 'Created', dataIndex: 'createdAt', key: 'createdAt', render: (d: string) => d ? new Date(d).toLocaleString() : '' },
-    { title: 'Actions', key: 'actions', render: (_: any, record: SocketEvent) => (
-      <Space>
-        <Button onClick={() => handleTestEventFromRow(record)}>Test Event</Button>
-        <Button icon={<DeleteOutlined />} danger onClick={() => handleDeleteEvent(record.id)} />
-      </Space>
-    ) },
+    {
+      title: 'Created',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (d: string) => (d ? new Date(d).toLocaleString() : ''),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, record: SocketEvent) => (
+        <Space>
+          <Button onClick={() => handleTestEventFromRow(record)}>Test Event</Button>
+          <Button icon={<DeleteOutlined />} danger onClick={() => handleDeleteEvent(record.id)} />
+        </Space>
+      ),
+    },
   ];
 
   return (
     <Layout style={{ background: '#fff', minHeight: 500 }}>
-      <Sider width={260} style={{ background: '#f9f9f9', borderRight: '1px solid #eee', padding: '16px 0' }}>
-        <div style={{ padding: '0 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={4} style={{ margin: 0 }}>Sockets</Title>
-          <Button icon={<PlusOutlined />} size="small" onClick={handleAdd}>Add</Button>
+      <Sider
+        width={260}
+        style={{ background: '#f9f9f9', borderRight: '1px solid #eee', padding: '16px 0' }}
+      >
+        <div
+          style={{
+            padding: '0 16px',
+            marginBottom: 16,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Title level={4} style={{ margin: 0 }}>
+            Sockets
+          </Title>
+          <Button icon={<PlusOutlined />} size="small" onClick={handleAdd}>
+            Add
+          </Button>
         </div>
         <Menu
           mode="inline"
@@ -214,24 +261,58 @@ const AdminSocketPage: React.FC = () => {
       <Content style={{ padding: 24 }}>
         {selectedSocket ? (
           <Card
-            title={<span>{selectedSocket.name} <Tag color={selectedSocket.isActive ? 'green' : 'red'}>{selectedSocket.isActive ? 'Active' : 'Inactive'}</Tag></span>}
+            title={
+              <span>
+                {selectedSocket.name}{' '}
+                <Tag color={selectedSocket.isActive ? 'green' : 'red'}>
+                  {selectedSocket.isActive ? 'Active' : 'Inactive'}
+                </Tag>
+              </span>
+            }
             extra={
               <Space>
-                <Button icon={<ThunderboltOutlined />} onClick={() => handlePingSocket(selectedSocket)}>Ping Socket</Button>
+                <Button
+                  icon={<ThunderboltOutlined />}
+                  onClick={() => handlePingSocket(selectedSocket)}
+                >
+                  Ping Socket
+                </Button>
                 <Button onClick={handleOpenTestEventModal}>Test Event</Button>
-                <Button icon={<EditOutlined />} onClick={() => handleEdit(selectedSocket)}>Edit</Button>
-                <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(selectedSocket.id)}>Delete</Button>
+                <Button icon={<EditOutlined />} onClick={() => handleEdit(selectedSocket)}>
+                  Edit
+                </Button>
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                  onClick={() => handleDelete(selectedSocket.id)}
+                >
+                  Delete
+                </Button>
               </Space>
             }
           >
             <div style={{ marginBottom: 16 }}>
               <b>Host:</b> {selectedSocket.host} <br />
               <b>Port:</b> {selectedSocket.port} <br />
-              <b>Created:</b> {selectedSocket.createdAt ? new Date(selectedSocket.createdAt).toLocaleString() : ''}
+              <b>Created:</b>{' '}
+              {selectedSocket.createdAt ? new Date(selectedSocket.createdAt).toLocaleString() : ''}
             </div>
             <Title level={5}>Events</Title>
-            <Button icon={<PlusOutlined />} size="small" onClick={handleAddEvent} style={{ marginBottom: 12 }}>Add Event</Button>
-            <Table rowKey="id" columns={eventColumns} dataSource={events} pagination={false} size="small" />
+            <Button
+              icon={<PlusOutlined />}
+              size="small"
+              onClick={handleAddEvent}
+              style={{ marginBottom: 12 }}
+            >
+              Add Event
+            </Button>
+            <Table
+              rowKey="id"
+              columns={eventColumns}
+              dataSource={events}
+              pagination={false}
+              size="small"
+            />
           </Card>
         ) : (
           <div style={{ color: '#888', padding: 32 }}>Select a socket to view details.</div>
@@ -245,17 +326,32 @@ const AdminSocketPage: React.FC = () => {
         destroyOnHidden
       >
         <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}> <Input /> </Form.Item>
-          <Form.Item name="host" label="Host" rules={[{ required: true }]}> <Input /> </Form.Item>
-          <Form.Item name="port" label="Port" rules={[{ required: true }]}> <Input type="number" /> </Form.Item>
-          <Form.Item name="isActive" label="Active" valuePropName="checked"> <Switch /> </Form.Item>
+          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+            {' '}
+            <Input />{' '}
+          </Form.Item>
+          <Form.Item name="host" label="Host" rules={[{ required: true }]}>
+            {' '}
+            <Input />{' '}
+          </Form.Item>
+          <Form.Item name="port" label="Port" rules={[{ required: true }]}>
+            {' '}
+            <Input type="number" />{' '}
+          </Form.Item>
+          <Form.Item name="isActive" label="Active" valuePropName="checked">
+            {' '}
+            <Switch />{' '}
+          </Form.Item>
         </Form>
         {/* Show socket info if editing */}
         {editing && (
           <div style={{ marginTop: 24, background: '#f6f6f6', padding: 12, borderRadius: 6 }}>
-            <b>Socket Info</b><br />
-            <b>ID:</b> {editing.id}<br />
-            <b>Created:</b> {editing.createdAt ? new Date(editing.createdAt).toLocaleString() : ''}<br />
+            <b>Socket Info</b>
+            <br />
+            <b>ID:</b> {editing.id}
+            <br />
+            <b>Created:</b> {editing.createdAt ? new Date(editing.createdAt).toLocaleString() : ''}
+            <br />
             <b>Updated:</b> {editing.updatedAt ? new Date(editing.updatedAt).toLocaleString() : ''}
           </div>
         )}
@@ -270,15 +366,25 @@ const AdminSocketPage: React.FC = () => {
       >
         <Form layout="vertical">
           <Form.Item label="Event Name" required>
-            <Input value={testEventName} onChange={e => setTestEventName(e.target.value)} placeholder="event name" />
+            <Input
+              value={testEventName}
+              onChange={(e) => setTestEventName(e.target.value)}
+              placeholder="event name"
+            />
           </Form.Item>
           <Form.Item label="Payload (JSON)">
-            <Input.TextArea value={testEventPayload} onChange={e => setTestEventPayload(e.target.value)} rows={4} placeholder="{ }" />
+            <Input.TextArea
+              value={testEventPayload}
+              onChange={(e) => setTestEventPayload(e.target.value)}
+              rows={4}
+              placeholder="{ }"
+            />
           </Form.Item>
         </Form>
         {testEventResult && (
           <div style={{ marginTop: 16, background: '#f6f6f6', padding: 12, borderRadius: 6 }}>
-            <b>Result:</b><br />
+            <b>Result:</b>
+            <br />
             <span>{testEventResult}</span>
           </div>
         )}

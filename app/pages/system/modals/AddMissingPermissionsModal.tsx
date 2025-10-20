@@ -29,7 +29,7 @@ export default function AddMissingPermissionsModal({
   visible,
   onCancel,
   onSuccess,
-  role
+  role,
 }: AddMissingPermissionsModalProps) {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ export default function AddMissingPermissionsModal({
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
 
   useEffect(() => {
@@ -50,19 +50,19 @@ export default function AddMissingPermissionsModal({
 
   const fetchMissingPermissions = async () => {
     if (!role) return;
-    
+
     setLoading(true);
     try {
       const response = await adminApi.getPermissionsNotInRole(role.id, {
         page: pagination.current,
         limit: pagination.pageSize,
-        search: searchText
+        search: searchText,
       });
-      
+
       setPermissions(response.data.data || []);
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
-        total: response.data.total || 0
+        total: response.data.total || 0,
       }));
     } catch (error) {
       console.error('Failed to fetch missing permissions:', error);
@@ -74,15 +74,15 @@ export default function AddMissingPermissionsModal({
 
   const handleSelectPermission = (permissionId: string, checked: boolean) => {
     if (checked) {
-      setSelectedPermissions(prev => [...prev, permissionId]);
+      setSelectedPermissions((prev) => [...prev, permissionId]);
     } else {
-      setSelectedPermissions(prev => prev.filter(id => id !== permissionId));
+      setSelectedPermissions((prev) => prev.filter((id) => id !== permissionId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedPermissions(permissions.map(p => p.id));
+      setSelectedPermissions(permissions.map((p) => p.id));
     } else {
       setSelectedPermissions([]);
     }
@@ -94,7 +94,9 @@ export default function AddMissingPermissionsModal({
     setAdding(true);
     try {
       await adminApi.addPermissionsToRole(role.id, selectedPermissions);
-      message.success(`Successfully added ${selectedPermissions.length} permission(s) to role "${role.name}"`);
+      message.success(
+        `Successfully added ${selectedPermissions.length} permission(s) to role "${role.name}"`
+      );
       setSelectedPermissions([]);
       onSuccess();
     } catch (error) {
@@ -107,19 +109,20 @@ export default function AddMissingPermissionsModal({
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    setPagination(prev => ({ ...prev, current: 1 }));
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   const handleTableChange = (paginationInfo: any) => {
-    setPagination(prev => ({
+    setPagination((prev) => ({
       ...prev,
       current: paginationInfo.current,
-      pageSize: paginationInfo.pageSize
+      pageSize: paginationInfo.pageSize,
     }));
   };
 
   const isAllSelected = permissions.length > 0 && selectedPermissions.length === permissions.length;
-  const isIndeterminate = selectedPermissions.length > 0 && selectedPermissions.length < permissions.length;
+  const isIndeterminate =
+    selectedPermissions.length > 0 && selectedPermissions.length < permissions.length;
 
   const columns = [
     {
@@ -147,8 +150,10 @@ export default function AddMissingPermissionsModal({
       key: 'name',
       width: 200,
       render: (name: string) => (
-        <Text strong style={{ fontSize: '13px' }}>{name}</Text>
-      )
+        <Text strong style={{ fontSize: '13px' }}>
+          {name}
+        </Text>
+      ),
     },
     {
       title: 'Description',
@@ -156,10 +161,8 @@ export default function AddMissingPermissionsModal({
       key: 'description',
       width: 250,
       render: (description: string) => (
-        <Text style={{ fontSize: '12px', color: '#666' }}>
-          {description || 'No description'}
-        </Text>
-      )
+        <Text style={{ fontSize: '12px', color: '#666' }}>{description || 'No description'}</Text>
+      ),
     },
     {
       title: 'Category',
@@ -170,7 +173,7 @@ export default function AddMissingPermissionsModal({
         <Tag color="blue" style={{ fontSize: '11px' }}>
           {category}
         </Tag>
-      )
+      ),
     },
     {
       title: 'Route',
@@ -181,18 +184,27 @@ export default function AddMissingPermissionsModal({
         <div>
           {route && (
             <div style={{ fontSize: '11px', fontFamily: 'monospace' }}>
-              <Tag color={record.method === 'GET' ? 'green' : 
-                         record.method === 'POST' ? 'orange' : 
-                         record.method === 'PUT' ? 'blue' : 
-                         record.method === 'DELETE' ? 'red' : 'default'}>
+              <Tag
+                color={
+                  record.method === 'GET'
+                    ? 'green'
+                    : record.method === 'POST'
+                      ? 'orange'
+                      : record.method === 'PUT'
+                        ? 'blue'
+                        : record.method === 'DELETE'
+                          ? 'red'
+                          : 'default'
+                }
+              >
                 {record.method}
               </Tag>
               <span style={{ color: '#666' }}>{route}</span>
             </div>
           )}
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -225,12 +237,14 @@ export default function AddMissingPermissionsModal({
         <Space direction="vertical" style={{ width: '100%' }}>
           <div>
             <Text type="secondary">
-              Role: <Text strong>{role?.name}</Text> • 
-              Available Permissions: <Text strong>{pagination.total}</Text> • 
-              Selected: <Text strong style={{ color: '#1890ff' }}>{selectedPermissions.length}</Text>
+              Role: <Text strong>{role?.name}</Text> • Available Permissions:{' '}
+              <Text strong>{pagination.total}</Text> • Selected:{' '}
+              <Text strong style={{ color: '#1890ff' }}>
+                {selectedPermissions.length}
+              </Text>
             </Text>
           </div>
-          
+
           <Input.Search
             placeholder="Search permissions by name, description, or category..."
             allowClear
@@ -252,32 +266,29 @@ export default function AddMissingPermissionsModal({
           ...pagination,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (total, range) => 
-            `${range[0]}-${range[1]} of ${total} permissions`,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} permissions`,
         }}
         onChange={handleTableChange}
       />
 
       {selectedPermissions.length > 0 && (
-        <div style={{ 
-          marginTop: 16, 
-          padding: 12, 
-          background: '#f0f7ff', 
-          border: '1px solid #d6e4ff',
-          borderRadius: 6
-        }}>
+        <div
+          style={{
+            marginTop: 16,
+            padding: 12,
+            background: '#f0f7ff',
+            border: '1px solid #d6e4ff',
+            borderRadius: 6,
+          }}
+        >
           <Text strong style={{ color: '#1890ff' }}>
             Selected {selectedPermissions.length} permission(s):
           </Text>
           <div style={{ marginTop: 8, maxHeight: 100, overflowY: 'auto' }}>
-            {selectedPermissions.map(id => {
-              const permission = permissions.find(p => p.id === id);
+            {selectedPermissions.map((id) => {
+              const permission = permissions.find((p) => p.id === id);
               return permission ? (
-                <Tag 
-                  key={id} 
-                  style={{ margin: '2px 4px 2px 0', fontSize: '11px' }}
-                  color="blue"
-                >
+                <Tag key={id} style={{ margin: '2px 4px 2px 0', fontSize: '11px' }} color="blue">
                   {permission.name}
                 </Tag>
               ) : null;

@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { 
-  Form, 
-  Input, 
-  Button, 
-  Card, 
-  Alert, 
-  Spin, 
-  Typography, 
-  Space, 
+import {
+  Form,
+  Input,
+  Button,
+  Card,
+  Alert,
+  Spin,
+  Typography,
+  Space,
   Divider,
   Steps,
-  Result
+  Result,
 } from 'antd';
-import { 
-  KeyOutlined, 
-  LoginOutlined, 
-  UserOutlined, 
+import {
+  KeyOutlined,
+  LoginOutlined,
+  UserOutlined,
   SafetyCertificateOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { useSSOValidate } from '../hooks/useSSOValidate.tsx';
@@ -36,7 +36,7 @@ const SSOLogin: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
-  
+
   // Use the SSO validation hook
   const {
     validating,
@@ -46,9 +46,9 @@ const SSOLogin: React.FC = () => {
     validateSSOKey,
     performSSOLogin,
     resetState,
-    setError
+    setError,
   } = useSSOValidate();
-  
+
   // Check if this is a popup window
   const isPopup = searchParams.get('popup') === 'true';
   const isSSO = searchParams.get('isSSO') === 'true';
@@ -68,19 +68,21 @@ const SSOLogin: React.FC = () => {
   useEffect(() => {
     const currentPath = window.location.pathname;
     const expectedPath = '/sso/login';
-    
+
     // If the path contains additional segments after /sso/login, it might be a malformed URL
     if (currentPath !== expectedPath && currentPath.startsWith('/sso/login/')) {
       // Extract the potential redirect URL from the path
       const pathSegments = currentPath.replace('/sso/login/', '');
-      
+
       // Check if it looks like a URL (contains protocol)
       if (pathSegments.includes('://')) {
         try {
           const redirectUrl = decodeURIComponent(pathSegments);
-          setError(`SSO URL Error: Malformed URL detected. Redirecting to proper SSO login with redirect URL: ${redirectUrl}`);
+          setError(
+            `SSO URL Error: Malformed URL detected. Redirecting to proper SSO login with redirect URL: ${redirectUrl}`
+          );
           setUrlFixed(true);
-          
+
           // Redirect to proper SSO login with redirect as query param
           setTimeout(() => {
             const isSSO = searchParams.get('isSSO') === 'true';
@@ -99,7 +101,9 @@ const SSOLogin: React.FC = () => {
           const isSSO = searchParams.get('isSSO') === 'true';
           const ssoParams = new URLSearchParams();
           if (isSSO) ssoParams.set('isSSO', 'true');
-          navigate(`/sso/login${ssoParams.toString() ? '?' + ssoParams.toString() : ''}`, { replace: true });
+          navigate(`/sso/login${ssoParams.toString() ? '?' + ssoParams.toString() : ''}`, {
+            replace: true,
+          });
         }, 2000);
       }
     }
@@ -118,7 +122,10 @@ const SSOLogin: React.FC = () => {
     }
   }, [searchParams]);
 
-  const handleValidateKey = async (ssoKey: string = form.getFieldValue('ssoKey'), email: string = form.getFieldValue('gmail')) => {
+  const handleValidateKey = async (
+    ssoKey: string = form.getFieldValue('ssoKey'),
+    email: string = form.getFieldValue('gmail')
+  ) => {
     const isValid = await validateSSOKey(ssoKey, email);
     console.log('SSO Key Validation:', isValid);
     if (isValid) {
@@ -142,10 +149,10 @@ const SSOLogin: React.FC = () => {
   const handleSSOLogin = async () => {
     const ssoKey = form.getFieldValue('ssoKey');
     const gmail = form.getFieldValue('gmail');
-    
+
     setLoading(true);
     setCurrentStep(2);
-    
+
     try {
       const loginData = {
         ssoKey,
@@ -198,10 +205,13 @@ const SSOLogin: React.FC = () => {
 
       // If this is a popup, send error message to parent window
       if (isPopup && window.opener) {
-        window.opener.postMessage({
-          type: 'SSO_LOGIN_ERROR',
-          error: errorMessage,
-        }, redirectUrl || window.location.origin);
+        window.opener.postMessage(
+          {
+            type: 'SSO_LOGIN_ERROR',
+            error: errorMessage,
+          },
+          redirectUrl || window.location.origin
+        );
       }
     } finally {
       setLoading(false);
@@ -216,12 +226,14 @@ const SSOLogin: React.FC = () => {
   // Show loading while checking auth state
   if (authLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
         <Spin size="large" />
       </div>
     );
@@ -230,36 +242,46 @@ const SSOLogin: React.FC = () => {
   const steps = [
     {
       title: 'Enter SSO Key',
-      status: (currentStep > 0 ? 'finish' : currentStep === 0 ? 'process' : 'wait') as 'wait' | 'process' | 'finish' | 'error',
-      icon: <KeyOutlined />
+      status: (currentStep > 0 ? 'finish' : currentStep === 0 ? 'process' : 'wait') as
+        | 'wait'
+        | 'process'
+        | 'finish'
+        | 'error',
+      icon: <KeyOutlined />,
     },
     {
       title: 'Login',
-      status: (currentStep > 2 ? 'finish' : currentStep === 2 ? 'process' : 'wait') as 'wait' | 'process' | 'finish' | 'error',
-      icon: <LoginOutlined />
+      status: (currentStep > 2 ? 'finish' : currentStep === 2 ? 'process' : 'wait') as
+        | 'wait'
+        | 'process'
+        | 'finish'
+        | 'error',
+      icon: <LoginOutlined />,
     },
     {
       title: 'Success',
       status: (currentStep === 3 ? 'finish' : 'wait') as 'wait' | 'process' | 'finish' | 'error',
-      icon: <CheckCircleOutlined />
-    }
+      icon: <CheckCircleOutlined />,
+    },
   ];
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }}>
-      <Card 
-        style={{ 
-          width: '100%', 
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+    >
+      <Card
+        style={{
+          width: '100%',
           maxWidth: '600px',
           borderRadius: '12px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -268,21 +290,18 @@ const SSOLogin: React.FC = () => {
             {isPopup ? 'SSO Login - Popup' : isSSO ? 'SSO Login - Direct' : 'SSO Login'}
           </Title>
           <Text type="secondary">
-            {isPopup ? 'Authenticate to access Calendar Todo App' : 
-             isSSO ? 'Direct SSO Authentication (Token bypass enabled)' : 
-             'Single Sign-On Authentication'}
+            {isPopup
+              ? 'Authenticate to access Calendar Todo App'
+              : isSSO
+                ? 'Direct SSO Authentication (Token bypass enabled)'
+                : 'Single Sign-On Authentication'}
           </Text>
         </div>
 
         {/* Progress Steps */}
         <Steps current={currentStep} style={{ marginBottom: '32px' }}>
           {steps.map((step, index) => (
-            <Step
-              key={index}
-              title={step.title}
-              status={step.status}
-              icon={step.icon}
-            />
+            <Step key={index} title={step.title} status={step.status} icon={step.icon} />
           ))}
         </Steps>
 
@@ -312,21 +331,17 @@ const SSOLogin: React.FC = () => {
 
         {/* Step 0: SSO Key Input */}
         {currentStep === 0 && !validating && !loading && !urlFixed && (
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={() => handleValidateKey()}
-          >
+          <Form form={form} layout="vertical" onFinish={() => handleValidateKey()}>
             <Form.Item
               name="gmail"
               label="Email Address"
               rules={[
                 { required: true, message: 'Please enter your email address' },
                 { type: 'email', message: 'Please enter a valid email address' },
-                { 
-                  pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/, 
-                  message: 'Must be a valid email address (ending with .com)' 
-                }
+                {
+                  pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/,
+                  message: 'Must be a valid email address (ending with .com)',
+                },
               ]}
             >
               <Input
@@ -343,7 +358,7 @@ const SSOLogin: React.FC = () => {
               label="SSO Key"
               rules={[
                 { required: true, message: 'Please enter your SSO key' },
-                { min: 8, message: 'SSO key must be at least 8 characters' }
+                { min: 8, message: 'SSO key must be at least 8 characters' },
               ]}
             >
               <Input.Password
@@ -356,31 +371,19 @@ const SSOLogin: React.FC = () => {
             </Form.Item>
 
             {error && (
-              <Alert
-                message={error}
-                type="error"
-                style={{ marginBottom: '16px' }}
-                showIcon
-              />
+              <Alert message={error} type="error" style={{ marginBottom: '16px' }} showIcon />
             )}
 
             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
               {isPopup ? (
-                <Button onClick={() => window.close()}>
-                  Cancel
-                </Button>
+                <Button onClick={() => window.close()}>Cancel</Button>
               ) : (
                 <Button onClick={() => navigate('/login')}>
                   <UserOutlined /> Regular Login
                 </Button>
               )}
-              
-              <Button 
-                type="primary" 
-                htmlType="submit"
-                loading={validating || loading}
-                size="large"
-              >
+
+              <Button type="primary" htmlType="submit" loading={validating || loading} size="large">
                 <SafetyCertificateOutlined /> Validate Email & Login
               </Button>
             </Space>
@@ -395,20 +398,24 @@ const SSOLogin: React.FC = () => {
               <Text>{loginState.message}</Text>
             </div>
             {loginState.progress > 0 && (
-              <div style={{ 
-                marginTop: '16px', 
-                width: '100%', 
-                height: '6px', 
-                background: '#f0f0f0', 
-                borderRadius: '3px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${loginState.progress}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #1890ff, #52c41a)',
-                  transition: 'width 0.3s ease'
-                }} />
+              <div
+                style={{
+                  marginTop: '16px',
+                  width: '100%',
+                  height: '6px',
+                  background: '#f0f0f0',
+                  borderRadius: '3px',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    width: `${loginState.progress}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #1890ff, #52c41a)',
+                    transition: 'width 0.3s ease',
+                  }}
+                />
               </div>
             )}
           </div>
@@ -421,20 +428,24 @@ const SSOLogin: React.FC = () => {
             <div style={{ marginTop: '16px' }}>
               <Text>{loginState.message}</Text>
             </div>
-            <div style={{ 
-              marginTop: '16px', 
-              width: '100%', 
-              height: '6px', 
-              background: '#f0f0f0', 
-              borderRadius: '3px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                width: `${loginState.progress}%`,
-                height: '100%',
-                background: 'linear-gradient(90deg, #1890ff, #52c41a)',
-                transition: 'width 0.3s ease'
-              }} />
+            <div
+              style={{
+                marginTop: '16px',
+                width: '100%',
+                height: '6px',
+                background: '#f0f0f0',
+                borderRadius: '3px',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: `${loginState.progress}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #1890ff, #52c41a)',
+                  transition: 'width 0.3s ease',
+                }}
+              />
             </div>
           </div>
         )}
@@ -448,7 +459,7 @@ const SSOLogin: React.FC = () => {
             extra={[
               <Button type="primary" key="dashboard" onClick={() => navigate('/admin')}>
                 Go to Dashboard
-              </Button>
+              </Button>,
             ]}
           />
         )}
@@ -459,10 +470,18 @@ const SSOLogin: React.FC = () => {
             <Divider />
             <div style={{ textAlign: 'center' }}>
               <Paragraph type="secondary" style={{ fontSize: '12px' }}>
-                <ExclamationCircleOutlined /> Need help? Contact your system administrator for SSO key and email verification assistance.
+                <ExclamationCircleOutlined /> Need help? Contact your system administrator for SSO
+                key and email verification assistance.
               </Paragraph>
               <Paragraph type="secondary" style={{ fontSize: '12px' }}>
-                Don't have SSO credentials? <Button type="link" onClick={() => navigate('/login')} style={{ padding: 0, height: 'auto', fontSize: '12px' }}>Use regular login instead</Button>
+                Don't have SSO credentials?{' '}
+                <Button
+                  type="link"
+                  onClick={() => navigate('/login')}
+                  style={{ padding: 0, height: 'auto', fontSize: '12px' }}
+                >
+                  Use regular login instead
+                </Button>
               </Paragraph>
               <Paragraph type="secondary" style={{ fontSize: '11px', color: '#999' }}>
                 Note: Your email address must match the one associated with your SSO key.

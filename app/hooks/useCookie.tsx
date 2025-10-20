@@ -56,7 +56,7 @@ export function useBooleanCookie(
         path: options.path || '/',
         domain: options.domain,
         secure: options.secure,
-        sameSite: options.sameSite || 'lax'
+        sameSite: options.sameSite || 'lax',
       });
     } catch (error) {
       console.error(`Failed to set boolean cookie "${name}":`, error);
@@ -67,7 +67,7 @@ export function useBooleanCookie(
     setValue(defaultValue);
     Cookies.remove(name, {
       path: options.path || '/',
-      domain: options.domain
+      domain: options.domain,
     });
   };
 
@@ -119,7 +119,7 @@ export function useStringCookie(
         path: options.path || '/',
         domain: options.domain,
         secure: options.secure,
-        sameSite: options.sameSite || 'lax'
+        sameSite: options.sameSite || 'lax',
       });
     } catch (error) {
       console.error(`Failed to set string cookie "${name}":`, error);
@@ -130,7 +130,7 @@ export function useStringCookie(
     setValue(defaultValue);
     Cookies.remove(name, {
       path: options.path || '/',
-      domain: options.domain
+      domain: options.domain,
     });
   };
 
@@ -191,7 +191,7 @@ export function useCookie<T>(
         path: options.path || '/',
         domain: options.domain,
         secure: options.secure,
-        sameSite: options.sameSite || 'lax'
+        sameSite: options.sameSite || 'lax',
       });
     } catch (error) {
       console.error(`Failed to set cookie "${name}":`, error);
@@ -202,7 +202,7 @@ export function useCookie<T>(
     setValue(defaultValue);
     Cookies.remove(name, {
       path: options.path || '/',
-      domain: options.domain
+      domain: options.domain,
     });
   };
 
@@ -224,7 +224,7 @@ export function useCookie<T>(
 
     // Listen for storage events (cookie changes from other tabs)
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };

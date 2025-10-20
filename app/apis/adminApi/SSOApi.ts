@@ -27,15 +27,19 @@ export class SSOApi {
   }
   static async simulateSSOLogin(ssoKey: string, loginData?: any) {
     const axios = getApiInstance();
-    return axios.post('/sso/login', loginData || {
-      deviceIP: '127.0.0.1',
-      userAgent: navigator.userAgent,
-      location: 'Admin Panel Simulator',
-    }, {
-      headers: {
-        'x-sso-key': ssoKey,
+    return axios.post(
+      '/sso/login',
+      loginData || {
+        deviceIP: '127.0.0.1',
+        userAgent: navigator.userAgent,
+        location: 'Admin Panel Simulator',
+      },
+      {
+        headers: {
+          'x-sso-key': ssoKey,
+        },
       }
-    });
+    );
   }
   static async validateSSOKey(keyOrSsoKey: string, gmail?: string) {
     const axios = getApiInstance();

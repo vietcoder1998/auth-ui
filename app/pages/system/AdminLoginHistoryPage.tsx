@@ -11,7 +11,7 @@ import {
   Statistic,
   Tooltip,
   Popconfirm,
-  message
+  message,
 } from 'antd';
 import {
   UserOutlined,
@@ -21,7 +21,7 @@ import {
   TeamOutlined,
   LogoutOutlined,
   GlobalOutlined,
-  DesktopOutlined
+  DesktopOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -76,9 +76,9 @@ const AdminLoginHistoryPage: React.FC = () => {
       };
 
       const response = await adminApi.getLoginHistory(params);
-      console.log(response.data)
+      console.log(response.data);
       const data = response.data;
-      
+
       setLoginHistory(data.data);
       setTotalPages(data.pagination.totalPages);
       setCurrentPage(data.pagination.page);
@@ -161,17 +161,13 @@ const AdminLoginHistoryPage: React.FC = () => {
       title: 'Device IP',
       dataIndex: 'deviceIP',
       key: 'deviceIP',
-      render: (ip: string) => (
-        <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>
-      ),
+      render: (ip: string) => <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>,
     },
     {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
-      render: (location: string) => (
-        <span style={{ fontSize: '12px' }}>{location || 'N/A'}</span>
-      ),
+      render: (location: string) => <span style={{ fontSize: '12px' }}>{location || 'N/A'}</span>,
     },
     {
       title: 'Login Time',
@@ -183,16 +179,24 @@ const AdminLoginHistoryPage: React.FC = () => {
       title: 'Logout Time',
       dataIndex: 'logoutAt',
       key: 'logoutAt',
-      render: (date: string) => date ? formatDate(date) : 'N/A',
+      render: (date: string) => (date ? formatDate(date) : 'N/A'),
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag 
+        <Tag
           color={getStatusColor(status)}
-          icon={status === 'active' ? <CheckCircleOutlined /> : status === 'expired' ? <ClockCircleOutlined /> : <MinusCircleOutlined />}
+          icon={
+            status === 'active' ? (
+              <CheckCircleOutlined />
+            ) : status === 'expired' ? (
+              <ClockCircleOutlined />
+            ) : (
+              <MinusCircleOutlined />
+            )
+          }
         >
           {status.replace('_', ' ').toUpperCase()}
         </Tag>
@@ -201,13 +205,16 @@ const AdminLoginHistoryPage: React.FC = () => {
     {
       title: 'SSO',
       key: 'sso',
-      render: (record: LoginHistoryEntry) => (
+      render: (record: LoginHistoryEntry) =>
         record.sso ? (
-          <Tag color="blue" icon={<GlobalOutlined />}>SSO</Tag>
+          <Tag color="blue" icon={<GlobalOutlined />}>
+            SSO
+          </Tag>
         ) : (
-          <Tag color="default" icon={<DesktopOutlined />}>Direct</Tag>
-        )
-      ),
+          <Tag color="default" icon={<DesktopOutlined />}>
+            Direct
+          </Tag>
+        ),
     },
     {
       title: 'Actions',
@@ -233,7 +240,7 @@ const AdminLoginHistoryPage: React.FC = () => {
   ];
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <div style={{ marginBottom: '24px' }}>
         <Typography.Title level={2}>Login History</Typography.Title>
       </div>
@@ -243,11 +250,7 @@ const AdminLoginHistoryPage: React.FC = () => {
         <Row gutter={16} style={{ marginBottom: '24px' }}>
           <Col xs={24} sm={12} lg={5}>
             <Card>
-              <Statistic
-                title="Total Logins"
-                value={stats.totalLogins}
-                prefix={<UserOutlined />}
-              />
+              <Statistic title="Total Logins" value={stats.totalLogins} prefix={<UserOutlined />} />
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={5}>
@@ -313,9 +316,9 @@ const AdminLoginHistoryPage: React.FC = () => {
             options: [
               { value: 'active', label: 'Active' },
               { value: 'logged_out', label: 'Logged Out' },
-              { value: 'expired', label: 'Expired' }
-            ]
-          }
+              { value: 'expired', label: 'Expired' },
+            ],
+          },
         ]}
         filterValues={{ status: statusFilter }}
         onFilterChange={(key, value) => {

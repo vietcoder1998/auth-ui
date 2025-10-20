@@ -115,10 +115,17 @@ export default function AdminApiKeysPage() {
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
-      
+
       const payload = {
         ...values,
-        allowedIPs: values.allowedIPs ? JSON.stringify(values.allowedIPs.split('\n').map((ip: string) => ip.trim()).filter(Boolean)) : null,
+        allowedIPs: values.allowedIPs
+          ? JSON.stringify(
+              values.allowedIPs
+                .split('\n')
+                .map((ip: string) => ip.trim())
+                .filter(Boolean)
+            )
+          : null,
         expiresAt: values.expiresAt ? values.expiresAt.toISOString() : null,
       };
 
@@ -161,13 +168,15 @@ export default function AdminApiKeysPage() {
       setLoading(true);
       const response = await adminApi.regenerateApiKey(keyId);
       message.success('API key regenerated successfully');
-      
+
       // Show the new key in a modal
       Modal.info({
         title: 'New API Key Generated',
         content: (
           <div>
-            <p>Your new API key has been generated. Please copy it now as it won't be shown again:</p>
+            <p>
+              Your new API key has been generated. Please copy it now as it won't be shown again:
+            </p>
             <Input.TextArea
               value={response.data.data.key}
               readOnly
@@ -198,7 +207,7 @@ export default function AdminApiKeysPage() {
   };
 
   const toggleKeyVisibility = (keyId: string) => {
-    setVisibleKeys(prev => {
+    setVisibleKeys((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(keyId)) {
         newSet.delete(keyId);
@@ -217,16 +226,28 @@ export default function AdminApiKeysPage() {
   const getStatusTag = (apiKey: ApiKey) => {
     const now = dayjs();
     const expiresAt = apiKey.expiresAt ? dayjs(apiKey.expiresAt) : null;
-    
+
     if (!apiKey.isActive) {
-      return <Tag color="red" icon={<WarningOutlined />}>Disabled</Tag>;
+      return (
+        <Tag color="red" icon={<WarningOutlined />}>
+          Disabled
+        </Tag>
+      );
     }
-    
+
     if (expiresAt && expiresAt.isBefore(now)) {
-      return <Tag color="orange" icon={<ClockCircleOutlined />}>Expired</Tag>;
+      return (
+        <Tag color="orange" icon={<ClockCircleOutlined />}>
+          Expired
+        </Tag>
+      );
     }
-    
-    return <Tag color="green" icon={<CheckCircleOutlined />}>Active</Tag>;
+
+    return (
+      <Tag color="green" icon={<CheckCircleOutlined />}>
+        Active
+      </Tag>
+    );
   };
 
   const columns = [
@@ -252,12 +273,10 @@ export default function AdminApiKeysPage() {
       render: (key: string, record: ApiKey) => {
         const isVisible = visibleKeys.has(record.id);
         const displayKey = isVisible ? key : `${key.substring(0, 8)}${'*'.repeat(32)}`;
-        
+
         return (
           <div style={{ fontFamily: 'monospace', fontSize: '12px' }}>
-            <Text copyable={{ text: key, tooltips: ['Copy', 'Copied'] }}>
-              {displayKey}
-            </Text>
+            <Text copyable={{ text: key, tooltips: ['Copy', 'Copied'] }}>{displayKey}</Text>
             <Button
               type="text"
               size="small"
@@ -278,7 +297,7 @@ export default function AdminApiKeysPage() {
       title: 'Rate Limit',
       dataIndex: 'rateLimit',
       key: 'rateLimit',
-      render: (limit: number) => limit ? `${limit}/hour` : 'Unlimited',
+      render: (limit: number) => (limit ? `${limit}/hour` : 'Unlimited'),
     },
     {
       title: 'Usage',
@@ -298,7 +317,7 @@ export default function AdminApiKeysPage() {
       title: 'Expires',
       dataIndex: 'expiresAt',
       key: 'expiresAt',
-      render: (date: string) => date ? dayjs(date).format('MMM D, YYYY') : 'Never',
+      render: (date: string) => (date ? dayjs(date).format('MMM D, YYYY') : 'Never'),
     },
     {
       title: 'Actions',
@@ -345,7 +364,7 @@ export default function AdminApiKeysPage() {
   ];
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       {/* Usage Statistics */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={4}>
@@ -355,12 +374,20 @@ export default function AdminApiKeysPage() {
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic title="Active Keys" value={usage.activeKeys} valueStyle={{ color: '#3f8600' }} />
+            <Statistic
+              title="Active Keys"
+              value={usage.activeKeys}
+              valueStyle={{ color: '#3f8600' }}
+            />
           </Card>
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic title="Expired Keys" value={usage.expiredKeys} valueStyle={{ color: '#cf1322' }} />
+            <Statistic
+              title="Expired Keys"
+              value={usage.expiredKeys}
+              valueStyle={{ color: '#cf1322' }}
+            />
           </Card>
         </Col>
         <Col span={4}>
@@ -418,11 +445,7 @@ export default function AdminApiKeysPage() {
         footer={null}
         width={600}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label="Name"
             name="name"
@@ -431,51 +454,34 @@ export default function AdminApiKeysPage() {
             <Input placeholder="e.g., Production API Access" />
           </Form.Item>
 
-          <Form.Item
-            label="Description"
-            name="description"
-          >
-            <TextArea 
-              rows={3} 
+          <Form.Item label="Description" name="description">
+            <TextArea
+              rows={3}
               placeholder="Optional description of what this API key is used for"
             />
           </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                label="Rate Limit (requests/hour)"
-                name="rateLimit"
-              >
+              <Form.Item label="Rate Limit (requests/hour)" name="rateLimit">
                 <Input type="number" placeholder="Leave empty for unlimited" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                label="Expires At"
-                name="expiresAt"
-              >
+              <Form.Item label="Expires At" name="expiresAt">
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item
-            label="Allowed IP Addresses"
-            name="allowedIPs"
-          >
+          <Form.Item label="Allowed IP Addresses" name="allowedIPs">
             <TextArea
               rows={4}
               placeholder="Enter IP addresses (one per line). Leave empty to allow all IPs.&#10;127.0.0.1&#10;192.168.1.0/24&#10;::1"
             />
           </Form.Item>
 
-          <Form.Item
-            label="Active"
-            name="isActive"
-            valuePropName="checked"
-            initialValue={true}
-          >
+          <Form.Item label="Active" name="isActive" valuePropName="checked" initialValue={true}>
             <Switch />
           </Form.Item>
 
@@ -483,7 +489,7 @@ export default function AdminApiKeysPage() {
 
           <Form.Item style={{ marginBottom: 0 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button 
+              <Button
                 onClick={() => {
                   setIsModalVisible(false);
                   setEditingKey(null);

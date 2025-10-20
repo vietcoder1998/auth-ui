@@ -13,7 +13,7 @@ describe('ForgotPassword', () => {
       </MemoryRouter>
     );
     fireEvent.change(getByPlaceholderText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.click(getByRole('button', { name: /send reset link/i })); 
+    fireEvent.click(getByRole('button', { name: /send reset link/i }));
     await waitFor(() => expect(getByText(/password reset link sent/i)).toBeInTheDocument());
   });
 });

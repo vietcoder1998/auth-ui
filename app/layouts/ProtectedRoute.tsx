@@ -7,10 +7,7 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  redirectTo = '/login' 
-}) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, redirectTo = '/login' }) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
@@ -25,7 +22,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to={`${redirectTo}?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+    return (
+      <Navigate to={`${redirectTo}?redirect=${encodeURIComponent(location.pathname)}`} replace />
+    );
   }
 
   // Render protected content

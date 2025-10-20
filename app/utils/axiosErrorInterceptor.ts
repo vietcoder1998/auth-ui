@@ -4,7 +4,7 @@ import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
 // Create axios interceptor for error handling that works with existing axios instances
 export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
   const axiosInstance = instance || axios;
-  
+
   // Response interceptor to catch errors
   axiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
@@ -17,7 +17,7 @@ export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
         // Server responded with error status
         const errorMessage = getErrorMessage(error);
         const errorDetails = getErrorDetails(error);
-        
+
         addErrorToCookie({
           message: errorMessage,
           status: error.response.status,
@@ -46,7 +46,7 @@ export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
           },
         });
       }
-      
+
       // Re-throw the error so it can still be handled by the calling code
       return Promise.reject(error);
     }
@@ -58,16 +58,16 @@ const getErrorMessage = (error: AxiosError): string => {
   // Try to get error message from response data
   if (error.response?.data) {
     const data = error.response.data as any;
-    
+
     // Common error message patterns
     if (typeof data === 'string') {
       return data;
     }
-    
+
     if (data.message) {
       return data.message;
     }
-    
+
     if (data.error) {
       if (typeof data.error === 'string') {
         return data.error;
@@ -76,17 +76,17 @@ const getErrorMessage = (error: AxiosError): string => {
         return data.error.message;
       }
     }
-    
+
     if (data.details) {
       return data.details;
     }
   }
-  
+
   // Fallback to default message
   if (error.response?.status) {
     return `Request failed with status code ${error.response.status}`;
   }
-  
+
   return error.message || 'An unknown error occurred';
 };
 

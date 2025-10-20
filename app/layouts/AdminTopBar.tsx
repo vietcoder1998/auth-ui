@@ -1,4 +1,3 @@
-
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, Input, List, Spin, Tag } from 'antd';
 import React from 'react';
@@ -66,7 +65,7 @@ function getResourceColor(val?: string, type?: 'ram' | 'cpu' | 'disk') {
 
 const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
-    {status.memory && (
+    {status.memory &&
       (() => {
         const color = getResourceColor(status.memory, 'ram');
         return (
@@ -74,9 +73,8 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
             RAM: <span style={{ color, fontWeight: 500 }}>{status.memory}</span>
           </span>
         );
-      })()
-    )}
-    {status.cpu && (
+      })()}
+    {status.cpu &&
       (() => {
         const color = getResourceColor(status.cpu, 'cpu');
         return (
@@ -84,8 +82,7 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
             CPU: <span style={{ color, fontWeight: 500 }}>{status.cpu}</span>
           </span>
         );
-      })()
-    )}
+      })()}
     {status.disk ? (
       (() => {
         const color = getResourceColor(status.disk, 'disk');
@@ -96,7 +93,9 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
         );
       })()
     ) : (
-      <span title="Disk" style={{ color: '#888' }}>Disk: <span style={{ color: '#888', fontWeight: 500 }}>N/A</span></span>
+      <span title="Disk" style={{ color: '#888' }}>
+        Disk: <span style={{ color: '#888', fontWeight: 500 }}>N/A</span>
+      </span>
     )}
     {/* Additional info */}
     {status.uptime !== undefined && (
@@ -111,7 +110,10 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
     )}
     {status.cpuLoad !== undefined && (
       <span title="CPU Load" style={{ color: '#888' }}>
-        CPU Load: <span style={{ fontWeight: 500 }}>{typeof status.cpuLoad === 'number' ? status.cpuLoad.toFixed(2) : status.cpuLoad}</span>
+        CPU Load:{' '}
+        <span style={{ fontWeight: 500 }}>
+          {typeof status.cpuLoad === 'number' ? status.cpuLoad.toFixed(2) : status.cpuLoad}
+        </span>
       </span>
     )}
   </div>
@@ -145,18 +147,20 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
   }, [search]);
 
   return (
-    <div style={{
-      background: '#fff',
-      borderBottom: '1px solid #eee',
-      padding: 24,
-      height: 64,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000
-    }}>
+    <div
+      style={{
+        background: '#fff',
+        borderBottom: '1px solid #eee',
+        padding: 24,
+        height: 64,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
         <Dropdown
           open={searchVisible && (searchResults.length > 0 || searchLoading)}
@@ -174,7 +178,9 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
                   style={{ width: '100%', maxHeight: 350, overflowY: 'auto', background: 'white' }}
                   renderItem={(item: SearchResultItem) => (
                     <List.Item style={{ cursor: 'pointer', background: 'white' }}>
-                      <Tag color="blue" style={{ marginRight: 8 }}>{item.type}</Tag>
+                      <Tag color="blue" style={{ marginRight: 8 }}>
+                        {item.type}
+                      </Tag>
                       <span style={{ fontWeight: 500 }}>{item.name}</span>
                       <span style={{ color: '#888', marginLeft: 8 }}>{item.description}</span>
                     </List.Item>
@@ -202,7 +208,9 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {systemStatus && (
           <div style={{ minWidth: 180, fontSize: 12, color: '#555' }}>
-            {(systemStatus.memory || systemStatus.cpu || systemStatus.disk) && <StatusResources status={systemStatus} />}
+            {(systemStatus.memory || systemStatus.cpu || systemStatus.disk) && (
+              <StatusResources status={systemStatus} />
+            )}
           </div>
         )}
         <StatusIndicator />
@@ -212,16 +220,10 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
             {user?.nickname || user?.email || 'Unknown User'}
           </div>
           {user?.role && (
-            <div style={{ color: '#666', fontSize: '12px' }}>
-              {user.role.name || 'No Role'}
-            </div>
+            <div style={{ color: '#666', fontSize: '12px' }}>{user.role.name || 'No Role'}</div>
           )}
         </div>
-        <Dropdown
-          menu={{ items: profileMenuItems }}
-          placement="bottomRight"
-          trigger={['click']}
-        >
+        <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight" trigger={['click']}>
           <Avatar
             size={32}
             icon={<UserOutlined />}

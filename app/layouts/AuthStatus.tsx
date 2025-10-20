@@ -11,7 +11,7 @@ const AuthStatus: React.FC = () => {
       </div>
     );
   }
-  return
+  return;
 };
 
 export default AuthStatus;

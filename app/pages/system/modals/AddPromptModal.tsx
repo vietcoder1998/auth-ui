@@ -8,7 +8,7 @@ export default function AddPromptModal({
   loading,
   conversations,
   defaultConversationId,
-  initialPrompt
+  initialPrompt,
 }: {
   open: boolean;
   onCancel: () => void;
@@ -24,7 +24,7 @@ export default function AddPromptModal({
     if (open) {
       form.setFieldsValue({
         conversationId: defaultConversationId || undefined,
-        prompt: initialPrompt || ''
+        prompt: initialPrompt || '',
       });
     }
   }, [open, defaultConversationId, initialPrompt]);
@@ -41,11 +41,7 @@ export default function AddPromptModal({
       okText={initialPrompt ? 'Update' : 'Create'}
       confirmLoading={loading}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onOk}
-      >
+      <Form form={form} layout="vertical" onFinish={onOk}>
         <Form.Item
           name="conversationId"
           label="Conversation"
@@ -61,7 +57,7 @@ export default function AddPromptModal({
               if (typeof children === 'string') {
                 text = children;
               } else if (Array.isArray(children)) {
-                text = children.map(c => (typeof c === 'string' ? c : String(c))).join('');
+                text = children.map((c) => (typeof c === 'string' ? c : String(c))).join('');
               } else if (children != null) {
                 text = String(children);
               }
@@ -75,7 +71,11 @@ export default function AddPromptModal({
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="prompt" label="Prompt" rules={[{ required: true, message: 'Prompt is required' }]}> 
+        <Form.Item
+          name="prompt"
+          label="Prompt"
+          rules={[{ required: true, message: 'Prompt is required' }]}
+        >
           <Input.TextArea rows={4} />
         </Form.Item>
       </Form>

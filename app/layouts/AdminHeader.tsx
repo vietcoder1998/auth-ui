@@ -9,11 +9,19 @@ export default function AdminHeader({ profileMenuItems, generateBreadcrumb }: an
   return (
     <>
       <AdminTopBar profileMenuItems={profileMenuItems} />
-      <div style={{ background: '#fff', borderBottom: '1px solid #eee', padding: '10px 24px', height: 40, display: 'flex', alignItems: 'center', position: 'relative', zIndex: 999 }}>
-        <Breadcrumb
-          items={generateBreadcrumb()}
-          style={{ fontSize: '14px' }}
-        />
+      <div
+        style={{
+          background: '#fff',
+          borderBottom: '1px solid #eee',
+          padding: '10px 24px',
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          position: 'relative',
+          zIndex: 999,
+        }}
+      >
+        <Breadcrumb items={generateBreadcrumb()} style={{ fontSize: '14px' }} />
       </div>
     </>
   );

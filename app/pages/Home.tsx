@@ -31,14 +31,14 @@ const Home: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto mt-20 p-6 bg-white rounded shadow">
       <h1 className="text-3xl font-bold text-center mb-6">Welcome</h1>
-      
+
       <AuthStatus />
-      
+
       <div className="mt-6 text-center space-y-4">
         <p className="text-gray-600">
           You're being redirected based on your authentication status...
         </p>
-        
+
         <div className="space-x-4">
           <button
             onClick={() => navigate('/login')}

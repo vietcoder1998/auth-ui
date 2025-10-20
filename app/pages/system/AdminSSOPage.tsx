@@ -16,7 +16,7 @@ import {
   Typography,
   message,
   Popconfirm,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import {
   PlusOutlined,
@@ -31,7 +31,7 @@ import {
   UserOutlined,
   CopyOutlined,
   PlayCircleOutlined,
-  LinkOutlined
+  LinkOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -88,13 +88,13 @@ const AdminSSOPage: React.FC = () => {
       if (showLoading) {
         setLoading(true);
       }
-      
+
       const response = await adminApi.getSSOEntries({
         page,
         limit: 10,
-        search
+        search,
       });
-      
+
       // Add null/undefined checks for response structure
       if (response?.data) {
         setSSOEntries(response.data.data || []);
@@ -107,18 +107,18 @@ const AdminSSOPage: React.FC = () => {
         setTotalPages(1);
         setCurrentPage(1);
       }
-      
+
       return response?.data;
     } catch (error: any) {
       console.error('Error fetching SSO entries:', error);
       const errorMessage = error.response?.data?.error || 'Failed to fetch SSO entries';
       message.error(errorMessage);
-      
+
       // Reset state on error
       setSSOEntries([]);
       setTotalPages(1);
       setCurrentPage(1);
-      
+
       throw error;
     } finally {
       if (showLoading) {
@@ -130,11 +130,11 @@ const AdminSSOPage: React.FC = () => {
   const fetchStats = async () => {
     try {
       const response = await adminApi.getSSOStats();
-      
+
       if (response.data) {
         setStats(response.data);
       }
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Error fetching SSO stats:', error);
@@ -162,12 +162,9 @@ const AdminSSOPage: React.FC = () => {
     try {
       await adminApi.deleteSSO(id);
       message.success('SSO entry deleted successfully');
-      
+
       // Refresh data after deletion
-      await Promise.all([
-        fetchSSOEntries(currentPage, searchTerm, false),
-        fetchStats()
-      ]);
+      await Promise.all([fetchSSOEntries(currentPage, searchTerm, false), fetchStats()]);
     } catch (error: any) {
       console.error('Error deleting SSO entry:', error);
       const errorMessage = error.response?.data?.error || 'Failed to delete SSO entry';
@@ -179,7 +176,7 @@ const AdminSSOPage: React.FC = () => {
     try {
       await adminApi.regenerateSSORKey(id);
       message.success('SSO key regenerated successfully');
-      
+
       // Refresh SSO entries to show the new key
       await fetchSSOEntries(currentPage, searchTerm, false);
     } catch (error: any) {
@@ -241,9 +238,12 @@ const AdminSSOPage: React.FC = () => {
           }
         }, 1000);
         // Clear interval after 5 minutes to prevent memory leaks
-        setTimeout(() => {
-          clearInterval(checkClosed);
-        }, 5 * 60 * 1000);
+        setTimeout(
+          () => {
+            clearInterval(checkClosed);
+          },
+          5 * 60 * 1000
+        );
       } else {
         message.error('Unable to open new window. Please check your popup blocker settings.');
       }
@@ -255,18 +255,15 @@ const AdminSSOPage: React.FC = () => {
 
   const handleCreateSuccess = async () => {
     setShowCreateModal(false);
-    
+
     // Show loading state while refreshing
     setLoading(true);
-    
+
     try {
       // Refresh both SSO entries and stats in parallel
       // Reset to first page to ensure new entry is visible (newest entries are typically first)
-      await Promise.all([
-        fetchSSOEntries(1, searchTerm, false),
-        fetchStats()
-      ]);
-      
+      await Promise.all([fetchSSOEntries(1, searchTerm, false), fetchStats()]);
+
       // Update current page to 1 if we moved there
       if (currentPage !== 1) {
         setCurrentPage(1);
@@ -285,7 +282,14 @@ const AdminSSOPage: React.FC = () => {
       dataIndex: 'url',
       key: 'url',
       render: (url: string) => (
-        <code style={{ fontSize: '12px', background: '#f5f5f5', padding: '2px 4px', borderRadius: '3px' }}>
+        <code
+          style={{
+            fontSize: '12px',
+            background: '#f5f5f5',
+            padding: '2px 4px',
+            borderRadius: '3px',
+          }}
+        >
           {url}
         </code>
       ),
@@ -295,11 +299,21 @@ const AdminSSOPage: React.FC = () => {
       key: 'ssoKey',
       render: (record: SSOEntry) => {
         const displayKey = record.ssoKey || record.key;
-        const truncatedKey = displayKey.length > 16 ? `${displayKey.substring(0, 8)}...${displayKey.substring(-8)}` : displayKey;
-        
+        const truncatedKey =
+          displayKey.length > 16
+            ? `${displayKey.substring(0, 8)}...${displayKey.substring(-8)}`
+            : displayKey;
+
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <code style={{ fontSize: '11px', background: '#f0f0f0', padding: '2px 6px', borderRadius: '3px' }}>
+            <code
+              style={{
+                fontSize: '11px',
+                background: '#f0f0f0',
+                padding: '2px 6px',
+                borderRadius: '3px',
+              }}
+            >
               {truncatedKey}
             </code>
             <Tooltip title="Copy SSO Key">
@@ -329,9 +343,7 @@ const AdminSSOPage: React.FC = () => {
       title: 'Device IP',
       dataIndex: 'deviceIP',
       key: 'deviceIP',
-      render: (ip: string) => (
-        <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>
-      ),
+      render: (ip: string) => <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>,
     },
     {
       title: 'Status',
@@ -341,9 +353,7 @@ const AdminSSOPage: React.FC = () => {
           <Tag color={record.isActive ? 'green' : 'default'}>
             {record.isActive ? 'Active' : 'Inactive'}
           </Tag>
-          {record.expiresAt && isExpired(record.expiresAt) && (
-            <Tag color="red">Expired</Tag>
-          )}
+          {record.expiresAt && isExpired(record.expiresAt) && <Tag color="red">Expired</Tag>}
         </Space>
       ),
     },
@@ -423,8 +433,15 @@ const AdminSSOPage: React.FC = () => {
   ];
 
   return (
-    <div style={{  }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div style={{}}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+        }}
+      >
         <Title level={2}>SSO Management</Title>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
           Create SSO Entry
@@ -436,11 +453,7 @@ const AdminSSOPage: React.FC = () => {
         <Row gutter={16} style={{ marginBottom: '24px' }}>
           <Col xs={24} sm={12} md={6} lg={4}>
             <Card>
-              <Statistic
-                title="Total SSO"
-                value={stats.totalSSO}
-                prefix={<KeyOutlined />}
-              />
+              <Statistic title="Total SSO" value={stats.totalSSO} prefix={<KeyOutlined />} />
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6} lg={4}>
@@ -493,10 +506,7 @@ const AdminSSOPage: React.FC = () => {
         onSearch={handleSearch}
         onRefresh={async () => {
           try {
-            await Promise.all([
-              fetchSSOEntries(currentPage, searchTerm),
-              fetchStats()
-            ]);
+            await Promise.all([fetchSSOEntries(currentPage, searchTerm), fetchStats()]);
           } catch (error) {
             console.error('Error refreshing data:', error);
           }
@@ -534,10 +544,7 @@ const AdminSSOPage: React.FC = () => {
         onSuccess={async () => {
           // Refresh data after successful edit
           try {
-            await Promise.all([
-              fetchSSOEntries(currentPage, searchTerm, false),
-              fetchStats()
-            ]);
+            await Promise.all([fetchSSOEntries(currentPage, searchTerm, false), fetchStats()]);
           } catch (error) {
             console.error('Error refreshing data after SSO edit:', error);
           }

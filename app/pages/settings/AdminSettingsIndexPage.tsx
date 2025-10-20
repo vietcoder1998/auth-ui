@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Typography, Space, Button, List, Badge } from 'antd';
-import { 
-  MailOutlined, 
-  BellOutlined, 
+import {
+  MailOutlined,
+  BellOutlined,
   SettingOutlined,
   ReloadOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -37,7 +37,8 @@ export default function AdminSettingsIndexPage() {
 
       setStats({
         mailTemplates: mailRes.status === 'fulfilled' ? mailRes.value.data.data?.length || 0 : 0,
-        notificationTemplates: notificationRes.status === 'fulfilled' ? notificationRes.value.data.data?.length || 0 : 0,
+        notificationTemplates:
+          notificationRes.status === 'fulfilled' ? notificationRes.value.data.data?.length || 0 : 0,
         configItems: configRes.status === 'fulfilled' ? configRes.value.data.data?.length || 0 : 0,
       });
     } catch (error) {
@@ -55,7 +56,7 @@ export default function AdminSettingsIndexPage() {
       color: '#1890ff',
       path: '/admin/settings/mail',
       description: 'Configure email templates and notifications',
-      status: 'active'
+      status: 'active',
     },
     {
       title: 'Notifications',
@@ -64,7 +65,7 @@ export default function AdminSettingsIndexPage() {
       color: '#52c41a',
       path: '/admin/settings/notifications',
       description: 'Manage notification templates and settings',
-      status: 'active'
+      status: 'active',
     },
     {
       title: 'Configuration',
@@ -73,7 +74,7 @@ export default function AdminSettingsIndexPage() {
       color: '#722ed1',
       path: '/admin/settings/config',
       description: 'System configuration and parameters',
-      status: 'active'
+      status: 'active',
     },
   ];
 
@@ -96,11 +97,7 @@ export default function AdminSettingsIndexPage() {
               Configure application settings, templates, and notifications
             </Paragraph>
           </div>
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={fetchStats}
-            loading={loading}
-          >
+          <Button icon={<ReloadOutlined />} onClick={fetchStats} loading={loading}>
             Refresh
           </Button>
         </Space>
@@ -112,31 +109,31 @@ export default function AdminSettingsIndexPage() {
             <Card
               hoverable
               onClick={() => navigate(card.path)}
-              style={{ 
+              style={{
                 cursor: 'pointer',
                 borderLeft: `4px solid ${card.color}`,
               }}
               bodyStyle={{ padding: '20px' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                {React.cloneElement(card.icon, { 
-                  style: { color: card.color, fontSize: '24px', marginRight: 12 } 
+                {React.cloneElement(card.icon, {
+                  style: { color: card.color, fontSize: '24px', marginRight: 12 },
                 })}
                 <div>
                   <Title level={4} style={{ margin: 0 }}>
                     {card.title}
                   </Title>
-                  <Badge 
-                    status={card.status === 'active' ? 'success' : 'warning'} 
-                    text={card.status === 'active' ? 'Active' : 'Inactive'} 
+                  <Badge
+                    status={card.status === 'active' ? 'success' : 'warning'}
+                    text={card.status === 'active' ? 'Active' : 'Inactive'}
                   />
                 </div>
               </div>
-              <Paragraph 
-                type="secondary" 
-                style={{ 
-                  margin: '0 0 12px 0', 
-                  fontSize: '13px' 
+              <Paragraph
+                type="secondary"
+                style={{
+                  margin: '0 0 12px 0',
+                  fontSize: '13px',
                 }}
               >
                 {card.description}
@@ -151,10 +148,14 @@ export default function AdminSettingsIndexPage() {
 
       <Row gutter={16} style={{ marginTop: 24 }}>
         <Col xs={24} lg={12}>
-          <Card 
-            title="Recent Activity" 
+          <Card
+            title="Recent Activity"
             style={{ borderTop: '3px solid #52c41a' }}
-            extra={<Button type="link" size="small">View All</Button>}
+            extra={
+              <Button type="link" size="small">
+                View All
+              </Button>
+            }
           >
             <List
               dataSource={recentActivity}
@@ -162,9 +163,13 @@ export default function AdminSettingsIndexPage() {
                 <List.Item>
                   <List.Item.Meta
                     avatar={
-                      item.type === 'mail' ? <MailOutlined style={{ color: '#1890ff' }} /> :
-                      item.type === 'notification' ? <BellOutlined style={{ color: '#52c41a' }} /> :
-                      <SettingOutlined style={{ color: '#722ed1' }} />
+                      item.type === 'mail' ? (
+                        <MailOutlined style={{ color: '#1890ff' }} />
+                      ) : item.type === 'notification' ? (
+                        <BellOutlined style={{ color: '#52c41a' }} />
+                      ) : (
+                        <SettingOutlined style={{ color: '#722ed1' }} />
+                      )
                     }
                     title={item.action}
                     description={item.time}
@@ -174,7 +179,7 @@ export default function AdminSettingsIndexPage() {
             />
           </Card>
         </Col>
-        
+
         <Col xs={24} lg={12}>
           <Card title="System Status" style={{ borderTop: '3px solid #1890ff' }}>
             <List
@@ -187,12 +192,16 @@ export default function AdminSettingsIndexPage() {
                 <List.Item>
                   <List.Item.Meta
                     avatar={
-                      item.status === 'online' ? 
-                        <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
+                      item.status === 'online' ? (
+                        <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                      ) : (
                         <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />
+                      )
                     }
                     title={item.name}
-                    description={item.status === 'online' ? 'Service running normally' : 'Service offline'}
+                    description={
+                      item.status === 'online' ? 'Service running normally' : 'Service offline'
+                    }
                   />
                 </List.Item>
               )}

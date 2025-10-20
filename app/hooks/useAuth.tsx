@@ -67,10 +67,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (savedToken) {
         setToken(savedToken);
-        
+
         // Try to get fresh user data from API
         try {
-          const {data: userData} = await getMe();
+          const { data: userData } = await getMe();
           setUser(userData);
           // Update user cookie with fresh data
           setCookie('auth_user', JSON.stringify(userData));
@@ -102,10 +102,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       setToken(newToken);
-      
+
       // Save token to cookie
       setCookie('auth_token', newToken);
-      
+
       // Get user data if not provided
       let userToSet: User;
       if (userData) {
@@ -113,15 +113,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         userToSet = await getMe();
       }
-      
+
       setUser(userToSet);
-      
+
       // Save user data to cookie
       setCookie('auth_user', JSON.stringify(userToSet));
-      
+
       // Also save to localStorage for backward compatibility
       localStorage.setItem('token', newToken);
-      
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -133,20 +132,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    
+
     // Clear cookies
     deleteCookie('auth_token');
     deleteCookie('auth_user');
-    
+
     // Clear localStorage for backward compatibility
     localStorage.removeItem('token');
-    
+
     setLoading(false);
   };
 
   const refreshUser = async () => {
     if (!token) return;
-    
+
     try {
       const userData = await getMe();
       setUser(userData);
@@ -170,19 +169,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    console.error('useAuth hook called outside of AuthProvider. Current location:', window.location.href);
+    console.error(
+      'useAuth hook called outside of AuthProvider. Current location:',
+      window.location.href
+    );
     console.error('Component stack:', new Error().stack);
-    throw new Error('useAuth must be used within an AuthProvider. Make sure your component is wrapped in <AuthProvider>.');
+    throw new Error(
+      'useAuth must be used within an AuthProvider. Make sure your component is wrapped in <AuthProvider>.'
+    );
   }
   return context;
 };

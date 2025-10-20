@@ -22,7 +22,7 @@ const Profile: React.FC = () => {
     setIsEditing(true);
     form.setFieldsValue({
       nickname: user?.nickname,
-      email: user?.email
+      email: user?.email,
     });
   };
 
@@ -94,11 +94,13 @@ const Profile: React.FC = () => {
               </div>
               <div>
                 <span className="font-medium text-gray-600">Status:</span>
-                <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                  user?.status === 'active' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <span
+                  className={`ml-2 px-2 py-1 rounded text-xs ${
+                    user?.status === 'active'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
                   {user?.status}
                 </span>
               </div>

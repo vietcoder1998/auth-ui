@@ -15,7 +15,7 @@ const Register: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-  await register({ email, password, nickname });
+      await register({ email, password, nickname });
       navigate('/login');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Registration failed');
@@ -62,7 +62,9 @@ const Register: React.FC = () => {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <a href="/login" className="text-blue-600 hover:underline">Already have an account? Login</a>
+        <a href="/login" className="text-blue-600 hover:underline">
+          Already have an account? Login
+        </a>
       </div>
     </div>
   );

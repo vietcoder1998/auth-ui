@@ -12,14 +12,14 @@ import {
   Row,
   Col,
   Tooltip,
-  Alert
+  Alert,
 } from 'antd';
 import {
   EditOutlined,
   SaveOutlined,
   CloseOutlined,
   CopyOutlined,
-  SyncOutlined
+  SyncOutlined,
 } from '@ant-design/icons';
 import { adminApi } from '../../../apis/admin.api.ts';
 import dayjs from 'dayjs';
@@ -52,12 +52,7 @@ interface EditSSOModalProps {
   onSuccess: () => void;
 }
 
-const EditSSOModal: React.FC<EditSSOModalProps> = ({
-  visible,
-  ssoEntry,
-  onCancel,
-  onSuccess
-}) => {
+const EditSSOModal: React.FC<EditSSOModalProps> = ({ visible, ssoEntry, onCancel, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [regeneratingKey, setRegeneratingKey] = useState(false);
@@ -69,7 +64,7 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
         deviceIP: ssoEntry.deviceIP || '',
         isActive: ssoEntry.isActive,
         expiresAt: ssoEntry.expiresAt ? dayjs(ssoEntry.expiresAt) : null,
-        ssoKey: ssoEntry.ssoKey || ''
+        ssoKey: ssoEntry.ssoKey || '',
       });
     }
   }, [visible, ssoEntry, form]);
@@ -79,13 +74,13 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
 
     try {
       setLoading(true);
-      
+
       const updateData = {
         url: values.url,
         deviceIP: values.deviceIP || null,
         isActive: values.isActive,
         expiresAt: values.expiresAt ? values.expiresAt.toISOString() : null,
-        ssoKey: values.ssoKey || null
+        ssoKey: values.ssoKey || null,
       };
 
       await adminApi.updateSSO(ssoEntry.id, updateData);
@@ -167,7 +162,7 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
           icon={<SaveOutlined />}
         >
           Save Changes
-        </Button>
+        </Button>,
       ]}
     >
       {ssoEntry && (
@@ -229,19 +224,11 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
           )}
 
           {ssoEntry.expiresAt && isExpired(ssoEntry.expiresAt) && (
-            <Alert
-              message="This SSO entry has expired"
-              type="error"
-              style={{ marginBottom: 16 }}
-            />
+            <Alert message="This SSO entry has expired" type="error" style={{ marginBottom: 16 }} />
           )}
 
           {/* Edit Form */}
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-          >
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Row gutter={16}>
               <Col span={24}>
                 <Form.Item
@@ -249,7 +236,7 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
                   label="Target URL"
                   rules={[
                     { required: true, message: 'Please enter the target URL' },
-                    { type: 'url', message: 'Please enter a valid URL' }
+                    { type: 'url', message: 'Please enter a valid URL' },
                   ]}
                 >
                   <Input placeholder="https://example.com/app" />
@@ -265,18 +252,15 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
                   rules={[
                     {
                       pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
-                      message: 'Please enter a valid IP address'
-                    }
+                      message: 'Please enter a valid IP address',
+                    },
                   ]}
                 >
                   <Input placeholder="192.168.1.1" />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item
-                  name="ssoKey"
-                  label="SSO Key (Optional)"
-                >
+                <Form.Item name="ssoKey" label="SSO Key (Optional)">
                   <Input placeholder="Custom SSO key" />
                 </Form.Item>
               </Col>
@@ -284,22 +268,12 @@ const EditSSOModal: React.FC<EditSSOModalProps> = ({
 
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item
-                  name="isActive"
-                  label="Status"
-                  valuePropName="checked"
-                >
-                  <Switch
-                    checkedChildren="Active"
-                    unCheckedChildren="Inactive"
-                  />
+                <Form.Item name="isActive" label="Status" valuePropName="checked">
+                  <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item
-                  name="expiresAt"
-                  label="Expiration Date (Optional)"
-                >
+                <Form.Item name="expiresAt" label="Expiration Date (Optional)">
                   <DatePicker
                     showTime
                     style={{ width: '100%' }}

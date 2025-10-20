@@ -13,7 +13,7 @@ const ForgotPassword: React.FC = () => {
     setError(null);
     setMessage(null);
     try {
-  await forgotPassword({ email });
+      await forgotPassword({ email });
       setMessage('Password reset link sent to your email.');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to send reset link');
@@ -45,7 +45,9 @@ const ForgotPassword: React.FC = () => {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <a href="/login" className="text-blue-600 hover:underline">Back to Login</a>
+        <a href="/login" className="text-blue-600 hover:underline">
+          Back to Login
+        </a>
       </div>
     </div>
   );

@@ -40,7 +40,7 @@ export class SeedApi {
   static async clearAllData(confirmation: string = 'DELETE_ALL_DATA') {
     const axios = getApiInstance();
     return axios.delete('/admin/seed/clear-all', {
-      data: { confirm: confirmation }
+      data: { confirm: confirmation },
     });
   }
 }

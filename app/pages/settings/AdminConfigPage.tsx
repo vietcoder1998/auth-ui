@@ -31,14 +31,14 @@ export default function AdminConfigPage() {
     try {
       const res = await adminApi.getConfig();
       const configData = res.data as ConfigResponse;
-      
+
       // Convert the key-value object to array format for the table
       const configArray: Config[] = Object.entries(configData).map(([key, value]) => ({
         key,
         value: value, // Keep the actual value without stringifying
-        id: key // Use key as ID for editing
+        id: key, // Use key as ID for editing
       }));
-      
+
       setConfigs(configArray);
       filterConfigs(configArray, searchTerm);
     } catch (error) {
@@ -55,7 +55,7 @@ export default function AdminConfigPage() {
       return;
     }
 
-    const filtered = configList.filter(config => {
+    const filtered = configList.filter((config) => {
       const searchLower = search.toLowerCase();
       const keyMatch = config.key.toLowerCase().includes(searchLower);
       const valueMatch = String(config.value).toLowerCase().includes(searchLower);
@@ -71,15 +71,15 @@ export default function AdminConfigPage() {
   };
 
   const columns = [
-    { 
-      title: 'Key', 
-      dataIndex: 'key', 
+    {
+      title: 'Key',
+      dataIndex: 'key',
       key: 'key',
-      width: '30%'
+      width: '30%',
     },
-    { 
-      title: 'Value', 
-      dataIndex: 'value', 
+    {
+      title: 'Value',
+      dataIndex: 'value',
       key: 'value',
       width: '50%',
       render: (value: any) => {
@@ -100,7 +100,8 @@ export default function AdminConfigPage() {
           if (typeof value === 'object') {
             return Object.entries(value).map(([key, val]) => (
               <div key={key} style={{ marginLeft: '8px' }}>
-                <strong>{key}:</strong> {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                <strong>{key}:</strong>{' '}
+                {typeof val === 'object' ? JSON.stringify(val) : String(val)}
               </div>
             ));
           }
@@ -108,29 +109,32 @@ export default function AdminConfigPage() {
         };
 
         return (
-          <div style={{ 
-            maxHeight: '120px',
-            overflow: 'auto',
-            fontFamily: 'monospace',
-            fontSize: '12px',
-            lineHeight: '1.4'
-          }}>
+          <div
+            style={{
+              maxHeight: '120px',
+              overflow: 'auto',
+              fontFamily: 'monospace',
+              fontSize: '12px',
+              lineHeight: '1.4',
+            }}
+          >
             {renderValue()}
           </div>
         );
-      }
+      },
     },
-    { 
-      title: 'Actions', 
-      key: 'actions', 
+    {
+      title: 'Actions',
+      key: 'actions',
       width: '20%',
       render: (_: unknown, c: Config) => (
         <>
-          <Button 
+          <Button
             size="small"
             onClick={() => {
               // Convert value back to string format for editing
-              const editValue = typeof c.value === 'object' ? JSON.stringify(c.value, null, 2) : String(c.value);
+              const editValue =
+                typeof c.value === 'object' ? JSON.stringify(c.value, null, 2) : String(c.value);
               form.setFieldsValue({ key: c.key, value: editValue, id: c.id });
             }}
             style={{ marginRight: 8 }}
@@ -157,7 +161,7 @@ export default function AdminConfigPage() {
             Delete
           </Button>
         </>
-      ) 
+      ),
     },
   ];
 
@@ -187,49 +191,64 @@ export default function AdminConfigPage() {
   };
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>Configuration Management</Title>
       </div>
-      
-      <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f5f5f5', borderRadius: '6px' }}>
+
+      <div
+        style={{
+          marginBottom: '24px',
+          padding: '16px',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '6px',
+        }}
+      >
         <h3 style={{ marginTop: 0 }}>Add/Edit Configuration</h3>
-        <div style={{ marginBottom: '12px', padding: '8px', backgroundColor: '#e6f7ff', borderRadius: '4px', fontSize: '12px' }}>
-          <strong>Value Format Examples:</strong><br/>
-          • String: <code>"Hello World"</code><br/>
-          • Number: <code>123</code><br/>
-          • Boolean: <code>true</code> or <code>false</code><br/>
-          • Object: <code>{`{"theme": "dark", "timeout": 5000}`}</code><br/>
-          • Array: <code>{`["auth", "dashboard", "reports"]`}</code>
+        <div
+          style={{
+            marginBottom: '12px',
+            padding: '8px',
+            backgroundColor: '#e6f7ff',
+            borderRadius: '4px',
+            fontSize: '12px',
+          }}
+        >
+          <strong>Value Format Examples:</strong>
+          <br />• String: <code>"Hello World"</code>
+          <br />• Number: <code>123</code>
+          <br />• Boolean: <code>true</code> or <code>false</code>
+          <br />• Object: <code>{`{"theme": "dark", "timeout": 5000}`}</code>
+          <br />• Array: <code>{`["auth", "dashboard", "reports"]`}</code>
         </div>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
-            <Form.Item 
-              name="key" 
+            <Form.Item
+              name="key"
               label="Configuration Key"
               rules={[{ required: true, message: 'Key is required' }]}
-            > 
-              <Input placeholder="e.g., cors_origin" /> 
+            >
+              <Input placeholder="e.g., cors_origin" />
             </Form.Item>
-            <Form.Item 
-              name="value" 
+            <Form.Item
+              name="value"
               label="Configuration Value"
               rules={[{ required: true, message: 'Value is required' }]}
-            > 
-              <Input.TextArea 
+            >
+              <Input.TextArea
                 placeholder='e.g., "http://localhost:3000" or {"theme": "dark", "notifications": true}'
                 rows={4}
-              /> 
+              />
             </Form.Item>
           </div>
-          <Form.Item name="id" style={{ display: 'none' }}> 
-            <Input type="hidden" /> 
+          <Form.Item name="id" style={{ display: 'none' }}>
+            <Input type="hidden" />
           </Form.Item>
-          <Form.Item style={{ marginBottom: 0 }}> 
+          <Form.Item style={{ marginBottom: 0 }}>
             <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
               Save Configuration
             </Button>
-            <Button onClick={() => form.resetFields()}>Cancel</Button> 
+            <Button onClick={() => form.resetFields()}>Cancel</Button>
           </Form.Item>
         </Form>
       </div>
@@ -248,11 +267,11 @@ export default function AdminConfigPage() {
           dataSource={filteredConfigs}
           columns={columns}
           rowKey="key"
-          pagination={{ 
+          pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} configurations`
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} configurations`,
           }}
           scroll={{ x: 800 }}
         />

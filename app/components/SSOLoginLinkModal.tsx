@@ -17,7 +17,7 @@ const SSOLoginLinkModal: React.FC<SSOLoginLinkModalProps> = ({
   onCancel,
   ssoKey,
   userEmail,
-  appUrl
+  appUrl,
 }) => {
   const [showQR, setShowQR] = useState(false);
 
@@ -47,7 +47,7 @@ const SSOLoginLinkModal: React.FC<SSOLoginLinkModalProps> = ({
       footer={[
         <Button key="close" onClick={onCancel}>
           Close
-        </Button>
+        </Button>,
       ]}
       width={600}
     >
@@ -61,7 +61,7 @@ const SSOLoginLinkModal: React.FC<SSOLoginLinkModalProps> = ({
               <strong>Application:</strong> {appUrl}
             </div>
             <div style={{ marginBottom: '8px' }}>
-              <strong>SSO Key:</strong> 
+              <strong>SSO Key:</strong>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                 <Input
                   value={ssoKey}
@@ -83,12 +83,7 @@ const SSOLoginLinkModal: React.FC<SSOLoginLinkModalProps> = ({
           <div style={{ marginBottom: '12px' }}>
             <Text strong>Direct Login URL:</Text>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-              <Input
-                value={ssoLoginUrl}
-                readOnly
-                size="small"
-                style={{ fontSize: '11px' }}
-              />
+              <Input value={ssoLoginUrl} readOnly size="small" style={{ fontSize: '11px' }} />
               <Button
                 size="small"
                 icon={<CopyOutlined />}
@@ -98,22 +93,24 @@ const SSOLoginLinkModal: React.FC<SSOLoginLinkModalProps> = ({
           </div>
 
           <Space style={{ width: '100%', justifyContent: 'center' }}>
-            <Button 
-              icon={<LinkOutlined />}
-              onClick={() => window.open(ssoLoginUrl, '_blank')}
-            >
+            <Button icon={<LinkOutlined />} onClick={() => window.open(ssoLoginUrl, '_blank')}>
               Test Login Link
             </Button>
-            <Button 
-              icon={<QrcodeOutlined />}
-              onClick={() => setShowQR(!showQR)}
-            >
+            <Button icon={<QrcodeOutlined />} onClick={() => setShowQR(!showQR)}>
               {showQR ? 'Hide QR Code' : 'Show QR Code'}
             </Button>
           </Space>
 
           {showQR && (
-            <div style={{ textAlign: 'center', marginTop: '16px', padding: '16px', backgroundColor: '#fafafa', borderRadius: '8px' }}>
+            <div
+              style={{
+                textAlign: 'center',
+                marginTop: '16px',
+                padding: '16px',
+                backgroundColor: '#fafafa',
+                borderRadius: '8px',
+              }}
+            >
               <QRCode value={ssoLoginUrl} size={200} />
               <Paragraph style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
                 Scan this QR code to quickly access the SSO login page
@@ -133,10 +130,10 @@ const SSOLoginLinkModal: React.FC<SSOLoginLinkModalProps> = ({
             <li>User can proceed directly to validate and login</li>
             <li>Upon successful authentication, user will be redirected to the dashboard</li>
           </ol>
-          
+
           <Paragraph style={{ fontSize: '12px', color: '#666', marginTop: '12px' }}>
-            <strong>Note:</strong> This link contains the SSO key and should be shared securely. 
-            The link will only work if the SSO entry is active and not expired.
+            <strong>Note:</strong> This link contains the SSO key and should be shared securely. The
+            link will only work if the SSO entry is active and not expired.
           </Paragraph>
         </Card>
       </div>

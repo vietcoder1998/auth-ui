@@ -5,7 +5,6 @@ import { handleApiError } from '../utils/errorHandler.ts';
 const { Title, Text } = Typography;
 
 export const ErrorTestComponent: React.FC = () => {
-  
   const test403Error = async () => {
     try {
       // This will likely fail with 403 if user doesn't have proper permissions
@@ -13,10 +12,10 @@ export const ErrorTestComponent: React.FC = () => {
         method: 'GET',
         credentials: 'include',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const error = new Error(`Request failed with status code ${response.status}`);
@@ -30,10 +29,10 @@ export const ErrorTestComponent: React.FC = () => {
           method: 'GET',
         };
         (error as any).code = 'ERR_BAD_REQUEST';
-        
+
         throw error;
       }
-      
+
       console.log('Request succeeded!');
     } catch (error) {
       handleApiError(error, 'Test 403 Error with Fix Button');
@@ -53,10 +52,10 @@ export const ErrorTestComponent: React.FC = () => {
         const response = await fetch(test.url, {
           method: test.method,
           credentials: 'include',
-          headers: { 'Accept': 'application/json' },
+          headers: { Accept: 'application/json' },
           body: test.method !== 'GET' ? JSON.stringify({}) : undefined,
         });
-        
+
         if (!response.ok && response.status === 403) {
           const errorData = await response.json().catch(() => ({}));
           const error = new Error(`Access denied for ${test.description}`);
@@ -70,7 +69,7 @@ export const ErrorTestComponent: React.FC = () => {
             method: test.method,
           };
           (error as any).code = 'ERR_FORBIDDEN';
-          
+
           handleApiError(error, `Permission Test: ${test.description}`);
         }
       } catch (error) {
@@ -89,7 +88,7 @@ export const ErrorTestComponent: React.FC = () => {
         method: 'GET',
       },
     };
-    
+
     handleApiError(error, 'Test Network Error');
   };
 
@@ -117,27 +116,21 @@ export const ErrorTestComponent: React.FC = () => {
     <Card title="Error Handling Test" style={{ margin: '16px 0' }}>
       <div style={{ marginBottom: '16px' }}>
         <Text type="secondary">
-          Click these buttons to test different types of errors. 
-          Errors will appear at the top of the page.
+          Click these buttons to test different types of errors. Errors will appear at the top of
+          the page.
         </Text>
       </div>
-      
+
       <Space direction="vertical" style={{ width: '100%' }}>
         <Button type="primary" onClick={test403Error}>
           Test 403 Forbidden Error (With Fix Button)
         </Button>
-        
-        <Button onClick={testPermissionError}>
-          Test Multiple Permission Errors
-        </Button>
-        
-        <Button onClick={testNetworkError}>
-          Test Network Error
-        </Button>
-        
-        <Button onClick={testCustomError}>
-          Test Custom 500 Error
-        </Button>
+
+        <Button onClick={testPermissionError}>Test Multiple Permission Errors</Button>
+
+        <Button onClick={testNetworkError}>Test Network Error</Button>
+
+        <Button onClick={testCustomError}>Test Custom 500 Error</Button>
       </Space>
     </Card>
   );

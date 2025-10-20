@@ -26,8 +26,8 @@ export const documentApi = {
     return axios.post('/admin/files/upload', formData, {
       headers: {
         // Do NOT set 'Content-Type' manually!
-        'Content-Type': 'multipart/form-data' // let axios/browser set this
-      }
+        'Content-Type': 'multipart/form-data', // let axios/browser set this
+      },
     });
   },
 };

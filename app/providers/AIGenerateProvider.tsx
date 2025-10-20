@@ -16,8 +16,6 @@ export const useAIGenerateProvider = () => {
 export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [value, setValue] = useState('');
   return (
-    <AIGenerateContext.Provider value={{ value, setValue }}>
-      {children}
-    </AIGenerateContext.Provider>
+    <AIGenerateContext.Provider value={{ value, setValue }}>{children}</AIGenerateContext.Provider>
   );
 };

@@ -17,7 +17,7 @@ import {
   Tag,
   Tooltip,
   Select,
-  Divider
+  Divider,
 } from 'antd';
 import { adminApi } from '../../apis/admin.api.ts';
 import {
@@ -26,7 +26,7 @@ import {
   ClearOutlined,
   PlusOutlined,
   SearchOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
@@ -68,15 +68,15 @@ const AdminCachePage: React.FC = () => {
     page: 1,
     limit: 20,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
-  
+
   // Modals
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [clearPatternModalVisible, setClearPatternModalVisible] = useState(false);
   const [selectedCache, setSelectedCache] = useState<CacheItem | null>(null);
-  
+
   // Form and filters
   const [form] = Form.useForm();
   const [clearPatternForm] = Form.useForm();
@@ -88,7 +88,7 @@ const AdminCachePage: React.FC = () => {
     try {
       const response = await adminApi.getCacheKeys({ page, limit, pattern });
       const result = response.data;
-      
+
       if (result.success) {
         setCacheData(result.data || []);
         setPagination(result.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 });
@@ -109,7 +109,7 @@ const AdminCachePage: React.FC = () => {
     try {
       const response = await adminApi.getCacheStats();
       const result = response.data;
-      
+
       if (result.success) {
         setCacheStats(result.data);
       } else {
@@ -128,7 +128,7 @@ const AdminCachePage: React.FC = () => {
     try {
       const response = await adminApi.deleteCacheKey(key);
       const result = response.data;
-      
+
       if (result.success) {
         message.success(`Cache key '${key}' deleted successfully`);
         fetchCacheData(pagination.page, pagination.limit, searchPattern);
@@ -147,7 +147,7 @@ const AdminCachePage: React.FC = () => {
     try {
       const response = await adminApi.clearAllCache();
       const result = response.data;
-      
+
       if (result.success) {
         message.success('All cache cleared successfully');
         fetchCacheData(1, pagination.limit, searchPattern);
@@ -166,7 +166,7 @@ const AdminCachePage: React.FC = () => {
     try {
       const response = await adminApi.clearCacheByPattern(values.pattern);
       const result = response.data;
-      
+
       if (result.success) {
         message.success(`${result.data?.deleted || 0} cache keys deleted`);
         setClearPatternModalVisible(false);
@@ -195,10 +195,10 @@ const AdminCachePage: React.FC = () => {
       const response = await adminApi.setCacheValue({
         key: values.key,
         value: parsedValue,
-        ttl: values.ttl
+        ttl: values.ttl,
       });
       const result = response.data;
-      
+
       if (result.success) {
         message.success(`Cache key '${values.key}' set successfully`);
         setAddModalVisible(false);
@@ -255,7 +255,14 @@ const AdminCachePage: React.FC = () => {
       width: 100,
       render: (value: any) => {
         const type = Array.isArray(value) ? 'array' : typeof value;
-        const color = type === 'object' ? 'blue' : type === 'string' ? 'green' : type === 'number' ? 'orange' : 'default';
+        const color =
+          type === 'object'
+            ? 'blue'
+            : type === 'string'
+              ? 'green'
+              : type === 'number'
+                ? 'orange'
+                : 'default';
         return <Tag color={color}>{type}</Tag>;
       },
     },
@@ -264,9 +271,7 @@ const AdminCachePage: React.FC = () => {
       dataIndex: 'ttl',
       key: 'ttl',
       width: 120,
-      render: (ttl: string) => (
-        <Tag color={ttl === 'no expiry' ? 'red' : 'blue'}>{ttl}</Tag>
-      ),
+      render: (ttl: string) => <Tag color={ttl === 'no expiry' ? 'red' : 'blue'}>{ttl}</Tag>,
     },
     {
       title: 'Size',
@@ -301,19 +306,15 @@ const AdminCachePage: React.FC = () => {
   ];
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <Title level={2}>Cache Management</Title>
-      
+
       {/* Statistics Cards */}
       {cacheStats && (
         <Row gutter={16} style={{ marginBottom: '24px' }}>
           <Col span={6}>
             <Card>
-              <Statistic
-                title="Total Keys"
-                value={cacheStats.totalKeys}
-                loading={statsLoading}
-              />
+              <Statistic title="Total Keys" value={cacheStats.totalKeys} loading={statsLoading} />
             </Card>
           </Col>
           <Col span={6}>
@@ -327,20 +328,12 @@ const AdminCachePage: React.FC = () => {
           </Col>
           <Col span={6}>
             <Card>
-              <Statistic
-                title="Uptime"
-                value={cacheStats.uptime}
-                loading={statsLoading}
-              />
+              <Statistic title="Uptime" value={cacheStats.uptime} loading={statsLoading} />
             </Card>
           </Col>
           <Col span={6}>
             <Card>
-              <Statistic
-                title="Data Size"
-                value={cacheStats.dataSize}
-                loading={statsLoading}
-              />
+              <Statistic title="Data Size" value={cacheStats.dataSize} loading={statsLoading} />
             </Card>
           </Col>
         </Row>
@@ -372,17 +365,10 @@ const AdminCachePage: React.FC = () => {
         loading={loading || statsLoading}
         extra={
           <Space>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setAddModalVisible(true)}
-            >
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalVisible(true)}>
               Add Cache
             </Button>
-            <Button
-              icon={<ClearOutlined />}
-              onClick={() => setClearPatternModalVisible(true)}
-            >
+            <Button icon={<ClearOutlined />} onClick={() => setClearPatternModalVisible(true)}>
               Clear Pattern
             </Button>
             <Popconfirm
@@ -438,39 +424,30 @@ const AdminCachePage: React.FC = () => {
           >
             <Input placeholder="e.g., auth:user:123" />
           </Form.Item>
-          
+
           <Form.Item
             name="value"
             label="Value (JSON)"
             rules={[{ required: true, message: 'Please enter cache value' }]}
           >
-            <TextArea
-              rows={6}
-              placeholder='e.g., {"id": 1, "name": "John"} or "simple string"'
-            />
+            <TextArea rows={6} placeholder='e.g., {"id": 1, "name": "John"} or "simple string"' />
           </Form.Item>
-          
-          <Form.Item
-            name="ttl"
-            label="TTL (seconds)"
-            tooltip="Leave empty for no expiry"
-          >
-            <InputNumber
-              min={1}
-              placeholder="3600"
-              style={{ width: '100%' }}
-            />
+
+          <Form.Item name="ttl" label="TTL (seconds)" tooltip="Leave empty for no expiry">
+            <InputNumber min={1} placeholder="3600" style={{ width: '100%' }} />
           </Form.Item>
-          
+
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit">
                 Add Cache
               </Button>
-              <Button onClick={() => {
-                setAddModalVisible(false);
-                form.resetFields();
-              }}>
+              <Button
+                onClick={() => {
+                  setAddModalVisible(false);
+                  form.resetFields();
+                }}
+              >
                 Cancel
               </Button>
             </Space>
@@ -486,7 +463,7 @@ const AdminCachePage: React.FC = () => {
         footer={[
           <Button key="close" onClick={() => setViewModalVisible(false)}>
             Close
-          </Button>
+          </Button>,
         ]}
         width={800}
       >
@@ -495,17 +472,21 @@ const AdminCachePage: React.FC = () => {
             <Divider orientation="left">Metadata</Divider>
             <Row gutter={16}>
               <Col span={8}>
-                <Text strong>TTL: </Text><Tag color="blue">{selectedCache.ttl}</Tag>
+                <Text strong>TTL: </Text>
+                <Tag color="blue">{selectedCache.ttl}</Tag>
               </Col>
               <Col span={8}>
-                <Text strong>Size: </Text>{selectedCache.size}B
+                <Text strong>Size: </Text>
+                {selectedCache.size}B
               </Col>
               <Col span={8}>
                 <Text strong>Type: </Text>
-                <Tag color="green">{Array.isArray(selectedCache.value) ? 'array' : typeof selectedCache.value}</Tag>
+                <Tag color="green">
+                  {Array.isArray(selectedCache.value) ? 'array' : typeof selectedCache.value}
+                </Tag>
               </Col>
             </Row>
-            
+
             <Divider orientation="left">Value</Divider>
             <TextArea
               value={JSON.stringify(selectedCache.value, null, 2)}
@@ -536,16 +517,18 @@ const AdminCachePage: React.FC = () => {
           >
             <Input placeholder="e.g., auth:*, token:*" />
           </Form.Item>
-          
+
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" danger>
                 Clear Pattern
               </Button>
-              <Button onClick={() => {
-                setClearPatternModalVisible(false);
-                clearPatternForm.resetFields();
-              }}>
+              <Button
+                onClick={() => {
+                  setClearPatternModalVisible(false);
+                  clearPatternForm.resetFields();
+                }}
+              >
                 Cancel
               </Button>
             </Space>

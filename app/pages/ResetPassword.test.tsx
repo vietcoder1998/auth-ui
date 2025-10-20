@@ -14,7 +14,9 @@ describe('ResetPassword', () => {
       </MemoryRouter>
     );
     fireEvent.change(getByPlaceholderText(/new password/i), { target: { value: 'password123' } });
-    fireEvent.change(getByPlaceholderText(/confirm password/i), { target: { value: 'password123' } });
+    fireEvent.change(getByPlaceholderText(/confirm password/i), {
+      target: { value: 'password123' },
+    });
     fireEvent.click(getByRole('button', { name: /reset password/i }));
     await waitFor(() => expect(getByText(/password reset successful/i)).toBeInTheDocument());
   });

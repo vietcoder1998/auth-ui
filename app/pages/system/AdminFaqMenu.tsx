@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm } from 'antd';
 import { adminApi } from '../../apis/admin.api.ts';
 import AdminFaqCreateModal from './modals/AdminFaqCreateModal.tsx';
+import EditFaqModal from './modals/EditFaqModal.tsx';
 
 export default function AdminFaqMenu() {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<any>(null);
   const [promptOptions, setPromptOptions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -47,6 +50,23 @@ export default function AdminFaqMenu() {
     });
   };
 
+  const handleEdit = (faq: any) => {
+    setEditingFaq(faq);
+    setEditModalVisible(true);
+  };
+
+  const handleUpdateFaq = async (values: any) => {
+    try {
+      await adminApi.updateFaq(values.id, values);
+      message.success('FAQ updated');
+      setEditModalVisible(false);
+      setEditingFaq(null);
+      fetchFaqs();
+    } catch (error) {
+      message.error('Failed to update FAQ');
+    }
+  };
+
   const handleCreateFaq = async (values: any) => {
     try {
       await adminApi.createFaq(values);
@@ -65,7 +85,11 @@ export default function AdminFaqMenu() {
       dataIndex: 'type',
       key: 'type',
       width: 80,
-      render: (t: string) => <Tag color="blue" style={{ fontSize: 12, padding: '2px 6px' }}>{t}</Tag>,
+      render: (t: string) => (
+        <Tag color="blue" style={{ fontSize: 12, padding: '2px 6px' }}>
+          {t}
+        </Tag>
+      ),
     },
     {
       title: 'Question',
@@ -74,7 +98,9 @@ export default function AdminFaqMenu() {
       width: 180,
       render: (q: string) =>
         q.length > MAX_CELL_LENGTH ? (
-          <span title={q} style={{ cursor: 'pointer' }}>{q.slice(0, MAX_CELL_LENGTH)}... </span>
+          <span title={q} style={{ cursor: 'pointer' }}>
+            {q.slice(0, MAX_CELL_LENGTH)}...{' '}
+          </span>
         ) : (
           <span>{q}</span>
         ),
@@ -86,7 +112,9 @@ export default function AdminFaqMenu() {
       width: 180,
       render: (a: string) =>
         a.length > MAX_CELL_LENGTH ? (
-          <span title={a} style={{ cursor: 'pointer' }}>{a.slice(0, MAX_CELL_LENGTH)}... </span>
+          <span title={a} style={{ cursor: 'pointer' }}>
+            {a.slice(0, MAX_CELL_LENGTH)}...{' '}
+          </span>
         ) : (
           <span>{a}</span>
         ),
@@ -96,9 +124,15 @@ export default function AdminFaqMenu() {
       dataIndex: 'prompt',
       key: 'prompt',
       width: 120,
-      render: (_: any, faq: any) => (
-        faq.prompt ? <span title={faq.prompt.prompt} style={{ cursor: 'pointer' }}>{faq.prompt.prompt?.slice(0, MAX_CELL_LENGTH) + (faq.prompt.prompt.length > MAX_CELL_LENGTH ? '...' : '')}</span> : <span style={{ color: '#aaa' }}>-</span>
-      ),
+      render: (_: any, faq: any) =>
+        faq.prompt ? (
+          <span title={faq.prompt.prompt} style={{ cursor: 'pointer' }}>
+            {faq.prompt.prompt?.slice(0, MAX_CELL_LENGTH) +
+              (faq.prompt.prompt.length > MAX_CELL_LENGTH ? '...' : '')}
+          </span>
+        ) : (
+          <span style={{ color: '#aaa' }}>-</span>
+        ),
     },
     {
       title: 'Created',
@@ -111,12 +145,24 @@ export default function AdminFaqMenu() {
       title: 'Actions',
       key: 'actions',
       fixed: 'right' as 'right',
-      width: 120,
+      width: 140,
       render: (_: any, faq: any) => (
         <Space>
-          <Button type="link" onClick={() => {/* TODO: Edit modal */}}>View</Button>
+          <Button type="link" onClick={() => handleEdit(faq)}>
+            Edit
+          </Button>
+          <Button
+            type="link"
+            onClick={() => {
+              /* TODO: View modal */
+            }}
+          >
+            View
+          </Button>
           <Popconfirm title="Delete this FAQ?" onConfirm={() => handleDelete(faq.id)}>
-            <Button type="link" danger>Delete</Button>
+            <Button type="link" danger>
+              Delete
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -124,7 +170,7 @@ export default function AdminFaqMenu() {
   ];
 
   return (
-  <div style={{ padding: '8px 8px 0 8px' }}>
+    <div style={{ padding: '8px 8px 0 8px' }}>
       <h2>Admin FAQ List</h2>
       <Button type="primary" style={{ marginBottom: 16 }} onClick={() => setModalVisible(true)}>
         Add FAQ
@@ -143,6 +189,17 @@ export default function AdminFaqMenu() {
         onCancel={() => setModalVisible(false)}
         onOk={handleCreateFaq}
         loading={loading}
+        promptOptions={promptOptions}
+      />
+      <EditFaqModal
+        open={editModalVisible}
+        onCancel={() => {
+          setEditModalVisible(false);
+          setEditingFaq(null);
+        }}
+        onOk={handleUpdateFaq}
+        loading={loading}
+        faq={editingFaq}
         promptOptions={promptOptions}
       />
     </div>

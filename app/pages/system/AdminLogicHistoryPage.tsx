@@ -11,7 +11,7 @@ import {
   Col,
   Statistic,
   Tooltip,
-  message
+  message,
 } from 'antd';
 import {
   EyeOutlined,
@@ -19,7 +19,7 @@ import {
   FileTextOutlined,
   UserOutlined,
   ClockCircleOutlined,
-  BellOutlined
+  BellOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
@@ -84,7 +84,7 @@ const AdminLogicHistoryPage: React.FC = () => {
 
       const response = await adminApi.getLogicHistory(params);
       const data = response.data;
-      
+
       setLogicHistory(data.data);
       setTotalPages(data.pagination.totalPages);
       setCurrentPage(data.pagination.page);
@@ -154,7 +154,7 @@ const AdminLogicHistoryPage: React.FC = () => {
       permission_change: 'purple',
       role_change: 'magenta',
       sso_login: 'cyan',
-      sso_logout: 'geekblue'
+      sso_logout: 'geekblue',
     };
     return actionColors[action] || 'default';
   };
@@ -177,15 +177,13 @@ const AdminLogicHistoryPage: React.FC = () => {
       dataIndex: 'action',
       key: 'action',
       render: (action: string) => (
-        <Tag color={getActionColor(action)}>
-          {action.replace('_', ' ').toUpperCase()}
-        </Tag>
+        <Tag color={getActionColor(action)}>{action.replace('_', ' ').toUpperCase()}</Tag>
       ),
     },
     {
       title: 'Entity',
       key: 'entity',
-      render: (record: LogicHistoryEntry) => (
+      render: (record: LogicHistoryEntry) =>
         record.entityType ? (
           <div>
             <div style={{ fontWeight: 500 }}>{record.entityType}</div>
@@ -197,25 +195,22 @@ const AdminLogicHistoryPage: React.FC = () => {
           </div>
         ) : (
           <span style={{ color: '#ccc' }}>N/A</span>
-        )
-      ),
+        ),
     },
     {
       title: 'IP Address',
       dataIndex: 'ipAddress',
       key: 'ipAddress',
-      render: (ip: string) => (
-        <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>
-      ),
+      render: (ip: string) => <code style={{ fontSize: '12px' }}>{ip || 'N/A'}</code>,
     },
     {
       title: 'Notification',
       key: 'notification',
-      render: (record: LogicHistoryEntry) => (
+      render: (record: LogicHistoryEntry) =>
         record.notificationTemplateId ? (
           <Space direction="vertical" size="small" style={{ fontSize: '12px' }}>
-            <Tag 
-              color={record.notificationSent ? 'success' : 'warning'} 
+            <Tag
+              color={record.notificationSent ? 'success' : 'warning'}
               icon={record.notificationSent ? <CheckOutlined /> : <ClockCircleOutlined />}
             >
               {record.notificationSent ? 'Sent' : 'Pending'}
@@ -226,8 +221,7 @@ const AdminLogicHistoryPage: React.FC = () => {
           </Space>
         ) : (
           <Tag color="default">None</Tag>
-        )
-      ),
+        ),
     },
     {
       title: 'Created',
@@ -265,7 +259,7 @@ const AdminLogicHistoryPage: React.FC = () => {
   ];
 
   return (
-    <div style={{  }}>
+    <div style={{}}>
       <div style={{ marginBottom: '24px' }}>
         <Typography.Title level={2}>Logic History</Typography.Title>
       </div>
@@ -345,8 +339,8 @@ const AdminLogicHistoryPage: React.FC = () => {
               { value: 'password_change', label: 'Password Change' },
               { value: 'profile_update', label: 'Profile Update' },
               { value: 'permission_change', label: 'Permission Change' },
-              { value: 'role_change', label: 'Role Change' }
-            ]
+              { value: 'role_change', label: 'Role Change' },
+            ],
           },
           {
             key: 'entityType',
@@ -355,9 +349,9 @@ const AdminLogicHistoryPage: React.FC = () => {
               { value: 'user', label: 'User' },
               { value: 'role', label: 'Role' },
               { value: 'permission', label: 'Permission' },
-              { value: 'token', label: 'Token' }
-            ]
-          }
+              { value: 'token', label: 'Token' },
+            ],
+          },
         ]}
         filterValues={{ action: actionFilter, entityType: entityTypeFilter }}
         onFilterChange={(key, value) => {
@@ -366,7 +360,9 @@ const AdminLogicHistoryPage: React.FC = () => {
           } else if (key === 'entityType') {
             setEntityTypeFilter(value);
           }
-          fetchLogicHistory(1, searchTerm, 
+          fetchLogicHistory(
+            1,
+            searchTerm,
             key === 'action' ? value : actionFilter,
             key === 'entityType' ? value : entityTypeFilter
           );
@@ -400,7 +396,7 @@ const AdminLogicHistoryPage: React.FC = () => {
         footer={[
           <Button key="close" onClick={() => setShowDetailsModal(false)}>
             Close
-          </Button>
+          </Button>,
         ]}
         width={800}
       >
@@ -410,21 +406,40 @@ const AdminLogicHistoryPage: React.FC = () => {
               <Col span={12}>
                 <Card size="small" title="Basic Information">
                   <div style={{ fontSize: '14px' }}>
-                    <div style={{ marginBottom: '8px' }}><strong>User:</strong> {selectedEntry.user.email}</div>
-                    <div style={{ marginBottom: '8px' }}><strong>Action:</strong> {selectedEntry.action}</div>
-                    <div style={{ marginBottom: '8px' }}><strong>Entity Type:</strong> {selectedEntry.entityType || 'N/A'}</div>
-                    <div style={{ marginBottom: '8px' }}><strong>Entity ID:</strong> {selectedEntry.entityId || 'N/A'}</div>
-                    <div style={{ marginBottom: '8px' }}><strong>IP Address:</strong> {selectedEntry.ipAddress || 'N/A'}</div>
-                    <div><strong>Created:</strong> {formatDate(selectedEntry.createdAt)}</div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>User:</strong> {selectedEntry.user.email}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Action:</strong> {selectedEntry.action}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Entity Type:</strong> {selectedEntry.entityType || 'N/A'}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Entity ID:</strong> {selectedEntry.entityId || 'N/A'}
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>IP Address:</strong> {selectedEntry.ipAddress || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Created:</strong> {formatDate(selectedEntry.createdAt)}
+                    </div>
                   </div>
                 </Card>
               </Col>
               <Col span={12}>
                 <Card size="small" title="Notification">
                   <div style={{ fontSize: '14px' }}>
-                    <div style={{ marginBottom: '8px' }}><strong>Template:</strong> {selectedEntry.notificationTemplate?.name || 'None'}</div>
-                    <div><strong>Status:</strong> 
-                      <Tag color={selectedEntry.notificationSent ? 'success' : 'warning'} style={{ marginLeft: '8px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong>Template:</strong>{' '}
+                      {selectedEntry.notificationTemplate?.name || 'None'}
+                    </div>
+                    <div>
+                      <strong>Status:</strong>
+                      <Tag
+                        color={selectedEntry.notificationSent ? 'success' : 'warning'}
+                        style={{ marginLeft: '8px' }}
+                      >
                         {selectedEntry.notificationSent ? 'Sent' : 'Pending'}
                       </Tag>
                     </div>
@@ -435,7 +450,15 @@ const AdminLogicHistoryPage: React.FC = () => {
 
             {selectedEntry.oldValues && (
               <Card size="small" title="Old Values" style={{ marginBottom: '16px' }}>
-                <pre style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', fontSize: '12px', overflow: 'auto' }}>
+                <pre
+                  style={{
+                    backgroundColor: '#f5f5f5',
+                    padding: '12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    overflow: 'auto',
+                  }}
+                >
                   {JSON.stringify(parseJsonSafely(selectedEntry.oldValues), null, 2)}
                 </pre>
               </Card>
@@ -443,7 +466,15 @@ const AdminLogicHistoryPage: React.FC = () => {
 
             {selectedEntry.newValues && (
               <Card size="small" title="New Values" style={{ marginBottom: '16px' }}>
-                <pre style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', fontSize: '12px', overflow: 'auto' }}>
+                <pre
+                  style={{
+                    backgroundColor: '#f5f5f5',
+                    padding: '12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    overflow: 'auto',
+                  }}
+                >
                   {JSON.stringify(parseJsonSafely(selectedEntry.newValues), null, 2)}
                 </pre>
               </Card>
@@ -451,7 +482,15 @@ const AdminLogicHistoryPage: React.FC = () => {
 
             {selectedEntry.userAgent && (
               <Card size="small" title="User Agent">
-                <div style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', fontSize: '12px', wordBreak: 'break-all' }}>
+                <div
+                  style={{
+                    backgroundColor: '#f5f5f5',
+                    padding: '12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    wordBreak: 'break-all',
+                  }}
+                >
                   {selectedEntry.userAgent}
                 </div>
               </Card>

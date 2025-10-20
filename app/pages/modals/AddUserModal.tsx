@@ -1,20 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  Select,
-  message,
-  Space,
-  Divider,
-} from 'antd';
-import {
-  UserOutlined,
-  MailOutlined,
-  LockOutlined,
-  SafetyOutlined,
-} from '@ant-design/icons';
+import { Modal, Form, Input, Button, Select, message, Space, Divider } from 'antd';
+import { UserOutlined, MailOutlined, LockOutlined, SafetyOutlined } from '@ant-design/icons';
 import { adminApi } from '../../apis/admin.api.ts';
 
 const { Option } = Select;
@@ -38,11 +24,7 @@ interface AddUserModalProps {
   onSuccess: () => void;
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({
-  visible,
-  onCancel,
-  onSuccess,
-}) => {
+const AddUserModal: React.FC<AddUserModalProps> = ({ visible, onCancel, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -83,7 +65,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       };
 
       const response = await adminApi.createUser(userData);
-      
+
       if (response.data.success) {
         message.success('User created successfully!');
         form.resetFields();
@@ -116,13 +98,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       destroyOnHidden
     >
       <Divider />
-      
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        autoComplete="off"
-      >
+
+      <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
         <Form.Item
           name="email"
           label="Email Address"
@@ -131,11 +108,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             { type: 'email', message: 'Please enter a valid email address' },
           ]}
         >
-          <Input
-            prefix={<MailOutlined />}
-            placeholder="user@example.com"
-            size="large"
-          />
+          <Input prefix={<MailOutlined />} placeholder="user@example.com" size="large" />
         </Form.Item>
 
         <Form.Item
@@ -146,11 +119,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             { min: 2, message: 'Display name must be at least 2 characters' },
           ]}
         >
-          <Input
-            prefix={<UserOutlined />}
-            placeholder="John Doe"
-            size="large"
-          />
+          <Input prefix={<UserOutlined />} placeholder="John Doe" size="large" />
         </Form.Item>
 
         <Form.Item
@@ -161,11 +130,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             { min: 6, message: 'Password must be at least 6 characters' },
           ]}
         >
-          <Input.Password
-            prefix={<LockOutlined />}
-            placeholder="Enter password"
-            size="large"
-          />
+          <Input.Password prefix={<LockOutlined />} placeholder="Enter password" size="large" />
         </Form.Item>
 
         <Form.Item
@@ -207,12 +172,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             <Button onClick={handleCancel} size="large">
               Cancel
             </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              size="large"
-            >
+            <Button type="primary" htmlType="submit" loading={loading} size="large">
               Create User
             </Button>
           </Space>

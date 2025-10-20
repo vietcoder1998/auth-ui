@@ -11,7 +11,15 @@ interface EditPermissionModalProps {
   onSave: () => void;
 }
 
-const EditPermissionModal: React.FC<EditPermissionModalProps> = ({ visible, permission, roles, form, loading, onCancel, onSave }) => {
+const EditPermissionModal: React.FC<EditPermissionModalProps> = ({
+  visible,
+  permission,
+  roles,
+  form,
+  loading,
+  onCancel,
+  onSave,
+}) => {
   React.useEffect(() => {
     if (permission) {
       form.setFieldsValue({
@@ -39,16 +47,10 @@ const EditPermissionModal: React.FC<EditPermissionModalProps> = ({ visible, perm
         >
           <Input placeholder="Enter permission name" />
         </Form.Item>
-        <Form.Item
-          name="description"
-          label="Description"
-        >
+        <Form.Item name="description" label="Description">
           <Input.TextArea rows={3} placeholder="Enter permission description" />
         </Form.Item>
-        <Form.Item
-          name="category"
-          label="Category"
-        >
+        <Form.Item name="category" label="Category">
           <Select placeholder="Select category">
             <Select.Option value="user">User</Select.Option>
             <Select.Option value="role">Role</Select.Option>
@@ -60,16 +62,10 @@ const EditPermissionModal: React.FC<EditPermissionModalProps> = ({ visible, perm
             <Select.Option value="other">Other</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item
-          name="route"
-          label="Route (Optional)"
-        >
+        <Form.Item name="route" label="Route (Optional)">
           <Input placeholder="e.g., /admin/users, /api/reports" />
         </Form.Item>
-        <Form.Item
-          name="method"
-          label="HTTP Method (Optional)"
-        >
+        <Form.Item name="method" label="HTTP Method (Optional)">
           <Select placeholder="Select HTTP method" allowClear>
             <Select.Option value="GET">GET</Select.Option>
             <Select.Option value="POST">POST</Select.Option>
@@ -78,13 +74,12 @@ const EditPermissionModal: React.FC<EditPermissionModalProps> = ({ visible, perm
             <Select.Option value="PATCH">PATCH</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item
-          name="roles"
-          label="Roles"
-        >
+        <Form.Item name="roles" label="Roles">
           <Select mode="multiple" placeholder="Select roles">
-            {roles.map(role => (
-              <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option>
+            {roles.map((role) => (
+              <Select.Option key={role.id} value={role.id}>
+                {role.name}
+              </Select.Option>
             ))}
           </Select>
         </Form.Item>

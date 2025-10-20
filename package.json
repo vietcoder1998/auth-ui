@@ -11,8 +11,8 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "echo 'TypeScript files staged for commit'"
+    "*.{ts,tsx,js,jsx,json,css,md}": [
+      "prettier --write ."
     ]
   },
   "dependencies": {

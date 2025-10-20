@@ -3,6 +3,7 @@
 ## ✅ **Successfully Created and Integrated**
 
 ### 📁 **File Structure:**
+
 ```
 auth-ui/app/pages/system/
 ├── AdminSSOPage.tsx (updated)
@@ -14,6 +15,7 @@ auth-ui/app/pages/system/
 ### 🎯 **CreateSSOModal Features:**
 
 #### **Form Fields:**
+
 - ✅ **Application URL** - Required, URL validation
 - ✅ **User Selection** - Dropdown with search, loads from users API
 - ✅ **Device IP** - Optional field
@@ -22,6 +24,7 @@ auth-ui/app/pages/system/
 - ✅ **Expiration Date** - Optional DatePicker with time
 
 #### **Smart Features:**
+
 - ✅ **Auto SSO Key Generation** - Based on URL domain or random
 - ✅ **User Search** - Searchable dropdown with email and nickname
 - ✅ **Date Validation** - Prevents past dates for expiration
@@ -29,6 +32,7 @@ auth-ui/app/pages/system/
 - ✅ **Success Handling** - Refreshes parent table and stats on success
 
 #### **UI/UX Enhancements:**
+
 - ✅ **Sectioned Layout** - Basic Info and SSO Configuration sections
 - ✅ **Icon Integration** - Relevant icons for each field
 - ✅ **Loading States** - Shows loading for form submission and user fetching
@@ -38,6 +42,7 @@ auth-ui/app/pages/system/
 ### 🔗 **Integration with AdminSSOPage:**
 
 #### **Added Components:**
+
 ```typescript
 // Import
 import CreateSSOModal from './modals/CreateSSOModal.tsx';
@@ -104,22 +109,26 @@ const handleCreateSuccess = () => {
 ### 🔧 **Key Functions:**
 
 #### **Auto SSO Key Generation:**
+
 - Extracts domain from URL: `https://app.example.com` → `app_example_com_abc123`
 - Falls back to random key if URL parsing fails
 - User can override with custom key
 
 #### **User Loading:**
+
 - Fetches up to 100 users from admin API
 - Displays email and nickname in dropdown
 - Searchable for easy selection
 
 #### **Validation:**
+
 - URL format validation
 - Required field validation
 - Future date validation for expiration
 - User existence validation
 
 ### ✨ **Benefits:**
+
 - 🎯 **User-Friendly** - Intuitive form with helpful guidance
 - 🚀 **Efficient** - Auto-generation and smart defaults
 - 🔒 **Robust** - Comprehensive validation and error handling

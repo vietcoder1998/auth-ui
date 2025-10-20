@@ -3,7 +3,7 @@ import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
 // Utility function to handle axios errors in components
 export const handleApiError = (error: any, context?: string) => {
   console.error('API Error:', error);
-  
+
   let errorMessage = 'An unexpected error occurred';
   let errorCode = 'UNKNOWN_ERROR';
   let status: number | undefined;
@@ -13,7 +13,7 @@ export const handleApiError = (error: any, context?: string) => {
   if (error.response) {
     status = error.response.status;
     errorCode = error.code || 'API_ERROR';
-    
+
     // Extract meaningful error message
     if (error.response.data) {
       const data = error.response.data;
@@ -22,11 +22,12 @@ export const handleApiError = (error: any, context?: string) => {
       } else if (data.message) {
         errorMessage = data.message;
       } else if (data.error) {
-        errorMessage = typeof data.error === 'string' ? data.error : data.error.message || 'API Error';
+        errorMessage =
+          typeof data.error === 'string' ? data.error : data.error.message || 'API Error';
       } else {
         errorMessage = `Request failed with status ${status}`;
       }
-      
+
       details = {
         url: error.config?.url,
         method: error.config?.method?.toUpperCase(),

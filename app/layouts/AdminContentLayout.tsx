@@ -7,7 +7,7 @@ import {
   MessageOutlined,
   MinusOutlined,
   ProfileOutlined,
-  SettingOutlined
+  SettingOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
@@ -57,9 +57,10 @@ export default function AdminContentLayout() {
   const [editSidebar, setEditSidebar] = useState(false);
   const [search, setSearch] = useState('');
 
-
   // Handle chat position change via buttons
-  const handlePositionChange = (position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left') => {
+  const handlePositionChange = (
+    position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+  ) => {
     setChatPosition(position);
   };
 
@@ -90,35 +91,39 @@ export default function AdminContentLayout() {
     const pathSegments = pathname.split('/').filter(Boolean);
     const breadcrumbItems: { title: React.ReactNode }[] = [
       {
-        title: <Link to="/admin"><HomeOutlined /> Admin</Link>,
-      }
+        title: (
+          <Link to="/admin">
+            <HomeOutlined /> Admin
+          </Link>
+        ),
+      },
     ];
 
     if (pathSegments.length > 1) {
       if (pathSegments[1] === 'system') {
         breadcrumbItems.push({
-          title: <Link to="/admin/system">System Management</Link>
+          title: <Link to="/admin/system">System Management</Link>,
         });
         if (pathSegments[2]) {
           const pageTitle = pathSegments[2]
             .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
           breadcrumbItems.push({
-            title: <span>{pageTitle}</span>
+            title: <span>{pageTitle}</span>,
           });
         }
       } else if (pathSegments[1] === 'settings') {
         breadcrumbItems.push({
-          title: <Link to="/admin/settings">Settings Management</Link>
+          title: <Link to="/admin/settings">Settings Management</Link>,
         });
         if (pathSegments[2]) {
           const pageTitle = pathSegments[2]
             .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
           breadcrumbItems.push({
-            title: <span>{pageTitle}</span>
+            title: <span>{pageTitle}</span>,
           });
         }
       }
@@ -133,7 +138,7 @@ export default function AdminContentLayout() {
       key: 'profile',
       icon: <ProfileOutlined />,
       label: 'Profile',
-      onClick: () => navigate('/profile')
+      onClick: () => navigate('/profile'),
     },
     {
       type: 'divider',
@@ -143,28 +148,31 @@ export default function AdminContentLayout() {
       icon: <LogoutOutlined />,
       label: 'Logout',
       onClick: handleLogout,
-      danger: true
-    }
+      danger: true,
+    },
   ];
 
   // Use cookie for sidebar order
   const [sidebarItems, setSidebarItems] = useCookie<any[]>('admin_sidebar_order', []);
 
   // Filter sidebar items by search
-  const filteredSidebarItems = sidebarItems.map(item => {
-    if (item.type === 'group') {
-      return {
-        ...item,
-        children: item.children?.filter((child: any) =>
-          child.label.toLowerCase().includes(search.toLowerCase())
-        ) || [],
-      };
-    }
-    if (item.label && typeof item.label === 'string') {
-      return item.label.toLowerCase().includes(search.toLowerCase()) ? item : null;
-    }
-    return item;
-  }).filter(Boolean);
+  const filteredSidebarItems = sidebarItems
+    .map((item) => {
+      if (item.type === 'group') {
+        return {
+          ...item,
+          children:
+            item.children?.filter((child: any) =>
+              child.label.toLowerCase().includes(search.toLowerCase())
+            ) || [],
+        };
+      }
+      if (item.label && typeof item.label === 'string') {
+        return item.label.toLowerCase().includes(search.toLowerCase()) ? item : null;
+      }
+      return item;
+    })
+    .filter(Boolean);
 
   // Drag and drop handler
   const onDragEnd = (result: DropResult) => {
@@ -190,15 +198,14 @@ export default function AdminContentLayout() {
         handleLogout={handleLogout}
       />
       <Layout style={{ marginLeft: 250 }}>
-        <AdminHeader
-          profileMenuItems={profileMenuItems}
-          generateBreadcrumb={generateBreadcrumb}
-        />
-        <Content style={{
-          minWidth: 0,
-          background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
-          position: 'relative',
-        }}>
+        <AdminHeader profileMenuItems={profileMenuItems} generateBreadcrumb={generateBreadcrumb} />
+        <Content
+          style={{
+            minWidth: 0,
+            background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
+            position: 'relative',
+          }}
+        >
           <div
             style={{
               background: '#fff',
@@ -282,7 +289,7 @@ export default function AdminContentLayout() {
                           label: 'Bottom Right',
                           onClick: () => handlePositionChange('bottom-right'),
                         },
-                      ]
+                      ],
                     }}
                     trigger={['click']}
                     placement="bottomRight"

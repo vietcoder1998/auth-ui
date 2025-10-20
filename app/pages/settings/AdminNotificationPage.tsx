@@ -60,22 +60,40 @@ export default function AdminNotificationPage() {
   const columns: ColumnType[] = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
     { title: 'Title', dataIndex: 'title', key: 'title' },
-    { title: 'Body', dataIndex: 'body', key: 'body', render: (v) => <div dangerouslySetInnerHTML={{ __html: v }} /> },
-    { title: 'Active', dataIndex: 'active', key: 'active', render: v => v ? 'Yes' : 'No' },
     {
-      title: 'Actions', key: 'actions', render: (_, t) => (
+      title: 'Body',
+      dataIndex: 'body',
+      key: 'body',
+      render: (v) => <div dangerouslySetInnerHTML={{ __html: v }} />,
+    },
+    { title: 'Active', dataIndex: 'active', key: 'active', render: (v) => (v ? 'Yes' : 'No') },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, t) => (
         <>
-          <Button onClick={() => handleEdit(t!)} style={{ marginRight: 8 }}>Edit</Button>
-          <Button danger onClick={() => adminApi.deleteNotificationTemplate(t!.id).then(fetchNotificationTemplates)}>Delete</Button>
+          <Button onClick={() => handleEdit(t!)} style={{ marginRight: 8 }}>
+            Edit
+          </Button>
+          <Button
+            danger
+            onClick={() =>
+              adminApi.deleteNotificationTemplate(t!.id).then(fetchNotificationTemplates)
+            }
+          >
+            Delete
+          </Button>
         </>
-      )
+      ),
     },
   ];
 
   return (
     <div>
       <h2>Notification Template Table</h2>
-      <Button type="primary" onClick={() => alert('Show create notification template modal')}>Create Notification Template</Button>
+      <Button type="primary" onClick={() => alert('Show create notification template modal')}>
+        Create Notification Template
+      </Button>
       <Spin spinning={loading}>
         <Table
           dataSource={notificationTemplates}
@@ -96,19 +114,19 @@ export default function AdminNotificationPage() {
           <div className="space-y-4">
             <Input
               value={editTemplate.name}
-              onChange={e => setEditTemplate({ ...editTemplate, name: e.target.value })}
+              onChange={(e) => setEditTemplate({ ...editTemplate, name: e.target.value })}
               placeholder="Name"
               style={{ marginBottom: 12 }}
             />
             <Input
               value={editTemplate.title}
-              onChange={e => setEditTemplate({ ...editTemplate, title: e.target.value })}
+              onChange={(e) => setEditTemplate({ ...editTemplate, title: e.target.value })}
               placeholder="Title"
               style={{ marginBottom: 12 }}
             />
             <RichText
               value={editTemplate.body}
-              onChange={val => setEditTemplate({ ...editTemplate, body: val })}
+              onChange={(val) => setEditTemplate({ ...editTemplate, body: val })}
               style={{ minHeight: 200, marginBottom: 12 }}
             />
           </div>

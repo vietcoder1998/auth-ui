@@ -24,7 +24,7 @@ interface ErrorInfo {
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) => {
   const [errors, setErrors] = useState<ErrorInfo[]>([]);
   const { fixingErrors, fixPermission } = useUpdatePermissions();
-  
+
   // Get user info for super admin check
   let user = null;
   try {
@@ -37,10 +37,10 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
   // Load errors from cookie on mount and set up polling
   useEffect(() => {
     loadErrorsFromCookie();
-    
+
     // Poll for new errors every 1 second
     const interval = setInterval(loadErrorsFromCookie, 1000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -51,9 +51,9 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
         const parsedErrors = JSON.parse(errorsCookie) as ErrorInfo[];
         // Only show errors from the last 5 minutes
         const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-        const recentErrors = parsedErrors.filter(error => error.timestamp > fiveMinutesAgo);
+        const recentErrors = parsedErrors.filter((error) => error.timestamp > fiveMinutesAgo);
         setErrors(recentErrors);
-        
+
         // Update cookie to remove old errors
         if (recentErrors.length !== parsedErrors.length) {
           if (recentErrors.length > 0) {
@@ -72,9 +72,9 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
   };
 
   const dismissError = (errorId: string) => {
-    const updatedErrors = errors.filter(error => error.id !== errorId);
+    const updatedErrors = errors.filter((error) => error.id !== errorId);
     setErrors(updatedErrors);
-    
+
     // Update cookie
     if (updatedErrors.length > 0) {
       Cookies.set('app_errors', JSON.stringify(updatedErrors), { expires: 1 });
@@ -90,17 +90,17 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
 
   const formatErrorMessage = (error: ErrorInfo) => {
     let message = error.message;
-    
+
     // Add status code if available
     if (error.status) {
       message = `[${error.status}] ${message}`;
     }
-    
+
     // Add error code if available and different from message
     if (error.code && !message.includes(error.code)) {
       message = `${message} (${error.code})`;
     }
-    
+
     return message;
   };
 
@@ -114,17 +114,17 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
 
   // Check if user is super admin
   const isSuperAdmin = () => {
-    console.log(user?.role?.name)
-    return user?.role?.name === "superadmin" || user?.role?.name === 'admin';
+    console.log(user?.role?.name);
+    return user?.role?.name === 'superadmin' || user?.role?.name === 'admin';
   };
 
   // Extract permission from URL for 403 errors
   const extractPermissionFromError = (error: ErrorInfo): string | null => {
     if (error.status !== 403) return null;
-    
+
     const url = error.details?.url;
     const method = error.details?.method || 'GET';
-    
+
     const permissionInfo = extractPermissionFromUrl(url, method);
     return permissionInfo?.resource || null;
   };
@@ -138,7 +138,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
       {errors.map((error) => {
         const canFix = error.status === 403 && extractPermissionFromError(error);
         const isFixing = fixingErrors.has(error.id);
-        
+
         return (
           <Alert
             key={error.id}
@@ -152,16 +152,20 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
                   <summary style={{ cursor: 'pointer', fontSize: '11px', opacity: 0.7 }}>
                     View Details
                   </summary>
-                  <pre style={{ 
-                    fontSize: '10px', 
-                    background: '#f5f5f5', 
-                    padding: '6px', 
-                    borderRadius: '3px',
-                    marginTop: '3px',
-                    overflow: 'auto',
-                    maxHeight: '150px'
-                  }}>
-                    {typeof error.details === 'string' ? error.details : JSON.stringify(error.details, null, 2)}
+                  <pre
+                    style={{
+                      fontSize: '10px',
+                      background: '#f5f5f5',
+                      padding: '6px',
+                      borderRadius: '3px',
+                      marginTop: '3px',
+                      overflow: 'auto',
+                      maxHeight: '150px',
+                    }}
+                  >
+                    {typeof error.details === 'string'
+                      ? error.details
+                      : JSON.stringify(error.details, null, 2)}
                   </pre>
                 </details>
               )
@@ -175,10 +179,10 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
                     icon={<ToolOutlined />}
                     loading={isFixing}
                     onClick={() => fixPermission(error, extractPermissionFromError, dismissError)}
-                    style={{ 
+                    style={{
                       fontSize: '11px',
                       height: '24px',
-                      padding: '0 8px'
+                      padding: '0 8px',
                     }}
                     title={`Fix by adding permission: ${extractPermissionFromError(error)}`}
                   >
@@ -190,23 +194,23 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ className, style }) 
                   type="text"
                   icon={<CloseOutlined />}
                   onClick={() => dismissError(error.id)}
-                  style={{ 
+                  style={{
                     color: 'inherit',
                     fontSize: '11px',
                     height: '24px',
-                    padding: '0 6px'
+                    padding: '0 6px',
                   }}
                 />
               </div>
             }
-            style={{ 
+            style={{
               marginBottom: '6px',
-              fontSize: '12px'
+              fontSize: '12px',
             }}
           />
         );
       })}
-      
+
       {errors.length > 1 && (
         <div style={{ textAlign: 'right', marginTop: '6px' }}>
           <Button size="small" type="link" onClick={dismissAllErrors} style={{ fontSize: '11px' }}>
@@ -238,7 +242,7 @@ export const addErrorToCookie = (error: {
     // Get existing errors
     const existingErrorsCookie = Cookies.get('app_errors');
     let existingErrors: ErrorInfo[] = [];
-    
+
     if (existingErrorsCookie) {
       try {
         existingErrors = JSON.parse(existingErrorsCookie);
@@ -250,7 +254,7 @@ export const addErrorToCookie = (error: {
 
     // Add new error
     existingErrors.push(errorInfo);
-    
+
     // Keep only the last 10 errors to prevent cookie from getting too large
     if (existingErrors.length > 10) {
       existingErrors = existingErrors.slice(-10);
@@ -258,7 +262,7 @@ export const addErrorToCookie = (error: {
 
     // Save to cookie (expires in 1 day)
     Cookies.set('app_errors', JSON.stringify(existingErrors), { expires: 1 });
-    
+
     console.error('Error added to cookie:', errorInfo);
   } catch (error) {
     console.error('Failed to add error to cookie:', error);

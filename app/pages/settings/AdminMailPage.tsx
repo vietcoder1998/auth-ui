@@ -61,24 +61,35 @@ export default function AdminMailPage() {
   const columns: ColumnType[] = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
     { title: 'Subject', dataIndex: 'subject', key: 'subject' },
-    { title: 'Body', dataIndex: 'body', key: 'body', render: (v) => <div dangerouslySetInnerHTML={{ __html: v }} /> },
-    { title: 'Active', dataIndex: 'active', key: 'active', render: v => v ? 'Yes' : 'No' },
     {
-      title: 'Actions', key: 'actions', render: (_, t) => (
+      title: 'Body',
+      dataIndex: 'body',
+      key: 'body',
+      render: (v) => <div dangerouslySetInnerHTML={{ __html: v }} />,
+    },
+    { title: 'Active', dataIndex: 'active', key: 'active', render: (v) => (v ? 'Yes' : 'No') },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, t) => (
         <>
-          <Button onClick={() => handleEdit(t)} style={{ marginRight: 8 }}>Edit</Button>
-          <Button danger onClick={() => adminApi.deleteMailTemplate(t.id).then(fetchMailTemplates)}>Delete</Button>
+          <Button onClick={() => handleEdit(t)} style={{ marginRight: 8 }}>
+            Edit
+          </Button>
+          <Button danger onClick={() => adminApi.deleteMailTemplate(t.id).then(fetchMailTemplates)}>
+            Delete
+          </Button>
         </>
-      )
+      ),
     },
   ];
 
   return (
-    <ConfigProvider
-      theme={{ token: { colorPrimary: "#1677ff" } }}
-    >
+    <ConfigProvider theme={{ token: { colorPrimary: '#1677ff' } }}>
       <h2>Mail Template Table</h2>
-      <Button type="primary" onClick={() => alert('Show create mail template modal')}>Create Mail Template</Button>
+      <Button type="primary" onClick={() => alert('Show create mail template modal')}>
+        Create Mail Template
+      </Button>
       <Spin spinning={loading}>
         <Table
           dataSource={mailTemplates}
@@ -99,13 +110,13 @@ export default function AdminMailPage() {
           <div className="space-y-4">
             <Input
               value={editTemplate.name}
-              onChange={e => setEditTemplate({ ...editTemplate, name: e.target.value })}
+              onChange={(e) => setEditTemplate({ ...editTemplate, name: e.target.value })}
               placeholder="Name"
               style={{ marginBottom: 12 }}
             />
             <Input
               value={editTemplate.subject}
-              onChange={e => setEditTemplate({ ...editTemplate, subject: e.target.value })}
+              onChange={(e) => setEditTemplate({ ...editTemplate, subject: e.target.value })}
               placeholder="Subject"
               style={{ marginBottom: 12 }}
             />

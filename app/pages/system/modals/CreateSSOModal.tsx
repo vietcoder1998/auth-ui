@@ -10,14 +10,14 @@ import {
   message,
   Space,
   Divider,
-  Typography
+  Typography,
 } from 'antd';
 import {
   UserOutlined,
   LinkOutlined,
   KeyOutlined,
   GlobalOutlined,
-  CalendarOutlined
+  CalendarOutlined,
 } from '@ant-design/icons';
 import { adminApi } from '../../../apis/admin.api.ts';
 
@@ -35,11 +35,7 @@ interface UserOption {
 
 const { Text } = Typography;
 
-const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
-  visible,
-  onCancel,
-  onSuccess
-}) => {
+const CreateSSOModal: React.FC<CreateSSOModalProps> = ({ visible, onCancel, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserOption[]>([]);
@@ -56,7 +52,7 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
     try {
       setLoadingUsers(true);
       const response = await adminApi.getUsers({ limit: 100 });
-      
+
       if (response.data) {
         setUsers(response.data.data || []);
       }
@@ -71,7 +67,7 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
-      
+
       const submitData = {
         url: values.url,
         userId: values.userId,
@@ -82,7 +78,7 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
       };
 
       await adminApi.createSSO(submitData);
-      
+
       message.success('SSO entry created successfully');
       form.resetFields();
       onSuccess();
@@ -135,14 +131,9 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
         <Button key="cancel" onClick={handleCancel}>
           Cancel
         </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={() => form.submit()}
-        >
+        <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
           Create SSO Entry
-        </Button>
+        </Button>,
       ]}
       width={600}
       destroyOnHidden
@@ -156,7 +147,7 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
         }}
       >
         <Divider orientation="left">Basic Information</Divider>
-        
+
         <Form.Item
           name="url"
           label={
@@ -167,13 +158,10 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
           }
           rules={[
             { required: true, message: 'Please enter the application URL' },
-            { type: 'url', message: 'Please enter a valid URL' }
+            { type: 'url', message: 'Please enter a valid URL' },
           ]}
         >
-          <Input
-            placeholder="https://your-app.example.com"
-            prefix={<GlobalOutlined />}
-          />
+          <Input placeholder="https://your-app.example.com" prefix={<GlobalOutlined />} />
         </Form.Item>
 
         <Form.Item
@@ -190,24 +178,18 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
             placeholder="Select a user"
             loading={loadingUsers}
             showSearch
-            filterOption={(input, option) => 
+            filterOption={(input, option) =>
               (option?.label?.toLowerCase() || '').includes(input.toLowerCase())
             }
-            options={users.map(user => ({
+            options={users.map((user) => ({
               value: user.id,
               label: `${user.email}${user.nickname ? ` (${user.nickname})` : ''}`,
             }))}
           />
         </Form.Item>
 
-        <Form.Item
-          name="deviceIP"
-          label="Device IP (Optional)"
-        >
-          <Input
-            placeholder="192.168.1.100"
-            prefix={<GlobalOutlined />}
-          />
+        <Form.Item name="deviceIP" label="Device IP (Optional)">
+          <Input placeholder="192.168.1.100" prefix={<GlobalOutlined />} />
         </Form.Item>
 
         <Divider orientation="left">SSO Configuration</Divider>
@@ -229,25 +211,14 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
               style={{ width: 'calc(100% - 120px)' }}
               placeholder="custom_sso_key or leave empty"
             />
-            <Button
-              type="default"
-              style={{ width: '120px' }}
-              onClick={generateSSOKey}
-            >
+            <Button type="default" style={{ width: '120px' }} onClick={generateSSOKey}>
               Generate
             </Button>
           </Input.Group>
         </Form.Item>
 
-        <Form.Item
-          name="isActive"
-          label="Status"
-          valuePropName="checked"
-        >
-          <Switch
-            checkedChildren="Active"
-            unCheckedChildren="Inactive"
-          />
+        <Form.Item name="isActive" label="Status" valuePropName="checked">
+          <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
         </Form.Item>
 
         <Form.Item
@@ -267,16 +238,18 @@ const CreateSSOModal: React.FC<CreateSSOModalProps> = ({
           />
         </Form.Item>
 
-        <div style={{ 
-          background: '#f0f2f5', 
-          padding: '12px', 
-          borderRadius: '6px',
-          marginTop: '16px'
-        }}>
+        <div
+          style={{
+            background: '#f0f2f5',
+            padding: '12px',
+            borderRadius: '6px',
+            marginTop: '16px',
+          }}
+        >
           <Text type="secondary" style={{ fontSize: '13px' }}>
-            <strong>Note:</strong> The SSO entry will generate both a primary key (for internal use) 
-            and an optional SSO key (for external identification). If no SSO key is provided, 
-            you can use the primary key for authentication.
+            <strong>Note:</strong> The SSO entry will generate both a primary key (for internal use)
+            and an optional SSO key (for external identification). If no SSO key is provided, you
+            can use the primary key for authentication.
           </Text>
         </div>
       </Form>

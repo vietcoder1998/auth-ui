@@ -7,6 +7,7 @@
 When a 403 (Forbidden) error occurs and the user is a super admin, a "Fix" button appears next to the error notification.
 
 **How it works:**
+
 1. **Detection**: Automatically detects 403 errors from API calls
 2. **Permission Mapping**: Maps the failed request URL to the required permission
 3. **Super Admin Check**: Only shows fix button for users with superadmin or admin roles
@@ -14,6 +15,7 @@ When a 403 (Forbidden) error occurs and the user is a super admin, a "Fix" butto
 5. **Auto-Reload**: Refreshes the page after successful fix
 
 **Supported URL Patterns:**
+
 - `/admin/users` → `admin:users:read/write`
 - `/admin/roles` → `admin:roles:read/write`
 - `/admin/permissions` → `admin:permissions:read/write`
@@ -27,6 +29,7 @@ When a 403 (Forbidden) error occurs and the user is a super admin, a "Fix" butto
 Error notifications are now more compact and less intrusive:
 
 **Size Reductions:**
+
 - Alert margins reduced from 16px to 12px/6px
 - Font sizes reduced from 12px to 11px
 - Button heights reduced to 24px
@@ -34,6 +37,7 @@ Error notifications are now more compact and less intrusive:
 - Max height for details reduced to 150px
 
 **Visual Improvements:**
+
 - More compact action buttons
 - Smaller spacing between elements
 - Reduced padding in details sections
@@ -42,6 +46,7 @@ Error notifications are now more compact and less intrusive:
 ## Usage Examples
 
 ### Example 1: Basic 403 Error with Fix Button
+
 ```typescript
 // When this fails with 403:
 const users = await adminApi.getUsers();
@@ -52,11 +57,12 @@ const users = await adminApi.getUsers();
 ```
 
 ### Example 2: Different Permission Types
+
 ```typescript
 // GET request → admin:users:read
 await adminApi.getUsers();
 
-// POST request → admin:users:write  
+// POST request → admin:users:write
 await adminApi.createUser(data);
 
 // DELETE request → admin:users:delete
@@ -66,17 +72,22 @@ await adminApi.deleteUser(id);
 ## Components
 
 ### ErrorDisplay Component
+
 **New Props:**
+
 - Automatically detects user role via `useAuth()`
 - Shows fix button only for super admins
 - Handles loading state during fix operation
 
 **New State:**
+
 - `fixingErrors: Set<string>` - Tracks which errors are being fixed
 - Enhanced error type detection
 
 ### PermissionUtils
+
 **Functions:**
+
 - `extractPermissionFromUrl(url, method)` - Maps URLs to permissions
 - `getCommonAdminPermissions()` - Returns list of common admin permissions
 
@@ -109,12 +120,14 @@ ErrorDisplay (Container)
 ## Testing
 
 Use the enhanced `ErrorTestComponent`:
+
 ```typescript
 // Test 403 errors with fix button
 <ErrorTestComponent />
 ```
 
 **Test Scenarios:**
+
 1. 403 error with fix button (super admin)
 2. 403 error without fix button (regular user)
 3. Multiple permission errors
@@ -123,12 +136,13 @@ Use the enhanced `ErrorTestComponent`:
 ## Configuration
 
 The permission mapping can be extended in `permissionUtils.ts`:
+
 ```typescript
 const urlMappings = [
-  { 
-    pattern: /\/admin\/my-feature/, 
-    resource: 'admin:my_feature', 
-    description: 'My Feature Management' 
+  {
+    pattern: /\/admin\/my-feature/,
+    resource: 'admin:my_feature',
+    description: 'My Feature Management',
   },
   // Add more mappings...
 ];

@@ -18,7 +18,7 @@ import {
   Divider,
   Empty,
   Spin,
-  Popconfirm
+  Popconfirm,
 } from 'antd';
 import {
   MessageOutlined,
@@ -30,7 +30,7 @@ import {
   FilterOutlined,
   PlusOutlined,
   SendOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
 } from '@ant-design/icons';
 import type { TableProps } from 'antd';
 
@@ -91,7 +91,7 @@ export default function AdminConversationList() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
-  
+
   // Filters
   const [searchText, setSearchText] = useState('');
   const [selectedAgent, setSelectedAgent] = useState<string>('');
@@ -153,12 +153,12 @@ export default function AdminConversationList() {
     try {
       const response = await adminApi.sendMessage(selectedConversation.id, {
         content: newMessage.trim(),
-        sender: 'user'
+        sender: 'user',
       });
 
       // Add both user message and AI response to the messages list
       if (response.data.userMessage && response.data.aiMessage) {
-        setMessages(prev => [...prev, response.data.userMessage, response.data.aiMessage]);
+        setMessages((prev) => [...prev, response.data.userMessage, response.data.aiMessage]);
       }
       setNewMessage('');
       message.success('Message sent successfully');
@@ -226,7 +226,7 @@ export default function AdminConversationList() {
             {record.summary || 'No summary available'}
           </Text>
         </div>
-      )
+      ),
     },
     {
       title: 'Agent',
@@ -234,17 +234,19 @@ export default function AdminConversationList() {
       width: 180,
       render: (_: any, record: Conversation) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar 
+          <Avatar
             size="small"
-            icon={<RobotOutlined />} 
-            style={{ backgroundColor: record.agent.isActive ? '#52c41a' : '#d9d9d9' }} 
+            icon={<RobotOutlined />}
+            style={{ backgroundColor: record.agent.isActive ? '#52c41a' : '#d9d9d9' }}
           />
           <div>
             <div style={{ fontSize: '13px', fontWeight: 500 }}>{record.agent.name}</div>
-            <Tag color="blue" style={{ fontSize: '11px' }}>{record.agent.model}</Tag>
+            <Tag color="blue" style={{ fontSize: '11px' }}>
+              {record.agent.model}
+            </Tag>
           </div>
         </div>
-      )
+      ),
     },
     {
       title: 'User',
@@ -262,7 +264,7 @@ export default function AdminConversationList() {
             </Text>
           </div>
         </div>
-      )
+      ),
     },
     {
       title: 'Messages',
@@ -272,7 +274,7 @@ export default function AdminConversationList() {
         <div style={{ textAlign: 'center' }}>
           <Badge count={record._count?.messages || 0} showZero />
         </div>
-      )
+      ),
     },
     {
       title: 'Status',
@@ -280,11 +282,8 @@ export default function AdminConversationList() {
       key: 'status',
       width: 100,
       render: (isActive: boolean) => (
-        <Badge 
-          status={isActive ? "success" : "default"} 
-          text={isActive ? "Active" : "Archived"} 
-        />
-      )
+        <Badge status={isActive ? 'success' : 'default'} text={isActive ? 'Active' : 'Archived'} />
+      ),
     },
     {
       title: 'Last Updated',
@@ -293,14 +292,12 @@ export default function AdminConversationList() {
       width: 130,
       render: (text: string) => (
         <div>
-          <div style={{ fontSize: '12px' }}>
-            {new Date(text).toLocaleDateString()}
-          </div>
+          <div style={{ fontSize: '12px' }}>{new Date(text).toLocaleDateString()}</div>
           <Text type="secondary" style={{ fontSize: '11px' }}>
             {getMessageTimeAgo(text)}
           </Text>
         </div>
-      )
+      ),
     },
     {
       title: 'Actions',
@@ -310,11 +307,7 @@ export default function AdminConversationList() {
       render: (_: any, record: Conversation) => (
         <Space>
           <Tooltip title="View Conversation">
-            <Button 
-              type="text" 
-              icon={<EyeOutlined />} 
-              onClick={() => viewConversation(record)}
-            />
+            <Button type="text" icon={<EyeOutlined />} onClick={() => viewConversation(record)} />
           </Tooltip>
           <Popconfirm
             title="Delete Conversation"
@@ -324,21 +317,24 @@ export default function AdminConversationList() {
             cancelText="No"
           >
             <Tooltip title="Delete">
-              <Button 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />}
-              />
+              <Button type="text" danger icon={<DeleteOutlined />} />
             </Tooltip>
           </Popconfirm>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   return (
-    <div style={{  }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div style={{}}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+        }}
+      >
         <Title level={2}>💬 Conversations</Title>
       </div>
 
@@ -352,7 +348,7 @@ export default function AdminConversationList() {
             onChange={(e) => setSearchText(e.target.value)}
             prefix={<SearchOutlined />}
           />
-          
+
           <Select
             placeholder="Filter by Agent"
             style={{ width: 200 }}
@@ -360,10 +356,10 @@ export default function AdminConversationList() {
             onChange={setSelectedAgent}
             allowClear
           >
-            {agents.map(agent => (
+            {agents.map((agent) => (
               <Option key={agent.id} value={agent.id}>
                 <Space>
-                  <Badge status={agent.isActive ? "success" : "default"} />
+                  <Badge status={agent.isActive ? 'success' : 'default'} />
                   {agent.name}
                 </Space>
               </Option>
@@ -394,7 +390,7 @@ export default function AdminConversationList() {
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total) => `Total ${total} conversations`
+            showTotal: (total) => `Total ${total} conversations`,
           }}
         />
       </Card>
@@ -408,15 +404,19 @@ export default function AdminConversationList() {
                 {selectedConversation.title || 'Untitled Conversation'}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Avatar 
+                <Avatar
                   size="small"
-                  icon={<RobotOutlined />} 
-                  style={{ backgroundColor: selectedConversation.agent.isActive ? '#52c41a' : '#d9d9d9' }} 
+                  icon={<RobotOutlined />}
+                  style={{
+                    backgroundColor: selectedConversation.agent.isActive ? '#52c41a' : '#d9d9d9',
+                  }}
                 />
                 <Text type="secondary">{selectedConversation.agent.name}</Text>
                 <Text type="secondary">•</Text>
                 <Avatar size="small" icon={<UserOutlined />} />
-                <Text type="secondary">{selectedConversation.user.nickname || selectedConversation.user.email}</Text>
+                <Text type="secondary">
+                  {selectedConversation.user.nickname || selectedConversation.user.email}
+                </Text>
               </div>
             </div>
           )
@@ -436,7 +436,9 @@ export default function AdminConversationList() {
             {selectedConversation.summary && (
               <>
                 <Card size="small" style={{ marginBottom: '16px' }}>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>Summary:</Text>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                    Summary:
+                  </Text>
                   <Paragraph style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
                     {selectedConversation.summary}
                   </Paragraph>
@@ -457,57 +459,63 @@ export default function AdminConversationList() {
                   dataSource={messages}
                   renderItem={(message) => (
                     <List.Item style={{ border: 'none', padding: '8px 0' }}>
-                      <div style={{ 
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
-                      }}>
-                        <div style={{
-                          maxWidth: '80%',
+                      <div
+                        style={{
+                          width: '100%',
                           display: 'flex',
-                          gap: '8px',
-                          alignItems: 'flex-start',
-                          flexDirection: message.sender === 'user' ? 'row-reverse' : 'row'
-                        }}>
-                          <Avatar 
+                          justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+                        }}
+                      >
+                        <div
+                          style={{
+                            maxWidth: '80%',
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'flex-start',
+                            flexDirection: message.sender === 'user' ? 'row-reverse' : 'row',
+                          }}
+                        >
+                          <Avatar
                             size="small"
                             icon={message.sender === 'user' ? <UserOutlined /> : <RobotOutlined />}
-                            style={{ 
+                            style={{
                               backgroundColor: message.sender === 'user' ? '#1890ff' : '#52c41a',
-                              flexShrink: 0
+                              flexShrink: 0,
                             }}
                           />
-                          <div style={{
-                            background: message.sender === 'user' ? '#1890ff' : '#f0f2f5',
-                            color: message.sender === 'user' ? '#fff' : '#333',
-                            padding: '8px 12px',
-                            borderRadius: '12px',
-                            wordBreak: 'break-word'
-                          }}>
-                            <div style={{ whiteSpace: 'pre-wrap' }}>
-                              {message.content}
-                            </div>
-                            <div style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              marginTop: '4px'
-                            }}>
-                              <Text 
-                                style={{ 
-                                  fontSize: '11px', 
+                          <div
+                            style={{
+                              background: message.sender === 'user' ? '#1890ff' : '#f0f2f5',
+                              color: message.sender === 'user' ? '#fff' : '#333',
+                              padding: '8px 12px',
+                              borderRadius: '12px',
+                              wordBreak: 'break-word',
+                            }}
+                          >
+                            <div style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginTop: '4px',
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontSize: '11px',
                                   opacity: 0.7,
-                                  color: message.sender === 'user' ? '#fff' : '#666'
+                                  color: message.sender === 'user' ? '#fff' : '#666',
                                 }}
                               >
                                 {getMessageTimeAgo(message.createdAt)}
                               </Text>
                               {message.tokens && (
-                                <Text 
-                                  style={{ 
-                                    fontSize: '11px', 
+                                <Text
+                                  style={{
+                                    fontSize: '11px',
                                     opacity: 0.7,
-                                    color: message.sender === 'user' ? '#fff' : '#666'
+                                    color: message.sender === 'user' ? '#fff' : '#666',
                                   }}
                                 >
                                   {message.tokens} tokens

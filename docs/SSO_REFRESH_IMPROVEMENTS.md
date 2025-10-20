@@ -5,6 +5,7 @@
 ### 🔄 **Key Improvements Made:**
 
 #### **1. Enhanced `handleCreateSuccess` Function**
+
 - ✅ **Async/Await Pattern**: Proper error handling for refresh operations
 - ✅ **Parallel Refresh**: Refreshes both SSO entries and stats simultaneously
 - ✅ **Loading State Management**: Shows loading during refresh to improve UX
@@ -15,14 +16,11 @@
 const handleCreateSuccess = async () => {
   setShowCreateModal(false);
   setLoading(true);
-  
+
   try {
     // Refresh both data sources in parallel
-    await Promise.all([
-      fetchSSOEntries(1, searchTerm, false),
-      fetchStats()
-    ]);
-    
+    await Promise.all([fetchSSOEntries(1, searchTerm, false), fetchStats()]);
+
     // Navigate to first page if needed
     if (currentPage !== 1) {
       setCurrentPage(1);
@@ -36,6 +34,7 @@ const handleCreateSuccess = async () => {
 ```
 
 #### **2. Improved `fetchSSOEntries` Function**
+
 - ✅ **Flexible Loading Control**: Optional `showLoading` parameter
 - ✅ **Promise Return**: Returns data for better async handling
 - ✅ **Error Propagation**: Properly throws errors for upstream handling
@@ -44,7 +43,7 @@ const handleCreateSuccess = async () => {
 const fetchSSOEntries = async (page = 1, search = '', showLoading = true) => {
   try {
     if (showLoading) setLoading(true);
-    
+
     const response = await adminApi.getSSOEntries({...});
     // ... update state
     return response.data;
@@ -58,14 +57,16 @@ const fetchSSOEntries = async (page = 1, search = '', showLoading = true) => {
 ```
 
 #### **3. Enhanced `fetchStats` Function**
+
 - ✅ **Promise Return**: Returns data for better async handling
 - ✅ **Error Propagation**: Properly throws errors for upstream handling
 
 #### **4. Consistent Refresh Patterns**
+
 Applied consistent refresh patterns across all operations:
 
 - ✅ **After SSO Creation**: Goes to page 1 + refreshes stats
-- ✅ **After SSO Deletion**: Stays on current page + refreshes stats  
+- ✅ **After SSO Deletion**: Stays on current page + refreshes stats
 - ✅ **After Key Regeneration**: Stays on current page (no stats change)
 - ✅ **After SSO Login Simulation**: Refreshes both to update login counts
 - ✅ **Manual Refresh Button**: Refreshes both data sources
@@ -73,15 +74,17 @@ Applied consistent refresh patterns across all operations:
 ### 🎯 **User Experience Improvements:**
 
 #### **1. Immediate Feedback**
+
 ```typescript
 // User sees new SSO entry immediately after creation
 await Promise.all([
   fetchSSOEntries(1, searchTerm, false), // Go to first page
-  fetchStats() // Update counters
+  fetchStats(), // Update counters
 ]);
 ```
 
 #### **2. Loading States**
+
 ```typescript
 // Prevents duplicate loading states
 setLoading(true);
@@ -90,6 +93,7 @@ setLoading(false);
 ```
 
 #### **3. Error Handling**
+
 ```typescript
 try {
   await refreshOperations();
@@ -99,6 +103,7 @@ try {
 ```
 
 #### **4. Automatic Navigation**
+
 ```typescript
 // New entries are typically shown first, so navigate to page 1
 await fetchSSOEntries(1, searchTerm, false);
@@ -128,12 +133,12 @@ if (currentPage !== 1) {
 
 ### 📊 **Refresh Operations Summary:**
 
-| Action | Page Navigation | Refreshes SSO List | Refreshes Stats |
-|--------|-----------------|-------------------|-----------------|
-| Create SSO | → Page 1 | ✅ | ✅ |
-| Delete SSO | Current Page | ✅ | ✅ |
-| Regenerate Key | Current Page | ✅ | ❌ |
-| Simulate Login | Current Page | ✅ | ✅ |
-| Manual Refresh | Current Page | ✅ | ✅ |
+| Action         | Page Navigation | Refreshes SSO List | Refreshes Stats |
+| -------------- | --------------- | ------------------ | --------------- |
+| Create SSO     | → Page 1        | ✅                 | ✅              |
+| Delete SSO     | Current Page    | ✅                 | ✅              |
+| Regenerate Key | Current Page    | ✅                 | ❌              |
+| Simulate Login | Current Page    | ✅                 | ✅              |
+| Manual Refresh | Current Page    | ✅                 | ✅              |
 
 The SSO creation process now provides immediate feedback with robust error handling and optimal user experience! 🎉
