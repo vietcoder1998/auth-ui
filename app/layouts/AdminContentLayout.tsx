@@ -1,26 +1,13 @@
 import {
-  AuditOutlined,
-  BellOutlined,
   DatabaseOutlined,
   DragOutlined,
   ExpandOutlined,
-  FileOutlined,
-  FileTextOutlined,
-  HistoryOutlined,
   HomeOutlined,
-  KeyOutlined,
-  LinkOutlined,
   LogoutOutlined,
-  MailOutlined,
   MessageOutlined,
   MinusOutlined,
   ProfileOutlined,
-  RobotOutlined,
-  SafetyOutlined,
-  SettingOutlined,
-  TeamOutlined,
-  ThunderboltOutlined,
-  UserOutlined
+  SettingOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
@@ -34,7 +21,6 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import useCookie from '../hooks/useCookie.tsx';
 import AdminHeader from './AdminHeader.tsx';
 import AdminSidebar from './AdminSidebar.tsx';
-import AdminSidebarMenu, { useSidebarMenu } from '../components/AdminSidebarMenu.tsx';
 
 const { Sider, Content, Header } = Layout;
 const { Title } = Typography;

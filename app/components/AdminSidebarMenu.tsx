@@ -57,6 +57,33 @@ export const defaultSidebarMenu: MenuItem[] = [
         ],
     },
     {
+        key: '/admin/user',
+        icon: <TeamOutlined />,
+        label: 'User Management',
+        children: [
+            {
+                key: '/admin/system/users',
+                icon: <UserOutlined />,
+                label: 'Users',
+            },
+            {
+                key: '/admin/system/tokens',
+                icon: <KeyOutlined />,
+                label: 'Tokens',
+            },
+            {
+                key: '/admin/system/roles',
+                icon: <TeamOutlined />,
+                label: 'Roles',
+            },
+            {
+                key: '/admin/system/login-history',
+                icon: <HistoryOutlined />,
+                label: 'Login History',
+            },
+        ],
+    },
+    {
         key: '/admin/system/documents-group',
         icon: <FileTextOutlined />,
         label: 'Documents',
@@ -78,22 +105,6 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <DatabaseOutlined />,
         label: 'System Management',
         children: [
-
-            {
-                key: '/admin/system/users',
-                icon: <UserOutlined />,
-                label: 'Users',
-            },
-            {
-                key: '/admin/system/tokens',
-                icon: <KeyOutlined />,
-                label: 'Tokens',
-            },
-            {
-                key: '/admin/system/roles',
-                icon: <TeamOutlined />,
-                label: 'Roles',
-            },
             {
                 key: '/admin/system/permissions',
                 icon: <SafetyOutlined />,
@@ -105,11 +116,6 @@ export const defaultSidebarMenu: MenuItem[] = [
                 label: 'SSO Management',
             },
             {
-                key: '/admin/system/login-history',
-                icon: <HistoryOutlined />,
-                label: 'Login History',
-            },
-            {
                 key: '/admin/system/logic-history',
                 icon: <AuditOutlined />,
                 label: 'Logic History',
@@ -119,7 +125,6 @@ export const defaultSidebarMenu: MenuItem[] = [
                 icon: <AuditOutlined />,
                 label: 'Application Logs',
             },
-
             {
                 key: '/admin/system/cache',
                 icon: <DatabaseOutlined />,
