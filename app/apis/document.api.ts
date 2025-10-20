@@ -23,6 +23,11 @@ export const documentApi = {
   },
   async uploadFile(formData: FormData) {
     const axios = getApiInstance();
-    return axios.post('/admin/files/upload', formData);
+    return axios.post('/admin/files/upload', formData, {
+      headers: {
+        // Do NOT set 'Content-Type' manually!
+        'Content-Type': 'multipart/form-data' // let axios/browser set this
+      }
+    });
   },
 };

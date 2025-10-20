@@ -47,7 +47,7 @@ export default function AdminDocumentPage() {
       await documentApi.uploadFile(formData);
       message.success('File uploaded');
       setUploadModalVisible(false);
-      fetchDocuments();
+      await fetchDocuments();
     } catch (error) {
       message.error('Upload failed');
     }
