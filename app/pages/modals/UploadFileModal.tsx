@@ -27,7 +27,7 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
     setUploading(true);
     const formData = new FormData();
     fileList.forEach(file => {
-      formData.append('files', file.originFileObj);
+      formData.append('file', file.originFileObj);
     });
     formData.append('type', 'document');
     try {
