@@ -9,11 +9,11 @@ import {
   RobotOutlined,
   ToolOutlined
 } from '@ant-design/icons';
+import type { TableProps } from 'antd';
 import {
   Avatar,
   Badge,
   Button,
-  Card,
   Descriptions,
   Divider,
   Drawer,
@@ -32,12 +32,11 @@ import {
   Tooltip,
   Typography
 } from 'antd';
-import type { TableProps } from 'antd';
-
-type ColumnsType<T> = TableProps<T>['columns'];
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { useAuth } from '../../hooks/useAuth.tsx';
+
+type ColumnsType<T> = TableProps<T>['columns'];
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -268,7 +267,7 @@ export default function AdminAgentPage() {
       width: 250,
       render: (text: string, record: Agent) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar icon={<RobotOutlined />} style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9' }} />
+          <Avatar icon={<RobotOutlined />} style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9', width: 80 }} />
           <div>
             <div style={{ fontWeight: 500 }}>{text}</div>
             <Text type="secondary" style={{ fontSize: '12px' }}>{record.description || 'No description'}</Text>
@@ -382,13 +381,12 @@ export default function AdminAgentPage() {
         </Button>
       </div>
 
-      <Card>
         <Table
           columns={columns}
           dataSource={agents}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 1200, y: 600 }}
+          scroll={{ x: 1200, y: 600}}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -396,7 +394,6 @@ export default function AdminAgentPage() {
             showTotal: (total) => `Total ${total} agents`
           }}
         />
-      </Card>
 
       {/* Create/Edit Agent Modal */}
       <Modal
