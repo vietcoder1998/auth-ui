@@ -171,16 +171,16 @@ export default function AdminIndexPage() {
 
         {/* Timeline */}
         <Card title={<><ClockCircleOutlined /> Development Timeline</>} style={{ marginBottom: '24px' }}>
-          <Timeline mode="left">
-            {roadmapData.map((item) => (
-              <Timeline.Item
-                key={item.id}
-                dot={getStatusIcon(item.status)}
-                color={item.color}
-                label={<Tag color={item.color}>{item.quarter}</Tag>}
-              >
-                <Card 
-                  size="small" 
+          <Timeline
+            mode="left"
+            items={roadmapData.map((item) => ({
+              key: item.id,
+              dot: getStatusIcon(item.status),
+              color: item.color,
+              label: <Tag color={item.color}>{item.quarter}</Tag>,
+              children: (
+                <Card
+                  size="small"
                   style={{ maxWidth: '800px' }}
                   title={
                     <Space>
@@ -193,9 +193,9 @@ export default function AdminIndexPage() {
                   }
                 >
                   <Paragraph style={{ margin: '0 0 16px 0' }}>{item.description}</Paragraph>
-                  <Progress 
-                    percent={item.progress} 
-                    size="small" 
+                  <Progress
+                    percent={item.progress}
+                    size="small"
                     strokeColor={item.color}
                     style={{ marginBottom: '16px' }}
                   />
@@ -203,7 +203,7 @@ export default function AdminIndexPage() {
                     <Text strong>Features:</Text>
                     <div style={{ marginTop: '8px' }}>
                       {item.features.map((feature, index) => (
-                        <Tag 
+                        <Tag
                           key={index}
                           color={feature.completed ? 'success' : 'default'}
                           style={{ margin: '2px' }}
@@ -215,9 +215,9 @@ export default function AdminIndexPage() {
                     </div>
                   </div>
                 </Card>
-              </Timeline.Item>
-            ))}
-          </Timeline>
+              ),
+            }))}
+          />
         </Card>
 
         {/* Statistics */}

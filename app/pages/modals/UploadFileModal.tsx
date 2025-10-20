@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Modal, Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import { message, Modal, Upload } from 'antd';
+import React, { useState } from 'react';
 import { getApiInstance } from '../../apis/index.ts';
 
 interface UploadFileModalProps {
@@ -23,6 +23,7 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
     fileList.forEach(file => {
       formData.append('files', file.originFileObj);
     });
+    formData.append('type', 'document');
     try {
       const axios = getApiInstance();
       await axios.post('/admin/documents/upload', formData, {
@@ -46,7 +47,7 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
       onOk={handleUpload}
       confirmLoading={uploading}
       okText="Upload"
-      destroyOnClose
+  destroyOnHidden
     >
       <Upload.Dragger
         multiple
