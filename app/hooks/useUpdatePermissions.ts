@@ -76,12 +76,15 @@ export function useUpdatePermissions() {
         const existingPermission = permissions.find((p: any) => p.resource === permission);
         if (existingPermission) permissionId = existingPermission.id;
         if (!existingPermission) {
+          // Replace /...id/... with /:id/ in the route if detected
+          let route = `/api${error.details?.url || ''}`;
+          route = route.replace(/\/(\w*id)\b/g, '/:id');
           const newPermResponse = await adminApi.createPermission({
             resource: permission,
             name: permission,
             action: permission.includes(':write') ? 'write' : 'read',
             description: `Auto-generated permission for ${permission}`,
-            route: `/api${error.details?.url || ''}`,
+            route,
             method: error.details?.method || 'GET',
             category: 'custom',
           });

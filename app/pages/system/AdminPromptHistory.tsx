@@ -1,19 +1,31 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Button, Card, Input, List, Modal, Form, message, Space, Typography, Popconfirm } from 'antd';
+import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 
 const { Title } = Typography;
+import AddPromptModal from './modals/AddPromptModal.tsx';
+import { ConversationApi } from '../../apis/adminApi/ConversationApi.ts';
 
 export default function AdminPromptHistory() {
   const [prompts, setPrompts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<any | null>(null);
-  const [form] = Form.useForm();
+  const [conversations, setConversations] = useState<any[]>([]);
 
   useEffect(() => {
     fetchPrompts();
+    fetchConversations();
   }, []);
+
+  const fetchConversations = async () => {
+    try {
+      const res = await ConversationApi.getConversations();
+      setConversations(res.data?.data || []);
+    } catch {
+      setConversations([]);
+    }
+  };
 
   const fetchPrompts = async () => {
     setLoading(true);
@@ -28,29 +40,22 @@ export default function AdminPromptHistory() {
     }
   };
 
-  const handleCreatePrompt = async (values: any) => {
+  const handlePromptModalOk = async (values: any) => {
     try {
-      // For creating prompt, you may need to update the API if not using conversationId
-      await adminApi.createPrompt('', values.prompt);
-      message.success('Prompt created');
-      setModalVisible(false);
-      form.resetFields();
-      fetchPrompts();
-    } catch (error) {
-      message.error('Failed to create prompt');
-    }
-  };
-
-  const handleUpdatePrompt = async (values: any) => {
-    try {
-      await adminApi.updatePrompt(editingPrompt.id, values.prompt);
-      message.success('Prompt updated');
+      if (editingPrompt) {
+        // Update
+        await adminApi.updatePrompt(editingPrompt.id, values.prompt);
+        message.success('Prompt updated');
+      } else {
+        // Create
+        await adminApi.createPrompt(values.conversationId, values.prompt);
+        message.success('Prompt created');
+      }
       setModalVisible(false);
       setEditingPrompt(null);
-      form.resetFields();
       fetchPrompts();
     } catch (error) {
-      message.error('Failed to update prompt');
+      message.error('Failed to save prompt');
     }
   };
 
@@ -66,14 +71,13 @@ export default function AdminPromptHistory() {
 
   const showEditModal = (prompt: any) => {
     setEditingPrompt(prompt);
-    form.setFieldsValue({ prompt: prompt.prompt });
     setModalVisible(true);
   };
 
   return (
     <div>
       <Title level={2}>Prompt History</Title>
-      <Button type="primary" onClick={() => { setEditingPrompt(null); form.resetFields(); setModalVisible(true); }}>
+      <Button type="primary" onClick={() => { setEditingPrompt(null); setModalVisible(true); }}>
         Add Prompt
       </Button>
       <Card style={{ marginTop: 24 }}>
@@ -97,23 +101,15 @@ export default function AdminPromptHistory() {
           )}
         />
       </Card>
-      <Modal
-        title={editingPrompt ? 'Edit Prompt' : 'Add Prompt'}
+      <AddPromptModal
         open={modalVisible}
-        onCancel={() => { setModalVisible(false); setEditingPrompt(null); form.resetFields(); }}
-        onOk={() => form.submit()}
-        okText={editingPrompt ? 'Update' : 'Create'}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={editingPrompt ? handleUpdatePrompt : handleCreatePrompt}
-        >
-          <Form.Item name="prompt" label="Prompt" rules={[{ required: true, message: 'Prompt is required' }]}> 
-            <Input.TextArea rows={4} />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onCancel={() => { setModalVisible(false); setEditingPrompt(null); }}
+        onOk={handlePromptModalOk}
+        loading={loading}
+        conversations={conversations}
+        defaultConversationId={editingPrompt?.conversationId}
+        initialPrompt={editingPrompt?.prompt}
+      />
     </div>
   );
 }
