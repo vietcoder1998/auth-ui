@@ -1,39 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Card,
-  Button,
-  Space,
-  Typography,
-  Statistic,
-  Row,
-  Col,
-  Alert,
-  Modal,
-  message,
-  Divider,
-  Spin,
-  Tag,
-  Progress,
-  Table,
-  Tabs,
-  Descriptions,
-  Drawer,
-} from 'antd';
-import {
-  DatabaseOutlined,
-  ReloadOutlined,
-  WarningOutlined,
-  CheckCircleOutlined,
-  UserOutlined,
-  KeyOutlined,
-  SettingOutlined,
-  RobotOutlined,
-  SafetyCertificateOutlined,
-  TeamOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-  EyeOutlined,
-} from '@ant-design/icons';
+import { Modal, message, Typography, Alert } from 'antd';
+import { DatabaseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import DatabaseStatsCard from '../../components/seed/DatabaseStatsCard.tsx';
+import SeedQuickActions from '../../components/seed/SeedQuickActions.tsx';
+import SeedOperationsList from '../../components/seed/SeedOperationsList.tsx';
+import LastOperationResult from '../../components/seed/LastOperationResult.tsx';
+import SeedDataViewerDrawer from '../../components/seed/SeedDataViewerDrawer.tsx';
 import { adminApi } from '../../apis/admin.api.ts';
 
 const { Title, Text, Paragraph } = Typography;
@@ -171,7 +143,7 @@ export default function AdminSeedPage() {
       key: 'permissions',
       title: 'Permissions',
       description: 'Seed system permissions and API routes',
-      icon: <SafetyCertificateOutlined style={{ color: '#1890ff' }} />,
+      icon: null,
       action: () => adminApi.seedPermissions(),
       count: stats.permissions,
     },
@@ -179,7 +151,7 @@ export default function AdminSeedPage() {
       key: 'roles',
       title: 'Roles',
       description: 'Seed default roles (superadmin, admin, user)',
-      icon: <TeamOutlined style={{ color: '#52c41a' }} />,
+      icon: null,
       action: () => adminApi.seedRoles(),
       count: stats.roles,
     },
@@ -187,7 +159,7 @@ export default function AdminSeedPage() {
       key: 'users',
       title: 'Users',
       description: 'Seed default admin and test users',
-      icon: <UserOutlined style={{ color: '#722ed1' }} />,
+      icon: null,
       action: () => adminApi.seedUsers(),
       count: stats.users,
     },
@@ -195,7 +167,7 @@ export default function AdminSeedPage() {
       key: 'configs',
       title: 'Configurations',
       description: 'Seed system configuration values',
-      icon: <SettingOutlined style={{ color: '#fa8c16' }} />,
+      icon: null,
       action: () => adminApi.seedConfigs(),
       count: stats.configs,
     },
@@ -203,7 +175,7 @@ export default function AdminSeedPage() {
       key: 'agents',
       title: 'AI Agents',
       description: 'Seed default AI agents and assistants',
-      icon: <RobotOutlined style={{ color: '#eb2f96' }} />,
+      icon: null,
       action: () => adminApi.seedAgents(),
       count: stats.agents,
     },
@@ -211,7 +183,7 @@ export default function AdminSeedPage() {
       key: 'apiKeys',
       title: 'API Keys',
       description: 'Seed development API keys',
-      icon: <KeyOutlined style={{ color: '#13c2c2' }} />,
+      icon: null,
       action: () => adminApi.seedApiKeys(),
       count: stats.apiKeys,
     },
@@ -220,286 +192,41 @@ export default function AdminSeedPage() {
   const totalItems = Object.values(stats).reduce((sum, count) => sum + (count || 0), 0);
 
   return (
-    <div style={{}}>
+    <div>
       <div style={{ marginBottom: '24px' }}>
-        <Title level={2}>
+        <Typography.Title level={2}>
           <DatabaseOutlined style={{ marginRight: '12px' }} />
           Database Seed Management
-        </Title>
-        <Paragraph type="secondary">
+        </Typography.Title>
+        <Typography.Paragraph type="secondary">
           Manage database seeding operations and view current data statistics. Use these tools to
           populate the database with default data for development and testing.
-        </Paragraph>
+        </Typography.Paragraph>
       </div>
-
-      {/* Database Statistics */}
-      <Card
-        title={
-          <Space>
-            <DatabaseOutlined />
-            <span>Current Database Statistics</span>
-            <Button
-              type="text"
-              icon={<ReloadOutlined />}
-              onClick={fetchStats}
-              loading={loading}
-              size="small"
-            >
-              Refresh
-            </Button>
-          </Space>
-        }
-        style={{ marginBottom: '24px' }}
+      <DatabaseStatsCard stats={stats} loading={loading} fetchStats={fetchStats} />
+      <SeedQuickActions
+        seedLoading={seedLoading}
+        seedDataLoading={seedDataLoading}
         loading={loading}
-      >
-        <Row gutter={[16, 16]}>
-          <Col xs={12} sm={8} md={6} lg={4}>
-            <Statistic
-              title="Users"
-              value={stats.users}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Col>
-          <Col xs={12} sm={8} md={6} lg={4}>
-            <Statistic
-              title="Roles"
-              value={stats.roles}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Col>
-          <Col xs={12} sm={8} md={6} lg={4}>
-            <Statistic
-              title="Permissions"
-              value={stats.permissions}
-              prefix={<SafetyCertificateOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Col>
-          <Col xs={12} sm={8} md={6} lg={4}>
-            <Statistic
-              title="Configurations"
-              value={stats.configs}
-              prefix={<SettingOutlined />}
-              valueStyle={{ color: '#fa8c16' }}
-            />
-          </Col>
-          <Col xs={12} sm={8} md={6} lg={4}>
-            <Statistic
-              title="AI Agents"
-              value={stats.agents}
-              prefix={<RobotOutlined />}
-              valueStyle={{ color: '#eb2f96' }}
-            />
-          </Col>
-          <Col xs={12} sm={8} md={6} lg={4}>
-            <Statistic
-              title="API Keys"
-              value={stats.apiKeys}
-              prefix={<KeyOutlined />}
-              valueStyle={{ color: '#13c2c2' }}
-            />
-          </Col>
-          {stats.conversations !== undefined && (
-            <Col xs={12} sm={8} md={6} lg={4}>
-              <Statistic
-                title="Conversations"
-                value={stats.conversations}
-                valueStyle={{ color: '#096dd9' }}
-              />
-            </Col>
-          )}
-          {stats.messages !== undefined && (
-            <Col xs={12} sm={8} md={6} lg={4}>
-              <Statistic
-                title="Messages"
-                value={stats.messages}
-                valueStyle={{ color: '#389e0d' }}
-              />
-            </Col>
-          )}
-        </Row>
-
-        <Divider />
-
-        <div style={{ textAlign: 'center' }}>
-          <Text strong>Total Database Items: </Text>
-          <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>
-            {totalItems.toLocaleString()}
-          </Tag>
-        </div>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card title="Quick Actions" style={{ marginBottom: '24px' }}>
-        <Space wrap>
-          <Button
-            type="primary"
-            icon={<DatabaseOutlined />}
-            size="large"
-            loading={seedLoading === 'Seed All'}
-            onClick={() => handleSeedOperation('Seed All', () => adminApi.seedAll())}
-          >
-            Seed All Data
-          </Button>
-          <Button icon={<EyeOutlined />} onClick={handleViewSeedData} loading={seedDataLoading}>
-            View Seed Data
-          </Button>
-          <Button icon={<ReloadOutlined />} onClick={fetchStats} loading={loading}>
-            Refresh Statistics
-          </Button>
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={handleClearAll}
-            disabled={totalItems === 0}
-          >
-            Clear All Data
-          </Button>
-        </Space>
-      </Card>
-
-      {/* Individual Seed Operations */}
-      <Card title="Individual Seed Operations">
-        <Row gutter={[16, 16]}>
-          {seedOperations.map((operation) => (
-            <Col xs={24} sm={12} lg={8} key={operation.key}>
-              <Card
-                size="small"
-                hoverable
-                style={{ height: '100%' }}
-                actions={[
-                  <Button
-                    key="seed"
-                    type="primary"
-                    size="small"
-                    loading={seedLoading === operation.title}
-                    onClick={() => handleSeedOperation(operation.title, operation.action)}
-                    style={{ width: '80%' }}
-                  >
-                    Seed {operation.title}
-                  </Button>,
-                ]}
-              >
-                <Card.Meta
-                  avatar={operation.icon}
-                  title={
-                    <Space>
-                      <span>{operation.title}</span>
-                      <Tag color={operation.count > 0 ? 'green' : 'default'}>{operation.count}</Tag>
-                    </Space>
-                  }
-                  description={operation.description}
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Card>
-
-      {/* Last Operation Result */}
-      {lastResult && (
-        <Card title="Last Operation Result" style={{ marginTop: '24px' }}>
-          <Alert
-            message={lastResult.message}
-            type={lastResult.success ? 'success' : 'error'}
-            showIcon
-            icon={lastResult.success ? <CheckCircleOutlined /> : <WarningOutlined />}
-            style={{ marginBottom: lastResult.errors ? '16px' : 0 }}
-          />
-
-          {lastResult.errors && lastResult.errors.length > 0 && (
-            <Alert
-              message="Errors encountered:"
-              description={
-                <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                  {lastResult.errors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              }
-              type="error"
-              showIcon
-            />
-          )}
-
-          {lastResult.data && (
-            <div style={{ marginTop: '16px' }}>
-              <Text strong>Operation Results:</Text>
-              <div style={{ marginTop: '8px' }}>
-                {Object.entries(lastResult.data).map(([key, value]) => (
-                  <Tag key={key} style={{ margin: '2px' }}>
-                    {key}: {value}
-                  </Tag>
-                ))}
-              </div>
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Seed Data Viewer Drawer */}
-      <Drawer
-        title="Seed Data Viewer"
-        placement="right"
-        size="large"
-        open={viewSeedVisible}
-        onClose={() => setViewSeedVisible(false)}
-        extra={
-          <Button icon={<ReloadOutlined />} onClick={fetchSeedData} loading={seedDataLoading}>
-            Refresh
-          </Button>
-        }
-      >
-        {seedDataLoading ? (
-          <div style={{ textAlign: 'center', padding: '50px' }}>
-            <Spin size="large" />
-            <div style={{ marginTop: '16px' }}>Loading seed data...</div>
-          </div>
-        ) : (
-          <Tabs
-            defaultActiveKey="users"
-            items={Object.keys(seedData).map((key) => ({
-              key,
-              label: (
-                <span>
-                  {key === 'users' && <UserOutlined />}
-                  {key === 'roles' && <TeamOutlined />}
-                  {key === 'permissions' && <SafetyCertificateOutlined />}
-                  {key === 'configs' && <SettingOutlined />}
-                  {key === 'agents' && <RobotOutlined />}
-                  {key === 'apiKeys' && <KeyOutlined />}{' '}
-                  {key.charAt(0).toUpperCase() + key.slice(1)} ({seedData[key]?.length || 0})
-                </span>
-              ),
-              children: (
-                <div>
-                  {seedData[key] && seedData[key].length > 0 ? (
-                    <Table
-                      dataSource={seedData[key]}
-                      columns={generateTableColumns(key, seedData[key][0])}
-                      pagination={{ pageSize: 10 }}
-                      scroll={{ x: true }}
-                      size="small"
-                      rowKey={(record) =>
-                        record.id || record.email || record.name || record.key || record.code
-                      }
-                    />
-                  ) : (
-                    <Alert
-                      message="No Data"
-                      description={`No ${key} data available to display.`}
-                      type="info"
-                      showIcon
-                    />
-                  )}
-                </div>
-              ),
-            }))}
-          />
-        )}
-      </Drawer>
+        totalItems={totalItems}
+        onSeedAll={() => handleSeedOperation('Seed All', () => adminApi.seedAll())}
+        onViewSeedData={handleViewSeedData}
+        onRefreshStats={fetchStats}
+        onClearAll={handleClearAll}
+      />
+      <SeedOperationsList
+        seedOperations={seedOperations}
+        seedLoading={seedLoading}
+        handleSeedOperation={handleSeedOperation}
+      />
+      <LastOperationResult lastResult={lastResult} />
+      <SeedDataViewerDrawer
+        viewSeedVisible={viewSeedVisible}
+        setViewSeedVisible={setViewSeedVisible}
+        seedData={seedData}
+        seedDataLoading={seedDataLoading}
+        fetchSeedData={fetchSeedData}
+      />
     </div>
   );
 
