@@ -161,6 +161,7 @@ export const adminApi = {
   // SeedApi
   getSeedStats: SeedApi.getSeedStats,
   getSeedData: SeedApi.getSeedData,
+  getSeedProgress: SeedApi.getSeedProgress,
   seedAll: SeedApi.seedAll,
   seedPermissions: SeedApi.seedPermissions,
   seedRoles: SeedApi.seedRoles,

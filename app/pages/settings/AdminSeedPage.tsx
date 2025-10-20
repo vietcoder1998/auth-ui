@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Modal, message, Typography, Alert } from 'antd';
 import { DatabaseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import DatabaseStatsCard from '../../components/seed/DatabaseStatsCard.tsx';
@@ -34,6 +34,14 @@ interface SeedData {
 }
 
 export default function AdminSeedPage() {
+  const [seedProgress, setSeedProgress] = useState<{
+    status: string;
+    step: string;
+    percent: number;
+    message?: string;
+    error?: string;
+  }>({ status: 'idle', step: '', percent: 0 });
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const [stats, setStats] = useState<DatabaseStats>({
     users: 0,
     roles: 0,
@@ -92,13 +100,32 @@ export default function AdminSeedPage() {
     await fetchSeedData();
   };
 
+  const pollSeedProgress = () => {
+    if (progressInterval.current) return;
+    progressInterval.current = setInterval(async () => {
+      try {
+        const response = await adminApi.getSeedProgress();
+        if (response.data.success) {
+          setSeedProgress(response.data.data);
+          if (response.data.data.status === 'completed' || response.data.data.status === 'error') {
+            clearInterval(progressInterval.current!);
+            progressInterval.current = null;
+          }
+        }
+      } catch (err) {
+        // ignore polling errors
+      }
+    }, 1000);
+  };
+
   const handleSeedOperation = async (operation: string, apiCall: () => Promise<any>) => {
     setSeedLoading(operation);
+    setSeedProgress({ status: 'running', step: '', percent: 0 });
+    pollSeedProgress();
     try {
       const response = await apiCall();
       const result = response.data;
       setLastResult(result);
-
       if (result.success) {
         message.success(result.message);
         await fetchStats(); // Refresh stats
@@ -110,6 +137,10 @@ export default function AdminSeedPage() {
       message.error(`Failed to ${operation.toLowerCase()}`);
     } finally {
       setSeedLoading(null);
+      setTimeout(() => {
+        clearInterval(progressInterval.current!);
+        progressInterval.current = null;
+      }, 2000);
     }
   };
 
@@ -203,6 +234,49 @@ export default function AdminSeedPage() {
           populate the database with default data for development and testing.
         </Typography.Paragraph>
       </div>
+      {seedProgress.status === 'running' && (
+        <div style={{ marginBottom: 24 }}>
+          <Alert
+            message={`Seeding in progress: ${seedProgress.step}`}
+            description={
+              <div>
+                <div>Step: {seedProgress.step}</div>
+                <div>Progress: {seedProgress.percent}%</div>
+                <div>
+                  <div
+                    style={{
+                      background: '#e6f7ff',
+                      borderRadius: 4,
+                      height: 16,
+                      width: '100%',
+                      marginTop: 8,
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: '#1890ff',
+                        height: '100%',
+                        width: `${seedProgress.percent}%`,
+                        borderRadius: 4,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            }
+            type="info"
+            showIcon
+          />
+        </div>
+      )}
+      {seedProgress.status === 'error' && (
+        <Alert
+          message={`Seeding error: ${seedProgress.error || 'Unknown error'}`}
+          type="error"
+          showIcon
+          style={{ marginBottom: 24 }}
+        />
+      )}
       <DatabaseStatsCard stats={stats} loading={loading} fetchStats={fetchStats} />
       <SeedQuickActions
         seedLoading={seedLoading}

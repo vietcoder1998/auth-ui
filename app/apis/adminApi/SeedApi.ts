@@ -43,4 +43,8 @@ export class SeedApi {
       data: { confirm: confirmation },
     });
   }
+  static async getSeedProgress() {
+    const axios = getApiInstance();
+    return axios.get('/admin/seed/progress');
+  }
 }
