@@ -18,11 +18,9 @@ export default function AdminPromptHistory() {
   const fetchPrompts = async () => {
     setLoading(true);
     try {
-      // For demo, fetch all prompts for a default conversationId or implement your own logic
-      // Replace 'default-conversation-id' with actual logic as needed
-      const conversationId = '';
-      const response = await adminApi.getPrompts(conversationId);
-      setPrompts(response.data?.data || []);
+  // Fetch all prompts (not bound to conversationId)
+  const response = await adminApi.getPrompts();
+  setPrompts(response.data?.data || []);
     } catch (error) {
       message.error('Failed to fetch prompts');
     } finally {
@@ -32,9 +30,8 @@ export default function AdminPromptHistory() {
 
   const handleCreatePrompt = async (values: any) => {
     try {
-      // Replace with actual conversationId logic
-      const conversationId = '';
-      await adminApi.createPrompt(conversationId, values.prompt);
+      // For creating prompt, you may need to update the API if not using conversationId
+      await adminApi.createPrompt('', values.prompt);
       message.success('Prompt created');
       setModalVisible(false);
       form.resetFields();

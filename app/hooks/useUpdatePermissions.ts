@@ -74,9 +74,8 @@ export function useUpdatePermissions() {
           permissions = permissionsResponse.data.data;
         }
         const existingPermission = permissions.find((p: any) => p.resource === permission);
-        if (existingPermission) {
-          permissionId = existingPermission.id;
-        } else {
+        if (existingPermission) permissionId = existingPermission.id;
+        if (!existingPermission) {
           const newPermResponse = await adminApi.createPermission({
             resource: permission,
             name: permission,
