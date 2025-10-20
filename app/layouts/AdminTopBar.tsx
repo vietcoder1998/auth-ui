@@ -14,6 +14,9 @@ type SystemStatus = {
   memory?: string;
   cpu?: string;
   disk?: string;
+  uptime?: number;
+  timestamp?: string;
+  cpuLoad?: number;
 };
 
 function useSystemStatus(): SystemStatus | null {
@@ -45,15 +48,6 @@ interface SearchResultItem {
   description?: string;
 }
 
-// System status components
-const StatusBasic: React.FC<{ status: SystemStatus }> = ({ status }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-    <span title="API status" style={{ color: status.api ? '#52c41a' : '#d4380d' }}>API</span>
-    <span title="DB status" style={{ color: status.database ? '#52c41a' : '#d4380d' }}>DB</span>
-    <span title="Redis status" style={{ color: status.redis ? '#52c41a' : '#d4380d' }}>Redis</span>
-  </div>
-);
-
 function getResourceColor(val?: string, type?: 'ram' | 'cpu' | 'disk') {
   if (!val) return '#888';
   // Try to extract percent from string like '45%' or '2.3GB/8GB (28%)'
@@ -71,7 +65,7 @@ function getResourceColor(val?: string, type?: 'ram' | 'cpu' | 'disk') {
 }
 
 const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
     {status.memory && (
       (() => {
         const color = getResourceColor(status.memory, 'ram');
@@ -103,6 +97,22 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
       })()
     ) : (
       <span title="Disk" style={{ color: '#888' }}>Disk: <span style={{ color: '#888', fontWeight: 500 }}>N/A</span></span>
+    )}
+    {/* Additional info */}
+    {status.uptime !== undefined && (
+      <span title="Uptime" style={{ color: '#888' }}>
+        Uptime: <span style={{ fontWeight: 500 }}>{Math.floor(Number(status.uptime))}s</span>
+      </span>
+    )}
+    {status.timestamp && (
+      <span title="Timestamp" style={{ color: '#888' }}>
+        Time: <span style={{ fontWeight: 500 }}>{new Date(status.timestamp).toLocaleString()}</span>
+      </span>
+    )}
+    {status.cpuLoad !== undefined && (
+      <span title="CPU Load" style={{ color: '#888' }}>
+        CPU Load: <span style={{ fontWeight: 500 }}>{typeof status.cpuLoad === 'number' ? status.cpuLoad.toFixed(2) : status.cpuLoad}</span>
+      </span>
     )}
   </div>
 );
@@ -192,7 +202,6 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {systemStatus && (
           <div style={{ minWidth: 180, fontSize: 12, color: '#555' }}>
-            <StatusBasic status={systemStatus} />
             {(systemStatus.memory || systemStatus.cpu || systemStatus.disk) && <StatusResources status={systemStatus} />}
           </div>
         )}
