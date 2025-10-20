@@ -1,8 +1,12 @@
+import { COOKIE_AUTH_USER, COOKIE_FIXING_ERRORS, COOKIE_APP_ERRORS } from '../env.ts';
+import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
+
 // Custom hook for login cookie (auth_user)
 export function useLoginCookie(): [string | undefined, (value: string) => void, () => void] {
   const [value, setValue] = useState<string | undefined>(() => {
     try {
-      return Cookies.get('auth_user');
+      return Cookies.get(COOKIE_AUTH_USER);
     } catch {
       return undefined;
     }
@@ -10,18 +14,18 @@ export function useLoginCookie(): [string | undefined, (value: string) => void, 
 
   const setCookieValue = (newValue: string) => {
     setValue(newValue);
-    Cookies.set('auth_user', newValue, { expires: 1 });
+    Cookies.set(COOKIE_AUTH_USER, newValue, { expires: 1 });
   };
 
   const removeCookie = () => {
     setValue(undefined);
-    Cookies.remove('auth_user');
+    Cookies.remove(COOKIE_AUTH_USER);
   };
 
   useEffect(() => {
     // Sync with cookie changes from other tabs/windows
     const handleStorageChange = () => {
-      setValue(Cookies.get('auth_user'));
+      setValue(Cookies.get(COOKIE_AUTH_USER));
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
@@ -155,8 +159,6 @@ export function useStringCookie(
 
   return [value, setCookieValue, removeCookie];
 }
-import { useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
 
 interface UseCookieOptions {
   expires?: number;
