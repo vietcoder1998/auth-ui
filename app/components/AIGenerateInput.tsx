@@ -1,0 +1,70 @@
+
+import { ThunderboltOutlined } from '@ant-design/icons';
+import { Input, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { getApiInstance } from '../apis/index.ts';
+import { useAIGenerateProvider } from '../providers/AIGenerateProvider.tsx';
+
+interface AIGenerateInputProps {
+	value?: string;
+	onChange?: (val: string) => void;
+	prompt: string; // prompt to send to backend
+	placeholder?: string;
+	apiPath?: string; // optional override for API endpoint
+	textarea?: boolean;
+	rows?: number;
+}
+
+const AIGenerateInput: React.FC<AIGenerateInputProps> = ({ value, onChange, prompt, placeholder, apiPath, textarea, rows }) => {
+	const { value: contextValue, setValue: setContextValue } = useAIGenerateProvider();
+	const [inputValue, setInputValue] = useState(value || contextValue || '');
+	const [loading, setLoading] = useState(false);
+
+	// Sync context value to local input
+	useEffect(() => {
+		setInputValue(value ?? contextValue ?? '');
+	}, [value, contextValue]);
+
+		const handleGenerate = async () => {
+			setLoading(true);
+			try {
+				const axios = getApiInstance();
+				const res = await axios.post(apiPath || '/admin/prompts/generate', { prompt });
+				if (res.data && res.data.data) {
+					setInputValue(res.data.data);
+					setContextValue(res.data.data);
+					onChange?.(res.data.data);
+				} else {
+					message.error('No data returned from AI');
+				}
+			} catch (error) {
+				message.error('Failed to generate context');
+			}
+			setLoading(false);
+		};
+
+		const commonProps = {
+			value: inputValue,
+			onChange: (e: any) => {
+				setInputValue(e.target.value);
+				setContextValue(e.target.value);
+				onChange?.(e.target.value);
+			},
+			placeholder: placeholder || 'Enter or generate content...',
+			disabled: loading,
+			suffix: (
+				<ThunderboltOutlined
+					style={{ color: loading ? '#1890ff' : undefined, cursor: loading ? 'not-allowed' : 'pointer', fontSize: 18 }}
+					spin={loading}
+					onClick={loading ? undefined : handleGenerate}
+				/>
+			),
+		};
+
+		if (textarea) {
+			return <Input.TextArea {...commonProps} autoSize={rows ? { minRows: rows, maxRows: rows } : undefined} />;
+		}
+		return <Input {...commonProps} />;
+};
+
+export default AIGenerateInput;
