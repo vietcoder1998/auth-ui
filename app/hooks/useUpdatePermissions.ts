@@ -1,45 +1,41 @@
 import { useState, useEffect, useRef } from 'react';
-import Cookies from 'js-cookie';
+// Remove direct js-cookie usage
 import { useLoginCookie } from './useCookie.tsx';
+import { useCookie } from './useCookie.tsx';
 import { adminApi } from '../apis/admin.api.ts';
 import { env } from '../config/env.ts';
 
 export function useUpdatePermissions() {
+  // Use useLoginCookie for all login cookie handling
   const [, , removeLoginCookie] = useLoginCookie();
-  const [fixingErrors, setFixingErrors] = useState<Set<string>>(() => {
-    try {
-      const cookie = Cookies.get('fixing_errors');
-      if (cookie) {
-        return new Set(JSON.parse(cookie));
-      }
-    } catch {}
-    return new Set();
-  });
+  // Use useCookie for fixing_errors
+  const [fixingErrorsArr, setFixingErrorsArr, removeFixingErrorsCookie] = useCookie<string[]>(
+    'fixing_errors',
+    []
+  );
+  const fixingErrors = new Set<string>(fixingErrorsArr);
   const [errors, setErrors] = useState<any[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const prevErrorCount = useRef(0);
+  const [, getAppErrors] = useCookie<any[]>('app_errors', []);
 
   // Poll for errors and sync fixingErrors to cookie
   useEffect(() => {
+    // Use useCookie for reading 'app_errors' cookie
+    // import { useCookie } from './useCookie.tsx' at the top if not already
     const loadErrorsFromCookie = () => {
       try {
-        const errorsCookie = Cookies.get('app_errors');
-        if (errorsCookie) {
-          const parsedErrors = JSON.parse(errorsCookie);
-          const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-          const recentErrors = parsedErrors.filter(
-            (error: any) => error.timestamp > fiveMinutesAgo
-          );
-          setErrors(recentErrors);
-          // Always open dropdown if there are errors and not already open
-          if (recentErrors.length > 0 && !notifOpen) {
-            setNotifOpen(true);
-          }
-          prevErrorCount.current = recentErrors.length;
-        } else {
-          setErrors([]);
-          prevErrorCount.current = 0;
+        const errorsCookie = getAppErrors;
+        const parsedErrors = Array.isArray(errorsCookie) ? errorsCookie : [];
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        const recentErrors = parsedErrors.filter((error: any) => error.timestamp > fiveMinutesAgo);
+        console.log(recentErrors);
+        setErrors(recentErrors);
+        // Always open dropdown if there are errors and not already open
+        if (recentErrors.length > 0 && !notifOpen) {
+          setNotifOpen(true);
         }
+        prevErrorCount.current = recentErrors.length;
       } catch {
         setErrors([]);
         prevErrorCount.current = 0;
@@ -52,26 +48,23 @@ export function useUpdatePermissions() {
 
   // Sync fixingErrors to cookie
   useEffect(() => {
-    Cookies.set('fixing_errors', JSON.stringify(Array.from(fixingErrors)), { expires: 1 });
+    setFixingErrorsArr(Array.from(fixingErrors));
   }, [fixingErrors]);
 
+  const [appErrors, setAppErrors, removeAppErrorsCookie] = useCookie<any[]>('app_errors', []);
   const dismissError = (errorId: string) => {
     const updatedErrors = errors.filter((error) => error.id !== errorId);
     setErrors(updatedErrors);
     if (updatedErrors.length > 0) {
-      Cookies.set('app_errors', JSON.stringify(updatedErrors), {
-        expires: 1,
-        domain: env.COOKIE_DOMAIN,
-        path: env.COOKIE_PATH,
-      });
+      setAppErrors(updatedErrors);
     } else {
-      Cookies.remove('app_errors', { domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
+      removeAppErrorsCookie();
     }
   };
 
   const dismissAllErrors = () => {
     setErrors([]);
-    Cookies.remove('app_errors', { domain: env.COOKIE_DOMAIN, path: env.COOKIE_PATH });
+    removeAppErrorsCookie();
   };
 
   const fixPermission = async (
@@ -82,11 +75,7 @@ export function useUpdatePermissions() {
   ) => {
     const permission = extractPermissionFromError(error);
     if (!permission) return;
-    setFixingErrors((prev) => {
-      const next = new Set(prev).add(error.id);
-      Cookies.set('fixing_errors', JSON.stringify(Array.from(next)), { expires: 1 });
-      return next;
-    });
+    setFixingErrorsArr(Array.from(new Set<string>([...fixingErrorsArr, error.id])));
     try {
       let permissionId: string | null = null;
       try {
@@ -143,12 +132,9 @@ export function useUpdatePermissions() {
     } catch (error) {
       console.error('Failed to fix permission:', error);
     } finally {
-      setFixingErrors((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(error.id);
-        Cookies.set('fixing_errors', JSON.stringify(Array.from(newSet)), { expires: 1 });
-        return newSet;
-      });
+      const newSet = new Set<string>(fixingErrorsArr);
+      newSet.delete(error.id);
+      setFixingErrorsArr(Array.from(newSet));
     }
   };
 
