@@ -79,11 +79,12 @@ export function useUpdatePermissions() {
         } else {
           const newPermResponse = await adminApi.createPermission({
             resource: permission,
-            name: permission, // Add name field for backend validation
+            name: permission,
             action: permission.includes(':write') ? 'write' : 'read',
             description: `Auto-generated permission for ${permission}`,
             route: `/api${error.details?.url || ''}`,
             method: error.details?.method || 'GET',
+            category: 'custom',
           });
           if (!newPermResponse.data || !newPermResponse.data.id) {
             throw new Error('Failed to create permission');
