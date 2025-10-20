@@ -1,7 +1,7 @@
 
+import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, Input, List, Spin, Tag } from 'antd';
 import React from 'react';
-import { UserOutlined, SearchOutlined } from '@ant-design/icons';
 import { adminApi } from '~/apis/admin.api.ts';
 import AdminNotificationDropdown from '~/components/AdminNotificationDropdown.tsx';
 import StatusIndicator from '~/components/StatusIndicator.tsx';
@@ -22,9 +22,8 @@ function useSystemStatus(): SystemStatus | null {
     let timer: NodeJS.Timeout;
     const fetchStatus = async () => {
       try {
-        const res = await fetch('/api/config/health');
-        const data = await res.json();
-        setStatus(data);
+        const res = await adminApi.getHealthStatus();
+        setStatus(res.data.data);
       } catch {
         setStatus(null);
       }
@@ -46,11 +45,68 @@ interface SearchResultItem {
   description?: string;
 }
 
+// System status components
+const StatusBasic: React.FC<{ status: SystemStatus }> = ({ status }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <span title="API status" style={{ color: status.api ? '#52c41a' : '#d4380d' }}>API</span>
+    <span title="DB status" style={{ color: status.database ? '#52c41a' : '#d4380d' }}>DB</span>
+    <span title="Redis status" style={{ color: status.redis ? '#52c41a' : '#d4380d' }}>Redis</span>
+  </div>
+);
+
+function getResourceColor(val?: string, type?: 'ram' | 'cpu' | 'disk') {
+  if (!val) return '#888';
+  // Try to extract percent from string like '45%' or '2.3GB/8GB (28%)'
+  let percent = 0;
+  const match = val.match(/(\d+)%/);
+  if (match) percent = parseInt(match[1], 10);
+  if (type === 'ram') {
+    if (percent >= 80) return '#d4380d'; // danger red
+    if (percent >= 50) return '#faad14'; // warning orange
+    return '#52c41a'; // green
+  }
+  if (percent >= 80) return '#d4380d'; // red
+  if (percent >= 60) return '#faad14'; // orange
+  return '#52c41a'; // green
+}
+
+const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+    {status.memory && (
+      (() => {
+        const color = getResourceColor(status.memory, 'ram');
+        return (
+          <span title="RAM">
+            RAM: <span style={{ color, fontWeight: 500 }}>{status.memory}</span>
+          </span>
+        );
+      })()
+    )}
+    {status.cpu && (
+      (() => {
+        const color = getResourceColor(status.cpu, 'cpu');
+        return (
+          <span title="CPU">
+            CPU: <span style={{ color, fontWeight: 500 }}>{status.cpu}</span>
+          </span>
+        );
+      })()
+    )}
+    {status.disk && (
+      (() => {
+        const color = getResourceColor(status.disk, 'disk');
+        return (
+          <span title="Disk">
+            Disk: <span style={{ color, fontWeight: 500 }}>{status.disk}</span>
+          </span>
+        );
+      })()
+    )}
+  </div>
+);
+
 const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
   const systemStatus = useSystemStatus();
-  // Fix useAuth usage: pass required argument if needed, and correct type
-  // If useAuth returns { user }, use it directly
-  // useAuth returns AuthContextType, so destructure user directly
   const { user } = useAuth();
   const [search, setSearch] = React.useState<string>('');
   const [searchResults, setSearchResults] = React.useState<SearchResultItem[]>([]);
@@ -132,19 +188,13 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
         </Dropdown>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <StatusIndicator />
-        {/* System resource status */}
         {systemStatus && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#555', minWidth: 180 }}>
-            <span title="API status" style={{ color: systemStatus.api ? '#52c41a' : '#d4380d' }}>API</span>
-            <span title="DB status" style={{ color: systemStatus.database ? '#52c41a' : '#d4380d' }}>DB</span>
-            <span title="Redis status" style={{ color: systemStatus.redis ? '#52c41a' : '#d4380d' }}>Redis</span>
-            {/* Optionally add RAM/CPU/Disk if backend provides */}
-            {systemStatus.memory && <span title="RAM">RAM: {systemStatus.memory}</span>}
-            {systemStatus.cpu && <span title="CPU">CPU: {systemStatus.cpu}</span>}
-            {systemStatus.disk && <span title="Disk">Disk: {systemStatus.disk}</span>}
+          <div style={{ minWidth: 180, fontSize: 12, color: '#555' }}>
+            <StatusBasic status={systemStatus} />
+            {(systemStatus.memory || systemStatus.cpu || systemStatus.disk) && <StatusResources status={systemStatus} />}
           </div>
         )}
+        <StatusIndicator />
         <AdminNotificationDropdown />
         <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
           <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
