@@ -208,12 +208,7 @@ export default function AdminContentLayout() {
               padding: '24px', // Always use 24px padding for header/content
             }}
           >
-            <ErrorDisplay style={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 999,
-              marginBottom: '0',
-            }} />
+            {/* ErrorDisplay removed: notifications now handled by AdminNotificationDropdown */}
             {/* Provide AI context for all admin content */}
             <AIGenerateProvider>
               <Outlet />

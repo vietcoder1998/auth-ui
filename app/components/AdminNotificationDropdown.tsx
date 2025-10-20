@@ -2,9 +2,10 @@ import React from 'react';
 import { Dropdown, List, Button, Badge } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
+import { ReloadOutlined } from '@ant-design/icons';
 
 export default function AdminNotificationDropdown() {
-  const { errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors } = useUpdatePermissions();
+  const { errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors, fixPermission } = useUpdatePermissions();
 
   return (
     <Dropdown
@@ -20,19 +21,22 @@ export default function AdminNotificationDropdown() {
             style={{ maxHeight: 350, overflowY: 'auto', background: 'white' }}
             renderItem={error => (
               <List.Item
-                style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '12px 16px' }}
-                actions={[
-                  <Button size="small" type="text" onClick={() => dismissError(error.id)} key="close">Dismiss</Button>
-                ]}
+                style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '12px 16px', display: 'block' }}
               >
-                <div style={{ fontWeight: 500, color: error.status >= 500 ? '#d4380d' : '#faad14' }}>
-                  <ExclamationCircleOutlined style={{ marginRight: 8 }} />
-                  {error.message}
-                </div>
-                <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
-                  {error.details && typeof error.details === 'string'
-                    ? error.details
-                    : error.details && JSON.stringify(error.details)}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ fontWeight: 500, color: error.status >= 500 ? '#d4380d' : '#faad14', marginBottom: 4 }}>
+                    <ExclamationCircleOutlined style={{ marginRight: 8 }} />
+                    {error.message}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+                    {error.details && typeof error.details === 'string'
+                      ? error.details
+                      : error.details && JSON.stringify(error.details)}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                    <Button size="small" type="link" icon={<ReloadOutlined />} onClick={() => (fixPermission as any)?.(error)} key="fix">Fix</Button>
+                    <Button size="small" type="text" onClick={() => dismissError(error.id)} key="close">Dismiss</Button>
+                  </div>
                 </div>
               </List.Item>
             )}
