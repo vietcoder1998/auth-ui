@@ -1,15 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
+import { useLoginCookie } from './useCookie.tsx';
 import { adminApi } from '../apis/admin.api.ts';
 import { env } from '../config/env.ts';
 
 export function useUpdatePermissions() {
-  const [fixingErrors, setFixingErrors] = useState<Set<string>>(new Set());
+  const [, , removeLoginCookie] = useLoginCookie();
+  const [fixingErrors, setFixingErrors] = useState<Set<string>>(() => {
+    try {
+      const cookie = Cookies.get('fixing_errors');
+      if (cookie) {
+        return new Set(JSON.parse(cookie));
+      }
+    } catch {}
+    return new Set();
+  });
   const [errors, setErrors] = useState<any[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const prevErrorCount = useRef(0);
 
-  // Poll for errors
+  // Poll for errors and sync fixingErrors to cookie
   useEffect(() => {
     const loadErrorsFromCookie = () => {
       try {
@@ -38,6 +48,11 @@ export function useUpdatePermissions() {
     return () => clearInterval(interval);
   }, []);
 
+  // Sync fixingErrors to cookie
+  useEffect(() => {
+    Cookies.set('fixing_errors', JSON.stringify(Array.from(fixingErrors)), { expires: 1 });
+  }, [fixingErrors]);
+
   const dismissError = (errorId: string) => {
     const updatedErrors = errors.filter(error => error.id !== errorId);
     setErrors(updatedErrors);
@@ -61,9 +76,12 @@ export function useUpdatePermissions() {
   ) => {
     const permission = extractPermissionFromError(error);
     if (!permission) return;
-    setFixingErrors(prev => new Set(prev).add(error.id));
+    setFixingErrors(prev => {
+      const next = new Set(prev).add(error.id);
+      Cookies.set('fixing_errors', JSON.stringify(Array.from(next)), { expires: 1 });
+      return next;
+    });
     try {
-      Cookies.remove('auth_user');
       let permissionId: string | null = null;
       try {
         const permissionsResponse = await adminApi.getPermissions();
@@ -102,6 +120,7 @@ export function useUpdatePermissions() {
       if (superAdminRole && typeof permissionId === 'string') {
         await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
         dismissErrorFn(error.id);
+  removeLoginCookie();
         try {
           const { getMe } = await import('../apis/auth.api.ts');
           await getMe();
@@ -119,6 +138,7 @@ export function useUpdatePermissions() {
       setFixingErrors(prev => {
         const newSet = new Set(prev);
         newSet.delete(error.id);
+        Cookies.set('fixing_errors', JSON.stringify(Array.from(newSet)), { expires: 1 });
         return newSet;
       });
     }

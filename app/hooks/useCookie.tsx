@@ -1,3 +1,35 @@
+// Custom hook for login cookie (auth_user)
+export function useLoginCookie(): [string | undefined, (value: string) => void, () => void] {
+  const [value, setValue] = useState<string | undefined>(() => {
+    try {
+      return Cookies.get('auth_user');
+    } catch {
+      return undefined;
+    }
+  });
+
+  const setCookieValue = (newValue: string) => {
+    setValue(newValue);
+    Cookies.set('auth_user', newValue, { expires: 1 });
+  };
+
+  const removeCookie = () => {
+    setValue(undefined);
+    Cookies.remove('auth_user');
+  };
+
+  useEffect(() => {
+    // Sync with cookie changes from other tabs/windows
+    const handleStorageChange = () => {
+      setValue(Cookies.get('auth_user'));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  return [value, setCookieValue, removeCookie];
+}
+
 // Custom hook for boolean cookies
 export function useBooleanCookie(
   name: string,
