@@ -1,37 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { publicApi } from '../apis/public.api.ts';
+import { useNavigate } from 'react-router-dom';
 import DefaultLayout from '../layouts/DefaultLayout.tsx';
-
-const blogPosts = [
-  {
-    title: 'Getting Started with Auth System',
-    date: '2025-10-01',
-    content: 'Learn how to register, login, and explore the dashboard features.',
-    category: 'Getting Started',
-  },
-  {
-    title: 'Managing Users and Roles',
-    date: '2025-10-10',
-    content: 'Tips for admins on managing users, roles, and permissions.',
-    category: 'Admin',
-  },
-  {
-    title: 'Integrating SSO and API Keys',
-    date: '2025-10-15',
-    content: 'How to set up Single Sign-On and use API keys for integrations.',
-    category: 'Integration',
-  },
-];
-
-import { useState } from 'react';
 
 const Blog: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const categories = ['All', ...Array.from(new Set(blogPosts.map((post) => post.category)))];
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const filteredPosts = blogPosts.filter(
+  useEffect(() => {
+    publicApi
+      .getBlogs()
+      .then((res) => setBlogs(res.data.data))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const categories = [
+    'All',
+    ...Array.from(new Set(blogs.map((post) => post.category?.name || 'Uncategorized'))),
+  ].filter(Boolean);
+
+  const filteredPosts = blogs.filter(
     (post) =>
-      (selectedCategory === 'All' || post.category === selectedCategory) &&
+      (selectedCategory === 'All' || post.category?.name === selectedCategory) &&
       (post.title.toLowerCase().includes(search.toLowerCase()) ||
         post.content.toLowerCase().includes(search.toLowerCase()))
   );
@@ -58,14 +51,17 @@ const Blog: React.FC = () => {
               )}
               {filteredPosts.map((post) => (
                 <div
-                  key={post.title}
-                  className="p-4 bg-gray-50 rounded border border-gray-200 shadow-sm"
+                  key={post.id}
+                  className="p-4 bg-gray-50 rounded border border-gray-200 shadow-sm cursor-pointer hover:bg-blue-50"
+                  onClick={() => navigate(`/blog/${post.id}`)}
                 >
                   <div className="font-bold text-blue-700 text-lg mb-1">{post.title}</div>
-                  <div className="text-xs text-gray-400 mb-2">{post.date}</div>
-                  <div className="text-gray-700 text-sm mb-2">{post.content}</div>
+                  <div className="text-xs text-gray-400 mb-2">
+                    {post.date && new Date(post.date).toLocaleDateString()}
+                  </div>
+                  <div className="text-gray-700 text-sm mb-2 line-clamp-3">{post.content}</div>
                   <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded">
-                    {post.category}
+                    {post.category?.name || 'Uncategorized'}
                   </span>
                 </div>
               ))}

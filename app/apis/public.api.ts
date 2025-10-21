@@ -13,7 +13,6 @@ export const publicApi = {
   createBlog: PublicBlogApi.createBlog,
   updateBlog: PublicBlogApi.updateBlog,
   deleteBlog: PublicBlogApi.deleteBlog,
-
   // Category
   getCategories: PublicCategoryApi.getCategories,
   getCategory: PublicCategoryApi.getCategory,

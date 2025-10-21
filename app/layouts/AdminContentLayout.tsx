@@ -21,8 +21,7 @@ import useCookie, { useBooleanCookie, useStringCookie } from '../hooks/useCookie
 import AdminHeader from './AdminHeader.tsx';
 import AdminSidebar from './AdminSidebar.tsx';
 
-const { Sider, Content, Header } = Layout;
-const { Title } = Typography;
+const { Content } = Layout;
 
 const adminLinks = [
   { path: '/admin', label: 'Dashboard', icon: <HomeOutlined /> },

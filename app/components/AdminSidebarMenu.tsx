@@ -30,6 +30,23 @@ export type MenuItem = {
 
 export const defaultSidebarMenu: MenuItem[] = [
   {
+    key: '/admin/blog',
+    icon: <FileTextOutlined />,
+    label: 'Blog',
+    children: [
+      {
+        key: '/admin/blog/blogs',
+        icon: <FileTextOutlined />,
+        label: 'Blog Posts',
+      },
+      {
+        key: '/admin/blog/categories',
+        icon: <FileOutlined />,
+        label: 'Categories',
+      },
+    ],
+  },
+  {
     key: '/admin',
     icon: <HomeOutlined />,
     label: 'Dashboard',

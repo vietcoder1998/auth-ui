@@ -18,6 +18,10 @@ export default [
   route('/admin', 'layouts/AdminContentLayout.tsx', [
     route('', 'pages/AdminIndexPage.tsx'), // /admin
 
+    // Blog management
+    route('blog/blogs', 'pages/system/AdminBlogPage.tsx'), // /admin/blog/blogs
+    route('blog/categories', 'pages/system/AdminCategoryPage.tsx'), // /admin/blog/categories
+
     // System management routes (including AI Management)
     route('system', 'pages/system/AdminSystemIndexPage.tsx'), // /admin/system
     route('system/users', 'pages/system/AdminUserPage.tsx'), // /admin/system/users
@@ -50,6 +54,7 @@ export default [
 
   // Blog page
   route('/blog', 'pages/Blog.tsx'),
+  route('/blog/:id', 'pages/BlogDetail.tsx'),
 
   // Root redirect (redirect to dashboard if authenticated, login if not)
   route('/', 'pages/Home.tsx'),
