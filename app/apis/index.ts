@@ -1,3 +1,29 @@
+// Push notification API
+export const pushNotification = async (payload: {
+  message: string;
+  type?: string;
+  templateId?: string;
+  errorPayload?: any;
+}) => {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL || 'http://localhost:13030/api'}/admin/notifications`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      }
+    );
+    if (!res.ok) throw new Error('Failed to push notification');
+    return await res.json();
+  } catch (err) {
+    console.error('Push notification error:', err);
+    return null;
+  }
+};
 import { message } from 'antd';
 import axios, { AxiosInstance } from 'axios';
 import { COOKIE_DOMAIN, COOKIE_PATH } from '../env.ts';

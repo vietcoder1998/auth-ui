@@ -1,6 +1,6 @@
 import { FaqApi } from './adminApi/FaqApi.ts';
-import { JobApi } from './adminApi/JobApi.ts';
 import { FileApi } from './adminApi/FileApi.ts';
+import { JobApi } from './adminApi/JobApi.ts';
 
 import { AgentApi } from './adminApi/AgentApi.ts';
 import { ApiKeyApi } from './adminApi/ApiKeyApi.ts';
@@ -21,6 +21,8 @@ import { SocketApi } from './adminApi/SocketApi.ts';
 import { SSOApi } from './adminApi/SSOApi.ts';
 import { TokenApi } from './adminApi/TokenApi.ts';
 import { UserApi } from './adminApi/UserApi.ts';
+
+// Notification CRUD
 export {
   AgentApi,
   ApiKeyApi,
@@ -218,4 +220,8 @@ export const adminApi = {
   startJob: JobApi.startJob,
   restartJob: JobApi.restartJob,
   cancelJob: JobApi.cancelJob,
+  getNotifications: NotificationApi.getNotifications,
+  createNotification: NotificationApi.createNotification,
+  updateNotification: NotificationApi.updateNotification,
+  deleteNotification: NotificationApi.deleteNotification,
 };
