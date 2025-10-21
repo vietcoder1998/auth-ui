@@ -81,8 +81,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: isDocker ? '#52c41a' : '#d4380d',
-            background: '#f6ffed',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -92,8 +91,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: '#1890ff',
-            background: '#e6f7ff',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -103,14 +101,13 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           href="https://rabbitmq.com"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ textDecoration: 'none' }}
+          style={{ textDecoration: 'underline', color: 'inherit', background: 'transparent' }}
         >
           <div
             style={{
               padding: '1px 6px',
               fontSize: 11,
-              color: '#faad14',
-              background: '#fffbe6',
+              background: 'transparent',
               borderRadius: 3,
               display: 'flex',
               alignItems: 'center',
@@ -124,8 +121,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: '#1890ff',
-            background: '#e6f7ff',
+            background: 'transparent',
             borderRadius: 3,
             cursor: 'pointer',
             display: 'flex',
@@ -163,7 +159,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
             padding: '1px 6px',
             fontSize: 11,
             color: status.api ? '#52c41a' : '#d4380d',
-            background: status.api ? '#f6ffed' : '#fff1f0',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -174,7 +170,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
             padding: '1px 6px',
             fontSize: 11,
             color: status.database ? '#52c41a' : '#d4380d',
-            background: status.database ? '#f6ffed' : '#fff1f0',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -185,7 +181,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
             padding: '1px 6px',
             fontSize: 11,
             color: status.redis ? '#52c41a' : '#d4380d',
-            background: status.redis ? '#f6ffed' : '#fff1f0',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -195,8 +191,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: '#722ed1',
-            background: '#f9f0ff',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -206,8 +201,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: '#13c2c2',
-            background: '#e6fffb',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -217,8 +211,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: '#eb2f96',
-            background: '#fff0f6',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >
@@ -228,8 +221,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           style={{
             padding: '1px 6px',
             fontSize: 11,
-            color: '#fa541c',
-            background: '#fff2e8',
+            background: 'transparent',
             borderRadius: 3,
           }}
         >

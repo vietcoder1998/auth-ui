@@ -44,38 +44,45 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
     padding: 0,
   },
 }) => {
-  // Debounce search
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      onSearch(value);
-    }, 300);
+  // Only trigger search on button click
+  const [inputValue, setInputValue] = React.useState(searchValue);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
   };
-
-  // If searchValue changes externally, clear debounce
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, []);
+  const handleSearchClick = () => {
+    onSearch(inputValue);
+  };
 
   return (
     <Card style={{ ...style, padding: 0 }} styles={{ body: { padding: 0 } }}>
       <Space direction="vertical" style={{ width: '100%' }}>
         {/* Main search row */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Search
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start',
+          }}
+        >
+          <Input
             placeholder={searchPlaceholder}
             allowClear
-            enterButton={<SearchOutlined />}
-            onSearch={onSearch}
-            onChange={handleChange}
+            value={inputValue}
+            onChange={handleInputChange}
             style={{ flex: 1, minWidth: '300px' }}
-            loading={loading}
+            disabled={loading}
           />
+          <Button
+            icon={<SearchOutlined />}
+            type="primary"
+            onClick={handleSearchClick}
+            loading={loading}
+            style={{ minWidth: 40 }}
+          >
+            Search
+          </Button>
           {showRefresh && onRefresh && (
             <Button icon={<ReloadOutlined />} onClick={onRefresh} loading={loading}>
               Refresh
@@ -86,7 +93,15 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
 
         {/* Filters row */}
         {filters.length > 0 && (
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '12px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start',
+            }}
+          >
             {filters.map((filter) => (
               <div key={filter.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '14px', color: '#666', whiteSpace: 'nowrap' }}>
@@ -110,6 +125,9 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
           </div>
         )}
       </Space>
+      {/* Example: Render search results as links (if extra is a list of results) */}
+      {/* You can pass a list of results as extra, or refactor to accept results prop */}
+      {/* Example usage: <CommonSearch extra={<ResultList results={results} />} ... /> */}
     </Card>
   );
 };
