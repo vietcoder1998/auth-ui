@@ -1,35 +1,8 @@
-// Push notification API
-export const pushNotification = async (payload: {
-  message: string;
-  type?: string;
-  templateId?: string;
-  errorPayload?: any;
-}) => {
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL || 'http://localhost:13030/api'}/admin/notifications`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        credentials: 'include',
-      }
-    );
-    if (!res.ok) throw new Error('Failed to push notification');
-    return await res.json();
-  } catch (err) {
-    console.error('Push notification error:', err);
-    return null;
-  }
-};
 import { message } from 'antd';
 import axios, { AxiosInstance } from 'axios';
-import { COOKIE_DOMAIN, COOKIE_PATH } from '../env.ts';
-import { COOKIE_FIXING_ERRORS } from '../env.ts';
 import Cookies from 'js-cookie';
 import { FixingError } from '~/hooks/useUpdatePermissions.ts';
+import { COOKIE_DOMAIN, COOKIE_FIXING_ERRORS, COOKIE_PATH } from '../env.ts';
 
 // Utility function to add errors to cookie from anywhere in the app
 export const addErrorToCookie = (error: {
@@ -122,6 +95,28 @@ export function getApiInstance(): AxiosInstance {
     },
   });
 
+  // Push notification API
+  const pushNotification = async (payload: {
+    message: string;
+    type?: string;
+    templateId?: string;
+    errorPayload?: any;
+  }) => {
+    try {
+      const res = await instance.post('/admin/notifications', payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      if (res.status < 200 || res.status >= 300) throw new Error('Failed to push notification');
+      return res.data;
+    } catch (err) {
+      console.error('Push notification error:', err);
+      return null;
+    }
+  };
+
   // Add interceptors for auth, error handling, etc.
   instance.interceptors.request.use((config) => {
     // Attach token from cookie
@@ -209,6 +204,12 @@ export function getApiInstance(): AxiosInstance {
               expires: 365,
             });
           }
+          // Push notification for 403 error
+          pushNotification({
+            message: errorMessage,
+            type: 'error',
+            errorPayload: JSON.stringify(errorDetails),
+          });
           message.error(errorMessage);
           break;
         case error.response?.status === 404:

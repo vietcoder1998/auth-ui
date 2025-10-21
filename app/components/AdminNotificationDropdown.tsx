@@ -31,88 +31,91 @@ export default function AdminNotificationDropdown() {
             dataSource={errors}
             locale={{ emptyText: 'No notifications' }}
             style={{ maxHeight: 350, overflowY: 'auto', background: 'white' }}
-            renderItem={(error: FixingError) => (
-              <List.Item
-                style={{
-                  background: 'white',
-                  borderBottom: '1px solid #f0f0f0',
-                  padding: '12px 16px',
-                  display: 'block',
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <div
-                    style={{
-                      fontWeight: 500,
-                      color: error.status >= 500 ? '#d4380d' : '#faad14',
-                      marginBottom: 4,
-                    }}
-                  >
-                    <ExclamationCircleOutlined style={{ marginRight: 8 }} />
-                    {error.responseData.message}
-                    {error.statusText && (
-                      <span style={{ marginLeft: 8, color: '#888', fontWeight: 400 }}>
-                        [Status: {error.statusText}]
-                      </span>
-                    )}
-                    {error.code && (
-                      <span style={{ marginLeft: 8, color: '#888', fontWeight: 400 }}>
-                        [Code: {error.code}]
-                      </span>
-                    )}
-                  </div>
-                  {error.responseData && (
-                    <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
-                      {typeof error.responseData === 'string'
-                        ? error.responseData
-                        : Object.keys(error.responseData).length > 0
-                          ? Object.entries(error.responseData)
-                              .map(
-                                ([key, value]) =>
-                                  `${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
-                              )
-                              .join(' | ')
-                          : null}
+            renderItem={(data: { errorPayload: string }) => {
+              const error = JSON.parse(data.errorPayload) as FixingError;
+              return (
+                <List.Item
+                  style={{
+                    background: 'white',
+                    borderBottom: '1px solid #f0f0f0',
+                    padding: '12px 16px',
+                    display: 'block',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        color: error.status >= 500 ? '#d4380d' : '#faad14',
+                        marginBottom: 4,
+                      }}
+                    >
+                      <ExclamationCircleOutlined style={{ marginRight: 8 }} />
+                      {error.responseData.message}
+                      {error.statusText && (
+                        <span style={{ marginLeft: 8, color: '#888', fontWeight: 400 }}>
+                          [Status: {error.statusText}]
+                        </span>
+                      )}
+                      {error.code && (
+                        <span style={{ marginLeft: 8, color: '#888', fontWeight: 400 }}>
+                          [Code: {error.code}]
+                        </span>
+                      )}
                     </div>
-                  )}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                    {fixedIds.includes(error.id) ? (
-                      <Button size="small" type="text" disabled style={{ color: 'green' }}>
-                        Fixed
-                      </Button>
-                    ) : (
+                    {error.responseData && (
+                      <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+                        {typeof error.responseData === 'string'
+                          ? error.responseData
+                          : Object.keys(error.responseData).length > 0
+                            ? Object.entries(error.responseData)
+                                .map(
+                                  ([key, value]) =>
+                                    `${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
+                                )
+                                .join(' | ')
+                            : null}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                      {fixedIds.includes(error.id) ? (
+                        <Button size="small" type="text" disabled style={{ color: 'green' }}>
+                          Fixed
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          type="link"
+                          icon={<ReloadOutlined />}
+                          loading={fixingId === error.id}
+                          onClick={async () => {
+                            setFixingId(error.id);
+                            await fixPermission(error, dismissError);
+                            setFixingId(null);
+                            setFixedIds((ids) => [...ids, error.id]);
+                            setTimeout(() => {
+                              setFixedIds((ids) => ids.filter((id) => id !== error.id));
+                              dismissError(error.id);
+                            }, 5000);
+                          }}
+                          key="fix"
+                        >
+                          Fix
+                        </Button>
+                      )}
                       <Button
                         size="small"
-                        type="link"
-                        icon={<ReloadOutlined />}
-                        loading={fixingId === error.id}
-                        onClick={async () => {
-                          setFixingId(error.id);
-                          await fixPermission(error, dismissError);
-                          setFixingId(null);
-                          setFixedIds((ids) => [...ids, error.id]);
-                          setTimeout(() => {
-                            setFixedIds((ids) => ids.filter((id) => id !== error.id));
-                            dismissError(error.id);
-                          }, 5000);
-                        }}
-                        key="fix"
+                        type="text"
+                        onClick={() => dismissError(error.id)}
+                        key="close"
                       >
-                        Fix
+                        Dismiss
                       </Button>
-                    )}
-                    <Button
-                      size="small"
-                      type="text"
-                      onClick={() => dismissError(error.id)}
-                      key="close"
-                    >
-                      Dismiss
-                    </Button>
+                    </div>
                   </div>
-                </div>
-              </List.Item>
-            )}
+                </List.Item>
+              );
+            }}
           />
           {errors.length > 1 && (
             <div style={{ textAlign: 'right', padding: '8px 16px' }}>

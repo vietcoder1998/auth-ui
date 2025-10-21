@@ -25,10 +25,20 @@ export interface FixingError {
   };
 }
 
+export interface NotificationItem {
+  id: string;
+  type: string;
+  message: string;
+  errorPayload: string; // JSON stringified FixingError
+  read: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export function useUpdatePermissions() {
   // Use useLoginCookie for all login cookie handling
   const [, , removeLoginCookie] = useLoginCookie();
-  const [errors, setErrors] = useState<FixingError[]>([]);
+  const [errors, setErrors] = useState<NotificationItem[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const prevErrorCount = useRef(0);
 
@@ -47,8 +57,8 @@ export function useUpdatePermissions() {
       try {
         // Replace with your notification API endpoint for errors
         const response = await adminApi.getNotifications();
-        const errorNotifications = Array.isArray(response.data)
-          ? response.data.filter((n: any) => n.type === 'error')
+        const errorNotifications = Array.isArray(response.data.data)
+          ? response.data.data.filter((n: any) => n.type === 'error')
           : [];
         setErrors(errorNotifications);
         if (errorNotifications.length > 0 && !notifOpen) {
