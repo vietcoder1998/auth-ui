@@ -102,16 +102,26 @@ const Login: React.FC = () => {
               { required: true, message: 'Please input your email!' },
               { type: 'email', message: 'Please enter a valid email!' },
             ]}
+            style={{ marginBottom: 20 }}
           >
-            <Input prefix={<UserOutlined />} placeholder="Enter your email" />
+            <Input
+              prefix={<UserOutlined />}
+              placeholder="Enter your email"
+              style={{ marginBottom: 8 }}
+            />
           </Form.Item>
 
           <Form.Item
             name="password"
             label="Password"
             rules={[{ required: true, message: 'Please input your password!' }]}
+            style={{ marginBottom: 20 }}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="Enter your password" />
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Enter your password"
+              style={{ marginBottom: 8 }}
+            />
           </Form.Item>
 
           <Form.Item>
