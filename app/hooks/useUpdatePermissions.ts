@@ -28,66 +28,60 @@ export interface FixingError {
 export function useUpdatePermissions() {
   // Use useLoginCookie for all login cookie handling
   const [, , removeLoginCookie] = useLoginCookie();
-  // Use useCookie for fixing_errors
-  const [fixingErrorsArr, setFixingErrorsArr, removeFixingErrorsCookie] = useCookie<FixingError[]>(
-    COOKIE_FIXING_ERRORS,
-    []
-  );
-  // ...existing code...
-  console.log('fixingErrorsArr:', fixingErrorsArr);
-  // Set of error ids for quick lookup
-  const fixingErrorIds = new Set<string>(fixingErrorsArr.map((e) => e.id));
   const [errors, setErrors] = useState<FixingError[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const prevErrorCount = useRef(0);
-  // Extract permission from URL for 403 errors
 
+  // Extract permission from URL for 403 errors
   const extractPermissionFromError = (error: FixingError): string | null => {
     if (error.status !== 403) return null;
-
     const url = error?.url;
     const method = error?.method || 'GET';
-
     const permissionInfo = extractPermissionFromUrl(url ?? '', method);
     return permissionInfo?.resource || null;
   };
-  // Poll for errors and sync fixingErrors to cookie
+
+  // Fetch errors from backend (not cookie)
   useEffect(() => {
-    // Use useCookie for reading fixing_errors cookie
-    const loadErrorsFromCookie = () => {
+    const fetchErrors = async () => {
       try {
-        const parsedErrors = Array.isArray(fixingErrorsArr) ? fixingErrorsArr : [];
-        setErrors(parsedErrors);
-        // Always open dropdown if there are errors and not already open
-        if (parsedErrors.length > 0 && !notifOpen) {
+        // Replace with your notification API endpoint for errors
+        const response = await adminApi.getNotifications();
+        const errorNotifications = Array.isArray(response.data)
+          ? response.data.filter((n: any) => n.type === 'error')
+          : [];
+        setErrors(errorNotifications);
+        if (errorNotifications.length > 0 && !notifOpen) {
           setNotifOpen(true);
         }
-        prevErrorCount.current = parsedErrors.length;
+        prevErrorCount.current = errorNotifications.length;
       } catch {
         setErrors([]);
         prevErrorCount.current = 0;
       }
     };
-    loadErrorsFromCookie();
-    const interval = setInterval(loadErrorsFromCookie, 1000);
+    fetchErrors();
+    const interval = setInterval(fetchErrors, 10000); // poll every 10s
     return () => clearInterval(interval);
-  }, [notifOpen, fixingErrorsArr]);
+  }, [notifOpen]);
 
-  // No need to sync fixingErrors to cookie, handled by setFixingErrorsArr when updating
-
-  const dismissError = (errorId: string) => {
-    const updatedErrors = fixingErrorsArr.filter((error) => error.id !== errorId);
-    setErrors(updatedErrors);
-    if (updatedErrors.length > 0) {
-      setFixingErrorsArr(updatedErrors);
-    } else {
-      removeFixingErrorsCookie();
+  const dismissError = async (errorId: string) => {
+    try {
+      await adminApi.deleteNotification(errorId);
+      setErrors(errors.filter((error) => error.id !== errorId));
+    } catch {
+      // fallback: just remove from state
+      setErrors(errors.filter((error) => error.id !== errorId));
     }
   };
 
-  const dismissAllErrors = () => {
-    setErrors([]);
-    removeFixingErrorsCookie();
+  const dismissAllErrors = async () => {
+    try {
+      await Promise.all(errors.map((error) => adminApi.deleteNotification(error.id)));
+      setErrors([]);
+    } catch {
+      setErrors([]);
+    }
   };
 
   const fixPermission = async (
@@ -98,10 +92,6 @@ export function useUpdatePermissions() {
     console.log(error);
     const permission = extractPermissionFromError(error);
     if (!permission) return;
-    // Add error to fixingErrorsArr if not present
-    if (!fixingErrorIds.has(error.id)) {
-      setFixingErrorsArr([...fixingErrorsArr, error]);
-    }
     try {
       let permissionId: string | null = null;
       try {
@@ -148,7 +138,7 @@ export function useUpdatePermissions() {
         : null;
       if (superAdminRole && typeof permissionId === 'string') {
         await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
-        dismissErrorFn(error.id);
+        await dismissErrorFn(error.id);
         removeLoginCookie();
         try {
           const { getMe } = await import('../apis/auth.api.ts');
@@ -163,14 +153,10 @@ export function useUpdatePermissions() {
       }
     } catch (error) {
       console.error('Failed to fix permission:', error);
-    } finally {
-      // Remove error from fixingErrorsArr
-      setFixingErrorsArr(fixingErrorsArr.filter((e) => e.id !== error.id));
     }
   };
 
   return {
-    fixingErrorsArr,
     fixPermission,
     errors,
     notifOpen,
