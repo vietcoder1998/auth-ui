@@ -3,6 +3,7 @@ import { adminApi } from '../../apis/admin.api.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import BillingDetailModal from '../../modals/BillingDetailModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddBillingModal for add/edit
@@ -13,6 +14,8 @@ export default function AdminBillingPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBilling, setEditingBilling] = useState<any | null>(null);
   const [search, setSearch] = useState('');
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedBilling, setSelectedBilling] = useState<any | null>(null);
 
   useEffect(() => {
     fetchBillings();
@@ -80,6 +83,12 @@ export default function AdminBillingPage() {
     setModalVisible(true);
   };
 
+  // Calculate summary
+  const totalAmount = billings.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+  const paidCount = billings.filter((b) => b.status === 'paid').length;
+  const pendingCount = billings.filter((b) => b.status === 'pending').length;
+  const failedCount = billings.filter((b) => b.status === 'failed').length;
+
   return (
     <div>
       <Title level={2}>Billing Management</Title>
@@ -137,10 +146,59 @@ export default function AdminBillingPage() {
               <List.Item.Meta
                 title={
                   <span>
-                    Billing ID: {item.id}{' '}
+                    Billing ID:{' '}
+                    <Button
+                      type="link"
+                      style={{ padding: 0, fontWeight: 500 }}
+                      onClick={() => {
+                        setSelectedBilling(item);
+                        setDetailModalVisible(true);
+                      }}
+                    >
+                      {item.id}
+                    </Button>
                     {item.keyId && (
                       <span style={{ marginLeft: 12, color: '#888', fontSize: 13 }}>
                         Key: <b>{item.keyName || item.keyId}</b>
+                      </span>
+                    )}
+                    {/* Status color */}
+                    <span
+                      style={{
+                        marginLeft: 16,
+                        fontWeight: 500,
+                        color:
+                          item.status === 'paid'
+                            ? '#52c41a'
+                            : item.status === 'pending'
+                              ? '#faad14'
+                              : item.status === 'failed'
+                                ? '#d4380d'
+                                : '#888',
+                        background:
+                          item.status === 'paid'
+                            ? '#f6ffed'
+                            : item.status === 'pending'
+                              ? '#fffbe6'
+                              : item.status === 'failed'
+                                ? '#fff1f0'
+                                : undefined,
+                        borderRadius: 4,
+                        padding: '2px 8px',
+                      }}
+                    >
+                      {item.status}
+                    </span>
+                    {/* Amount color */}
+                    {item.amount !== undefined && (
+                      <span
+                        style={{
+                          marginLeft: 16,
+                          fontWeight: 700,
+                          color: item.amount > 0 ? '#1890ff' : '#888',
+                        }}
+                      >
+                        {item.amount}
                       </span>
                     )}
                   </span>
@@ -160,6 +218,23 @@ export default function AdminBillingPage() {
           )}
         />
       </Card>
+      <div
+        style={{
+          marginTop: 24,
+          padding: 16,
+          background: '#fafafa',
+          borderRadius: 8,
+          border: '1px solid #eee',
+        }}
+      >
+        <b>Summary:</b> Total Billings: {billings.length}, Paid: {paidCount}, Pending:{' '}
+        {pendingCount}, Failed: {failedCount}, Total Amount: <b>{totalAmount}</b>
+      </div>
+      <BillingDetailModal
+        visible={detailModalVisible}
+        billing={selectedBilling}
+        onCancel={() => setDetailModalVisible(false)}
+      />
       {/* TODO: Add AddBillingModal component for add/edit */}
     </div>
   );

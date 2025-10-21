@@ -3,6 +3,7 @@ import { adminApi } from '../../apis/admin.api.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import AIPlatformModal from '../../modals/AIPlatformModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddAIPlatformModal for add/edit
@@ -137,7 +138,24 @@ export default function AdminAIPlatformPage() {
               <List.Item.Meta
                 title={
                   <span>
-                    Platform ID: {item.id}{' '}
+                    Platform ID:{' '}
+                    <Button
+                      type="link"
+                      style={{
+                        padding: 0,
+                        fontWeight: 700,
+                        color: '#1890ff',
+                        background: '#e6f7ff',
+                        borderRadius: 4,
+                        marginRight: 8,
+                      }}
+                      onClick={() => {
+                        setEditingPlatform(item);
+                        setModalVisible(true);
+                      }}
+                    >
+                      {item.id}
+                    </Button>
                     {item.name && (
                       <span style={{ marginLeft: 12, color: '#888', fontSize: 13 }}>
                         Name: <b>{item.name}</b>
@@ -162,7 +180,12 @@ export default function AdminAIPlatformPage() {
           )}
         />
       </Card>
-      {/* TODO: Add AddAIPlatformModal component for add/edit */}
+      <AIPlatformModal
+        visible={modalVisible}
+        editingPlatform={editingPlatform}
+        onOk={handleModalOk}
+        onCancel={() => setModalVisible(false)}
+      />
     </div>
   );
 }
