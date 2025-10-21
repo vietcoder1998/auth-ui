@@ -40,6 +40,12 @@ export default function AddAIKeyModal({
     } catch {}
   };
 
+  // Filter agents by selected platform
+  const selectedPlatformId = form.getFieldValue('platformId');
+  const filteredAgents = selectedPlatformId
+    ? agents.filter((a) => a.platformId === selectedPlatformId)
+    : agents;
+
   return (
     <Modal
       open={visible}
@@ -68,7 +74,13 @@ export default function AddAIKeyModal({
           label="Platform"
           rules={[{ required: true, message: 'Please select a platform' }]}
         >
-          <Select placeholder="Select platform">
+          <Select
+            placeholder="Select platform"
+            onChange={() => {
+              // Reset agent selection when platform changes
+              form.setFieldsValue({ agentIds: [] });
+            }}
+          >
             {(platforms as any[]).map((p) => (
               <Select.Option key={p.id} value={p.id}>
                 {p.name}
@@ -83,7 +95,7 @@ export default function AddAIKeyModal({
             allowClear
             optionFilterProp="children"
           >
-            {(agents as any[]).map((a) => (
+            {(filteredAgents as any[]).map((a) => (
               <Select.Option key={a.id} value={a.id}>
                 {a.name}
               </Select.Option>
@@ -94,6 +106,38 @@ export default function AddAIKeyModal({
           <Input.TextArea rows={2} placeholder="Description (optional)" />
         </Form.Item>
       </Form>
+
+      {/* Display conversations for selected agents */}
+      {form.getFieldValue('agentIds') && form.getFieldValue('agentIds').length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <h4>Conversations for selected AI Agents:</h4>
+          {form.getFieldValue('agentIds').map((agentId: string) => {
+            const agent = agents.find((a) => a.id === agentId);
+            return (
+              <div
+                key={agentId}
+                style={{ marginBottom: 12, padding: 8, border: '1px solid #eee', borderRadius: 4 }}
+              >
+                <div style={{ fontWeight: 500, marginBottom: 4 }}>{agent?.name || agentId}</div>
+                {agent?.conversations && agent.conversations.length > 0 ? (
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {agent.conversations.map((conv: any) => (
+                      <li key={conv.id}>
+                        <span style={{ fontWeight: 500 }}>{conv.title || 'Untitled'}</span>
+                        {conv.summary ? (
+                          <span style={{ color: '#888', marginLeft: 8 }}>{conv.summary}</span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div style={{ color: '#888' }}>No conversations found.</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </Modal>
   );
 }
