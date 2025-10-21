@@ -1,5 +1,4 @@
 import {
-  DatabaseOutlined,
   DragOutlined,
   ExpandOutlined,
   HomeOutlined,
@@ -7,7 +6,6 @@ import {
   MessageOutlined,
   MinusOutlined,
   ProfileOutlined,
-  SettingOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
@@ -22,12 +20,6 @@ import AdminHeader from './AdminHeader.tsx';
 import AdminSidebar from './AdminSidebar.tsx';
 
 const { Content } = Layout;
-
-const adminLinks = [
-  { path: '/admin', label: 'Dashboard', icon: <HomeOutlined /> },
-  { path: '/admin/system', label: 'System Management', icon: <DatabaseOutlined /> },
-  { path: '/admin/settings', label: 'Settings Management', icon: <SettingOutlined /> },
-];
 
 export default function AdminContentLayout() {
   const { pathname } = useLocation();
@@ -78,10 +70,6 @@ export default function AdminContentLayout() {
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const handleMenuClick = (key: string) => {
-    navigate(key);
   };
 
   // Generate breadcrumb items based on current path

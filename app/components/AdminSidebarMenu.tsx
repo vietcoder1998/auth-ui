@@ -29,23 +29,7 @@ export type MenuItem = {
 };
 
 export const defaultSidebarMenu: MenuItem[] = [
-  {
-    key: '/admin/blog',
-    icon: <FileTextOutlined />,
-    label: 'Blog',
-    children: [
-      {
-        key: '/admin/blog/blogs',
-        icon: <FileTextOutlined />,
-        label: 'Blog Posts',
-      },
-      {
-        key: '/admin/blog/categories',
-        icon: <FileOutlined />,
-        label: 'Categories',
-      },
-    ],
-  },
+  // Blog moved under User Management below
   {
     key: '/admin',
     icon: <HomeOutlined />,
@@ -76,6 +60,11 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <FileTextOutlined />,
         label: 'FAQ',
       },
+      {
+        key: '/admin/system/jobs',
+        icon: <ThunderboltOutlined />,
+        label: 'Jobs',
+      },
     ],
   },
   {
@@ -103,6 +92,28 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <HistoryOutlined />,
         label: 'Login History',
       },
+      {
+        key: '/admin/blog',
+        icon: <FileTextOutlined />,
+        label: 'Blog',
+        children: [
+          {
+            key: '/admin/blog/blogs',
+            icon: <FileTextOutlined />,
+            label: 'Blog Posts',
+          },
+          {
+            key: '/admin/blog/categories',
+            icon: <FileOutlined />,
+            label: 'Categories',
+          },
+        ],
+      },
+      {
+        key: '/admin/settings/api-keys',
+        icon: <KeyOutlined />,
+        label: 'API Keys',
+      },
     ],
   },
   {
@@ -127,11 +138,6 @@ export const defaultSidebarMenu: MenuItem[] = [
     icon: <DatabaseOutlined />,
     label: 'System Management',
     children: [
-      {
-        key: '/admin/system/jobs',
-        icon: <ThunderboltOutlined />,
-        label: 'Jobs',
-      },
       {
         key: '/admin/system/permissions',
         icon: <SafetyOutlined />,
@@ -169,11 +175,6 @@ export const defaultSidebarMenu: MenuItem[] = [
     icon: <SettingOutlined />,
     label: 'Settings Management',
     children: [
-      {
-        key: '/admin/settings/api-keys',
-        icon: <KeyOutlined />,
-        label: 'API Keys',
-      },
       {
         key: '/admin/settings/mail',
         icon: <MailOutlined />,
