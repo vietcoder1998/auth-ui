@@ -5,7 +5,8 @@ import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
-// TODO: Create AddAIKeyModal for add/edit
+
+import AddAIKeyModal from '../../components/AddAIKeyModal.tsx';
 
 export default function AdminAIKeyPage() {
   const [aiKeys, setAIKeys] = useState<any[]>([]);
@@ -13,9 +14,13 @@ export default function AdminAIKeyPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingKey, setEditingKey] = useState<any | null>(null);
   const [search, setSearch] = useState('');
+  const [platforms, setPlatforms] = useState<any[]>([]);
+  const [agents, setAgents] = useState<any[]>([]);
 
   useEffect(() => {
     fetchAIKeys();
+    fetchPlatforms();
+    fetchAgents();
   }, []);
 
   useEffect(() => {
@@ -45,6 +50,24 @@ export default function AdminAIKeyPage() {
       message.error('Failed to fetch AI Keys');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlatforms = async () => {
+    try {
+      const response = await adminApi.getAIPlatforms();
+      setPlatforms(response?.data?.data || []);
+    } catch {
+      setPlatforms([]);
+    }
+  };
+
+  const fetchAgents = async () => {
+    try {
+      const response = await adminApi.getAgents();
+      setAgents(response?.data?.data || []);
+    } catch {
+      setAgents([]);
     }
   };
 
@@ -160,7 +183,17 @@ export default function AdminAIKeyPage() {
           )}
         />
       </Card>
-      {/* TODO: Add AddAIKeyModal component for add/edit */}
+      <AddAIKeyModal
+        visible={modalVisible}
+        onOk={handleModalOk}
+        onCancel={() => {
+          setModalVisible(false);
+          setEditingKey(null);
+        }}
+        editingKey={editingKey}
+        platforms={platforms}
+        agents={agents}
+      />
     </div>
   );
 }
