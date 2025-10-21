@@ -25,9 +25,13 @@ export const documentApi = {
     const axios = getApiInstance();
     return axios.post('/admin/files/upload', formData, {
       headers: {
-        // Do NOT set 'Content-Type' manually!
-        'Content-Type': 'multipart/form-data', // let axios/browser set this
+        'Content-Type': 'multipart/form-data',
       },
     });
+  },
+
+  async startExtractJob(documentId: string) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/documents/${documentId}/start-extract-job`);
   },
 };

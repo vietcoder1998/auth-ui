@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { documentApi } from '../../apis/document.api.ts';
 import { Table, Button, Tag, Space, Modal, Spin, Upload, message } from 'antd';
-import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  PlayCircleOutlined,
+} from '@ant-design/icons';
 
 export default function AdminDocumentPage() {
   const [documents, setDocuments] = useState([]);
@@ -56,6 +61,15 @@ export default function AdminDocumentPage() {
     setUploading(false);
   };
 
+  const handleStartExtractJob = async (doc: any) => {
+    try {
+      await documentApi.startExtractJob(doc.id);
+      message.success('Extract job started');
+    } catch (error) {
+      message.error('Failed to start extract job');
+    }
+  };
+
   const columns = [
     { title: 'Name', dataIndex: 'originalname', key: 'originalname' },
     {
@@ -88,6 +102,14 @@ export default function AdminDocumentPage() {
             onClick={() => handleDelete(doc.id)}
           >
             Delete
+          </Button>
+          <Button
+            type="default"
+            icon={<PlayCircleOutlined />}
+            size="small"
+            onClick={() => handleStartExtractJob(doc)}
+          >
+            Extract
           </Button>
         </Space>
       ),
