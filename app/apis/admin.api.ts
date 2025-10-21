@@ -1,4 +1,5 @@
 import { FaqApi } from './adminApi/FaqApi.ts';
+import { SystemApi } from './adminApi/SystemApi.ts';
 import { FileApi } from './adminApi/FileApi.ts';
 import { JobApi } from './adminApi/JobApi.ts';
 
@@ -247,7 +248,5 @@ export const adminApi = {
   deleteBilling: BillingApi.deleteBilling,
 
   // System: Restart server
-  restartServer: async () => {
-    return axios.post('/api/admin/system/restart');
-  },
+  restartServer: SystemApi.restartServer,
 };
