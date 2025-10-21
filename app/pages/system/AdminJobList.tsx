@@ -74,6 +74,12 @@ export default function AdminJobList() {
       render: (type: string) => <Tag color="blue">{type}</Tag>,
     },
     {
+      title: 'Total Run',
+      dataIndex: 'totalRun',
+      key: 'totalRun',
+      render: (totalRun: number) => <Tag color="purple">{totalRun ?? 0}</Tag>,
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
@@ -136,10 +142,26 @@ export default function AdminJobList() {
         {viewJob && (
           <div>
             <p>
-              <b>Type:</b> {viewJob.type}
+              <b>Type:</b> <Tag color="blue">{viewJob.type}</Tag>
             </p>
             <p>
-              <b>Status:</b> {viewJob.status}
+              <b>Total Run:</b> <Tag color="purple">{viewJob.totalRun ?? 0}</Tag>
+            </p>
+            <p>
+              <b>Status:</b>{' '}
+              <Tag
+                color={
+                  viewJob.status === 'completed'
+                    ? 'green'
+                    : viewJob.status === 'failed'
+                      ? 'red'
+                      : viewJob.status === 'running'
+                        ? 'orange'
+                        : 'default'
+                }
+              >
+                {viewJob.status}
+              </Tag>
             </p>
             <p>
               <b>Created:</b> {new Date(viewJob.createdAt).toLocaleString()}
