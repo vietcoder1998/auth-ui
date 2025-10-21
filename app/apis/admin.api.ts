@@ -47,6 +47,8 @@ export {
   UserApi,
 };
 
+import axios from 'axios';
+
 export const adminApi = {
   // AIKeyApi (for /admin/ai-keys)
   getAIKeys: ApiKeyApi.getApiKeys,
@@ -243,4 +245,9 @@ export const adminApi = {
   createBilling: BillingApi.createBilling,
   updateBilling: BillingApi.updateBilling,
   deleteBilling: BillingApi.deleteBilling,
+
+  // System: Restart server
+  restartServer: async () => {
+    return axios.post('/api/admin/system/restart');
+  },
 };

@@ -3,6 +3,7 @@ import { Avatar, Dropdown, Input, List, Spin, Tag } from 'antd';
 import React from 'react';
 import { adminApi } from '~/apis/admin.api.ts';
 import AdminNotificationDropdown from '~/components/AdminNotificationDropdown.tsx';
+import AppBackEndStatus from '~/components/AppBackEndStatus.tsx';
 import StatusIndicator from '~/components/StatusIndicator.tsx';
 import { useAuth } from '~/hooks/useAuth.tsx';
 // System status fetcher
@@ -16,6 +17,27 @@ type SystemStatus = {
   uptime?: number;
   timestamp?: string;
   cpuLoad?: number;
+  os?: {
+    platform?: string;
+    arch?: string;
+    release?: string;
+    hostname?: string;
+    isDocker?: boolean;
+  };
+  port?: string | number;
+  jobs?: any[];
+  childProcess?: {
+    pid?: number;
+    ppid?: number;
+    execPath?: string;
+    argv?: string[];
+    cwd?: string;
+    title?: string;
+    platform?: string;
+    version?: string;
+    versions?: Record<string, any>;
+    env?: Record<string, any>;
+  };
 };
 
 function useSystemStatus(): SystemStatus | null {
@@ -144,6 +166,13 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
   const [searchVisible, setSearchVisible] = React.useState<boolean>(false);
   const [searchLoading, setSearchLoading] = React.useState<boolean>(false);
 
+  // Extract extra info from systemStatus
+  const isDocker = systemStatus?.os?.isDocker;
+  const port = systemStatus?.port;
+  const jobs = Array.isArray(systemStatus?.jobs) ? systemStatus.jobs : [];
+  const processId = systemStatus?.childProcess?.pid;
+  const childProcessInfo = systemStatus?.childProcess;
+
   React.useEffect(() => {
     if (search.length < 2) {
       setSearchResults([]);
@@ -169,15 +198,17 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
         background: '#fff',
         borderBottom: '1px solid #eee',
         padding: 24,
-        height: 64,
+        height: 'auto',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
         position: 'sticky',
         top: 0,
         zIndex: 1000,
       }}
     >
+      {/* System Info Header - now using AppBackEndStatus */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
         <Dropdown
           open={searchVisible && (searchResults.length > 0 || searchLoading)}
@@ -248,6 +279,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
           />
         </Dropdown>
       </div>
+      <AppBackEndStatus status={systemStatus || undefined} />
     </div>
   );
 };
