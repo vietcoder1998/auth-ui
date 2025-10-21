@@ -59,7 +59,10 @@ const Blog: React.FC = () => {
                   <div className="text-xs text-gray-400 mb-2">
                     {post.date && new Date(post.date).toLocaleDateString()}
                   </div>
-                  <div className="text-gray-700 text-sm mb-2 line-clamp-3">{post.content}</div>
+                  <div
+                    className="text-gray-700 text-sm mb-2 line-clamp-3"
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
                   <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded">
                     {post.category?.name || 'Uncategorized'}
                   </span>

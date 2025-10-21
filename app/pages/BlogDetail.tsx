@@ -56,7 +56,10 @@ const BlogDetail: React.FC = () => {
           <Tag color="blue">{blog.category?.name}</Tag>
           {blog.author && <Tag color="green">{blog.author}</Tag>}
         </div>
-        <div className="text-gray-700 text-base whitespace-pre-line">{blog.content}</div>
+        <div
+          className="text-gray-700 text-base"
+          dangerouslySetInnerHTML={{ __html: blog.content }}
+        />
       </div>
     </DefaultLayout>
   );
