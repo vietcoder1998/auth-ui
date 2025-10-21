@@ -41,6 +41,9 @@ export default [
     route('system/sockets', 'pages/system/AdminSocketPage.tsx'), // /admin/system/sockets
     route('system/documents', 'pages/system/AdminDocumentPage.tsx'), // /admin/system/documents
     route('system/files', 'pages/system/AdminFileListPage.tsx'), // /admin/system/files
+    route('system/ai-platforms', 'pages/system/AdminAIPlatformPage.tsx'), // /admin/system/ai-platforms
+    route('system/ai-keys', 'pages/system/AdminAIKeyPage.tsx'), // /admin/system/ai-keys
+    route('system/billings', 'pages/system/AdminBillingPage.tsx'), // /admin/system/billings
 
     // Settings management routes
     route('settings', 'pages/settings/AdminSettingsIndexPage.tsx'), // /admin/settings
