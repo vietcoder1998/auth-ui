@@ -1,5 +1,5 @@
 import { UploadOutlined } from '@ant-design/icons';
-import { message, Modal, Upload } from 'antd';
+import { message, Modal, Upload, Select } from 'antd';
 import React, { useState } from 'react';
 import { getApiInstance } from '../../apis/index.ts';
 
@@ -12,6 +12,7 @@ interface UploadFileModalProps {
 const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, onSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
+  const [docType, setDocType] = useState<'backup' | 'document'>('document');
 
   // Clear fileList when modal is closed
   const handleCancel = () => {
@@ -29,7 +30,7 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
     fileList.forEach((file) => {
       formData.append('file', file.originFileObj);
     });
-    formData.append('type', 'document');
+    formData.append('type', docType);
     try {
       const axios = getApiInstance();
       await axios.post('/admin/documents/upload', formData, {
@@ -55,6 +56,10 @@ const UploadFileModal: React.FC<UploadFileModalProps> = ({ visible, onCancel, on
       okText="Upload"
       destroyOnHidden
     >
+      <Select value={docType} onChange={setDocType} style={{ width: '100%', marginBottom: 16 }}>
+        <Select.Option value="document">Document</Select.Option>
+        <Select.Option value="backup">Backup</Select.Option>
+      </Select>
       <Upload.Dragger
         multiple={false}
         fileList={fileList}

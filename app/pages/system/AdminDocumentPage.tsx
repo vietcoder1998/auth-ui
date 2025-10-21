@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { documentApi } from '../../apis/document.api.ts';
-import { Table, Button, Tag, Space, Modal, Input, Select, Spin, Upload, message } from 'antd';
+import { Table, Button, Tag, Space, Modal, Spin, Upload, message } from 'antd';
 import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 
 export default function AdminDocumentPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [type, setType] = useState('agent');
+  // Always use type 'document'
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchDocuments();
-  }, [type]);
+  }, []);
 
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const res = await documentApi.listDocuments({ type });
+      const res = await documentApi.listDocuments({ type: 'document' });
       setDocuments(res.data.data.data || []);
     } catch (error) {
       message.error('Failed to load documents');
@@ -42,9 +42,11 @@ export default function AdminDocumentPage() {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', info.file);
-    formData.append('type', type);
+    formData.append('type', 'document');
     try {
       await documentApi.uploadFile(formData);
+      // Optionally, add a new record to documents table if not handled by backend
+      // await documentApi.createDocument({ name: info.file.name, type: 'document', ... });
       message.success('File uploaded');
       setUploadModalVisible(false);
       await fetchDocuments();
@@ -95,11 +97,7 @@ export default function AdminDocumentPage() {
   return (
     <div style={{ padding: 24 }}>
       <h2>Admin Document Management</h2>
-      <div style={{ marginBottom: 16, display: 'flex', gap: 16 }}>
-        <Select value={type} onChange={setType} style={{ width: 180 }}>
-          <Select.Option value="agent">Agent</Select.Option>
-          <Select.Option value="other">Other</Select.Option>
-        </Select>
+      <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setUploadModalVisible(true)}>
           Upload Document
         </Button>
