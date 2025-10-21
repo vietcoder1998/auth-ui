@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-// Remove direct js-cookie usage
 import { COOKIE_FIXING_ERRORS } from '~/env.ts';
 import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
 import { adminApi } from '../apis/admin.api.ts';
@@ -78,26 +77,26 @@ export function useUpdatePermissions() {
   const dismissError = async (errorId: string) => {
     try {
       await adminApi.deleteNotification(errorId);
-      setErrors(errors.filter((error) => error.id !== errorId));
     } catch {
-      // fallback: just remove from state
-      setErrors(errors.filter((error) => error.id !== errorId));
+      // fallback: ignore
     }
+    setErrors((prev) => prev.filter((error) => error.id !== errorId));
   };
 
   const dismissAllErrors = async () => {
     try {
       await Promise.all(errors.map((error) => adminApi.deleteNotification(error.id)));
-      setErrors([]);
     } catch {
-      setErrors([]);
+      // fallback: ignore
     }
+    setErrors([]);
   };
 
   const fixPermission = async (
+    dataId: string,
     error: FixingError,
     dismissErrorFn: (id: string) => void,
-    onRefreshPermissions?: () => void // optional callback
+    onRefreshPermissions?: () => void
   ) => {
     console.log(error);
     const permission = extractPermissionFromError(error);
@@ -106,22 +105,12 @@ export function useUpdatePermissions() {
       let permissionId: string | null = null;
       try {
         const permissionsResponse = await adminApi.getPermissions();
-        let permissions: any[] = [];
-        switch (true) {
-          case Array.isArray(permissionsResponse.data):
-            permissions = permissionsResponse.data;
-            break;
-          case permissionsResponse.data && Array.isArray(permissionsResponse.data.data):
-            permissions = permissionsResponse.data.data;
-            break;
-          default:
-            permissions = [];
-            break;
-        }
+        const permissions: any[] = Array.isArray(permissionsResponse.data)
+          ? permissionsResponse.data
+          : (permissionsResponse.data?.data ?? []);
         const existingPermission = permissions.find((p: any) => p.resource === permission);
         if (existingPermission) permissionId = existingPermission.id;
         if (!existingPermission) {
-          // Replace /...id/... with /:id/ in the route if detected
           let route = `/api${error?.url || ''}`;
           route = route.replace(/\/(\w*id)\b/g, '/:id');
           const newPermResponse = await adminApi.createPermission({
@@ -133,7 +122,7 @@ export function useUpdatePermissions() {
             method: error.responseData?.method || 'GET',
             category: 'custom',
           });
-          if (!newPermResponse.data || !newPermResponse.data.id) {
+          if (!newPermResponse.data?.id) {
             throw new Error('Failed to create permission');
           }
           permissionId = newPermResponse.data.id;
@@ -142,13 +131,13 @@ export function useUpdatePermissions() {
         console.error('Error handling permission:', permError);
       }
       const rolesResponse = await adminApi.getRoles();
-      const roles = rolesResponse.data || [];
-      const superAdminRole = Array.isArray(roles)
-        ? roles.find((role: any) => role.name === 'superadmin')
-        : null;
+      const roles = Array.isArray(rolesResponse.data)
+        ? rolesResponse.data
+        : (rolesResponse.data ?? []);
+      const superAdminRole = roles.find((role: any) => role.name === 'superadmin');
       if (superAdminRole && typeof permissionId === 'string') {
         await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
-        await dismissErrorFn(error.id);
+        await dismissErrorFn(dataId);
         removeLoginCookie();
         try {
           const { getMe } = await import('../apis/auth.api.ts');
@@ -156,7 +145,7 @@ export function useUpdatePermissions() {
         } catch (refreshError) {
           console.error('Failed to refresh user info after fixing permission:', refreshError);
         }
-        if (onRefreshPermissions) onRefreshPermissions();
+        onRefreshPermissions?.();
         setTimeout(() => {
           window.location.reload();
         }, 1500);

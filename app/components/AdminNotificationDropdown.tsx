@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Dropdown, List, Button, Badge } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { FixingError, useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
+import {
+  FixingError,
+  NotificationItem,
+  useUpdatePermissions,
+} from '../hooks/useUpdatePermissions.ts';
 import { ReloadOutlined } from '@ant-design/icons';
 
 export default function AdminNotificationDropdown() {
@@ -31,7 +35,7 @@ export default function AdminNotificationDropdown() {
             dataSource={errors}
             locale={{ emptyText: 'No notifications' }}
             style={{ maxHeight: 350, overflowY: 'auto', background: 'white' }}
-            renderItem={(data: { errorPayload: string }) => {
+            renderItem={(data: NotificationItem) => {
               const error = JSON.parse(data.errorPayload) as FixingError;
               return (
                 <List.Item
@@ -90,7 +94,7 @@ export default function AdminNotificationDropdown() {
                           loading={fixingId === error.id}
                           onClick={async () => {
                             setFixingId(error.id);
-                            await fixPermission(error, dismissError);
+                            await fixPermission(data.id, error, dismissError);
                             setFixingId(null);
                             setFixedIds((ids) => [...ids, error.id]);
                             setTimeout(() => {
