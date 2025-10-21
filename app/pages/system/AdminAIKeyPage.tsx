@@ -7,6 +7,7 @@ import CommonSearch from '../../components/CommonSearch.tsx';
 const { Title } = Typography;
 
 import AddAIKeyModal from '../../components/AddAIKeyModal.tsx';
+import AIKeyDetailModal from '../../modals/AIKeyDetailModal.tsx';
 
 export default function AdminAIKeyPage() {
   const [aiKeys, setAIKeys] = useState<any[]>([]);
@@ -16,6 +17,8 @@ export default function AdminAIKeyPage() {
   const [search, setSearch] = useState('');
   const [platforms, setPlatforms] = useState<any[]>([]);
   const [agents, setAgents] = useState<any[]>([]);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedAIKey, setSelectedAIKey] = useState<any | null>(null);
 
   useEffect(() => {
     fetchAIKeys();
@@ -160,7 +163,24 @@ export default function AdminAIKeyPage() {
               <List.Item.Meta
                 title={
                   <span>
-                    Key ID: {item.id}{' '}
+                    Key ID:{' '}
+                    <Button
+                      type="link"
+                      style={{
+                        padding: 0,
+                        fontWeight: 700,
+                        color: '#1890ff',
+                        background: '#e6f7ff',
+                        borderRadius: 4,
+                        marginRight: 8,
+                      }}
+                      onClick={() => {
+                        setSelectedAIKey(item);
+                        setDetailModalVisible(true);
+                      }}
+                    >
+                      {item.id}
+                    </Button>
                     {item.platformId && (
                       <span style={{ marginLeft: 12, color: '#888', fontSize: 13 }}>
                         Platform: <b>{item.platformName || item.platformId}</b>
@@ -193,6 +213,11 @@ export default function AdminAIKeyPage() {
         editingKey={editingKey}
         platforms={platforms}
         agents={agents}
+      />
+      <AIKeyDetailModal
+        visible={detailModalVisible}
+        aiKey={selectedAIKey}
+        onCancel={() => setDetailModalVisible(false)}
       />
     </div>
   );
