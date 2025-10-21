@@ -107,11 +107,43 @@ export default function AdminFaqMenu() {
       dataIndex: 'type',
       key: 'type',
       width: 80,
-      render: (t: string) => (
-        <Tag color="blue" style={{ fontSize: 12, padding: '2px 6px' }}>
-          {t}
-        </Tag>
-      ),
+      render: (t: string) => {
+        let color = 'blue';
+        let icon = null;
+        switch (t) {
+          case 'agent':
+            color = 'cyan';
+            icon = <EyeOutlined style={{ marginRight: 4 }} />;
+            break;
+          case 'manual':
+            color = 'volcano';
+            icon = <EditOutlined style={{ marginRight: 4 }} />;
+            break;
+          case 'prompt':
+            color = 'purple';
+            icon = <Tag style={{ marginRight: 4 }} />;
+            break;
+          case 'job':
+            color = 'gold';
+            icon = <Tag style={{ marginRight: 4 }} />;
+            break;
+          case 'system':
+            color = 'red';
+            icon = <DeleteOutlined style={{ marginRight: 4 }} />;
+            break;
+          default:
+            color = 'blue';
+        }
+        return (
+          <Tag
+            color={color}
+            style={{ fontSize: 12, padding: '2px 6px', display: 'flex', alignItems: 'center' }}
+          >
+            {icon}
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Question',
