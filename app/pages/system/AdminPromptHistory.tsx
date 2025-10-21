@@ -6,7 +6,7 @@ import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
 import AddPromptModal from './modals/AddPromptModal.tsx';
-import { Modal } from 'antd';
+import PromptDetailModal from './PromptDetailModal.tsx';
 import { ConversationApi } from '../../apis/adminApi/ConversationApi.ts';
 
 export default function AdminPromptHistory() {
@@ -201,54 +201,14 @@ export default function AdminPromptHistory() {
         defaultConversationId={editingPrompt?.conversationId}
         initialPrompt={editingPrompt?.prompt}
       />
-      {/* ViewPromptModal */}
-      <Modal
+      <PromptDetailModal
         open={viewModalVisible}
         onCancel={() => {
           setViewModalVisible(false);
           setViewPrompt(null);
         }}
-        footer={null}
-        title={viewPrompt ? `Prompt Detail (ID: ${viewPrompt.id})` : 'Prompt Detail'}
-      >
-        {viewPrompt && (
-          <div>
-            <div style={{ marginBottom: 8 }}>
-              <b>Prompt:</b>
-              <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{viewPrompt.prompt}</pre>
-            </div>
-            {viewPrompt.conversationId && (
-              <div style={{ marginBottom: 8 }}>
-                <b>Conversation:</b> {viewPrompt.conversationTitle || viewPrompt.conversationId}
-              </div>
-            )}
-            {viewPrompt.agent && (
-              <div style={{ marginBottom: 8 }}>
-                <b>Agent:</b> {viewPrompt.agent.name || viewPrompt.agent.id} (
-                {viewPrompt.agent.type || 'N/A'})
-              </div>
-            )}
-            {viewPrompt.updatedAt && (
-              <div style={{ marginBottom: 8, fontSize: 12, color: '#aaa' }}>
-                Updated: {new Date(viewPrompt.updatedAt).toLocaleString()}
-              </div>
-            )}
-            {/* Add button to test prompt for conversation */}
-            {viewPrompt.conversationId && (
-              <Button
-                type="primary"
-                onClick={() => {
-                  // TODO: Implement test prompt action for conversation
-                  message.info('Test prompt for conversation: ' + viewPrompt.conversationId);
-                }}
-                style={{ marginTop: 12 }}
-              >
-                Test Prompt in Conversation
-              </Button>
-            )}
-          </div>
-        )}
-      </Modal>
+        prompt={viewPrompt}
+      />
     </div>
   );
 }
