@@ -1,4 +1,20 @@
 import React, { useEffect, useRef } from 'react';
+import { Button, Tooltip, Space, message } from 'antd';
+import {
+  BoldOutlined,
+  ItalicOutlined,
+  UnderlineOutlined,
+  LinkOutlined,
+  BgColorsOutlined,
+  FontColorsOutlined,
+  OrderedListOutlined,
+  UnorderedListOutlined,
+  BorderOuterOutlined,
+  BorderInnerOutlined,
+  RobotFilled,
+} from '@ant-design/icons';
+import AIGenerateInput from '../components/AIGenerateInput.tsx';
+import { useAIGenerateProvider } from '../providers/AIGenerateProvider.tsx';
 
 export interface RichTextProps {
   value: string;
@@ -7,6 +23,9 @@ export interface RichTextProps {
 }
 
 export const RichText: React.FC<RichTextProps> = ({ value, onChange, style }) => {
+  const { setValue: setAIContextValue } = useAIGenerateProvider();
+  // AI prompt for context generation
+  const [aiPrompt, setAIPrompt] = React.useState('Write a blog post or content for this field');
   const editorRef = useRef<HTMLDivElement>(null);
   const [htmlMode, setHtmlMode] = React.useState(false);
   const [htmlValue, setHtmlValue] = React.useState(value);
@@ -120,74 +139,65 @@ export const RichText: React.FC<RichTextProps> = ({ value, onChange, style }) =>
     onChange(e.target.value);
   };
 
-  const buttonStyle: React.CSSProperties = {
-    padding: '6px 12px',
-    marginRight: 8,
-    border: '1px solid #bbb',
-    borderRadius: 4,
-    background: '#f7f7f7',
-    cursor: 'pointer',
-    fontSize: 16,
-    marginBottom: 4,
-  };
+  // Use Ant Design Space for toolbar layout
 
   return (
     <div>
-      <div
-        style={{
-          marginBottom: 12,
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '8px',
-        }}
-      >
-        <button type="button" style={buttonStyle} onClick={() => format('bold')} title="Bold">
-          <b>B</b>
-        </button>
-        <button type="button" style={buttonStyle} onClick={() => format('italic')} title="Italic">
-          <i>I</i>
-        </button>
-        <button
-          type="button"
-          style={buttonStyle}
-          onClick={() => format('underline')}
-          title="Underline"
-        >
-          <u>U</u>
-        </button>
-        <button type="button" style={buttonStyle} onClick={handleLink} title="Link">
-          🔗
-        </button>
-        <button
-          type="button"
-          style={buttonStyle}
-          onClick={() => format('insertUnorderedList')}
-          title="Bullet List"
-        >
-          • List
-        </button>
-        <button type="button" style={buttonStyle} onClick={handleColor} title="Text Color">
-          A<span style={{ color: 'red' }}>●</span>
-        </button>
-        <button type="button" style={buttonStyle} onClick={handleBgColor} title="Background Color">
-          A<span style={{ background: 'yellow', padding: '0 2px', borderRadius: 2 }}>■</span>
-        </button>
-        <button type="button" style={buttonStyle} onClick={handlePadding} title="Padding">
-          ⧈
-        </button>
-        <button type="button" style={buttonStyle} onClick={handleMargin} title="Margin">
-          ▤
-        </button>
-        <div style={{ flex: 1 }} />
-        <button
-          type="button"
-          style={{ ...buttonStyle, marginLeft: 12 }}
-          onClick={() => setHtmlMode((m) => !m)}
-        >
-          {htmlMode ? 'Rich Text' : 'HTML'}
-        </button>
-      </div>
+      <Space style={{ marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+        <Tooltip title="Bold">
+          <Button icon={<BoldOutlined />} onClick={() => format('bold')} />
+        </Tooltip>
+        <Tooltip title="Italic">
+          <Button icon={<ItalicOutlined />} onClick={() => format('italic')} />
+        </Tooltip>
+        <Tooltip title="Underline">
+          <Button icon={<UnderlineOutlined />} onClick={() => format('underline')} />
+        </Tooltip>
+        <Tooltip title="Link">
+          <Button icon={<LinkOutlined />} onClick={handleLink} />
+        </Tooltip>
+        <Tooltip title="Bullet List">
+          <Button icon={<UnorderedListOutlined />} onClick={() => format('insertUnorderedList')} />
+        </Tooltip>
+        <Tooltip title="Text Color">
+          <Button icon={<FontColorsOutlined />} onClick={handleColor} />
+        </Tooltip>
+        <Tooltip title="Background Color">
+          <Button icon={<BgColorsOutlined />} onClick={handleBgColor} />
+        </Tooltip>
+        <Tooltip title="Padding">
+          <Button icon={<BorderInnerOutlined />} onClick={handlePadding} />
+        </Tooltip>
+        <Tooltip title="Margin">
+          <Button icon={<BorderOuterOutlined />} onClick={handleMargin} />
+        </Tooltip>
+        <Tooltip title={htmlMode ? 'Rich Text' : 'HTML'}>
+          <Button onClick={() => setHtmlMode((m) => !m)}>{htmlMode ? 'Rich Text' : 'HTML'}</Button>
+        </Tooltip>
+        <Tooltip title="AI Generate">
+          <Button
+            icon={<RobotFilled />}
+            onClick={async () => {
+              try {
+                // Use AIGenerateInput logic directly for one-click generation
+                const axios = (await import('../apis/index.ts')).getApiInstance();
+                const res = await axios.post('/admin/prompts/generate', { prompt: aiPrompt });
+                if (res.data && res.data.data.data) {
+                  setHtmlValue(res.data.data.data);
+                  if (editorRef.current) editorRef.current.innerHTML = res.data.data.data;
+                  onChange(res.data.data.data);
+                  setAIContextValue(res.data.data.data);
+                  message.success('AI generated content');
+                } else {
+                  message.error('No data returned from AI');
+                }
+              } catch (error) {
+                message.error('Failed to generate context');
+              }
+            }}
+          />
+        </Tooltip>
+      </Space>
       {htmlMode ? (
         <textarea
           value={htmlValue}
