@@ -11,9 +11,6 @@ import { Button, message, Modal, Popconfirm, Space, Spin, Table, Tag, Typography
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import JobCreateModal from './JobCreateModal.tsx';
-import ExtractFileModal from './modals/ExtractFileModal.tsx';
-import FileTuningModal from './modals/FileTuningModal.tsx';
-import BackupModal from './modals/BackupModal.tsx';
 
 const { Title } = Typography;
 
@@ -22,9 +19,6 @@ export default function AdminJobList() {
   const [loading, setLoading] = useState(false);
   const [viewJob, setViewJob] = useState<any>(null);
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [extractModalVisible, setExtractModalVisible] = useState(false);
-  const [fileTuningModalVisible, setFileTuningModalVisible] = useState(false);
-  const [backupModalVisible, setBackupModalVisible] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -43,28 +37,15 @@ export default function AdminJobList() {
   };
 
   const handleStartJob = (job: any) => {
-    switch (job.type) {
-      case 'extract':
-        setExtractModalVisible(true);
-        break;
-      case 'file-tuning':
-        setFileTuningModalVisible(true);
-        break;
-      case 'backup':
-        setBackupModalVisible(true);
-        break;
-      default:
-        adminApi
-          .startJob(job.id)
-          .then(() => {
-            message.success('Job started');
-            fetchJobs();
-          })
-          .catch(() => {
-            message.error('Failed to start job');
-          });
-        break;
-    }
+    adminApi
+      .startJob(job.id)
+      .then(() => {
+        message.success('Job started');
+        fetchJobs();
+      })
+      .catch(() => {
+        message.error('Failed to start job');
+      });
   };
 
   const handleRestartJob = async (id: string) => {
@@ -147,34 +128,19 @@ export default function AdminJobList() {
   return (
     <div style={{ padding: 16 }}>
       <Title level={2}>Job List</Title>
-      <Space style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>
-          Create Job
-        </Button>
-        <Button icon={<PlusOutlined />} onClick={() => setExtractModalVisible(true)}>
-          Extract File
-        </Button>
-        <Button icon={<PlusOutlined />} onClick={() => setFileTuningModalVisible(true)}>
-          File Tuning
-        </Button>
-        <Button icon={<PlusOutlined />} onClick={() => setBackupModalVisible(true)}>
-          Backup DB
-        </Button>
-      </Space>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        style={{ marginBottom: 16 }}
+        onClick={() => setCreateModalVisible(true)}
+      >
+        Create Job
+      </Button>
       <Spin spinning={loading}>
         <Table rowKey="id" columns={columns} dataSource={jobs} pagination={{ pageSize: 10 }} />
       </Spin>
       {/* View Job Modal - switch by job type */}
       <Modal open={!!viewJob} title="Job Details" onCancel={() => setViewJob(null)} footer={null}>
-        {viewJob && viewJob.type === 'extract' && (
-          <ExtractFileModal job={viewJob} open={true} onCancel={() => setViewJob(null)} />
-        )}
-        {viewJob && viewJob.type === 'file-tuning' && (
-          <FileTuningModal job={viewJob} open={true} onCancel={() => setViewJob(null)} />
-        )}
-        {viewJob && viewJob.type === 'backup' && (
-          <BackupModal job={viewJob} open={true} onCancel={() => setViewJob(null)} />
-        )}
         {viewJob && !['extract', 'file-tuning', 'backup'].includes(viewJob.type) && (
           <div>
             <p>
@@ -221,21 +187,6 @@ export default function AdminJobList() {
           setCreateModalVisible(false);
           fetchJobs();
         }}
-      />
-      <ExtractFileModal
-        open={extractModalVisible}
-        onCancel={() => setExtractModalVisible(false)}
-        onExtracted={fetchJobs}
-      />
-      <FileTuningModal
-        open={fileTuningModalVisible}
-        onCancel={() => setFileTuningModalVisible(false)}
-        onTuned={fetchJobs}
-      />
-      <BackupModal
-        open={backupModalVisible}
-        onCancel={() => setBackupModalVisible(false)}
-        onBackedUp={fetchJobs}
       />
     </div>
   );

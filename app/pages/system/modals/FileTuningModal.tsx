@@ -1,5 +1,6 @@
-import { Modal, Button, Select, message } from 'antd';
+import { Modal, Button, Select, message, Typography } from 'antd';
 import { useState } from 'react';
+import { adminApi } from '../../../apis/admin.api.ts';
 
 export default function FileTuningModal({ open, onCancel, onTuned, job }: any) {
   const [modal, setModal] = useState<string>('');
@@ -8,13 +9,15 @@ export default function FileTuningModal({ open, onCancel, onTuned, job }: any) {
 
   const handleTune = async () => {
     setLoading(true);
-    // TODO: Call API to tune file
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await adminApi.createJob({ type: 'file-tuning', modal, conversion });
       message.success('File tuning job created');
       onTuned && onTuned();
       onCancel();
-    }, 1000);
+    } catch (err) {
+      message.error('Failed to create file tuning job');
+    }
+    setLoading(false);
   };
 
   return (
@@ -25,11 +28,13 @@ export default function FileTuningModal({ open, onCancel, onTuned, job }: any) {
       onOk={handleTune}
       confirmLoading={loading}
     >
+      <Typography.Text strong>Select a modal and conversion for file tuning:</Typography.Text>
       <Select
         placeholder="Select Modal"
         value={modal}
         onChange={setModal}
         style={{ width: '100%', marginBottom: 8 }}
+        disabled={loading}
       >
         <Select.Option value="modal1">Modal 1</Select.Option>
         <Select.Option value="modal2">Modal 2</Select.Option>
@@ -39,6 +44,7 @@ export default function FileTuningModal({ open, onCancel, onTuned, job }: any) {
         value={conversion}
         onChange={setConversion}
         style={{ width: '100%' }}
+        disabled={loading}
       >
         <Select.Option value="conv1">Conversion 1</Select.Option>
         <Select.Option value="conv2">Conversion 2</Select.Option>

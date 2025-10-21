@@ -1,5 +1,6 @@
-import { Modal, Button, Upload, message } from 'antd';
+import { Modal, Button, Upload, message, Typography } from 'antd';
 import { useState } from 'react';
+import { adminApi } from '../../../apis/admin.api.ts';
 
 export default function ExtractFileModal({ open, onCancel, onExtracted, job }: any) {
   const [file, setFile] = useState<any>(null);
@@ -7,13 +8,19 @@ export default function ExtractFileModal({ open, onCancel, onExtracted, job }: a
 
   const handleExtract = async () => {
     setLoading(true);
-    // TODO: Call API to extract file and create conversion job
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Example: upload file and create extract job
+      // You may need to adjust API and payload
+      const formData = new FormData();
+      formData.append('file', file);
+      await adminApi.createJob({ type: 'extract', file });
       message.success('File extracted and conversion job created');
       onExtracted && onExtracted();
       onCancel();
-    }, 1000);
+    } catch (err) {
+      message.error('Failed to extract file');
+    }
+    setLoading(false);
   };
 
   return (
@@ -24,14 +31,16 @@ export default function ExtractFileModal({ open, onCancel, onExtracted, job }: a
       onOk={handleExtract}
       confirmLoading={loading}
     >
+      <Typography.Text strong>Select a document file to extract and convert:</Typography.Text>
       <Upload
         beforeUpload={(file) => {
           setFile(file);
           return false;
         }}
         showUploadList={false}
+        disabled={loading}
       >
-        <Button>Select Document File</Button>
+        <Button disabled={loading}>Select Document File</Button>
       </Upload>
       {file && <div style={{ marginTop: 8 }}>Selected: {file.name}</div>}
     </Modal>
