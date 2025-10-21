@@ -253,14 +253,14 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
           />
         </Dropdown>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {systemStatus && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'right' }}>
+        {/* {systemStatus && (
           <div style={{ minWidth: 180, fontSize: 12, color: '#555' }}>
             {(systemStatus.memory || systemStatus.cpu || systemStatus.disk) && (
               <StatusResources status={systemStatus} />
             )}
           </div>
-        )}
+        )} */}
         <StatusIndicator />
         <AdminNotificationDropdown />
         <div style={{ textAlign: 'right', lineHeight: 1.2 }}>

@@ -93,12 +93,12 @@ export default function AdminNotificationDropdown() {
                           icon={<ReloadOutlined />}
                           loading={fixingId === error.id}
                           onClick={async () => {
-                            setFixingId(error.id);
+                            setFixingId(data.id);
                             await fixPermission(data.id, error, dismissError);
                             setFixingId(null);
-                            setFixedIds((ids) => [...ids, error.id]);
+                            setFixedIds((ids) => [...ids, data.id]);
                             setTimeout(() => {
-                              setFixedIds((ids) => ids.filter((id) => id !== error.id));
+                              setFixedIds((ids) => ids.filter((id) => id !== data.id));
                               dismissError(data.id);
                             }, 5000);
                           }}
