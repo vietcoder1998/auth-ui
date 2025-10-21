@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { publicApi } from '../../apis/public.api.ts';
-import { Table, Button, Modal, Input, Form, Select, Tag, Space, Spin, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-
-const { Option } = Select;
+import { Table, Button, Modal, Tag, Space, Spin, message, Form } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
+import BlogModalForm from '../../components/BlogModalForm.tsx';
+import BlogEditModal from './modals/BlogEditModal.tsx';
 
 interface Category {
   id: string;
@@ -27,17 +28,19 @@ export default function AdminBlogPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
   const [form] = Form.useForm();
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchBlogs();
     fetchCategories();
   }, []);
 
-  const fetchBlogs = async () => {
+  const fetchBlogs = async (searchValue = '') => {
     setLoading(true);
     try {
-      const res = await publicApi.getBlogs();
-      setBlogs(res.data);
+      const params = searchValue ? { search: searchValue } : {};
+      const res = await publicApi.getBlogs(params);
+      setBlogs(res.data.data);
     } catch {
       setBlogs([]);
     }
@@ -47,7 +50,7 @@ export default function AdminBlogPage() {
   const fetchCategories = async () => {
     try {
       const res = await publicApi.getCategories();
-      setCategories(res.data);
+      setCategories(res.data.data);
     } catch {
       setCategories([]);
     }
@@ -62,10 +65,14 @@ export default function AdminBlogPage() {
   const handleDelete = async (blog: Blog) => {
     Modal.confirm({
       title: 'Delete Blog',
-      content: `Are you sure you want to delete "${blog.title}"?`,
+      content: `Are you sure you want to delete "${blog.title}"? This action cannot be undone!`,
+      okType: 'danger',
+      okText: 'Delete',
+      cancelText: 'Cancel',
+      icon: <DeleteOutlined style={{ color: 'red' }} />,
       onOk: async () => {
         await publicApi.deleteBlog(blog.id);
-        fetchBlogs();
+        fetchBlogs(search);
         message.success('Blog deleted');
       },
     });
@@ -80,15 +87,33 @@ export default function AdminBlogPage() {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
+      // Auto-detect author from localStorage/cookie
+      let author = values.author;
+      if (!author) {
+        author = localStorage.getItem('user')
+          ? JSON.parse(localStorage.getItem('user') || '{}').nickname
+          : '';
+        if (!author) {
+          const userCookie = document.cookie
+            .split(';')
+            .find((c) => c.trim().startsWith('auth_user='));
+          if (userCookie) {
+            try {
+              author = JSON.parse(decodeURIComponent(userCookie.split('=')[1])).nickname || '';
+            } catch {}
+          }
+        }
+      }
+      const payload = { ...values, author };
       if (editingBlog) {
-        await publicApi.updateBlog(editingBlog.id, values);
+        await publicApi.updateBlog(editingBlog.id, payload);
         message.success('Blog updated');
       } else {
-        await publicApi.createBlog(values);
+        await publicApi.createBlog(payload);
         message.success('Blog created');
       }
       setModalVisible(false);
-      fetchBlogs();
+      fetchBlogs(search);
     } catch (e) {
       message.error('Failed to save blog');
     }
@@ -128,66 +153,34 @@ export default function AdminBlogPage() {
 
   return (
     <div style={{ background: '#fff', padding: 24, borderRadius: 8 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}
-      >
-        <h2 style={{ margin: 0 }}>Blog Management</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-          Create Blog
-        </Button>
+      <div style={{ marginBottom: 16 }}>
+        <CommonSearch
+          searchPlaceholder="Search blogs..."
+          searchValue={search}
+          onSearch={(val) => {
+            setSearch(val);
+            fetchBlogs(val);
+          }}
+          onRefresh={() => fetchBlogs(search)}
+          loading={loading}
+          extra={
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+              Create Blog
+            </Button>
+          }
+        />
       </div>
       <Spin spinning={loading}>
         <Table dataSource={blogs} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />
       </Spin>
-      <Modal
-        title={editingBlog ? 'Edit Blog' : 'Create Blog'}
-        open={modalVisible}
+      <BlogEditModal
+        visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={handleModalOk}
-        width={600}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="title"
-            label="Title"
-            rules={[{ required: true, message: 'Please input title!' }]}
-          >
-            {' '}
-            <Input />{' '}
-          </Form.Item>
-          <Form.Item
-            name="content"
-            label="Content"
-            rules={[{ required: true, message: 'Please input content!' }]}
-          >
-            {' '}
-            <Input.TextArea rows={4} />{' '}
-          </Form.Item>
-          <Form.Item
-            name="categoryId"
-            label="Category"
-            rules={[{ required: true, message: 'Please select category!' }]}
-          >
-            {' '}
-            <Select>
-              {categories.map((cat: Category) => (
-                <Option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </Option>
-              ))}
-            </Select>{' '}
-          </Form.Item>
-          <Form.Item name="author" label="Author">
-            {' '}
-            <Input />{' '}
-          </Form.Item>
-        </Form>
-      </Modal>
+        form={form}
+        categories={categories}
+        initialValues={editingBlog}
+      />
     </div>
   );
 }
