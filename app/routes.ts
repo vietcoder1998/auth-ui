@@ -48,6 +48,9 @@ export default [
     route('settings/database', 'pages/settings/AdminDatabasePage.tsx'), // /admin/settings/database
   ]),
 
+  // Blog page
+  route('/blog', 'pages/Blog.tsx'),
+
   // Root redirect (redirect to dashboard if authenticated, login if not)
   route('/', 'pages/Home.tsx'),
 

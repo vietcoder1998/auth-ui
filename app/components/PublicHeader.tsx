@@ -73,9 +73,14 @@ const PublicHeader: React.FC = () => {
           />
         </Dropdown>
       </Space>
-      <Button type="primary" icon={<LoginOutlined />} onClick={() => navigate('/login')}>
-        Login
-      </Button>
+      <Space>
+        <Button type="default" onClick={() => navigate('/blog')}>
+          Blog
+        </Button>
+        <Button type="primary" icon={<LoginOutlined />} onClick={() => navigate('/login')}>
+          Login
+        </Button>
+      </Space>
     </div>
   );
 };
