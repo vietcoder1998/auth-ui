@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dropdown, List, Button, Badge } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { FixingError, useUpdatePermissions } from '../hooks/useUpdatePermissions.ts';
@@ -7,6 +7,8 @@ import { ReloadOutlined } from '@ant-design/icons';
 export default function AdminNotificationDropdown() {
   const { errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors, fixPermission } =
     useUpdatePermissions();
+  const [fixingId, setFixingId] = useState<string | null>(null);
+  const [fixedIds, setFixedIds] = useState<string[]>([]);
 
   return (
     <Dropdown
@@ -74,15 +76,31 @@ export default function AdminNotificationDropdown() {
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                    <Button
-                      size="small"
-                      type="link"
-                      icon={<ReloadOutlined />}
-                      onClick={() => (fixPermission as any)?.(error)}
-                      key="fix"
-                    >
-                      Fix
-                    </Button>
+                    {fixedIds.includes(error.id) ? (
+                      <Button size="small" type="text" disabled style={{ color: 'green' }}>
+                        Fixed
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        type="link"
+                        icon={<ReloadOutlined />}
+                        loading={fixingId === error.id}
+                        onClick={async () => {
+                          setFixingId(error.id);
+                          await fixPermission(error, dismissError);
+                          setFixingId(null);
+                          setFixedIds((ids) => [...ids, error.id]);
+                          setTimeout(() => {
+                            setFixedIds((ids) => ids.filter((id) => id !== error.id));
+                            dismissError(error.id);
+                          }, 5000);
+                        }}
+                        key="fix"
+                      >
+                        Fix
+                      </Button>
+                    )}
                     <Button
                       size="small"
                       type="text"

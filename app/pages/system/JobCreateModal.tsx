@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Button, message } from 'antd';
+import { Modal, Form, Input, Select, Button, message, DatePicker } from 'antd';
 import { adminApi } from '../../apis/admin.api.ts';
 
 const jobTypes = [
@@ -24,6 +24,7 @@ export default function JobCreateModal({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<string>('fine-tuning');
+  const [scheduleType, setScheduleType] = useState<string>('onetime');
   const [conversations, setConversations] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
   const [databases, setDatabases] = useState<any[]>([]);
@@ -77,8 +78,21 @@ export default function JobCreateModal({
           <Select options={jobTypes} placeholder="Select job type" onChange={setType} />
         </Form.Item>
         <Form.Item name="schedule" label="Schedule Type" rules={[{ required: true }]}>
-          <Select options={scheduleTypes} placeholder="Select schedule type" />
+          <Select
+            options={scheduleTypes}
+            placeholder="Select schedule type"
+            onChange={setScheduleType}
+          />
         </Form.Item>
+        {scheduleType === 'schedule' && (
+          <Form.Item
+            name="scheduleDateTime"
+            label="Schedule Date & Time"
+            rules={[{ required: true }]}
+          >
+            <DatePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
+          </Form.Item>
+        )}
         {type === 'fine-tuning' && (
           <Form.Item name="conversationIds" label="Conversations" rules={[{ required: true }]}>
             <Select

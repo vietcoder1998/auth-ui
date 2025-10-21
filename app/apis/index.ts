@@ -28,7 +28,7 @@ export const addErrorToCookie = (error: {
     };
 
     // Get existing errors
-    const existingErrorsCookie = Cookies.get('app_errors');
+    const existingErrorsCookie = Cookies.get(COOKIE_FIXING_ERRORS);
     let existingErrors: FixingError[] = [];
 
     if (existingErrorsCookie) {
@@ -49,7 +49,7 @@ export const addErrorToCookie = (error: {
     }
 
     // Save to cookie (expires in 1 day)
-    Cookies.set('app_errors', JSON.stringify(existingErrors), { expires: 1 });
+    Cookies.set(COOKIE_FIXING_ERRORS, JSON.stringify(existingErrors), { expires: 1 });
 
     console.error('Error added to cookie:', errorInfo);
   } catch (error) {
