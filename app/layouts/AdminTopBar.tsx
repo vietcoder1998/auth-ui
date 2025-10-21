@@ -68,9 +68,26 @@ const StatusResources: React.FC<{ status: SystemStatus }> = ({ status }) => (
     {status.memory &&
       (() => {
         const color = getResourceColor(status.memory, 'ram');
+        // Extract percent
+        let percent = 0;
+        const match = status.memory.match(/(\d+)%/);
+        if (match) percent = parseInt(match[1], 10);
+        const isHigh = percent >= 80;
         return (
           <span title="RAM">
-            RAM: <span style={{ color, fontWeight: 500 }}>{status.memory}</span>
+            RAM:{' '}
+            <span
+              style={{
+                color,
+                fontWeight: isHigh ? 700 : 500,
+                background: isHigh ? '#fff1f0' : undefined,
+                borderRadius: isHigh ? 4 : undefined,
+                padding: isHigh ? '2px 6px' : undefined,
+                transition: 'background 0.2s',
+              }}
+            >
+              {status.memory}
+            </span>
           </span>
         );
       })()}
