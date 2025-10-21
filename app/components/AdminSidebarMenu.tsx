@@ -84,49 +84,54 @@ export const defaultSidebarMenu: MenuItem[] = [
   },
   {
     key: '/admin/user',
-    icon: <TeamOutlined />,
+    icon: <TeamOutlined style={{ fontSize: 16 }} />,
     label: 'User Management',
     children: [
       {
         key: '/admin/system/users',
-        icon: <UserOutlined />,
+        icon: <UserOutlined style={{ fontSize: 15 }} />,
         label: 'Users',
       },
       {
         key: '/admin/system/tokens',
-        icon: <KeyOutlined />,
+        icon: <KeyOutlined style={{ fontSize: 15 }} />,
         label: 'Tokens',
       },
       {
         key: '/admin/system/roles',
-        icon: <TeamOutlined />,
+        icon: <TeamOutlined style={{ fontSize: 15 }} />,
         label: 'Roles',
       },
       {
         key: '/admin/system/login-history',
-        icon: <HistoryOutlined />,
+        icon: <HistoryOutlined style={{ fontSize: 15 }} />,
         label: 'Login History',
       },
       {
+        key: '/admin/system/permissions',
+        icon: <SafetyOutlined style={{ fontSize: 15 }} />,
+        label: 'Permissions',
+      },
+      {
         key: '/admin/blog',
-        icon: <FileTextOutlined />,
+        icon: <FileTextOutlined style={{ fontSize: 15 }} />,
         label: 'Blog',
         children: [
           {
             key: '/admin/blog/blogs',
-            icon: <FileTextOutlined />,
+            icon: <FileTextOutlined style={{ fontSize: 14 }} />,
             label: 'Blog Posts',
           },
           {
             key: '/admin/blog/categories',
-            icon: <FileOutlined />,
+            icon: <FileOutlined style={{ fontSize: 14 }} />,
             label: 'Categories',
           },
         ],
       },
       {
         key: '/admin/settings/api-keys',
-        icon: <KeyOutlined />,
+        icon: <KeyOutlined style={{ fontSize: 15 }} />,
         label: 'API Keys',
       },
     ],
@@ -150,37 +155,32 @@ export const defaultSidebarMenu: MenuItem[] = [
   },
   {
     key: '/admin/system',
-    icon: <DatabaseOutlined />,
+    icon: <DatabaseOutlined style={{ fontSize: 16 }} />,
     label: 'System Management',
     children: [
       {
-        key: '/admin/system/permissions',
-        icon: <SafetyOutlined />,
-        label: 'Permissions',
-      },
-      {
         key: '/admin/system/sso',
-        icon: <LinkOutlined />,
+        icon: <LinkOutlined style={{ fontSize: 15 }} />,
         label: 'SSO Management',
       },
       {
         key: '/admin/system/logic-history',
-        icon: <AuditOutlined />,
+        icon: <AuditOutlined style={{ fontSize: 15 }} />,
         label: 'Logic History',
       },
       {
         key: '/admin/system/logs',
-        icon: <AuditOutlined />,
+        icon: <AuditOutlined style={{ fontSize: 15 }} />,
         label: 'Application Logs',
       },
       {
         key: '/admin/system/cache',
-        icon: <DatabaseOutlined />,
+        icon: <DatabaseOutlined style={{ fontSize: 15 }} />,
         label: 'Cache',
       },
       {
         key: '/admin/system/sockets',
-        icon: <ThunderboltOutlined />,
+        icon: <ThunderboltOutlined style={{ fontSize: 15 }} />,
         label: 'Socket Connections',
       },
     ],
@@ -285,7 +285,8 @@ const AdminSidebarMenu: React.FC<{
       items={menuItems as any}
       selectedKeys={selectedKeys}
       onClick={({ key }) => onMenuClick?.(key)}
-      style={{ height: '100%', borderRight: 0 }}
+      style={{ height: '100%', borderRight: 0, fontSize: 13 }}
+      inlineIndent={12}
     />
   );
 };

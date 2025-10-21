@@ -121,7 +121,7 @@ export function useUpdatePermissions() {
           action: permission.includes(':write') ? 'write' : 'read',
           description: `Auto-generated permission for ${permission}`,
           route,
-          method: error.responseData?.method || 'GET',
+          method: error?.method || 'GET',
           category: 'custom',
         });
         if (!newPermResponse.data?.id) {
