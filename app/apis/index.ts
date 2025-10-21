@@ -23,7 +23,7 @@ export const addErrorToCookie = (error: {
       responseData: error.details,
       statusText: error.status ? String(error.status) : 'N/A',
       url: error?.url || 'N/A',
-      method: error?.method || 'N/A',
+      method: error?.details?.method || 'N/A',
     };
 
     // Get existing errors
@@ -158,6 +158,8 @@ export function getApiInstance(): AxiosInstance {
         requestHeaders: error.config?.headers,
         timestamp: new Date().toISOString(),
       };
+
+      console.log(error);
 
       addErrorToCookie({
         message: errorMessage,

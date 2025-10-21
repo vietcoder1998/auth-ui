@@ -114,6 +114,7 @@ export function useUpdatePermissions() {
       } else {
         let route = `/api${error?.url || ''}`;
         route = route.replace(/\/(\w*id)\b/g, '/:id');
+        console.log(error);
         const newPermResponse = await adminApi.createPermission({
           resource: permission,
           name: permission,

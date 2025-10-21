@@ -72,29 +72,29 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 10,
+          gap: 6,
           flexWrap: 'wrap',
           marginBottom: 2,
         }}
       >
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: isDocker ? '#52c41a' : '#d4380d',
             background: '#f6ffed',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           Docker: {isDocker ? 'Yes' : 'No'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: '#1890ff',
             background: '#e6f7ff',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           Port: {port || 'N/A'}
@@ -107,35 +107,35 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
         >
           <div
             style={{
-              padding: '2px 8px',
-              fontSize: 12,
+              padding: '1px 6px',
+              fontSize: 11,
               color: '#faad14',
               background: '#fffbe6',
-              borderRadius: 4,
+              borderRadius: 3,
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 3,
             }}
           >
-            Jobs: {jobs.length} <LinkOutlined />
+            Jobs: {jobs.length} <LinkOutlined style={{ fontSize: 12 }} />
           </div>
         </a>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: '#1890ff',
             background: '#e6f7ff',
-            borderRadius: 4,
+            borderRadius: 3,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 4,
+            gap: 3,
           }}
           title="Kill and restart process"
           onClick={handleRestartProcess}
         >
-          Process ID: {processId || 'N/A'} <PoweroffOutlined />
+          Process ID: {processId || 'N/A'} <PoweroffOutlined style={{ fontSize: 12 }} />
         </div>
         {childProcessInfo && (
           <Tooltip
@@ -143,11 +143,11 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           >
             <div
               style={{
-                padding: '2px 8px',
-                fontSize: 12,
+                padding: '1px 6px',
+                fontSize: 11,
                 color: '#888',
                 background: '#fafafa',
-                borderRadius: 4,
+                borderRadius: 3,
               }}
             >
               Child Process: PID {childProcessInfo.pid}
@@ -156,81 +156,81 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
         )}
       </div>
       <div
-        style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 0 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', marginTop: 0 }}
       >
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: status.api ? '#52c41a' : '#d4380d',
             background: status.api ? '#f6ffed' : '#fff1f0',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           API: {status.api ? 'Online' : 'Offline'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: status.database ? '#52c41a' : '#d4380d',
             background: status.database ? '#f6ffed' : '#fff1f0',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           DB: {status.database ? 'Online' : 'Offline'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: status.redis ? '#52c41a' : '#d4380d',
             background: status.redis ? '#f6ffed' : '#fff1f0',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           Redis: {status.redis ? 'Online' : 'Offline'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: '#722ed1',
             background: '#f9f0ff',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           Uptime: {status.uptime ? Math.floor(Number(status.uptime)) + 's' : 'N/A'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: '#13c2c2',
             background: '#e6fffb',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           Memory: {status.memory || 'N/A'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: '#eb2f96',
             background: '#fff0f6',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           CPU: {status.cpu || 'N/A'}
         </div>
         <div
           style={{
-            padding: '2px 8px',
-            fontSize: 12,
+            padding: '1px 6px',
+            fontSize: 11,
             color: '#fa541c',
             background: '#fff2e8',
-            borderRadius: 4,
+            borderRadius: 3,
           }}
         >
           Disk: {status.disk || 'N/A'}
