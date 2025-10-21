@@ -4,6 +4,8 @@ import { JobApi } from './adminApi/JobApi.ts';
 
 import { AgentApi } from './adminApi/AgentApi.ts';
 import { ApiKeyApi } from './adminApi/ApiKeyApi.ts';
+import { AIPlatformApi } from './adminApi/AIPlatformApi.ts';
+import { BillingApi } from './adminApi/BillingApi.ts';
 import { CacheApi } from './adminApi/CacheApi.ts';
 import { ConfigApi } from './adminApi/ConfigApi.ts';
 import { ConversationApi } from './adminApi/ConversationApi.ts';
@@ -46,6 +48,11 @@ export {
 };
 
 export const adminApi = {
+  // AIKeyApi (for /admin/ai-keys)
+  getAIKeys: ApiKeyApi.getApiKeys,
+  createAIKey: ApiKeyApi.createApiKey,
+  updateAIKey: ApiKeyApi.updateApiKey,
+  deleteAIKey: ApiKeyApi.deleteApiKey,
   // UserApi
   getUsers: UserApi.getUsers,
   createUser: UserApi.createUser,
@@ -224,4 +231,16 @@ export const adminApi = {
   createNotification: NotificationApi.createNotification,
   updateNotification: NotificationApi.updateNotification,
   deleteNotification: NotificationApi.deleteNotification,
+
+  // AIPlatformApi
+  getAIPlatforms: AIPlatformApi.getAIPlatforms,
+  createAIPlatform: AIPlatformApi.createAIPlatform,
+  updateAIPlatform: AIPlatformApi.updateAIPlatform,
+  deleteAIPlatform: AIPlatformApi.deleteAIPlatform,
+
+  // BillingApi
+  getBillings: BillingApi.getBillings,
+  createBilling: BillingApi.createBilling,
+  updateBilling: BillingApi.updateBilling,
+  deleteBilling: BillingApi.deleteBilling,
 };

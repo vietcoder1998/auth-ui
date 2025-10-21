@@ -65,6 +65,21 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <ThunderboltOutlined />,
         label: 'Jobs',
       },
+      {
+        key: '/admin/system/ai-platforms',
+        icon: <DatabaseOutlined />,
+        label: 'AI Platforms',
+      },
+      {
+        key: '/admin/system/ai-keys',
+        icon: <KeyOutlined />,
+        label: 'AI Keys',
+      },
+      {
+        key: '/admin/system/billings',
+        icon: <FileTextOutlined />,
+        label: 'Billing',
+      },
     ],
   },
   {
