@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getMe } from '../apis/auth.api.ts';
 import { COOKIE_FIXING_ERRORS } from '~/env.ts';
 import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
 import { adminApi } from '../apis/admin.api.ts';
@@ -103,48 +104,41 @@ export function useUpdatePermissions() {
     if (!permission) return;
     try {
       let permissionId: string | null = null;
-      try {
-        const permissionsResponse = await adminApi.getPermissions();
-        const permissions: any[] = Array.isArray(permissionsResponse.data)
-          ? permissionsResponse.data
-          : (permissionsResponse.data?.data ?? []);
-        const existingPermission = permissions.find((p: any) => p.resource === permission);
-        if (existingPermission) permissionId = existingPermission.id;
-        if (!existingPermission) {
-          let route = `/api${error?.url || ''}`;
-          route = route.replace(/\/(\w*id)\b/g, '/:id');
-          const newPermResponse = await adminApi.createPermission({
-            resource: permission,
-            name: permission,
-            action: permission.includes(':write') ? 'write' : 'read',
-            description: `Auto-generated permission for ${permission}`,
-            route,
-            method: error.responseData?.method || 'GET',
-            category: 'custom',
-          });
-          if (!newPermResponse.data?.id) {
-            throw new Error('Failed to create permission');
-          }
-          permissionId = newPermResponse.data.id;
+      const permissionsResponse = await adminApi.getPermissions();
+      const permissions: any[] = Array.isArray(permissionsResponse.data)
+        ? permissionsResponse.data
+        : (permissionsResponse.data?.data ?? []);
+      const existingPermission = permissions.find((p: any) => p.resource === permission);
+      if (existingPermission) {
+        permissionId = existingPermission.id;
+      } else {
+        let route = `/api${error?.url || ''}`;
+        route = route.replace(/\/(\w*id)\b/g, '/:id');
+        const newPermResponse = await adminApi.createPermission({
+          resource: permission,
+          name: permission,
+          action: permission.includes(':write') ? 'write' : 'read',
+          description: `Auto-generated permission for ${permission}`,
+          route,
+          method: error.responseData?.method || 'GET',
+          category: 'custom',
+        });
+        if (!newPermResponse.data?.id) {
+          throw new Error('Failed to create permission');
         }
-      } catch (permError) {
-        console.error('Error handling permission:', permError);
+        permissionId = newPermResponse.data.id;
       }
       const rolesResponse = await adminApi.getRoles();
       const roles = Array.isArray(rolesResponse.data)
         ? rolesResponse.data
         : (rolesResponse.data ?? []);
       const superAdminRole = roles.find((role: any) => role.name === 'superadmin');
+
       if (superAdminRole && typeof permissionId === 'string') {
         await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
         await dismissErrorFn(dataId);
         removeLoginCookie();
-        try {
-          const { getMe } = await import('../apis/auth.api.ts');
-          await getMe();
-        } catch (refreshError) {
-          console.error('Failed to refresh user info after fixing permission:', refreshError);
-        }
+        await getMe();
         onRefreshPermissions?.();
         setTimeout(() => {
           window.location.reload();

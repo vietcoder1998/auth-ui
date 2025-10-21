@@ -99,7 +99,7 @@ export default function AdminNotificationDropdown() {
                             setFixedIds((ids) => [...ids, error.id]);
                             setTimeout(() => {
                               setFixedIds((ids) => ids.filter((id) => id !== error.id));
-                              dismissError(error.id);
+                              dismissError(data.id);
                             }, 5000);
                           }}
                           key="fix"
@@ -110,7 +110,7 @@ export default function AdminNotificationDropdown() {
                       <Button
                         size="small"
                         type="text"
-                        onClick={() => dismissError(error.id)}
+                        onClick={() => dismissError(data.id)}
                         key="close"
                       >
                         Dismiss
