@@ -2,6 +2,7 @@ import { Tooltip, message } from 'antd';
 import { SyncOutlined, LinkOutlined, PoweroffOutlined } from '@ant-design/icons';
 import React from 'react';
 import { adminApi } from '~/apis/admin.api.ts';
+import { COOKIE_DOMAIN } from '~/env.ts';
 
 export interface AppBackEndStatusProps {
   status?: {
@@ -58,6 +59,9 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
     }
   };
 
+  // Use env config for RabbitMQ link, fallback to default
+  const rabbitMqLink = import.meta.env.VITE_RABBITMQ_LINK || 'https://rabbitmq.com';
+
   return (
     <div
       style={{
@@ -98,7 +102,7 @@ const AppBackEndStatus: React.FC<AppBackEndStatusProps> = ({ status }) => {
           Port: {port || 'N/A'}
         </div>
         <a
-          href="https://rabbitmq.com"
+          href={rabbitMqLink}
           target="_blank"
           rel="noopener noreferrer"
           style={{ textDecoration: 'underline', color: 'inherit', background: 'transparent' }}

@@ -1,8 +1,8 @@
-// import { ThunderboltOutlined } from '@ant-design/icons'; // No longer used
-import { RobotFilled } from '@ant-design/icons';
+import { ThunderboltOutlined } from '@ant-design/icons';
 import { Input, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getApiInstance } from '../apis/index.ts';
+import { adminApi } from '../apis/admin.api.ts';
 import { useAIGenerateProvider } from '../providers/AIGenerateProvider.tsx';
 
 interface AIGenerateInputProps {
@@ -103,6 +103,30 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
   };
 
   if (textarea) {
+    const [agentName, setAgentName] = useState('');
+    const [modelName, setModelName] = useState('');
+    const [promptMemory, setPromptMemory] = useState('');
+
+    useEffect(() => {
+      // Fetch agent/model/memory from API
+      const fetchAgentInfo = async () => {
+        try {
+          const agentsRes = await adminApi.getAgents?.();
+          const agent = agentsRes?.data?.[0];
+          setAgentName(agent?.name || '');
+          setModelName(agent?.model || '');
+          // Fetch agent memory
+          const memoriesRes = await adminApi.getAgentMemories?.(agent?.id);
+          setPromptMemory(memoriesRes?.data?.[0]?.memory || '');
+        } catch (err) {
+          setAgentName('');
+          setModelName('');
+          setPromptMemory('');
+        }
+      };
+      fetchAgentInfo();
+    }, []);
+
     return (
       <div style={{ position: 'relative' }}>
         <Input.TextArea
@@ -113,6 +137,45 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
             paddingBottom: showPrimary && primaryValue ? 32 : 8,
           }}
         />
+        {/* Left: Tooltip with prompt memory, agent name, and model */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 8,
+            bottom: 8,
+            zIndex: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 11,
+              color: '#888',
+              background: '#fafafa',
+              borderRadius: 4,
+              padding: '2px 6px',
+              cursor: 'default',
+              border: '1px solid #eee',
+            }}
+            title={promptMemory}
+          >
+            {promptMemory || 'Memory: ...'}
+          </span>
+          <span
+            style={{
+              fontSize: 11,
+              color: '#aaa',
+              background: 'transparent',
+              marginLeft: 2,
+              pointerEvents: 'none',
+            }}
+          >
+            {agentName || 'Agent'} / {modelName || 'Model'}
+          </span>
+        </div>
+        {/* Generate icon (thunderbolt) */}
         <div
           style={{
             position: 'absolute',
@@ -144,7 +207,7 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
               </svg>
             </span>
           ) : (
-            <RobotFilled style={{ color: '#888', fontSize: 16 }} />
+            <ThunderboltOutlined style={{ color: '#888', fontSize: 16 }} />
           )}
         </div>
         {showRevert && (
@@ -153,7 +216,7 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
             style={{
               position: 'absolute',
               left: 8,
-              bottom: 8,
+              bottom: 32,
               zIndex: 2,
               fontSize: 11,
               padding: '2px 8px',
