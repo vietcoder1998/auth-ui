@@ -46,7 +46,17 @@ interface Agent {
   id: string;
   name: string;
   description?: string;
-  model: string;
+  model:
+    | string
+    | {
+        id: string;
+        name: string;
+        description?: string;
+        type?: string;
+        platformId?: string;
+        createdAt?: string;
+        updatedAt?: string;
+      };
   personality?: string;
   systemPrompt?: string;
   config?: string;
@@ -314,7 +324,10 @@ export default function AdminAgentPage() {
       dataIndex: 'model',
       key: 'model',
       width: 120,
-      render: (text: string) => <Tag color="blue">{text}</Tag>,
+      render: (model: Agent['model']) => {
+        const modelName = typeof model === 'string' ? model : model?.name;
+        return <Tag color="blue">{modelName || 'N/A'}</Tag>;
+      },
     },
     {
       title: 'Status',
@@ -466,7 +479,11 @@ export default function AdminAgentPage() {
                   {selectedAgent.description}
                 </Descriptions.Item>
                 <Descriptions.Item label="Model">
-                  <Tag color="blue">{selectedAgent.model}</Tag>
+                  <Tag color="blue">
+                    {typeof selectedAgent.model === 'string'
+                      ? selectedAgent.model
+                      : selectedAgent.model?.name || 'N/A'}
+                  </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
                   <Badge
