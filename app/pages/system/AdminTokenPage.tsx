@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, message, Modal, Form, Select, Space, Tag, Tooltip } from 'antd';
+import {
+  Table,
+  Button,
+  Spin,
+  message,
+  Modal,
+  Form,
+  Select,
+  Space,
+  Tag,
+  Tooltip,
+  Popconfirm,
+} from 'antd';
 import {
   PlusOutlined,
   DeleteOutlined,
@@ -270,62 +282,51 @@ export default function AdminTokenPage() {
               }}
             />
           </Tooltip>
-          {/* Revoke Access Token */}
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => {
-              Modal.confirm({
-                title: 'Revoke Access Token',
-                content: 'Are you sure you want to revoke this access token?',
-                onOk: () => handleRevokeToken(record.id),
-              });
-            }}
-          >
-            Revoke Access
-          </Button>
-          {/* Revoke Refresh Token */}
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => {
-              Modal.confirm({
-                title: 'Revoke Refresh Token',
-                content: 'Are you sure you want to revoke this refresh token?',
-                onOk: async () => {
-                  try {
-                    await adminApi.revokeRefreshToken(record.id);
-                    message.success('Refresh token revoked successfully');
-                    fetchTokens();
-                  } catch (error) {
-                    console.error('Failed to revoke refresh token:', error);
-                    message.error('Failed to revoke refresh token');
-                  }
-                },
-              });
-            }}
-          >
-            Revoke Refresh
-          </Button>
-          {/* Generate new access token from refresh token */}
-          <Button
-            icon={<ReloadOutlined />}
-            size="small"
-            onClick={async () => {
-              try {
-                await adminApi.generateAccessTokenFromRefresh(record.refreshToken);
-                message.success('New access token generated from refresh token');
-                fetchTokens();
-              } catch (error) {
-                console.error('Failed to generate access token from refresh token:', error);
-                message.error('Failed to generate access token from refresh token');
-              }
-            }}
-          >
-            New Access from Refresh
-          </Button>
+          <Tooltip title="Revoke Access Token">
+            <Popconfirm
+              title="Are you sure you want to revoke this access token?"
+              onConfirm={() => handleRevokeToken(record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />} size="small" />
+            </Popconfirm>
+          </Tooltip>
+          <Tooltip title="Revoke Refresh Token">
+            <Popconfirm
+              title="Are you sure you want to revoke this refresh token?"
+              onConfirm={async () => {
+                try {
+                  await adminApi.revokeRefreshToken(record.id);
+                  message.success('Refresh token revoked successfully');
+                  fetchTokens();
+                } catch (error) {
+                  console.error('Failed to revoke refresh token:', error);
+                  message.error('Failed to revoke refresh token');
+                }
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger icon={<DeleteOutlined style={{ color: '#1890ff' }} />} size="small" />
+            </Popconfirm>
+          </Tooltip>
+          <Tooltip title="Generate new access token from refresh token">
+            <Button
+              icon={<ReloadOutlined />}
+              size="small"
+              onClick={async () => {
+                try {
+                  await adminApi.generateAccessTokenFromRefresh(record.refreshToken);
+                  message.success('New access token generated from refresh token');
+                  fetchTokens();
+                } catch (error) {
+                  console.error('Failed to generate access token from refresh token:', error);
+                  message.error('Failed to generate access token from refresh token');
+                }
+              }}
+            />
+          </Tooltip>
         </Space>
       ),
     },
