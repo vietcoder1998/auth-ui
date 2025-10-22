@@ -1,19 +1,33 @@
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, Select } from 'antd';
 import { useEffect } from 'react';
-
-interface AIModelModalProps {
+export interface AIModelModalProps {
   visible: boolean;
   editingModel?: any | null;
   onOk: (values: any) => void;
   onCancel: () => void;
+  platformOptions?: Array<{ label: string; value: string }>;
 }
 
-export default function AIModelModal({ visible, editingModel, onOk, onCancel }: AIModelModalProps) {
+export default function AIModelModal({
+  visible,
+  editingModel,
+  onOk,
+  onCancel,
+  platformOptions = [],
+}: AIModelModalProps) {
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (editingModel) {
-      form.setFieldsValue(editingModel);
+      // Map platformId from platform object if present
+      const initialValues = {
+        ...editingModel,
+        platformId:
+          typeof editingModel.platformId === 'string'
+            ? editingModel.platformId
+            : editingModel.platform?.id || '',
+      };
+      form.setFieldsValue(initialValues);
     } else {
       form.resetFields();
     }
@@ -51,8 +65,14 @@ export default function AIModelModal({ visible, editingModel, onOk, onCancel }: 
         <Form.Item label="Type" name="type">
           <Input placeholder="Model type (e.g. gpt, claude, gemini)" />
         </Form.Item>
-        <Form.Item label="Platform ID" name="platformId">
-          <Input placeholder="Platform ID (optional)" />
+        <Form.Item label="Platform" name="platformId">
+          <Select placeholder="Select platform" allowClear showSearch optionFilterProp="label">
+            {platformOptions.map((opt: { label: string; value: string }) => (
+              <Select.Option key={opt.value} value={opt.value} label={opt.label}>
+                {opt.label}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

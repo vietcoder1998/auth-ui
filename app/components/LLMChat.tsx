@@ -47,7 +47,17 @@ interface Agent {
   id: string;
   name: string;
   description: string;
-  model: string;
+  model:
+    | string
+    | {
+        id: string;
+        name: string;
+        description?: string;
+        type?: string;
+        platformId?: string;
+        createdAt?: string;
+        updatedAt?: string;
+      };
   isActive: boolean;
 }
 
@@ -803,7 +813,11 @@ export default function LLMChat() {
                     type="secondary"
                     style={{ fontSize: '12px', marginTop: '4px', display: 'block' }}
                   >
-                    Model: {selectedAgentData.model} • {selectedAgentData.description}
+                    Model:{' '}
+                    {typeof selectedAgentData.model === 'string'
+                      ? selectedAgentData.model
+                      : selectedAgentData.model?.name || 'N/A'}{' '}
+                    • {selectedAgentData.description}
                   </Text>
                 )}
               </div>

@@ -14,10 +14,23 @@ export default function AdminModelPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingModel, setEditingModel] = useState<any | null>(null);
   const [search, setSearch] = useState('');
+  const [platformOptions, setPlatformOptions] = useState<Array<{ label: string; value: string }>>(
+    []
+  );
 
   useEffect(() => {
     fetchModels();
+    fetchPlatforms();
   }, []);
+  const fetchPlatforms = async () => {
+    try {
+      const response = await adminApi.getAIPlatforms();
+      const platforms = response.data?.data || [];
+      setPlatformOptions(platforms.map((p: any) => ({ label: p.name, value: p.id })));
+    } catch {
+      setPlatformOptions([]);
+    }
+  };
 
   useEffect(() => {
     if (search.length === 0) {
@@ -185,6 +198,7 @@ export default function AdminModelPage() {
         editingModel={editingModel}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
+        platformOptions={platformOptions}
       />
     </div>
   );

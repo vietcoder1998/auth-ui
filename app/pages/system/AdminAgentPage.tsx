@@ -213,6 +213,9 @@ export default function AdminAgentPage() {
     try {
       await adminApi.updateAgent(agent.id, values);
       message.success('Agent updated successfully');
+      setModalVisible(false);
+      setSelectedAgent(null);
+      form.resetFields();
       setSearch(''); // Reset search to show all after update
       fetchAgents();
     } catch (error) {
@@ -263,8 +266,23 @@ export default function AdminAgentPage() {
   };
 
   const editAgent = (agent: Agent) => {
-    const personality = agent.personality ? JSON.parse(agent.personality) : {};
-    const config = agent.config ? JSON.parse(agent.config) : {};
+    let personality: any = {};
+    let config: any = {};
+    try {
+      if (agent.personality) {
+        personality =
+          typeof agent.personality === 'string' ? JSON.parse(agent.personality) : agent.personality;
+      }
+    } catch (e) {
+      personality = {};
+    }
+    try {
+      if (agent.config) {
+        config = typeof agent.config === 'string' ? JSON.parse(agent.config) : agent.config;
+      }
+    } catch (e) {
+      config = {};
+    }
 
     form.setFieldsValue({
       name: agent.name,
@@ -274,7 +292,7 @@ export default function AdminAgentPage() {
       traits: personality.traits || [],
       tone: personality.tone || 'professional',
       style: personality.style || 'helpful',
-      expertise: personality.expertise?.join(', ') || '',
+      expertise: Array.isArray(personality.expertise) ? personality.expertise.join(', ') : '',
       temperature: config.temperature || 0.7,
       maxTokens: config.maxTokens || 1000,
       topP: config.topP || 1,
@@ -497,7 +515,13 @@ export default function AdminAgentPage() {
                 <Descriptions.Item label="Personality">
                   {selectedAgent.personality && (
                     <pre style={{ whiteSpace: 'pre-wrap', fontSize: '12px' }}>
-                      {JSON.stringify(JSON.parse(selectedAgent.personality), null, 2)}
+                      {JSON.stringify(
+                        typeof selectedAgent.personality === 'string'
+                          ? JSON.parse(selectedAgent.personality)
+                          : selectedAgent.personality,
+                        null,
+                        2
+                      )}
                     </pre>
                   )}
                 </Descriptions.Item>
