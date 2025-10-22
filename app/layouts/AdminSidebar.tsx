@@ -8,15 +8,12 @@ import React, { useContext } from 'react';
 import { Button, Input } from 'antd';
 import AdminSidebarMenu from '~/components/AdminSidebarMenu.tsx';
 import type { MenuItem } from '../components/AdminSidebarMenu.tsx';
-import useCookie from '../hooks/useCookie.tsx';
 import { useResponsive } from '~/hooks/useResponsive.tsx';
 
 export interface AdminSidebarProps {
   sidebarItems: MenuItem[];
   editSidebar: boolean;
   setEditSidebar: (v: boolean) => void;
-  search: string;
-  setSearch: (v: string) => void;
   onDragEnd: (result: any) => void;
   filteredSidebarItems: MenuItem[];
   pathname: string;
@@ -27,22 +24,17 @@ export interface AdminSidebarProps {
 export default function AdminSidebar({
   editSidebar,
   setEditSidebar,
-  search,
-  setSearch,
   onDragEnd,
   pathname,
   navigate,
   handleLogout,
 }: AdminSidebarProps) {
-  // Persist search value in cookie
-  const [searchCookie, setSearchCookie] = useCookie<string>('admin_sidebar_search', search);
-  const [lastNav, setLastNav] = useCookie<string>('admin_sidebar_last_nav', pathname);
-  const { sidebarOpen, setSidebarOpen, isMobile } = useResponsive();
+  const { sidebarOpen, setSidebarOpen, isMobile, search, setSearch, lastNav, setLastNav } =
+    useResponsive();
 
-  // Sync state with cookie
+  // Sync state with context
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    setSearchCookie(e.target.value);
   };
   const handleSidebarToggle = () => {
     setEditSidebar(!editSidebar);
@@ -74,7 +66,7 @@ export default function AdminSidebar({
           <>
             <Input
               placeholder="Search menu..."
-              value={searchCookie}
+              value={search}
               onChange={handleSearchChange}
               style={{
                 flex: 1,
