@@ -36,9 +36,9 @@ export const defaultSidebarMenu: MenuItem[] = [
     label: 'Dashboard',
   },
   {
-    key: '/admin/system/ai',
+    key: '/admin/system/ai-generator',
     icon: <RobotOutlined />,
-    label: 'AI',
+    label: 'AI Generator',
     children: [
       {
         key: '/admin/system/ai-test',
@@ -70,6 +70,13 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <ThunderboltOutlined />,
         label: 'Jobs',
       },
+    ],
+  },
+  {
+    key: '/admin/system/ai-platform-control',
+    icon: <DatabaseOutlined />,
+    label: 'AI Platform Control',
+    children: [
       {
         key: '/admin/system/ai-platforms',
         icon: <DatabaseOutlined />,
@@ -79,6 +86,11 @@ export const defaultSidebarMenu: MenuItem[] = [
         key: '/admin/system/ai-keys',
         icon: <KeyOutlined />,
         label: 'AI Keys',
+      },
+      {
+        key: '/admin/system/memory',
+        icon: <FileTextOutlined />,
+        label: 'Memory',
       },
       {
         key: '/admin/system/billings',

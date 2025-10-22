@@ -24,6 +24,7 @@ import { SocketApi } from './adminApi/SocketApi.ts';
 import { SSOApi } from './adminApi/SSOApi.ts';
 import { TokenApi } from './adminApi/TokenApi.ts';
 import { UserApi } from './adminApi/UserApi.ts';
+import { AIMemoryApi } from './adminApi/AIMemoryApi.ts';
 
 // Notification CRUD
 export {
@@ -45,7 +46,7 @@ export {
   SocketApi,
   SSOApi,
   TokenApi,
-  UserApi,
+  AIMemoryApi,
 };
 
 import axios from 'axios';
@@ -160,7 +161,6 @@ export const adminApi = {
   createAgent: AgentApi.createAgent,
   updateAgent: AgentApi.updateAgent,
   deleteAgent: AgentApi.deleteAgent,
-  getAgentMemories: AgentApi.getAgentMemories,
   createAgentMemory: AgentApi.createAgentMemory,
 
   // ConversationApi
@@ -212,6 +212,8 @@ export const adminApi = {
   deleteSocketEvent: SocketApi.deleteSocketEvent,
   pingSocket: SocketApi.pingSocket,
   testSocketEvent: SocketApi.testSocketEvent,
+  // AIMemoryApi
+  getAgentMemories: AIMemoryApi.getAgentMemories,
   // FileApi
   getFiles: FileApi.getFiles,
   searchAll: SocketApi.searchAll,

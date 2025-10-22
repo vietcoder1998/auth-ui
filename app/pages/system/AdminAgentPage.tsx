@@ -209,7 +209,7 @@ export default function AdminAgentPage() {
   const fetchAgentDetails = async (agentId: string) => {
     try {
       // Fetch memories
-      const response = await adminApi.getAgentMemories(agentId);
+      const response = await adminApi.getAgentMemories({ agentId });
       const memories = response.data?.data || [];
 
       // For now, set empty arrays for tools and tasks
