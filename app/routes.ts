@@ -12,11 +12,11 @@ export default [
   route('/token-validation', 'pages/system/TokenValidationPage.tsx'), // Token validation for admin impersonation
 
   // Protected dashboard
-  route('/dashboard', 'pages/Dashboard.tsx'),
 
   // Admin layout with protected subroutes
   route('/admin', 'layouts/AdminContentLayout.tsx', [
     route('', 'pages/AdminIndexPage.tsx'), // /admin
+    route('profile', 'pages/Dashboard.tsx'),
 
     // Blog management
     route('blog/blogs', 'pages/system/AdminBlogPage.tsx'), // /admin/blog/blogs

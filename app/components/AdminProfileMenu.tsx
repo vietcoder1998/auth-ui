@@ -21,7 +21,7 @@ const AdminProfileMenu: React.FC<AdminProfileMenuProps> = ({ user, onLogout }) =
       key: 'profile',
       icon: <ProfileOutlined />,
       label: 'Profile',
-      onClick: () => navigate('/profile'),
+      onClick: () => navigate('/admin/profile'),
     },
     {
       type: 'divider',
