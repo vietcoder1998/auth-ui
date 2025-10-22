@@ -3,6 +3,7 @@ import {
   FileOutlined,
   MessageOutlined,
   PlusOutlined,
+  ReloadOutlined,
   RobotOutlined,
   SendOutlined,
   SettingOutlined,
@@ -138,6 +139,13 @@ export default function LLMChat() {
       Cookies.set('llm_chat_collapsed', (!prev).toString(), { expires: 365 });
       return !prev;
     });
+  };
+
+  // Refresh all data (agents, conversations, messages)
+  const handleRefresh = async () => {
+    await fetchAgents();
+    if (selectedAgent) await fetchConversations();
+    if (selectedConversation) await fetchMessages();
   };
 
   const fetchAgents = async () => {
@@ -437,6 +445,14 @@ export default function LLMChat() {
                 overflow: 'hidden',
               }}
             >
+              <Button
+                type="text"
+                size="small"
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                style={{ marginRight: 8 }}
+                aria-label="Refresh"
+              />
               <Select
                 style={{ width: '160px', flexShrink: 0 }}
                 size="small"
