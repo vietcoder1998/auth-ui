@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { documentApi } from '../../apis/document.api.ts';
-import { Table, Button, Tag, Space, Modal, Spin, Upload, message } from 'antd';
 import {
-  PlusOutlined,
+  Table,
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Spin,
+  Upload,
+  message,
+  Popconfirm,
+  Typography,
+} from 'antd';
+import {
   DeleteOutlined,
+  PlusOutlined,
   UploadOutlined,
   PlayCircleOutlined,
 } from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 export default function AdminDocumentPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   // Always use type 'document'
+  const [searchValue, setSearchValue] = useState('');
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -19,10 +32,10 @@ export default function AdminDocumentPage() {
     fetchDocuments();
   }, []);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (search?: string) => {
     setLoading(true);
     try {
-      const res = await documentApi.listDocuments({ type: 'document' });
+      const res = await documentApi.listDocuments({ type: 'document', search });
       setDocuments(res.data.data.data || []);
     } catch (error) {
       message.error('Failed to load documents');
@@ -30,17 +43,14 @@ export default function AdminDocumentPage() {
     }
     setLoading(false);
   };
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    fetchDocuments(value);
+  };
 
-  const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: 'Delete Document',
-      content: 'Are you sure you want to delete this document?',
-      okType: 'danger',
-      onOk: async () => {
-        await documentApi.deleteDocument(id);
-        fetchDocuments();
-      },
-    });
+  const handleDelete = async (id: string) => {
+    await documentApi.deleteDocument(id);
+    fetchDocuments(searchValue);
   };
 
   const handleUpload = async (info: any) => {
@@ -94,36 +104,46 @@ export default function AdminDocumentPage() {
       title: 'Actions',
       key: 'actions',
       render: (_: any, doc: any) => (
-        <Space>
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => handleDelete(doc.id)}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Popconfirm
+            title="Are you sure you want to delete this document?"
+            onConfirm={() => handleDelete(doc.id)}
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
+            <Button icon={<DeleteOutlined />} type="text" danger size="small" title="Delete" />
+          </Popconfirm>
           <Button
-            type="default"
             icon={<PlayCircleOutlined />}
+            type="text"
             size="small"
             onClick={() => handleStartExtractJob(doc)}
-          >
-            Extract
-          </Button>
-        </Space>
+            title="Extract"
+          />
+        </div>
       ),
     },
   ];
 
   return (
     <div style={{ padding: 24 }}>
-      <h2>Admin Document Management</h2>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setUploadModalVisible(true)}>
-          Upload Document
-        </Button>
-      </div>
+      <Typography.Title level={3} style={{ marginBottom: 16 }}>
+        Admin Document Management
+      </Typography.Title>
+      <CommonSearch
+        searchPlaceholder="Search documents..."
+        searchValue={searchValue}
+        onSearch={handleSearch}
+        style={{ marginBottom: 16 }}
+      />
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => setUploadModalVisible(true)}
+        style={{ marginBottom: 16 }}
+      >
+        Upload Document
+      </Button>
       <Spin spinning={loading}>
         <Table rowKey="id" columns={columns} dataSource={documents} pagination={{ pageSize: 10 }} />
       </Spin>
