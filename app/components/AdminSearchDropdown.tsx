@@ -22,7 +22,10 @@ const AdminSearchDropdown: React.FC<AdminSearchDropdownProps> = ({
   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
     <Dropdown
       open={searchVisible && (searchResults.length > 0 || searchLoading)}
-      onOpenChange={setSearchVisible}
+      onOpenChange={(open) => {
+        // Only allow open when input is focused, close on click outside
+        if (!open) setSearchVisible(false);
+      }}
       popupRender={() => (
         <div style={{ background: 'white', padding: 0, minWidth: 350, maxWidth: 600 }}>
           {searchLoading ? (
@@ -35,12 +38,34 @@ const AdminSearchDropdown: React.FC<AdminSearchDropdownProps> = ({
               dataSource={searchResults}
               style={{ width: '100%', maxHeight: 350, overflowY: 'auto', background: 'white' }}
               renderItem={(item: any) => (
-                <List.Item style={{ cursor: 'pointer', background: 'white' }}>
-                  <Tag color="blue" style={{ marginRight: 8 }}>
-                    {item.type}
-                  </Tag>
-                  <span style={{ fontWeight: 500 }}>{item.name}</span>
-                  <span style={{ color: '#888', marginLeft: 8 }}>{item.description}</span>
+                <List.Item
+                  style={{
+                    cursor: 'pointer',
+                    background: 'white',
+                    justifyContent: 'flex-start',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <a
+                    href={item.link || `/detail/${item.id}`}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      width: '100%',
+                    }}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Tag color="blue" style={{ marginBottom: 4 }}>
+                      {item.type}
+                    </Tag>
+                    <span style={{ fontWeight: 500, marginBottom: 2 }}>{item.name}</span>
+                    <span style={{ color: '#888' }}>{item.description}</span>
+                  </a>
                 </List.Item>
               )}
             />
@@ -58,6 +83,7 @@ const AdminSearchDropdown: React.FC<AdminSearchDropdownProps> = ({
           setSearch(e.target.value);
           setSearchVisible(true);
         }}
+        onFocus={() => setSearchVisible(true)}
         onBlur={() => setTimeout(() => setSearchVisible(false), 200)}
         style={{ width: 260, marginRight: 16 }}
       />
