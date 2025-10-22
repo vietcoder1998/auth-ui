@@ -167,6 +167,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
   const [searchResults, setSearchResults] = React.useState<SearchResultItem[]>([]);
   const [searchVisible, setSearchVisible] = React.useState<boolean>(false);
   const [searchLoading, setSearchLoading] = React.useState<boolean>(false);
+  const isMobile = window.innerWidth <= 768;
 
   // Extract extra info from systemStatus
   const isDocker = systemStatus?.os?.isDocker;
@@ -199,7 +200,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
       style={{
         background: '#fff',
         borderBottom: '1px solid #eee',
-        padding: 24,
+        padding: isMobile ? '12px 8px' : 24,
         height: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -215,22 +216,34 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          justifyContent: 'space-between',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? 8 : 12,
+          justifyContent: isMobile ? 'flex-start' : 'space-between',
           width: '100%',
-          marginTop: 20,
+          marginTop: isMobile ? 8 : 20,
         }}
       >
-        <AdminSearchDropdown
-          search={search}
-          setSearch={setSearch}
-          searchResults={searchResults}
-          searchVisible={searchVisible}
-          setSearchVisible={setSearchVisible}
-          searchLoading={searchLoading}
-        />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ width: isMobile ? '100%' : 'auto' }}>
+          <AdminSearchDropdown
+            search={search}
+            setSearch={setSearch}
+            searchResults={searchResults}
+            searchVisible={searchVisible}
+            setSearchVisible={setSearchVisible}
+            searchLoading={searchLoading}
+          />
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: isMobile ? 8 : 12,
+            justifyContent: isMobile ? 'flex-end' : undefined,
+            width: isMobile ? '100%' : 'auto',
+            marginTop: isMobile ? 8 : 0,
+          }}
+        >
           <StatusIndicator />
           <AdminNotificationDropdown />
           <AdminProfileMenu user={user} profileMenuItems={profileMenuItems} />

@@ -190,7 +190,9 @@ export default function AdminContentLayout() {
   );
 
   function ResponsiveContent(props: any) {
-    const { sidebarOpen, isMobile } = useResponsive();
+    const { sidebarOpen } = useResponsive();
+    const isMobile = window.innerWidth <= 768;
+    const isDesktop = !isMobile;
     const {
       sidebarItems,
       editSidebar,
@@ -224,7 +226,11 @@ export default function AdminContentLayout() {
           navigate={navigate}
           handleLogout={handleLogout}
         />
-        <Layout style={{ marginLeft: sidebarOpen && !isMobile ? 250 : 50 }}>
+        <Layout
+          style={{
+            marginLeft: isDesktop && sidebarOpen ? 250 : 50,
+          }}
+        >
           <AdminHeader
             profileMenuItems={profileMenuItems}
             generateBreadcrumb={generateBreadcrumb}
