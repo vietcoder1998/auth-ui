@@ -15,17 +15,14 @@ import {
   Badge,
   Button,
   Descriptions,
-  Divider,
   Drawer,
   Form,
   Input,
   List,
   message,
-  Modal,
   Popconfirm,
   Select,
   Space,
-  Switch,
   Table,
   Tabs,
   Tag,
@@ -35,6 +32,8 @@ import {
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import { useAuth } from '../../hooks/useAuth.tsx';
+import AgentModal from '../../modal/AgentModal.tsx';
+import CommonSearch from '../../components/CommonSearch.tsx';
 
 type ColumnsType<T> = TableProps<T>['columns'];
 
@@ -129,10 +128,29 @@ export default function AdminAgentPage() {
     tools: AgentTool[];
     tasks: AgentTask[];
   }>({ memories: [], tools: [], tasks: [] });
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchAgents();
   }, []);
+
+  useEffect(() => {
+    if (search.length === 0) {
+      fetchAgents();
+      return;
+    }
+    setLoading(true);
+    adminApi
+      .getAgents(search)
+      .then((response: any) => {
+        setAgents(response.data.data || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setAgents([]);
+        setLoading(false);
+      });
+  }, [search]);
 
   const fetchAgents = async () => {
     setLoading(true);
@@ -173,6 +191,7 @@ export default function AdminAgentPage() {
       message.success('Agent created successfully');
       setModalVisible(false);
       form.resetFields();
+      setSearch(''); // Reset search to show all after create
       fetchAgents();
     } catch (error) {
       console.error('Error creating agent:', error);
@@ -184,6 +203,7 @@ export default function AdminAgentPage() {
     try {
       await adminApi.updateAgent(agent.id, values);
       message.success('Agent updated successfully');
+      setSearch(''); // Reset search to show all after update
       fetchAgents();
     } catch (error) {
       console.error('Error updating agent:', error);
@@ -195,6 +215,7 @@ export default function AdminAgentPage() {
     try {
       await adminApi.deleteAgent(agent.id);
       message.success('Agent deleted successfully');
+      setSearch(''); // Reset search to show all after delete
       fetchAgents();
     } catch (error) {
       console.error('Error deleting agent:', error);
@@ -364,26 +385,29 @@ export default function AdminAgentPage() {
 
   return (
     <div style={{}}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-        }}
-      >
-        <Title level={2}>🤖 AI Agents</Title>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            setSelectedAgent(null);
-            form.resetFields();
-            setModalVisible(true);
-          }}
-        >
-          Create Agent
-        </Button>
+      <div style={{ marginBottom: '24px' }}>
+        <CommonSearch
+          searchPlaceholder="Search agent name..."
+          searchValue={search}
+          onSearch={setSearch}
+          onRefresh={fetchAgents}
+          loading={loading}
+          showRefresh={true}
+          style={{ marginBottom: 12, border: 'none', boxShadow: 'none', padding: 0 }}
+          extra={
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setSelectedAgent(null);
+                form.resetFields();
+                setModalVisible(true);
+              }}
+            >
+              Create Agent
+            </Button>
+          }
+        />
       </div>
 
       <Table
@@ -401,130 +425,21 @@ export default function AdminAgentPage() {
       />
 
       {/* Create/Edit Agent Modal */}
-      <Modal
-        title={selectedAgent ? 'Edit Agent' : 'Create New Agent'}
-        open={modalVisible}
+      <AgentModal
+        visible={modalVisible}
+        onOk={
+          selectedAgent
+            ? (values: any) => handleUpdateAgent(selectedAgent, values)
+            : (values: any) => handleCreateAgent(values)
+        }
         onCancel={() => {
           setModalVisible(false);
           setSelectedAgent(null);
           form.resetFields();
         }}
-        footer={null}
-        width={800}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={
-            selectedAgent ? (values) => handleUpdateAgent(selectedAgent, values) : handleCreateAgent
-          }
-        >
-          <Form.Item
-            name="name"
-            label="Agent Name"
-            rules={[{ required: true, message: 'Please enter agent name' }]}
-          >
-            <Input placeholder="e.g., Customer Support Assistant" />
-          </Form.Item>
-
-          <Form.Item name="description" label="Description">
-            <TextArea
-              rows={2}
-              placeholder="Brief description of the agent's purpose and capabilities"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="model"
-            label="AI Model"
-            rules={[{ required: true, message: 'Please select an AI model' }]}
-          >
-            <Select placeholder="Select AI model">
-              {modelOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="systemPrompt" label="System Prompt">
-            <TextArea
-              rows={4}
-              placeholder="System instructions that define the agent's behavior and role"
-            />
-          </Form.Item>
-
-          <Divider>Personality Configuration</Divider>
-
-          <Form.Item name="traits" label="Personality Traits">
-            <Select
-              mode="multiple"
-              placeholder="Select personality traits"
-              style={{ width: '100%' }}
-            >
-              {personalityTraits.map((trait) => (
-                <Option key={trait} value={trait}>
-                  {trait}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="tone" label="Communication Tone">
-            <Select placeholder="Select communication tone">
-              <Option value="professional">Professional</Option>
-              <Option value="friendly">Friendly</Option>
-              <Option value="casual">Casual</Option>
-              <Option value="formal">Formal</Option>
-              <Option value="technical">Technical</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="style" label="Response Style">
-            <Select placeholder="Select response style">
-              <Option value="concise">Concise</Option>
-              <Option value="detailed">Detailed</Option>
-              <Option value="conversational">Conversational</Option>
-              <Option value="structured">Structured</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="expertise" label="Areas of Expertise">
-            <Input placeholder="e.g., customer service, technical support, sales (comma-separated)" />
-          </Form.Item>
-
-          <Divider>Model Configuration</Divider>
-
-          <Form.Item name="temperature" label="Temperature">
-            <Input
-              type="number"
-              min={0}
-              max={2}
-              step={0.1}
-              placeholder="0.7"
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
-
-          <Form.Item name="maxTokens" label="Max Tokens">
-            <Input type="number" min={1} max={4000} placeholder="1000" style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item name="isActive" label="Status" valuePropName="checked">
-            <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
-          </Form.Item>
-
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                {selectedAgent ? 'Update Agent' : 'Create Agent'}
-              </Button>
-              <Button onClick={() => setModalVisible(false)}>Cancel</Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
+        initialValues={selectedAgent}
+        isEdit={!!selectedAgent}
+      />
 
       {/* Agent Details Drawer */}
       <Drawer
