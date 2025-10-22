@@ -69,6 +69,8 @@ export const adminApi = {
   createToken: TokenApi.createToken,
   grantToken: TokenApi.grantToken,
   revokeToken: TokenApi.revokeToken,
+  revokeRefreshToken: TokenApi.revokeRefreshToken,
+  generateAccessTokenFromRefresh: TokenApi.generateAccessTokenFromRefresh,
 
   // RoleApi
   getRoles: RoleApi.getRoles,

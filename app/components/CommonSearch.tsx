@@ -54,7 +54,7 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
   };
 
   return (
-    <Card style={{ ...style, padding: 0 }} styles={{ body: { padding: 0 } }}>
+    <Card style={{ ...style, padding: 0, border: 'none' }} styles={{ body: { padding: 0 } }}>
       <Space direction="vertical" style={{ width: '100%' }}>
         {/* Main search row */}
         <div

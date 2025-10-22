@@ -17,6 +17,7 @@ interface Token {
   userId: string;
   createdAt: string;
   expiresAt: string;
+  refreshExpiresAt: string;
   user?: {
     id: string;
     email: string;
@@ -124,10 +125,53 @@ export default function AdminTokenPage() {
       title: 'Access Token',
       dataIndex: 'accessToken',
       key: 'accessToken',
-      render: (token: string) => (
-        <Tooltip title={token}>
-          <code style={{ fontSize: '12px' }}>{truncateToken(token)}</code>
-        </Tooltip>
+      render: (token: string, record: Token) => (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Tooltip title={token}>
+              <code style={{ fontSize: '12px' }}>{truncateToken(token)}</code>
+            </Tooltip>
+            <Button
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => copyToClipboard(token, 'Access token')}
+              style={{ marginLeft: 2 }}
+            />
+          </div>
+          <div style={{ fontSize: 11, marginTop: 2 }}>
+            <span style={{ fontWeight: 500 }}>Expired At:</span>{' '}
+            <span style={{ color: isTokenExpired(record.expiresAt) ? 'red' : 'inherit' }}>
+              {new Date(record.expiresAt).toLocaleString()}
+            </span>
+            {isTokenExpired(record.expiresAt) && <Tag color="red">Expired</Tag>}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Refresh Token',
+      dataIndex: 'refreshToken',
+      key: 'refreshToken',
+      render: (token: string, record: Token) => (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Tooltip title={token}>
+              <code style={{ fontSize: '12px' }}>{truncateToken(token)}</code>
+            </Tooltip>
+            <Button
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => copyToClipboard(token, 'Refresh token')}
+              style={{ marginLeft: 2 }}
+            />
+          </div>
+          <div style={{ fontSize: 11, marginTop: 2 }}>
+            <span style={{ fontWeight: 500 }}>Expired At:</span>{' '}
+            <span>
+              {record.refreshExpiresAt ? new Date(record.refreshExpiresAt).toLocaleString() : 'N/A'}
+            </span>
+          </div>
+        </div>
       ),
     },
     {
@@ -144,34 +188,30 @@ export default function AdminTokenPage() {
       ),
     },
     {
-      title: 'Created',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: 'Expires',
-      dataIndex: 'expiresAt',
-      key: 'expiresAt',
-      render: (date: string) => (
-        <span style={{ color: isTokenExpired(date) ? 'red' : 'inherit' }}>
-          {new Date(date).toLocaleDateString()}
-          {isTokenExpired(date) && <Tag color="red">Expired</Tag>}
-        </span>
+      title: 'Timeline',
+      key: 'timeline',
+      render: (_: unknown, record: Token) => (
+        <div>
+          <div>
+            <span style={{ fontWeight: 500 }}>Created:</span>{' '}
+            {new Date(record.createdAt).toLocaleString()}
+          </div>
+          <div>
+            <span style={{ fontWeight: 500 }}>Expires:</span>{' '}
+            <span style={{ color: isTokenExpired(record.expiresAt) ? 'red' : 'inherit' }}>
+              {new Date(record.expiresAt).toLocaleString()}
+            </span>
+            {isTokenExpired(record.expiresAt) && <Tag color="red">Expired</Tag>}
+          </div>
+        </div>
       ),
     },
     {
       title: 'Actions',
       key: 'actions',
+      width: 260,
       render: (_: unknown, record: Token) => (
         <Space>
-          <Tooltip title="Copy access token">
-            <Button
-              icon={<CopyOutlined />}
-              size="small"
-              onClick={() => copyToClipboard(record.accessToken, 'Access token')}
-            />
-          </Tooltip>
           <Tooltip title="View full token">
             <Button
               icon={<EyeOutlined />}
@@ -196,7 +236,7 @@ export default function AdminTokenPage() {
                           />
                         </div>
                       </div>
-                      <div>
+                      <div style={{ marginBottom: '16px' }}>
                         <p>
                           <strong>Refresh Token:</strong>
                         </p>
@@ -211,6 +251,18 @@ export default function AdminTokenPage() {
                           />
                         </div>
                       </div>
+                      <div>
+                        <span style={{ fontWeight: 500 }}>Created:</span>{' '}
+                        {new Date(record.createdAt).toLocaleString()}
+                        <br />
+                        <span style={{ fontWeight: 500 }}>Expires:</span>{' '}
+                        <span
+                          style={{ color: isTokenExpired(record.expiresAt) ? 'red' : 'inherit' }}
+                        >
+                          {new Date(record.expiresAt).toLocaleString()}
+                        </span>
+                        {isTokenExpired(record.expiresAt) && <Tag color="red">Expired</Tag>}
+                      </div>
                     </div>
                   ),
                   width: 600,
@@ -218,19 +270,61 @@ export default function AdminTokenPage() {
               }}
             />
           </Tooltip>
+          {/* Revoke Access Token */}
           <Button
             danger
             icon={<DeleteOutlined />}
             size="small"
             onClick={() => {
               Modal.confirm({
-                title: 'Revoke Token',
-                content: 'Are you sure you want to revoke this token?',
+                title: 'Revoke Access Token',
+                content: 'Are you sure you want to revoke this access token?',
                 onOk: () => handleRevokeToken(record.id),
               });
             }}
           >
-            Revoke
+            Revoke Access
+          </Button>
+          {/* Revoke Refresh Token */}
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            size="small"
+            onClick={() => {
+              Modal.confirm({
+                title: 'Revoke Refresh Token',
+                content: 'Are you sure you want to revoke this refresh token?',
+                onOk: async () => {
+                  try {
+                    await adminApi.revokeRefreshToken(record.id);
+                    message.success('Refresh token revoked successfully');
+                    fetchTokens();
+                  } catch (error) {
+                    console.error('Failed to revoke refresh token:', error);
+                    message.error('Failed to revoke refresh token');
+                  }
+                },
+              });
+            }}
+          >
+            Revoke Refresh
+          </Button>
+          {/* Generate new access token from refresh token */}
+          <Button
+            icon={<ReloadOutlined />}
+            size="small"
+            onClick={async () => {
+              try {
+                await adminApi.generateAccessTokenFromRefresh(record.refreshToken);
+                message.success('New access token generated from refresh token');
+                fetchTokens();
+              } catch (error) {
+                console.error('Failed to generate access token from refresh token:', error);
+                message.error('Failed to generate access token from refresh token');
+              }
+            }}
+          >
+            New Access from Refresh
           </Button>
         </Space>
       ),

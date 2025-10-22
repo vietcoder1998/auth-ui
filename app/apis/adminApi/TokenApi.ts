@@ -17,4 +17,14 @@ export class TokenApi {
     const axios = getApiInstance();
     return axios.post('/admin/tokens/revoke', { tokenId });
   }
+
+  static async revokeRefreshToken(tokenId: string) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/tokens/${tokenId}/revoke-refresh`);
+  }
+
+  static async generateAccessTokenFromRefresh(refreshToken: string) {
+    const axios = getApiInstance();
+    return axios.post('/admin/tokens/generate-access-from-refresh', { refreshToken });
+  }
 }
