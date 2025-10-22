@@ -1,10 +1,13 @@
-import { Button, Spin, Table, Modal, Input } from 'antd';
+import { Button, Spin, Table, Modal, Input, Typography, Popconfirm } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { RichText } from '../../lib/RichText.tsx';
+import CommonSearch from '../../components/CommonSearch.tsx';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 
 export default function AdminNotificationPage() {
   const [notificationTemplates, setNotificationTemplates] = useState([]);
+  const [searchValue, setSearchValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editTemplate, setEditTemplate] = useState<any | null>(null);
@@ -31,15 +34,19 @@ export default function AdminNotificationPage() {
     fetchNotificationTemplates();
   }, []);
 
-  const fetchNotificationTemplates = async () => {
+  const fetchNotificationTemplates = async (search?: string) => {
     setLoading(true);
     try {
-      const res = await adminApi.getNotificationTemplates();
+      const res = await adminApi.getNotificationTemplates(search);
       setNotificationTemplates(res.data.data);
     } catch {
       setNotificationTemplates([]);
     }
     setLoading(false);
+  };
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    fetchNotificationTemplates(value);
   };
 
   interface NotificationTemplate {
@@ -71,27 +78,41 @@ export default function AdminNotificationPage() {
       title: 'Actions',
       key: 'actions',
       render: (_, t) => (
-        <>
-          <Button onClick={() => handleEdit(t!)} style={{ marginRight: 8 }}>
-            Edit
-          </Button>
-          <Button
-            danger
-            onClick={() =>
-              adminApi.deleteNotificationTemplate(t!.id).then(fetchNotificationTemplates)
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button icon={<EditOutlined />} type="text" onClick={() => handleEdit(t!)} title="Edit" />
+          <Popconfirm
+            title="Are you sure to delete this notification template?"
+            onConfirm={() =>
+              adminApi
+                .deleteNotificationTemplate(t!.id)
+                .then(() => fetchNotificationTemplates(searchValue))
             }
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
-        </>
+            <Button icon={<DeleteOutlined />} type="text" danger title="Delete" />
+          </Popconfirm>
+        </div>
       ),
     },
   ];
 
   return (
     <div>
-      <h2>Notification Template Table</h2>
-      <Button type="primary" onClick={() => alert('Show create notification template modal')}>
+      <Typography.Title level={3} style={{ marginBottom: 16 }}>
+        Notification Template Table
+      </Typography.Title>
+      <CommonSearch
+        searchPlaceholder="Search notification templates..."
+        searchValue={searchValue}
+        onSearch={handleSearch}
+        style={{ marginBottom: 16 }}
+      />
+      <Button
+        type="primary"
+        onClick={() => alert('Show create notification template modal')}
+        style={{ marginBottom: 16 }}
+      >
         Create Notification Template
       </Button>
       <Spin spinning={loading}>

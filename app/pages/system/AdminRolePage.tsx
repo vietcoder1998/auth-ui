@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, Space, Typography, Modal, Input, Form, Select, Tag } from 'antd';
+import {
+  Table,
+  Button,
+  Spin,
+  Space,
+  Typography,
+  Modal,
+  Input,
+  Form,
+  Select,
+  Tag,
+  Popconfirm,
+} from 'antd';
 import {
   PlusOutlined,
   ReloadOutlined,
@@ -188,43 +200,37 @@ export default function AdminRolePage() {
       width: 200,
       fixed: 'right',
       render: (_, r) => (
-        <Space size="small" direction="vertical">
-          <Space size="small">
-            <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>
-              Edit
-            </Button>
-            <Button
-              size="small"
-              icon={<KeyOutlined />}
-              onClick={() => handleAddPermissionToRole(r)}
-            >
-              Add Permission
-            </Button>
-          </Space>
-          <Space size="small">
-            <Button
-              size="small"
-              icon={<SearchOutlined />}
-              onClick={() => handleFindMissingPermissions(r)}
-              type="dashed"
-            >
-              Find Missing
-            </Button>
-          </Space>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Button
+            icon={<EditOutlined />}
+            type="text"
             size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              if (window.confirm(`Are you sure you want to delete role "${r.name}"?`)) {
-                adminApi.deleteRole(r.id).then(fetchRoles);
-              }
-            }}
-            style={{ width: '100%' }}
+            onClick={() => handleEdit(r)}
+            title="Edit"
+          />
+          <Button
+            icon={<KeyOutlined />}
+            type="text"
+            size="small"
+            onClick={() => handleAddPermissionToRole(r)}
+            title="Add Permission"
+          />
+          <Button
+            icon={<SearchOutlined />}
+            type="text"
+            size="small"
+            onClick={() => handleFindMissingPermissions(r)}
+            title="Find Missing"
+          />
+          <Popconfirm
+            title={`Are you sure you want to delete role "${r.name}"?`}
+            onConfirm={() => adminApi.deleteRole(r.id).then(fetchRoles)}
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
-        </Space>
+            <Button icon={<DeleteOutlined />} type="text" danger size="small" title="Delete" />
+          </Popconfirm>
+        </div>
       ),
     },
   ];

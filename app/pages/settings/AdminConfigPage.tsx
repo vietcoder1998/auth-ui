@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
-import { Table, Button, Spin, Input, Form, message, Typography } from 'antd';
+import { Table, Button, Spin, Input, Form, message, Typography, Popconfirm } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import CommonSearch from '../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
@@ -128,24 +129,21 @@ export default function AdminConfigPage() {
       key: 'actions',
       width: '20%',
       render: (_: unknown, c: Config) => (
-        <>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Button
+            icon={<EditOutlined />}
+            type="text"
             size="small"
             onClick={() => {
-              // Convert value back to string format for editing
               const editValue =
                 typeof c.value === 'object' ? JSON.stringify(c.value, null, 2) : String(c.value);
               form.setFieldsValue({ key: c.key, value: editValue, id: c.id });
             }}
-            style={{ marginRight: 8 }}
-          >
-            Edit
-          </Button>
-          <Button
-            danger
-            size="small"
-            disabled={c.id === undefined}
-            onClick={async () => {
+            title="Edit"
+          />
+          <Popconfirm
+            title="Are you sure to delete this config?"
+            onConfirm={async () => {
               if (c.id !== undefined) {
                 try {
                   await adminApi.deleteConfig(String(c.id));
@@ -157,10 +155,20 @@ export default function AdminConfigPage() {
                 }
               }
             }}
+            okText="Yes"
+            cancelText="No"
+            disabled={c.id === undefined}
           >
-            Delete
-          </Button>
-        </>
+            <Button
+              icon={<DeleteOutlined />}
+              type="text"
+              danger
+              size="small"
+              disabled={c.id === undefined}
+              title="Delete"
+            />
+          </Popconfirm>
+        </div>
       ),
     },
   ];
