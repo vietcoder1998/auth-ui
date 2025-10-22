@@ -41,6 +41,11 @@ export const defaultSidebarMenu: MenuItem[] = [
     label: 'AI',
     children: [
       {
+        key: '/admin/system/ai-test',
+        icon: <RobotOutlined />,
+        label: 'AI Test',
+      },
+      {
         key: '/admin/system/agents',
         icon: <RobotOutlined />,
         label: 'AI Agents',

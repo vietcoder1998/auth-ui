@@ -33,6 +33,7 @@ export default [
     route('system/logic-history', 'pages/system/AdminLogicHistoryPage.tsx'), // /admin/system/logic-history
     route('system/cache', 'pages/system/AdminCachePage.tsx'), // /admin/system/cache
     route('system/logs', 'pages/system/AdminLogPage.tsx'), // /admin/system/logs
+    route('system/ai-test', 'pages/system/AdminAITestPage.tsx'), // /admin/system/ai-test
     route('system/agents', 'pages/system/AdminAgentPage.tsx'), // /admin/system/agents
     route('system/conversations', 'pages/system/AdminConversationList.tsx'), // /admin/system/conversations
     route('system/prompt-history', 'pages/system/AdminPromptHistory.tsx'), // /admin/system/prompt-history
