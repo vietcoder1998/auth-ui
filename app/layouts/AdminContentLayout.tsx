@@ -1,19 +1,12 @@
-import {
-  DragOutlined,
-  ExpandOutlined,
-  HomeOutlined,
-  LogoutOutlined,
-  MessageOutlined,
-  MinusOutlined,
-  ProfileOutlined,
-} from '@ant-design/icons';
+import { HomeOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Button, Dropdown, Layout, Tooltip, Typography } from 'antd';
+import { Layout } from 'antd';
 import React, { useState } from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { ResponsiveProvider, useResponsive } from '~/hooks/useResponsive.tsx';
 import { AIGenerateProvider } from '~/providers/AIGenerateProvider.tsx';
-import LLMChat from '../components/LLMChat.tsx';
+import AdminChatWidget from '../components/AdminChatWidget.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import useCookie, { useBooleanCookie, useStringCookie } from '../hooks/useCookie.tsx';
 import AdminHeader from './AdminHeader.tsx';
@@ -85,6 +78,7 @@ export default function AdminContentLayout() {
       },
     ];
 
+    const { sidebarOpen, isMobile } = useResponsive();
     if (pathSegments.length > 1) {
       if (pathSegments[1] === 'system') {
         breadcrumbItems.push({
@@ -170,164 +164,100 @@ export default function AdminContentLayout() {
   };
 
   return (
-    <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
-      <AdminSidebar
-        sidebarItems={sidebarItems}
-        editSidebar={editSidebar}
-        setEditSidebar={setEditSidebar}
-        search={search}
-        setSearch={setSearch}
-        onDragEnd={onDragEnd}
-        filteredSidebarItems={filteredSidebarItems}
-        pathname={pathname}
-        navigate={navigate}
-        handleLogout={handleLogout}
+    <ResponsiveProvider>
+      <ResponsiveContent
+        {...{
+          sidebarItems,
+          editSidebar,
+          setEditSidebar,
+          search,
+          setSearch,
+          onDragEnd,
+          filteredSidebarItems,
+          pathname,
+          navigate,
+          handleLogout,
+          profileMenuItems,
+          generateBreadcrumb,
+          isMainAdmin,
+          isChatCollapsed,
+          setIsChatCollapsed,
+          chatPosition,
+          handlePositionChange,
+        }}
       />
-      <Layout style={{ marginLeft: 250 }}>
-        <AdminHeader profileMenuItems={profileMenuItems} generateBreadcrumb={generateBreadcrumb} />
-        <Content
-          style={{
-            minWidth: 0,
-            background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
-            position: 'relative',
-          }}
-        >
-          <div
+    </ResponsiveProvider>
+  );
+
+  function ResponsiveContent(props: any) {
+    const { sidebarOpen, isMobile } = useResponsive();
+    const {
+      sidebarItems,
+      editSidebar,
+      setEditSidebar,
+      search,
+      setSearch,
+      onDragEnd,
+      filteredSidebarItems,
+      pathname,
+      navigate,
+      handleLogout,
+      profileMenuItems,
+      generateBreadcrumb,
+      isMainAdmin,
+      isChatCollapsed,
+      setIsChatCollapsed,
+      chatPosition,
+      handlePositionChange,
+    } = props;
+    return (
+      <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
+        <AdminSidebar
+          sidebarItems={sidebarItems}
+          editSidebar={editSidebar}
+          setEditSidebar={setEditSidebar}
+          search={search}
+          setSearch={setSearch}
+          onDragEnd={onDragEnd}
+          filteredSidebarItems={filteredSidebarItems}
+          pathname={pathname}
+          navigate={navigate}
+          handleLogout={handleLogout}
+        />
+        <Layout style={{ marginLeft: sidebarOpen && !isMobile ? 250 : 50 }}>
+          <AdminHeader
+            profileMenuItems={profileMenuItems}
+            generateBreadcrumb={generateBreadcrumb}
+          />
+          <Content
             style={{
-              background: '#fff',
-              height: '100%',
-              overflowY: 'auto',
-              minHeight: 360,
-              padding: '24px', // Always use 24px padding for header/content
+              minWidth: 0,
+              background: isMainAdmin ? '#f6f8fa' : '#f5f5f5',
+              position: 'relative',
             }}
           >
-            {/* ErrorDisplay removed: notifications now handled by AdminNotificationDropdown */}
-            {/* Provide AI context for all admin content */}
-            <AIGenerateProvider>
-              <Outlet />
-            </AIGenerateProvider>
-          </div>
-          {/* Floating Chat Box - With Position Buttons */}
-          <div
-            style={{
-              position: 'fixed',
-              width: '400px',
-              height: isChatCollapsed ? '60px' : '500px',
-              background: '#fff',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-              border: '1px solid #e0e0e0',
-              borderRadius: '8px',
-              zIndex: 1000,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              ...(chatPosition === 'bottom-right' && { bottom: '20px', right: '20px' }),
-              ...(chatPosition === 'bottom-left' && { bottom: '20px', left: '20px' }),
-              ...(chatPosition === 'top-right' && { top: '20px', right: '20px' }),
-              ...(chatPosition === 'top-left' && { top: '20px', left: '20px' }),
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }}
-          >
-            {/* Chat Header with Collapse Button and Position Controls */}
             <div
               style={{
-                padding: '12px 16px',
-                borderBottom: isChatCollapsed ? 'none' : '1px solid #f0f0f0',
-                background: '#fafafa',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                minHeight: '48px',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
+                background: '#fff',
+                height: '100%',
+                overflowY: 'auto',
+                minHeight: 360,
+                padding: '24px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MessageOutlined style={{ color: '#1890ff' }} />
-                <Typography.Text strong style={{ fontSize: '14px' }}>
-                  AI Assistant
-                </Typography.Text>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {/* Position Control Buttons */}
-                <Tooltip title="Change Position" placement="bottom">
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: 'top-left',
-                          label: 'Top Left',
-                          onClick: () => handlePositionChange('top-left'),
-                        },
-                        {
-                          key: 'top-right',
-                          label: 'Top Right',
-                          onClick: () => handlePositionChange('top-right'),
-                        },
-                        {
-                          key: 'bottom-left',
-                          label: 'Bottom Left',
-                          onClick: () => handlePositionChange('bottom-left'),
-                        },
-                        {
-                          key: 'bottom-right',
-                          label: 'Bottom Right',
-                          onClick: () => handlePositionChange('bottom-right'),
-                        },
-                      ],
-                    }}
-                    trigger={['click']}
-                    placement="bottomRight"
-                  >
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={<DragOutlined />}
-                      style={{
-                        color: '#666',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    />
-                  </Dropdown>
-                </Tooltip>
-
-                {/* Collapse Button */}
-                <Button
-                  type="text"
-                  size="small"
-                  icon={isChatCollapsed ? <ExpandOutlined /> : <MinusOutlined />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsChatCollapsed(!isChatCollapsed);
-                  }}
-                  style={{
-                    color: '#666',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                />
-              </div>
+              <AIGenerateProvider>
+                <Outlet />
+              </AIGenerateProvider>
             </div>
-
-            {/* Chat Content */}
-            {!isChatCollapsed && (
-              <div
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <LLMChat />
-              </div>
-            )}
-          </div>
-        </Content>
+            <AdminChatWidget
+              isChatCollapsed={isChatCollapsed}
+              setIsChatCollapsed={setIsChatCollapsed}
+              chatPosition={chatPosition}
+              handlePositionChange={handlePositionChange}
+            />
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
-  );
+    );
+  }
 }
