@@ -1,4 +1,4 @@
-import { Card, List, Select, Typography } from 'antd';
+import { Card, List, Select, Typography, Button, Modal, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import AIGenerateInput from '../../components/AIGenerateInput.tsx';
@@ -14,6 +14,8 @@ function AdminAITestContent() {
   const [selectedPrompt, setSelectedPrompt] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
   const [selectedConversation, setSelectedConversation] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newPrompt, setNewPrompt] = useState('');
 
   useEffect(() => {
     // Fetch prompts
@@ -36,21 +38,20 @@ function AdminAITestContent() {
     });
   }, []);
 
+  const handleCreatePrompt = () => {
+    if (!newPrompt.trim()) return;
+    setPrompts([newPrompt, ...prompts]);
+    setSelectedPrompt(newPrompt);
+    setNewPrompt('');
+    setModalOpen(false);
+  };
+
   return (
     <Card
       title={<Title level={4}>AI Test Playground</Title>}
       style={{ maxWidth: 700, margin: '0 auto' }}
     >
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-        <div style={{ flex: 1 }}>
-          <label>Prompt:</label>
-          <Select
-            value={selectedPrompt}
-            onChange={setSelectedPrompt}
-            options={prompts.map((p) => ({ label: p, value: p }))}
-            style={{ width: '100%' }}
-          />
-        </div>
         <div style={{ flex: 1 }}>
           <label>Agent:</label>
           <Select
@@ -70,6 +71,19 @@ function AdminAITestContent() {
           />
         </div>
       </div>
+      {/* Prompt input on new line with create button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <Select
+          value={selectedPrompt}
+          onChange={setSelectedPrompt}
+          options={prompts.map((p) => ({ label: p, value: p }))}
+          style={{ flex: 1 }}
+          placeholder="Select a prompt"
+        />
+        <Button type="primary" onClick={() => setModalOpen(true)}>
+          Create Prompt
+        </Button>
+      </div>
       <AIGenerateInput
         prompt={selectedPrompt}
         value={value}
@@ -84,6 +98,20 @@ function AdminAITestContent() {
         renderItem={(item) => <List.Item>{item}</List.Item>}
         style={{ marginTop: 32 }}
       />
+      <Modal
+        title="Create New Prompt"
+        open={modalOpen}
+        onOk={handleCreatePrompt}
+        onCancel={() => setModalOpen(false)}
+        okText="Create"
+      >
+        <Input
+          value={newPrompt}
+          onChange={(e) => setNewPrompt(e.target.value)}
+          placeholder="Enter new prompt"
+          onPressEnter={handleCreatePrompt}
+        />
+      </Modal>
     </Card>
   );
 }
