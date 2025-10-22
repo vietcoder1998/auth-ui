@@ -1,11 +1,13 @@
-import { SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Dropdown, Input, List, Spin, Tag } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { Dropdown, Input, List, Spin, Tag } from 'antd';
 import React from 'react';
 import { adminApi } from '~/apis/admin.api.ts';
 import AdminNotificationDropdown from '~/components/AdminNotificationDropdown.tsx';
 import AppBackEndStatus from '~/components/AppBackEndStatus.tsx';
 import StatusIndicator from '~/components/StatusIndicator.tsx';
 import { useAuth } from '~/hooks/useAuth.tsx';
+import AdminProfileMenu from '../components/AdminProfileMenu.tsx';
+import AdminSearchDropdown from '../components/AdminSearchDropdown.tsx';
 // System status fetcher
 type SystemStatus = {
   api?: boolean;
@@ -209,77 +211,31 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
       }}
     >
       {/* System Info Header - now using AppBackEndStatus */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-        <Dropdown
-          open={searchVisible && (searchResults.length > 0 || searchLoading)}
-          onOpenChange={(open: boolean) => setSearchVisible(open)}
-          popupRender={() => (
-            <div style={{ background: 'white', padding: 0, minWidth: 350, maxWidth: 600 }}>
-              {searchLoading ? (
-                <div style={{ textAlign: 'center', padding: '24px 10px' }}>
-                  <Spin />
-                </div>
-              ) : (
-                <List
-                  bordered
-                  dataSource={searchResults}
-                  style={{ width: '100%', maxHeight: 350, overflowY: 'auto', background: 'white' }}
-                  renderItem={(item: SearchResultItem) => (
-                    <List.Item style={{ cursor: 'pointer', background: 'white' }}>
-                      <Tag color="blue" style={{ marginRight: 8 }}>
-                        {item.type}
-                      </Tag>
-                      <span style={{ fontWeight: 500 }}>{item.name}</span>
-                      <span style={{ color: '#888', marginLeft: 8 }}>{item.description}</span>
-                    </List.Item>
-                  )}
-                />
-              )}
-            </div>
-          )}
-          placement="bottomLeft"
-        >
-          <Input
-            prefix={<SearchOutlined />}
-            placeholder="Search all..."
-            allowClear
-            value={search}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setSearch(e.target.value);
-              setSearchVisible(true);
-            }}
-            onBlur={() => setTimeout(() => setSearchVisible(false), 200)}
-            style={{ width: 260, marginRight: 16 }}
-          />
-        </Dropdown>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'right' }}>
-        {/* {systemStatus && (
-          <div style={{ minWidth: 180, fontSize: 12, color: '#555' }}>
-            {(systemStatus.memory || systemStatus.cpu || systemStatus.disk) && (
-              <StatusResources status={systemStatus} />
-            )}
-          </div>
-        )} */}
-        <StatusIndicator />
-        <AdminNotificationDropdown />
-        <div style={{ textAlign: 'right', lineHeight: 1.2 }}>
-          <div style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
-            {user?.nickname || user?.email || 'Unknown User'}
-          </div>
-          {user?.role && (
-            <div style={{ color: '#666', fontSize: '12px' }}>{user.role.name || 'No Role'}</div>
-          )}
-        </div>
-        <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight" trigger={['click']}>
-          <Avatar
-            size={32}
-            icon={<UserOutlined />}
-            style={{ backgroundColor: '#1890ff', cursor: 'pointer' }}
-          />
-        </Dropdown>
-      </div>
       <AppBackEndStatus status={systemStatus || undefined} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          justifyContent: 'space-between',
+          width: '100%',
+          marginTop: 20,
+        }}
+      >
+        <AdminSearchDropdown
+          search={search}
+          setSearch={setSearch}
+          searchResults={searchResults}
+          searchVisible={searchVisible}
+          setSearchVisible={setSearchVisible}
+          searchLoading={searchLoading}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <StatusIndicator />
+          <AdminNotificationDropdown />
+          <AdminProfileMenu user={user} profileMenuItems={profileMenuItems} />
+        </div>
+      </div>
     </div>
   );
 };
