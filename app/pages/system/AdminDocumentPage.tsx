@@ -126,7 +126,7 @@ export default function AdminDocumentPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div>
       <Typography.Title level={3} style={{ marginBottom: 16 }}>
         Admin Document Management
       </Typography.Title>

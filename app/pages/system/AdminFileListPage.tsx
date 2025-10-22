@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Tag, Space, Modal, Spin, message } from 'antd';
+import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm, Typography } from 'antd';
 import { DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
+import CommonSearch from '../../components/CommonSearch.tsx';
 import { getApiInstance } from '../../apis/index.ts';
 import UploadFileModal from '../modals/UploadFileModal.tsx';
 
@@ -8,16 +9,17 @@ export default function AdminFileListPage() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     fetchFiles();
   }, []);
 
-  const fetchFiles = async () => {
+  const fetchFiles = async (search?: string) => {
     setLoading(true);
     try {
       const axios = getApiInstance();
-      const res = await axios.get('/admin/documents'); // Use document API for all files
+      const res = await axios.get('/admin/documents', { params: { search } });
       setFiles(res.data.data.data || []);
     } catch (error) {
       message.error('Failed to load files');
@@ -25,18 +27,15 @@ export default function AdminFileListPage() {
     }
     setLoading(false);
   };
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    fetchFiles(value);
+  };
 
-  const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: 'Delete File',
-      content: 'Are you sure you want to delete this file?',
-      okType: 'danger',
-      onOk: async () => {
-        const axios = getApiInstance();
-        await axios.delete(`/admin/documents/${id}`);
-        fetchFiles();
-      },
-    });
+  const handleDelete = async (id: string) => {
+    const axios = getApiInstance();
+    await axios.delete(`/admin/documents/${id}`);
+    fetchFiles(searchValue);
   };
 
   const columns = [
@@ -63,32 +62,40 @@ export default function AdminFileListPage() {
       title: 'Actions',
       key: 'actions',
       render: (_: any, file: any) => (
-        <Space>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Button
             icon={<DownloadOutlined />}
+            type="text"
             size="small"
             onClick={() => {
               window.open(`/api/admin/files/download/${encodeURIComponent(file.filename)}`);
             }}
+            title="Download"
+          />
+          <Popconfirm
+            title="Are you sure you want to delete this file?"
+            onConfirm={() => handleDelete(file.id)}
+            okText="Yes"
+            cancelText="No"
           >
-            Download
-          </Button>
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => handleDelete(file.id)}
-          >
-            Delete
-          </Button>
-        </Space>
+            <Button icon={<DeleteOutlined />} type="text" danger size="small" title="Delete" />
+          </Popconfirm>
+        </div>
       ),
     },
   ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Admin File List</h2>
+    <div>
+      <Typography.Title level={3} style={{ marginBottom: 16 }}>
+        Admin File List
+      </Typography.Title>
+      <CommonSearch
+        searchPlaceholder="Search files..."
+        searchValue={searchValue}
+        onSearch={handleSearch}
+        style={{ marginBottom: 16 }}
+      />
       <Button
         type="primary"
         style={{ marginBottom: 16 }}
@@ -104,7 +111,7 @@ export default function AdminFileListPage() {
         onCancel={() => setUploadModalVisible(false)}
         onSuccess={() => {
           setUploadModalVisible(false);
-          fetchFiles();
+          fetchFiles(searchValue);
         }}
       />
     </div>
