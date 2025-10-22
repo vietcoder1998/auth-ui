@@ -25,6 +25,7 @@ import { SSOApi } from './adminApi/SSOApi.ts';
 import { TokenApi } from './adminApi/TokenApi.ts';
 import { UserApi } from './adminApi/UserApi.ts';
 import { AIMemoryApi } from './adminApi/AIMemoryApi.ts';
+import { AIModelApiInstance } from './adminApi/AIModelApi.ts';
 
 // Notification CRUD
 export {
@@ -52,6 +53,11 @@ export {
 import axios from 'axios';
 
 export const adminApi = {
+  // AIModelApi (for /admin/ai-models)
+  getAIModels: AIModelApiInstance.getAIModels.bind(AIModelApiInstance),
+  createAIModel: AIModelApiInstance.createAIModel.bind(AIModelApiInstance),
+  updateAIModel: AIModelApiInstance.updateAIModel.bind(AIModelApiInstance),
+  deleteAIModel: AIModelApiInstance.deleteAIModel.bind(AIModelApiInstance),
   // AIKeyApi (for /admin/ai-keys)
   getAIKeys: ApiKeyApi.getApiKeys,
   createAIKey: ApiKeyApi.createApiKey,
