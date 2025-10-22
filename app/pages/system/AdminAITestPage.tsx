@@ -1,4 +1,5 @@
-import { Card, List, Select, Typography, Button, Modal, Input } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Input, List, Modal, Row, Select, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import AIGenerateInput from '../../components/AIGenerateInput.tsx';
@@ -9,8 +10,8 @@ const { Title } = Typography;
 function AdminAITestContent() {
   const { value, setValue } = useAIGenerateProvider();
   const [prompts, setPrompts] = useState<string[]>([]);
-  const [agents, setAgents] = useState<string[]>([]);
-  const [conversations, setConversations] = useState<string[]>([]);
+  const [agents, setAgents] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<any[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
   const [selectedConversation, setSelectedConversation] = useState('');
@@ -27,16 +28,24 @@ function AdminAITestContent() {
     // Fetch agents
     adminApi.getAgents().then((res: any) => {
       const items = res?.data?.data || [];
-      setAgents(items.map((a: any) => a.name || a.agentName || a.title || ''));
+      setAgents(items);
       setSelectedAgent(items[0]?.name || items[0]?.agentName || items[0]?.title || '');
     });
     // Fetch conversations
     adminApi.getConversations().then((res: any) => {
       const items = res?.data?.data || [];
-      setConversations(items.map((c: any) => c.name || c.title || c.id || ''));
+      setConversations(items);
       setSelectedConversation(items[0]?.name || items[0]?.title || items[0]?.id || '');
     });
   }, []);
+
+  // Auto switch prompt when agent or conversation changes
+  useEffect(() => {
+    if (selectedAgent && selectedConversation) {
+      // Example: auto-select first prompt for this agent/conversation
+      setSelectedPrompt(prompts[0] || '');
+    }
+  }, [selectedAgent, selectedConversation, prompts]);
 
   const handleCreatePrompt = () => {
     if (!newPrompt.trim()) return;
@@ -51,39 +60,67 @@ function AdminAITestContent() {
       title={<Title level={4}>AI Test Playground</Title>}
       style={{ maxWidth: 700, margin: '0 auto' }}
     >
-      <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-        <div style={{ flex: 1 }}>
-          <label>Agent:</label>
-          <Select
-            value={selectedAgent}
-            onChange={setSelectedAgent}
-            options={agents.map((a) => ({ label: a, value: a }))}
-            style={{ width: '100%' }}
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <label>Conversation:</label>
-          <Select
-            value={selectedConversation}
-            onChange={setSelectedConversation}
-            options={conversations.map((c) => ({ label: c, value: c }))}
-            style={{ width: '100%' }}
-          />
-        </div>
-      </div>
-      {/* Prompt input on new line with create button */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <Select
-          value={selectedPrompt}
-          onChange={setSelectedPrompt}
-          options={prompts.map((p) => ({ label: p, value: p }))}
-          style={{ flex: 1 }}
-          placeholder="Select a prompt"
-        />
-        <Button type="primary" onClick={() => setModalOpen(true)}>
-          Create Prompt
-        </Button>
-      </div>
+      <Row gutter={12} align="middle" style={{ marginBottom: 16 }}>
+        <Col flex={1}>
+          <Space direction="vertical" size={2} style={{ width: '100%' }}>
+            <label htmlFor="agent-select">Agent:</label>
+            <Select
+              id="agent-select"
+              value={selectedAgent}
+              onChange={setSelectedAgent}
+              options={agents.map((a) => ({
+                label: a.name || a.agentName || a.title,
+                value: a.name || a.agentName || a.title,
+              }))}
+              style={{ width: '100%' }}
+              placeholder="Select an agent"
+            />
+          </Space>
+        </Col>
+        <Col flex={1}>
+          <Space direction="vertical" size={2} style={{ width: '100%' }}>
+            <label htmlFor="conversation-select">Conversation:</label>
+            <Select
+              id="conversation-select"
+              value={selectedConversation}
+              onChange={setSelectedConversation}
+              options={conversations.map((c) => ({
+                label: c.name || c.title || c.id,
+                value: c.name || c.title || c.id,
+              }))}
+              style={{ width: '100%' }}
+              placeholder="Select a conversation"
+            />
+          </Space>
+        </Col>
+        <Col flex={2}>
+          <Space direction="horizontal" size={8} style={{ width: '100%' }}>
+            <Space direction="vertical" size={2} style={{ flex: 1, width: '100%' }}>
+              <label htmlFor="prompt-select" style={{ minWidth: 70 }}>
+                Prompt:
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Select
+                  id="prompt-select"
+                  value={selectedPrompt}
+                  onChange={setSelectedPrompt}
+                  options={prompts.map((p) => ({ label: <b>{p}</b>, value: p }))}
+                  style={{ width: '100%' }}
+                  placeholder="Select a prompt"
+                  dropdownMatchSelectWidth={false}
+                />
+                <Button
+                  type="text"
+                  icon={<PlusOutlined style={{ fontSize: 20 }} />}
+                  onClick={() => setModalOpen(true)}
+                  style={{ height: 40, padding: 0, minWidth: 40 }}
+                  title="Create Prompt"
+                />
+              </div>
+            </Space>
+          </Space>
+        </Col>
+      </Row>
       <AIGenerateInput
         prompt={selectedPrompt}
         value={value}
@@ -105,10 +142,27 @@ function AdminAITestContent() {
         onCancel={() => setModalOpen(false)}
         okText="Create"
       >
-        <Input
+        <div style={{ marginBottom: 12 }}>
+          <b>Agent:</b>{' '}
+          {(selectedAgent &&
+            agents.find((a) => (a.name || a.agentName || a.title) === selectedAgent)
+              ?.description) ||
+            selectedAgent}
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <b>Conversation:</b>{' '}
+          {(selectedConversation &&
+            conversations.find((c) => (c.name || c.title || c.id) === selectedConversation)
+              ?.description) ||
+            selectedConversation}
+        </div>
+        <label htmlFor="new-prompt-input">Prompt:</label>
+        <Input.TextArea
+          id="new-prompt-input"
           value={newPrompt}
           onChange={(e) => setNewPrompt(e.target.value)}
           placeholder="Enter new prompt"
+          autoSize={{ minRows: 3, maxRows: 6 }}
           onPressEnter={handleCreatePrompt}
         />
       </Modal>
