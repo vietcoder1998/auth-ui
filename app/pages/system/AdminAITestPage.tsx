@@ -1,25 +1,40 @@
-import React, { useState } from 'react';
-import { Card, Select, List, Typography } from 'antd';
+import { Card, List, Select, Typography } from 'antd';
+import { useEffect, useState } from 'react';
+import { adminApi } from '../../apis/admin.api.ts';
 import AIGenerateInput from '../../components/AIGenerateInput.tsx';
 import { AIGenerateProvider, useAIGenerateProvider } from '../../providers/AIGenerateProvider.tsx';
-
-// Dummy data for prompts, agents, and conversations
-const prompts = [
-  'Summarize this document',
-  'Translate to French',
-  'Generate a blog post about AI',
-  'Explain this code',
-];
-const agents = ['GPT-4', 'Claude', 'Gemini', 'Custom Agent'];
-const conversations = ['Conversation #1', 'Conversation #2', 'Conversation #3'];
 
 const { Title } = Typography;
 
 function AdminAITestContent() {
   const { value, setValue } = useAIGenerateProvider();
-  const [selectedPrompt, setSelectedPrompt] = useState(prompts[0]);
-  const [selectedAgent, setSelectedAgent] = useState(agents[0]);
-  const [selectedConversation, setSelectedConversation] = useState(conversations[0]);
+  const [prompts, setPrompts] = useState<string[]>([]);
+  const [agents, setAgents] = useState<string[]>([]);
+  const [conversations, setConversations] = useState<string[]>([]);
+  const [selectedPrompt, setSelectedPrompt] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState('');
+  const [selectedConversation, setSelectedConversation] = useState('');
+
+  useEffect(() => {
+    // Fetch prompts
+    adminApi.getPrompts().then((res: any) => {
+      const items = res?.data?.data || [];
+      setPrompts(items.map((p: any) => p.prompt || p.name || p.title || ''));
+      setSelectedPrompt(items[0]?.prompt || items[0]?.name || items[0]?.title || '');
+    });
+    // Fetch agents
+    adminApi.getAgents().then((res: any) => {
+      const items = res?.data?.data || [];
+      setAgents(items.map((a: any) => a.name || a.agentName || a.title || ''));
+      setSelectedAgent(items[0]?.name || items[0]?.agentName || items[0]?.title || '');
+    });
+    // Fetch conversations
+    adminApi.getConversations().then((res: any) => {
+      const items = res?.data?.data || [];
+      setConversations(items.map((c: any) => c.name || c.title || c.id || ''));
+      setSelectedConversation(items[0]?.name || items[0]?.title || items[0]?.id || '');
+    });
+  }, []);
 
   return (
     <Card
