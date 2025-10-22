@@ -51,6 +51,11 @@ export const defaultSidebarMenu: MenuItem[] = [
         label: 'AI Agents',
       },
       {
+        key: '/admin/system/ai-models',
+        icon: <RobotOutlined />,
+        label: 'AI Models',
+      },
+      {
         key: '/admin/system/conversations',
         icon: <MessageOutlined />,
         label: 'Conversations',

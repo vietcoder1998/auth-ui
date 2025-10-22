@@ -47,6 +47,9 @@ export default [
     route('system/ai-keys', 'pages/system/AdminAIKeyPage.tsx'), // /admin/system/ai-keys
     route('system/billings', 'pages/system/AdminBillingPage.tsx'), // /admin/system/billings
 
+    // AI Model management
+    route('system/ai-models', 'pages/system/AdminModelPage.tsx'), // /admin/system/ai-models
+
     // Settings management routes
     route('settings', 'pages/settings/AdminSettingsIndexPage.tsx'), // /admin/settings
     route('settings/api-keys', 'pages/settings/AdminApiKeysPage.tsx'), // /admin/settings/api-keys
