@@ -250,9 +250,12 @@ export default function LLMChat() {
     });
 
     try {
+      // Always send agentId in metadata for backend memory creation
+      const metadata = { agentId: selectedAgent };
       const response = await adminApi.sendMessage(selectedConversation, {
         content: messageContent,
         sender: 'user',
+        metadata,
       });
 
       // Handle response and add messages
