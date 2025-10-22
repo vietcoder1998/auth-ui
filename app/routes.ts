@@ -25,6 +25,7 @@ export default [
     // System management routes (including AI Management)
     route('system', 'pages/system/AdminSystemIndexPage.tsx'), // /admin/system
     route('system/users', 'pages/system/AdminUserPage.tsx'), // /admin/system/users
+    route('system/memory', 'pages/system/AIMemoryPage.tsx'), // /admin/system/memory
     route('system/tokens', 'pages/system/AdminTokenPage.tsx'), // /admin/system/tokens
     route('system/roles', 'pages/system/AdminRolePage.tsx'), // /admin/system/roles
     route('system/permissions', 'pages/system/AdminPermissionPage.tsx'), // /admin/system/permissions

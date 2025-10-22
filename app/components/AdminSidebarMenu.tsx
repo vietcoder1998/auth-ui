@@ -70,6 +70,11 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <ThunderboltOutlined />,
         label: 'Jobs',
       },
+      {
+        key: '/admin/system/memory',
+        icon: <FileTextOutlined />,
+        label: 'Memory',
+      },
     ],
   },
   {
@@ -87,11 +92,7 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <KeyOutlined />,
         label: 'AI Keys',
       },
-      {
-        key: '/admin/system/memory',
-        icon: <FileTextOutlined />,
-        label: 'Memory',
-      },
+
       {
         key: '/admin/system/billings',
         icon: <FileTextOutlined />,

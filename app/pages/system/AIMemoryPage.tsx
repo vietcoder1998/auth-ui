@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Input, Button } from 'antd';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../../apis/admin.api.ts';
 
 const AIMemoryPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
