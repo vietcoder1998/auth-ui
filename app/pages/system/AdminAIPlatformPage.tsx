@@ -168,6 +168,16 @@ export default function AdminAIPlatformPage() {
                     <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>
                       {item.description}
                     </pre>
+                    {Array.isArray(item.aiModels) && item.aiModels.length > 0 && (
+                      <div style={{ marginBottom: 4 }}>
+                        <b>Models:</b>{' '}
+                        {item.aiModels.map((model: any, idx: number) => (
+                          <span key={model.id || idx} style={{ marginRight: 8, color: '#1890ff' }}>
+                            {model.name || model.id}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {item.updatedAt && (
                       <span style={{ fontSize: 12, color: '#aaa' }}>
                         Updated: {new Date(item.updatedAt).toLocaleString()}

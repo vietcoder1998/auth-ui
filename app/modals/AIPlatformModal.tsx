@@ -1,5 +1,6 @@
-import { Modal, Form, Input } from 'antd';
-import { useEffect } from 'react';
+import { Modal, Form, Input, Select, Spin } from 'antd';
+import { useEffect, useState } from 'react';
+import { adminApi } from '../apis/admin.api.ts';
 
 interface AIPlatformModalProps {
   visible: boolean;
@@ -15,9 +16,19 @@ export default function AIPlatformModal({
   editingPlatform,
 }: AIPlatformModalProps) {
   const [form] = Form.useForm();
+  const [models, setModels] = useState<any[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
 
   useEffect(() => {
     if (visible) {
+      setModelsLoading(true);
+      adminApi
+        .getAIModels()
+        .then((res: any) => {
+          setModels(res.data?.data || []);
+        })
+        .catch(() => setModels([]))
+        .finally(() => setModelsLoading(false));
       if (editingPlatform) {
         form.setFieldsValue(editingPlatform);
       } else {
@@ -54,6 +65,19 @@ export default function AIPlatformModal({
         </Form.Item>
         <Form.Item name="endpoint" label="API Endpoint">
           <Input placeholder="API endpoint URL (optional)" />
+        </Form.Item>
+        <Form.Item name="aiModelIds" label="AI Models">
+          {modelsLoading ? (
+            <Spin />
+          ) : (
+            <Select
+              mode="multiple"
+              placeholder="Select AI Models for this platform"
+              options={models.map((m) => ({ label: m.name || m.id, value: m.id }))}
+              showSearch
+              allowClear
+            />
+          )}
         </Form.Item>
       </Form>
     </Modal>
