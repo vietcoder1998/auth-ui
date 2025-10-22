@@ -246,7 +246,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
         >
           <StatusIndicator />
           <AdminNotificationDropdown />
-          <AdminProfileMenu user={user} profileMenuItems={profileMenuItems} />
+          <AdminProfileMenu user={user} />
         </div>
       </div>
     </div>
