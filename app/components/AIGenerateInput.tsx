@@ -160,8 +160,16 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
           </span>
           <Select
             size="small"
-            style={{ minWidth: 70, maxWidth: 100, marginLeft: 2, fontSize: 11 }}
-            dropdownStyle={{ fontSize: 11 }}
+            style={{
+              minWidth: 60,
+              maxWidth: 80,
+              marginLeft: 2,
+              fontSize: 10,
+              height: 22,
+              padding: '0 2px',
+              lineHeight: '18px',
+            }}
+            dropdownStyle={{ fontSize: 10, minWidth: 60, maxWidth: 120, padding: 2 }}
             value={selectedAgent ? selectedAgent.value : undefined}
             onChange={setSelectedAgent}
             placeholder="Agent"
@@ -170,8 +178,16 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
           />
           <Select
             size="small"
-            style={{ minWidth: 70, maxWidth: 100, marginLeft: 2, fontSize: 11 }}
-            dropdownStyle={{ fontSize: 11 }}
+            style={{
+              minWidth: 60,
+              maxWidth: 80,
+              marginLeft: 2,
+              fontSize: 10,
+              height: 22,
+              padding: '0 2px',
+              lineHeight: '18px',
+            }}
+            dropdownStyle={{ fontSize: 10, minWidth: 60, maxWidth: 120, padding: 2 }}
             value={selectedModel ? selectedModel.value : undefined}
             onChange={setSelectedModel}
             placeholder={selectedModel && selectedModel.label ? selectedModel.label : 'Model'}
