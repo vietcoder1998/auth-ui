@@ -133,10 +133,15 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
       <div style={{ position: 'relative' }}>
         <Input.TextArea
           {...commonProps}
-          autoSize={rows ? { minRows: rows, maxRows: rows } : undefined}
+          autoSize={
+            rows ? { minRows: rows, maxRows: Math.max(rows, 8) } : { minRows: 3, maxRows: 8 }
+          }
           style={{
             ...commonProps.style,
             paddingBottom: showPrimary && primaryValue ? 32 : 8,
+            minHeight: rows ? undefined : 80,
+            maxHeight: 240,
+            resize: 'vertical',
           }}
         />
         {/* Left: Tooltip with prompt memory, agent name, and model */}
