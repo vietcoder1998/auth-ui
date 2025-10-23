@@ -73,15 +73,15 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
     const controller = new AbortController();
     setAbortController(controller);
     try {
-      const agent = agents.find((a: any) => a.id === selectedAgent) || agents[0];
-      const model = models.find((m: any) => m.id === selectedModel) || models[0];
+      const agent = agents.find((a: any) => a.value === selectedAgent?.value) || agents[0];
+      const model = models.find((m: any) => m.value === selectedModel?.value) || models[0];
       const axios = getApiInstance();
       const res = await axios.post(
         apiPath || '/admin/prompts/generate',
         { prompt, agentId: agent?.id, modelId: model?.id },
         { signal: controller.signal }
       );
-      if (res.data && res.data.data.data) {
+      if (res.data && res.data.data?.data) {
         setInputValue(res.data.data.data);
         setContextValue(res.data.data.data);
         onChange?.(res.data.data.data);
@@ -138,7 +138,6 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
         >
           <span
             style={{
-              fontSize: 11,
               color: '#888',
               background: '#fafafa',
               borderRadius: 4,
@@ -153,8 +152,8 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
           <Select
             size="small"
             style={{ minWidth: 90, marginLeft: 2 }}
-            value={selectedAgent}
-            onChange={(val) => setSelectedAgent(val)}
+            value={selectedAgent ? selectedAgent.value : undefined}
+            onChange={setSelectedAgent}
             placeholder="Select agent"
             disabled={loading}
             options={agents}
@@ -162,8 +161,8 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
           <Select
             size="small"
             style={{ minWidth: 90, marginLeft: 2 }}
-            value={selectedModel}
-            onChange={(val) => setSelectedModel(val)}
+            value={selectedModel ? selectedModel.value : undefined}
+            onChange={setSelectedModel}
             placeholder="Select model"
             disabled={loading || !models.length}
             options={models}

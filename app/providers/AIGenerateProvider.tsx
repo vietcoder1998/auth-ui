@@ -1,20 +1,30 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
 
+interface OptionType {
+  label: string;
+  value: string;
+  [key: string]: any;
+}
+
 interface AIGenerateContextType {
   value: string;
   setValue: (val: string) => void;
-  agents: any[];
-  models: any[];
-  selectedAgent: string;
+  agents: OptionType[];
+  models: OptionType[];
+  selectedAgent: OptionType | null;
   setSelectedAgent: (id: string) => void;
-  selectedModel: string;
   setSelectedModel: (id: string) => void;
   promptMemory: string;
   setPromptMemory: (val: string) => void;
-  conversations: any[];
-  selectedConversation: string;
+  conversations: OptionType[];
+  selectedConversation: OptionType | null;
   setSelectedConversation: (id: string) => void;
+  prompts: string[];
+  selectedPrompt: string;
+  setSelectedPrompt: (val: string) => void;
+  handleCreatePrompt: (prompt: string) => void;
+  selectedModel: OptionType | null;
 }
 
 const AIGenerateContext = createContext<AIGenerateContextType | undefined>(undefined);
@@ -29,11 +39,33 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
   const [value, setValue] = useState('');
   const [agents, setAgents] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
-  const [selectedAgent, setSelectedAgent] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [selectedAgent, setSelectedAgent] = useState<{ label: string; value: string } | null>(null);
+  const [selectedModel, setSelectedModel] = useState<{ label: string; value: string } | null>(null);
   const [promptMemory, setPromptMemory] = useState('');
-  const [conversations, setConversations] = useState<any[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<string>('');
+  const [conversations, setConversations] = useState<{ label: string; value: string }[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
+  const [prompts, setPrompts] = useState<string[]>([]);
+  const [selectedPrompt, setSelectedPrompt] = useState<string>('');
+
+  // Prompt logic
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      const res = await adminApi.getPrompts?.();
+      const items = res?.data?.data || [];
+      setPrompts(items.map((p: any) => p.prompt || p.name || p.title || ''));
+      setSelectedPrompt(items[0]?.prompt || items[0]?.name || items[0]?.title || '');
+    };
+    fetchPrompts();
+  }, []);
+
+  const handleCreatePrompt = (newPrompt: string) => {
+    if (!newPrompt.trim()) return;
+    setPrompts([newPrompt, ...prompts]);
+    setSelectedPrompt(newPrompt);
+  };
 
   useEffect(() => {
     const fetchAgentInfo = async () => {
@@ -46,8 +78,10 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
           ...a,
         }));
         setAgents(agentOptions);
-        let agent = agentOptions.find((a: any) => a.value === selectedAgent) || agentOptions[0];
-        setSelectedAgent(agent?.value || '');
+        let agent =
+          agentOptions.find((a: any) => (selectedAgent ? a.value === selectedAgent.value : true)) ||
+          agentOptions[0];
+        setSelectedAgent(agent ? { label: agent.label, value: agent.value } : null);
         // Models from agent or global
         const modelsRaw = Array.isArray(agent?.models)
           ? agent.models
@@ -58,7 +92,9 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
           ...m,
         }));
         setModels(modelOptions);
-        setSelectedModel(modelOptions[0]?.value || '');
+        setSelectedModel(
+          modelOptions[0] ? { label: modelOptions[0].label, value: modelOptions[0].value } : null
+        );
         // Fetch agent memory
         const memoriesRes = await adminApi.getAgentMemories?.(agent?.id);
         setPromptMemory(memoriesRes?.data?.[0]?.memory || '');
@@ -69,7 +105,7 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
       }
     };
     fetchAgentInfo();
-  }, [selectedAgent]);
+  }, [agents.length, selectedAgent?.value]);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -78,11 +114,20 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
         const conversationsList = conversationsRes?.data?.data;
         const safeConversations = Array.isArray(conversationsList) ? conversationsList : [];
 
-        setConversations(safeConversations);
-        setSelectedConversation(safeConversations[0]?.id || '');
+        const conversationOptions = safeConversations.map((c: any) => ({
+          label: c.name || c.title || c.id,
+          value: c.id,
+          ...c,
+        }));
+        setConversations(conversationOptions);
+        setSelectedConversation(
+          conversationOptions[0]
+            ? { label: conversationOptions[0].label, value: conversationOptions[0].value }
+            : null
+        );
       } catch (err) {
         setConversations([]);
-        setSelectedConversation('');
+        setSelectedConversation(null);
       }
     };
     fetchConversations();
@@ -96,14 +141,27 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
         agents,
         models,
         selectedAgent,
-        setSelectedAgent,
-        selectedModel,
-        setSelectedModel,
+        setSelectedAgent: (id: string) => {
+          const found = agents.find((a) => a.value === id) || null;
+          setSelectedAgent(found);
+        },
+        setSelectedModel: (id: string) => {
+          const found = models.find((m) => m.value === id) || null;
+          setSelectedModel(found);
+        },
         promptMemory,
         setPromptMemory,
         conversations,
         selectedConversation,
-        setSelectedConversation,
+        setSelectedConversation: (id: string) => {
+          const found = conversations.find((c) => c.value === id) || null;
+          setSelectedConversation(found);
+        },
+        prompts,
+        selectedPrompt,
+        setSelectedPrompt,
+        handleCreatePrompt,
+        selectedModel,
       }}
     >
       {children}

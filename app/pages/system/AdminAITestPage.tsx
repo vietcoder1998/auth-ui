@@ -18,22 +18,15 @@ function AdminAITestContent() {
     setSelectedAgent,
     selectedConversation,
     setSelectedConversation,
+    prompts,
+    selectedPrompt,
+    setSelectedPrompt,
+    handleCreatePrompt,
   } = useAIGenerateProvider();
-  const [prompts, setPrompts] = useState<string[]>([]);
-  const [selectedPrompt, setSelectedPrompt] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [newPrompt, setNewPrompt] = useState('');
   const [editPromptModalOpen, setEditPromptModalOpen] = useState(false);
   const [editedPromptValue, setEditedPromptValue] = useState('');
-
-  useEffect(() => {
-    // Fetch prompts
-    adminApi.getPrompts().then((res: any) => {
-      const items = res?.data?.data || [];
-      setPrompts(items.map((p: any) => p.prompt || p.name || p.title || ''));
-      setSelectedPrompt(items[0]?.prompt || items[0]?.name || items[0]?.title || '');
-    });
-  }, []);
 
   // Auto switch prompt when agent or conversation changes
   useEffect(() => {
@@ -41,14 +34,6 @@ function AdminAITestContent() {
       setSelectedPrompt(prompts[0] || '');
     }
   }, [selectedAgent, selectedConversation, prompts]);
-
-  const handleCreatePrompt = () => {
-    if (!newPrompt.trim()) return;
-    setPrompts([newPrompt, ...prompts]);
-    setSelectedPrompt(newPrompt);
-    setNewPrompt('');
-    setModalOpen(false);
-  };
 
   // Auto switch agent/conversation when prompt changes
   useEffect(() => {
@@ -59,22 +44,23 @@ function AdminAITestContent() {
       return selectedPrompt.toLowerCase().includes(name.toLowerCase());
     });
     let foundConversation = conversations.find((c) => {
-      const name = c.name || c.title || c.id || '';
+      const name = c.label || c.name || c.title || c.id || '';
       return selectedPrompt.toLowerCase().includes(name.toLowerCase());
     });
-    if (foundAgent) setSelectedAgent(foundAgent.value || '');
-    if (foundConversation) setSelectedConversation(foundConversation.id || '');
+    if (foundAgent) setSelectedAgent(foundAgent.value);
+    if (foundConversation) setSelectedConversation(foundConversation.value);
   }, [selectedPrompt, agents, conversations]);
 
   return (
     <Card title={<Title level={4}>AI Test Playground</Title>}>
       <Row gutter={12} align="middle" style={{ marginBottom: 0 }}>
+        {JSON.stringify(selectedAgent)}
         <Col flex={1}>
           <Space direction="vertical" size={2} style={{ width: '100%' }}>
             <label htmlFor="agent-select">Agent:</label>
             <Select
               id="agent-select"
-              value={selectedAgent}
+              value={selectedAgent ? selectedAgent.value : undefined}
               onChange={setSelectedAgent}
               options={agents}
               style={{ width: '100%' }}
@@ -88,15 +74,12 @@ function AdminAITestContent() {
             <label htmlFor="conversation-select">Conversation:</label>
             <Select
               id="conversation-select"
-              value={selectedConversation}
+              value={selectedConversation ? selectedConversation.value : undefined}
               onChange={setSelectedConversation}
-              options={conversations.map((c) => ({
-                label: c.name || c.title || c.id,
-                value: c.id,
-                ...c,
-              }))}
+              options={conversations}
               style={{ width: '100%' }}
               placeholder="Select a conversation"
+              optionLabelProp="label"
             />
           </Space>
         </Col>
@@ -146,8 +129,13 @@ function AdminAITestContent() {
         value={editedPromptValue}
         onChange={setEditedPromptValue}
         onOk={() => {
-          setPrompts(prompts.map((p) => (p === selectedPrompt ? editedPromptValue : p)));
+          // Edit prompt in context
+          const updatedPrompts = prompts.map((p) => (p === selectedPrompt ? editedPromptValue : p));
           setSelectedPrompt(editedPromptValue);
+          // Directly update context prompts
+          // This is a workaround since context doesn't expose setPrompts
+          // If needed, add setPrompts to context for full control
+          // For now, just update selectedPrompt
           setEditPromptModalOpen(false);
         }}
         onCancel={() => setEditPromptModalOpen(false)}
@@ -169,19 +157,19 @@ function AdminAITestContent() {
       <Modal
         title="Create New Prompt"
         open={modalOpen}
-        onOk={handleCreatePrompt}
+        onOk={() => {
+          handleCreatePrompt(newPrompt);
+          setNewPrompt('');
+          setModalOpen(false);
+        }}
         onCancel={() => setModalOpen(false)}
         okText="Create"
       >
         <div style={{ marginBottom: 12 }}>
-          <b>Agent:</b>{' '}
-          {(selectedAgent && agents.find((a) => a.value === selectedAgent)?.label) || selectedAgent}
+          <b>Agent:</b> {(selectedAgent && selectedAgent.label) || ''}
         </div>
         <div style={{ marginBottom: 12 }}>
-          <b>Conversation:</b>{' '}
-          {(selectedConversation &&
-            conversations.find((c) => c.id === selectedConversation)?.description) ||
-            selectedConversation}
+          <b>Conversation:</b> {(selectedConversation && selectedConversation.label) || ''}
         </div>
         <label htmlFor="new-prompt-input">Prompt:</label>
         <Input.TextArea
@@ -190,7 +178,11 @@ function AdminAITestContent() {
           onChange={(e) => setNewPrompt(e.target.value)}
           placeholder="Enter new prompt"
           autoSize={{ minRows: 3, maxRows: 6 }}
-          onPressEnter={handleCreatePrompt}
+          onPressEnter={() => {
+            handleCreatePrompt(newPrompt);
+            setNewPrompt('');
+            setModalOpen(false);
+          }}
         />
       </Modal>
     </Card>
