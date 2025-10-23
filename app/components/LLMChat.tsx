@@ -1,38 +1,12 @@
-import {
-  DeleteOutlined,
-  FileOutlined,
-  MessageOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  RobotOutlined,
-  SendOutlined,
-  SettingOutlined,
-  UploadOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import {
-  Avatar,
-  Badge,
-  Button,
-  Card,
-  Divider,
-  Empty,
-  Input,
-  List,
-  Select,
-  Spin,
-  Tooltip,
-  Typography,
-  Upload,
-  message,
-} from 'antd';
+import { RobotOutlined } from '@ant-design/icons';
+import { Card, Divider, Input, Select, Typography, message } from 'antd';
 import Cookies from 'js-cookie';
 import React, { useEffect, useRef, useState } from 'react';
-import { LLMChatHeader } from './llmchat/LLMChatHeader.tsx';
-import { LLMChatMessages } from './llmchat/LLMChatMessages.tsx';
-import { LLMChatInput } from './llmchat/LLMChatInput.tsx';
 import { adminApi } from '../apis/admin.api.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
+import { LLMChatHeader } from './llmchat/LLMChatHeader.tsx';
+import { LLMChatInput } from './llmchat/LLMChatInput.tsx';
+import { LLMChatMessages } from './llmchat/LLMChatMessages.tsx';
 
 const { TextArea } = Input;
 const { Text, Paragraph } = Typography;
@@ -271,13 +245,14 @@ export default function LLMChat() {
     });
 
     try {
-      // Always send agentId in metadata for backend memory creation
-      const metadata = { agentId: selectedAgent };
-      const response = await adminApi.sendMessage(selectedConversation, {
+      // Always send agentId and conversationId in the payload for backend memory creation
+      const payload = {
         content: messageContent,
         sender: 'user',
-        metadata,
-      });
+        agentId: selectedAgent,
+        conversationId: selectedConversation,
+      };
+      const response = await adminApi.sendMessage(selectedConversation, payload);
 
       // Handle response and add messages
       const messagesToAdd: Message[] = [];
