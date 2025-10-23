@@ -224,9 +224,6 @@ export default function LLMChat() {
       messageContent = `${userMessage}${fileContext}`;
     }
 
-    setInputValue('');
-    setIsLoading(true);
-
     // Create optimistic user message to show immediately
     const optimisticUserMessage: Message = {
       id: `temp-${Date.now()}`,
@@ -244,7 +241,11 @@ export default function LLMChat() {
       return newMessages;
     });
 
+    // Clear input after optimistic UI update
+    setInputValue('');
+
     try {
+      setIsLoading(true);
       // Always send agentId and conversationId in the payload for backend memory creation
       const payload = {
         content: messageContent,

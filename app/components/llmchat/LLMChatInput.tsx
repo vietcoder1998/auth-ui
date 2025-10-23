@@ -84,7 +84,6 @@ export function LLMChatInput({
       <LLMChatFiles uploadedFiles={uploadedFiles} removeFile={removeFile} />
       <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
         <TextArea
-          defaultValue={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder={`Message ${selectedAgentData?.name || 'AI Agent'}...`}
