@@ -31,6 +31,8 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
   const [showRevert, setShowRevert] = useState(false);
   const [loading, setLoading] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [debugEnabled, setDebugEnabled] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const inputRef = React.useRef<any>(null);
 
   // Sync context value to local input and move cursor to end
@@ -91,8 +93,14 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
         setInputValue(res.data.data.content);
         setContextValue(res.data.data.content);
         onChange?.(res.data.data.content);
+        if (debugEnabled && res.data.data?.debug) {
+          setDebugInfo(res.data.data.debug);
+        } else {
+          setDebugInfo(null);
+        }
       } else {
         message.error('No data returned from AI');
+        setDebugInfo(null);
       }
     } catch (error: any) {
       if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
@@ -100,6 +108,7 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
       } else {
         message.error('Failed to generate context');
       }
+      setDebugInfo(null);
     }
     setLoading(false);
     setAbortController(null);
@@ -199,40 +208,66 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
             options={models.map((m) => ({ label: m.label, value: m.value }))}
           />
         </div>
-        {/* Generate icon (thunderbolt) */}
+        {/* Generate icon (thunderbolt) and debug button */}
         <div
           style={{
             position: 'absolute',
             right: 8,
             bottom: 8,
             zIndex: 2,
-            cursor: 'pointer',
-            background: '#fff',
-            borderRadius: '50%',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-            padding: 2,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: 6,
           }}
-          onClick={handleGenerate}
-          title={loading ? 'Click to stop' : 'Generate with AI'}
         >
-          {loading ? (
-            <span className="anticon-spin" style={{ color: '#1890ff', fontSize: 16 }}>
-              <svg
-                width="1em"
-                height="1em"
-                viewBox="0 0 1024 1024"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M988 548H836c-19.9 0-36-16.1-36-36V360c0-19.9 16.1-36 36-36h152c19.9 0 36 16.1 36 36v152c0 19.9-16.1 36-36 36z" />
-              </svg>
-            </span>
-          ) : (
-            <ThunderboltOutlined style={{ color: '#888', fontSize: 16 }} />
-          )}
+          <div
+            style={{
+              cursor: 'pointer',
+              background: '#fff',
+              borderRadius: '50%',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+              padding: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onClick={handleGenerate}
+            title={loading ? 'Click to stop' : 'Generate with AI'}
+          >
+            {loading ? (
+              <span className="anticon-spin" style={{ color: '#1890ff', fontSize: 16 }}>
+                <svg
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 1024 1024"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M988 548H836c-19.9 0-36-16.1-36-36V360c0-19.9 16.1-36 36-36h152c19.9 0 36 16.1 36 36v152c0 19.9-16.1 36-36 36z" />
+                </svg>
+              </span>
+            ) : (
+              <ThunderboltOutlined style={{ color: '#888', fontSize: 16 }} />
+            )}
+          </div>
+          <button
+            type="button"
+            style={{
+              fontSize: 11,
+              padding: '2px 8px',
+              background: debugEnabled ? '#e6f7ff' : '#f5f5f5',
+              border: '1px solid #ddd',
+              borderRadius: 4,
+              color: debugEnabled ? '#1890ff' : '#666',
+              cursor: 'pointer',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              marginLeft: 4,
+            }}
+            onClick={() => setDebugEnabled((prev) => !prev)}
+            title={debugEnabled ? 'Debug enabled' : 'Enable debug'}
+          >
+            {debugEnabled ? 'Debug ON' : 'Enable Debug'}
+          </button>
         </div>
         {showRevert && (
           <button
@@ -277,6 +312,34 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
             }}
           >
             <span>Primary value: {primaryValue}</span>
+          </div>
+        )}
+        {/* Debug info display */}
+        {debugEnabled && debugInfo && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              bottom: -60,
+              width: '100%',
+              fontSize: 11,
+              color: '#333',
+              background: '#f6f6f6',
+              border: '1px solid #eee',
+              borderRadius: 4,
+              padding: '6px 8px',
+              marginTop: 4,
+              maxHeight: 120,
+              overflowY: 'auto',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            }}
+          >
+            <strong>Debug Info:</strong>
+            <pre
+              style={{ fontSize: 10, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+            >
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
           </div>
         )}
       </div>
