@@ -9,6 +9,30 @@ import { AIGenerateProvider, useAIGenerateProvider } from '../../providers/AIGen
 const { Title } = Typography;
 
 function AdminAITestContent() {
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+
+  // Handler to call backend and display debug info
+  const handleAIGenerateDebug = async () => {
+    try {
+      const { getApiInstance } = require('../../apis/index.ts');
+      const apiInstance = getApiInstance();
+      const agentId = selectedAgent?.value;
+      const modelId = null;
+      const res = await apiInstance.post('/admin/prompts/generate', {
+        prompt: selectedPrompt,
+        agentId,
+        modelId,
+      });
+      if (res.data && res.data.data) {
+        setValue(res.data.data.data);
+        setDebugInfo(res.data.data.debug || res.data.data);
+      } else {
+        setDebugInfo({ error: 'No data returned from AI' });
+      }
+    } catch (err: any) {
+      setDebugInfo({ error: err?.message || String(err) });
+    }
+  };
   const {
     value,
     setValue,
@@ -147,6 +171,27 @@ function AdminAITestContent() {
         textarea
         rows={6}
       />
+      <Button type="default" style={{ marginTop: 8 }} onClick={handleAIGenerateDebug}>
+        Debug LLM Call
+      </Button>
+      {debugInfo && (
+        <Card size="small" style={{ marginTop: 12, background: '#fafafa' }}>
+          <Title level={5} style={{ marginBottom: 8 }}>
+            LLM Debug Info
+          </Title>
+          <pre
+            style={{
+              fontSize: 12,
+              maxHeight: 300,
+              overflow: 'auto',
+              background: 'transparent',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {JSON.stringify(debugInfo, null, 2)}
+          </pre>
+        </Card>
+      )}
       <List
         header={<b>Recent Prompts</b>}
         dataSource={prompts}
