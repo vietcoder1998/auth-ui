@@ -295,6 +295,9 @@ export default function LLMChat() {
 
       // Clear uploaded files after sending
       setUploadedFiles([]);
+
+      // Always refresh messages after sending
+      await fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
 
