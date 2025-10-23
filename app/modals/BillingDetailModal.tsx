@@ -17,7 +17,7 @@ export default function BillingDetailModal({
       title={`Billing Details${billing ? ` - ${billing.id}` : ''}`}
       onCancel={onCancel}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       {billing ? (
         <Descriptions column={1} bordered size="small">

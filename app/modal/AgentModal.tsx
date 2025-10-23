@@ -66,7 +66,7 @@ export default function AgentModal({
       open={visible}
       onCancel={onCancel}
       onOk={handleOk}
-      destroyOnClose
+      destroyOnHidden
       width={800}
     >
       <Form form={form} layout="vertical" initialValues={initialValues}>

@@ -49,7 +49,7 @@ export default function AIModelModal({
       onOk={handleOk}
       onCancel={onCancel}
       okText={editingModel ? 'Update' : 'Create'}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical">
         <Form.Item

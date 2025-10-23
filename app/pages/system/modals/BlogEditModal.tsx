@@ -25,7 +25,7 @@ const BlogEditModal: React.FC<BlogEditModalProps> = ({
     onCancel={onCancel}
     onOk={onOk}
     width={600}
-    destroyOnClose
+    destroyOnHidden
   >
     <BlogModalForm form={form} categories={categories} initialValues={initialValues} />
   </Modal>

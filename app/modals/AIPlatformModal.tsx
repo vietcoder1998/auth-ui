@@ -50,7 +50,7 @@ export default function AIPlatformModal({
       title={editingPlatform ? 'Edit AI Platform' : 'Add AI Platform'}
       onOk={handleOk}
       onCancel={onCancel}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical">
         <Form.Item

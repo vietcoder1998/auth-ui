@@ -52,7 +52,7 @@ export default function AddAIKeyModal({
       title={editingKey ? 'Edit AI Key' : 'Add AI Key'}
       onOk={handleOk}
       onCancel={onCancel}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical">
         <Form.Item

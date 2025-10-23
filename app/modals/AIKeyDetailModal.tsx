@@ -46,7 +46,7 @@ export default function AIKeyDetailModal({ visible, aiKey, onCancel }: AIKeyDeta
           </Button>
         ) : null
       }
-      destroyOnClose
+      destroyOnHidden
     >
       {aiKey ? (
         <Descriptions column={1} bordered size="small">

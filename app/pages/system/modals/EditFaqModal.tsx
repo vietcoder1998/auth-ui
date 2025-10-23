@@ -58,7 +58,7 @@ const EditFaqModal: React.FC<EditFaqModalProps> = ({
       onCancel={onCancel}
       onOk={() => form.submit()}
       confirmLoading={loading}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical" initialValues={faq} onFinish={handleFinish}>
         <Form.Item
