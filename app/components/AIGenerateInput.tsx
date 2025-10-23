@@ -1,8 +1,7 @@
 import { ThunderboltOutlined } from '@ant-design/icons';
-import { Input, message } from 'antd';
+import { Input, message, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getApiInstance } from '../apis/index.ts';
-import { adminApi } from '../apis/admin.api.ts';
 import { useAIGenerateProvider } from '../providers/AIGenerateProvider.tsx';
 
 interface AIGenerateInputProps {
@@ -51,6 +50,16 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
     }
   }, [value, contextValue]);
 
+  const {
+    agents,
+    models,
+    selectedAgent,
+    setSelectedAgent,
+    selectedModel,
+    setSelectedModel,
+    promptMemory,
+  } = useAIGenerateProvider();
+
   const handleGenerate = async () => {
     if (loading && abortController) {
       abortController.abort();
@@ -64,10 +73,12 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
     const controller = new AbortController();
     setAbortController(controller);
     try {
+      const agent = agents.find((a: any) => a.id === selectedAgent) || agents[0];
+      const model = models.find((m: any) => m.id === selectedModel) || models[0];
       const axios = getApiInstance();
       const res = await axios.post(
         apiPath || '/admin/prompts/generate',
-        { prompt },
+        { prompt, agentId: agent?.id, modelId: model?.id },
         { signal: controller.signal }
       );
       if (res.data && res.data.data.data) {
@@ -103,30 +114,6 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
   };
 
   if (textarea) {
-    const [agentName, setAgentName] = useState('');
-    const [modelName, setModelName] = useState('');
-    const [promptMemory, setPromptMemory] = useState('');
-
-    useEffect(() => {
-      // Fetch agent/model/memory from API
-      const fetchAgentInfo = async () => {
-        try {
-          const agentsRes = await adminApi.getAgents?.();
-          const agent = agentsRes?.data?.[0];
-          setAgentName(agent?.name || '');
-          setModelName(agent?.model || '');
-          // Fetch agent memory
-          const memoriesRes = await adminApi.getAgentMemories?.(agent?.id);
-          setPromptMemory(memoriesRes?.data?.[0]?.memory || '');
-        } catch (err) {
-          setAgentName('');
-          setModelName('');
-          setPromptMemory('');
-        }
-      };
-      fetchAgentInfo();
-    }, []);
-
     return (
       <div style={{ position: 'relative' }}>
         <Input.TextArea
@@ -161,19 +148,26 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
             }}
             title={promptMemory}
           >
-            {promptMemory || 'Memory: ...'}
+            {loading ? 'Fetching memory...' : promptMemory || 'Memory: ...'}
           </span>
-          <span
-            style={{
-              fontSize: 11,
-              color: '#aaa',
-              background: 'transparent',
-              marginLeft: 2,
-              pointerEvents: 'none',
-            }}
-          >
-            {agentName || 'Agent'} / {modelName || 'Model'}
-          </span>
+          <Select
+            size="small"
+            style={{ minWidth: 90, marginLeft: 2 }}
+            value={selectedAgent}
+            onChange={(val) => setSelectedAgent(val)}
+            placeholder="Select agent"
+            disabled={loading}
+            options={agents}
+          />
+          <Select
+            size="small"
+            style={{ minWidth: 90, marginLeft: 2 }}
+            value={selectedModel}
+            onChange={(val) => setSelectedModel(val)}
+            placeholder="Select model"
+            disabled={loading || !models.length}
+            options={models}
+          />
         </div>
         {/* Generate icon (thunderbolt) */}
         <div

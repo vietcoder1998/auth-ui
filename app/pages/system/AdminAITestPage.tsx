@@ -9,13 +9,18 @@ import { AIGenerateProvider, useAIGenerateProvider } from '../../providers/AIGen
 const { Title } = Typography;
 
 function AdminAITestContent() {
-  const { value, setValue } = useAIGenerateProvider();
+  const {
+    value,
+    setValue,
+    agents,
+    conversations,
+    selectedAgent,
+    setSelectedAgent,
+    selectedConversation,
+    setSelectedConversation,
+  } = useAIGenerateProvider();
   const [prompts, setPrompts] = useState<string[]>([]);
-  const [agents, setAgents] = useState<any[]>([]);
-  const [conversations, setConversations] = useState<any[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState('');
-  const [selectedAgent, setSelectedAgent] = useState('');
-  const [selectedConversation, setSelectedConversation] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [newPrompt, setNewPrompt] = useState('');
   const [editPromptModalOpen, setEditPromptModalOpen] = useState(false);
@@ -28,24 +33,11 @@ function AdminAITestContent() {
       setPrompts(items.map((p: any) => p.prompt || p.name || p.title || ''));
       setSelectedPrompt(items[0]?.prompt || items[0]?.name || items[0]?.title || '');
     });
-    // Fetch agents
-    adminApi.getAgents().then((res: any) => {
-      const items = res?.data?.data || [];
-      setAgents(items);
-      setSelectedAgent(items[0]?.name || items[0]?.agentName || items[0]?.title || '');
-    });
-    // Fetch conversations
-    adminApi.getConversations().then((res: any) => {
-      const items = res?.data?.data || [];
-      setConversations(items);
-      setSelectedConversation(items[0]?.name || items[0]?.title || items[0]?.id || '');
-    });
   }, []);
 
   // Auto switch prompt when agent or conversation changes
   useEffect(() => {
     if (selectedAgent && selectedConversation) {
-      // Example: auto-select first prompt for this agent/conversation
       setSelectedPrompt(prompts[0] || '');
     }
   }, [selectedAgent, selectedConversation, prompts]);
@@ -63,19 +55,15 @@ function AdminAITestContent() {
     if (!selectedPrompt) return;
     // Find agent and conversation that match the prompt (simple contains logic)
     let foundAgent = agents.find((a) => {
-      const name = a.name || a.agentName || a.title || '';
+      const name = a.label || a.name || a.agentName || a.title || '';
       return selectedPrompt.toLowerCase().includes(name.toLowerCase());
     });
     let foundConversation = conversations.find((c) => {
       const name = c.name || c.title || c.id || '';
       return selectedPrompt.toLowerCase().includes(name.toLowerCase());
     });
-    if (foundAgent)
-      setSelectedAgent(foundAgent.name || foundAgent.agentName || foundAgent.title || '');
-    if (foundConversation)
-      setSelectedConversation(
-        foundConversation.name || foundConversation.title || foundConversation.id || ''
-      );
+    if (foundAgent) setSelectedAgent(foundAgent.value || '');
+    if (foundConversation) setSelectedConversation(foundConversation.id || '');
   }, [selectedPrompt, agents, conversations]);
 
   return (
@@ -87,13 +75,11 @@ function AdminAITestContent() {
             <Select
               id="agent-select"
               value={selectedAgent}
-              disabled
-              options={agents.map((a) => ({
-                label: a.name || a.agentName || a.title,
-                value: a.name || a.agentName || a.title,
-              }))}
+              onChange={setSelectedAgent}
+              options={agents}
               style={{ width: '100%' }}
               placeholder="Select an agent"
+              optionLabelProp="label"
             />
           </Space>
         </Col>
@@ -103,10 +89,11 @@ function AdminAITestContent() {
             <Select
               id="conversation-select"
               value={selectedConversation}
-              disabled
+              onChange={setSelectedConversation}
               options={conversations.map((c) => ({
                 label: c.name || c.title || c.id,
-                value: c.name || c.title || c.id,
+                value: c.id,
+                ...c,
               }))}
               style={{ width: '100%' }}
               placeholder="Select a conversation"
@@ -188,16 +175,12 @@ function AdminAITestContent() {
       >
         <div style={{ marginBottom: 12 }}>
           <b>Agent:</b>{' '}
-          {(selectedAgent &&
-            agents.find((a) => (a.name || a.agentName || a.title) === selectedAgent)
-              ?.description) ||
-            selectedAgent}
+          {(selectedAgent && agents.find((a) => a.value === selectedAgent)?.label) || selectedAgent}
         </div>
         <div style={{ marginBottom: 12 }}>
           <b>Conversation:</b>{' '}
           {(selectedConversation &&
-            conversations.find((c) => (c.name || c.title || c.id) === selectedConversation)
-              ?.description) ||
+            conversations.find((c) => c.id === selectedConversation)?.description) ||
             selectedConversation}
         </div>
         <label htmlFor="new-prompt-input">Prompt:</label>
