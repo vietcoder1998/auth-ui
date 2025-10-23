@@ -54,7 +54,6 @@ function AdminAITestContent() {
   return (
     <Card title={<Title level={4}>AI Test Playground</Title>}>
       <Row gutter={12} align="middle" style={{ marginBottom: 0 }}>
-        {JSON.stringify(selectedAgent)}
         <Col flex={1}>
           <Space direction="vertical" size={2} style={{ width: '100%' }}>
             <label htmlFor="agent-select">Agent:</label>
@@ -144,7 +143,7 @@ function AdminAITestContent() {
         prompt={selectedPrompt}
         value={value}
         onChange={setValue}
-        placeholder={`Type or generate with ${selectedAgent}`}
+        placeholder={`Type or generate with ${selectedAgent ? selectedAgent.label : ''}`}
         textarea
         rows={6}
       />

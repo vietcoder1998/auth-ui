@@ -73,28 +73,35 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
         const agentsRes = await adminApi.getAgents?.();
         const agentsList = agentsRes?.data?.data || [];
         const agentOptions = agentsList.map((a: any) => ({
-          label: a.name || a.agentName || a.title || a.id,
-          value: a.id,
-          ...a,
+          label: a.name || a.agentName || a.title || String(a.id),
+          value: String(a.id),
+          model:
+            a.model || (Array.isArray(a.models) && a.models.length > 0 ? a.models[0] : undefined),
+          models: a.models || [],
         }));
         setAgents(agentOptions);
         let agent =
           agentOptions.find((a: any) => (selectedAgent ? a.value === selectedAgent.value : true)) ||
           agentOptions[0];
         setSelectedAgent(agent ? { label: agent.label, value: agent.value } : null);
-        // Models from agent or global
-        const modelsRaw = Array.isArray(agent?.models)
-          ? agent.models
-          : [agent?.model].filter(Boolean);
-        const modelOptions = modelsRaw.map((m: any) => ({
-          label: m.name || m.modelName || m.title || m.id || m,
-          value: m.id || m,
-          ...m,
-        }));
-        setModels(modelOptions);
-        setSelectedModel(
-          modelOptions[0] ? { label: modelOptions[0].label, value: modelOptions[0].value } : null
-        );
+        // Each agent only uses one model
+        let model = null;
+        if (agent?.model) {
+          model = agent.model;
+        } else if (Array.isArray(agent?.models) && agent.models.length > 0) {
+          model = agent.models[0];
+        }
+        const modelOption = model
+          ? [
+              {
+                label:
+                  model.name || model.modelName || model.title || String(model.id) || String(model),
+                value: String(model.id) || String(model),
+              },
+            ]
+          : [];
+        setModels(modelOption);
+        setSelectedModel(modelOption[0] || null);
         // Fetch agent memory
         const memoriesRes = await adminApi.getAgentMemories?.(agent?.id);
         setPromptMemory(memoriesRes?.data?.[0]?.memory || '');
@@ -115,9 +122,8 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
         const safeConversations = Array.isArray(conversationsList) ? conversationsList : [];
 
         const conversationOptions = safeConversations.map((c: any) => ({
-          label: c.name || c.title || c.id,
-          value: c.id,
-          ...c,
+          label: c.name || c.title || String(c.id),
+          value: String(c.id),
         }));
         setConversations(conversationOptions);
         setSelectedConversation(
@@ -144,6 +150,24 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
         setSelectedAgent: (id: string) => {
           const found = agents.find((a) => a.value === id) || null;
           setSelectedAgent(found);
+          // Also select model for this agent
+          let model = null;
+          if (found?.model) {
+            model = found.model;
+          } else if (Array.isArray(found?.models) && found.models.length > 0) {
+            model = found.models[0];
+          }
+
+          console.log('Selected agent changed, setting model:', model, found);
+          const modelOption = model
+            ? {
+                label:
+                  model.name || model.modelName || model.title || String(model.id) || String(model),
+                value: String(model.id) || String(model),
+              }
+            : null;
+          setModels(modelOption ? [modelOption] : []);
+          setSelectedModel(modelOption);
         },
         setSelectedModel: (id: string) => {
           const found = models.find((m) => m.value === id) || null;

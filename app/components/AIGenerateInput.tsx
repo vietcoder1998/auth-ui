@@ -128,22 +128,29 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
         <div
           style={{
             position: 'absolute',
-            left: 8,
-            bottom: 8,
+            left: 6,
+            bottom: 6,
             zIndex: 2,
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 4,
           }}
         >
           <span
             style={{
               color: '#888',
               background: '#fafafa',
-              borderRadius: 4,
-              padding: '2px 6px',
+              borderRadius: 3,
+              padding: '1px 4px',
               cursor: 'default',
               border: '1px solid #eee',
+              fontSize: 11,
+              lineHeight: '16px',
+              minWidth: 60,
+              maxWidth: 120,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
             title={promptMemory}
           >
@@ -151,21 +158,23 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
           </span>
           <Select
             size="small"
-            style={{ minWidth: 90, marginLeft: 2 }}
+            style={{ minWidth: 70, maxWidth: 100, marginLeft: 2, fontSize: 11 }}
+            dropdownStyle={{ fontSize: 11 }}
             value={selectedAgent ? selectedAgent.value : undefined}
             onChange={setSelectedAgent}
-            placeholder="Select agent"
+            placeholder="Agent"
             disabled={loading}
-            options={agents}
+            options={agents.map((a) => ({ label: a.label, value: a.value }))}
           />
           <Select
             size="small"
-            style={{ minWidth: 90, marginLeft: 2 }}
+            style={{ minWidth: 70, maxWidth: 100, marginLeft: 2, fontSize: 11 }}
+            dropdownStyle={{ fontSize: 11 }}
             value={selectedModel ? selectedModel.value : undefined}
             onChange={setSelectedModel}
-            placeholder="Select model"
+            placeholder={selectedModel && selectedModel.label ? selectedModel.label : 'Model'}
             disabled={loading || !models.length}
-            options={models}
+            options={models.map((m) => ({ label: m.label, value: m.value }))}
           />
         </div>
         {/* Generate icon (thunderbolt) */}
