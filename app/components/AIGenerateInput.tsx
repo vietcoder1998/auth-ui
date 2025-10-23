@@ -59,6 +59,7 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
     selectedModel,
     setSelectedModel,
     promptMemory,
+    selectedConversation,
   } = useAIGenerateProvider();
 
   const handleGenerate = async () => {
@@ -78,10 +79,12 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
       // Use agentId/modelId from provider
       const agentId = selectedAgent?.value || selectedAgent?.id || null;
       const modelId = selectedModel?.value || selectedModel?.id || null;
+      const conversationId = selectedConversation?.value || selectedConversation?.id || null;
       const res = await LLMDebugApi.generateDebug({
         prompt,
         agentId,
         modelId,
+        conversationId,
       });
       if (res.data && res.data.data?.data) {
         setInputValue(res.data.data.data);

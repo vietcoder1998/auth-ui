@@ -16,10 +16,12 @@ function AdminAITestContent() {
     try {
       const agentId = selectedAgent?.value || selectedAgent?.id || null;
       const modelId = selectedModel?.value || selectedModel?.id || null;
+      const conversationId = selectedConversation?.value || selectedConversation?.id || null;
       const res = await LLMDebugApi.generateDebug({
         prompt: selectedPrompt,
         agentId,
         modelId,
+        conversationId,
       });
       if (res.data && res.data.data) {
         setValue(res.data.data.data);

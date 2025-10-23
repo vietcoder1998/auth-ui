@@ -139,6 +139,30 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
     fetchConversations();
   }, []);
 
+  // Move conversation selection logic from AdminAITestPage here
+  useEffect(() => {
+    // Auto switch prompt when agent or conversation changes
+    if (selectedAgent && selectedConversation && prompts.length > 0) {
+      setSelectedPrompt(prompts[0] || '');
+    }
+  }, [selectedAgent, selectedConversation, prompts]);
+
+  useEffect(() => {
+    // Auto switch agent/conversation when prompt changes
+    if (!selectedPrompt) return;
+    // Find agent and conversation that match the prompt (simple contains logic)
+    let foundAgent = agents.find((a) => {
+      const name = a.label || a.name || a.agentName || a.title || '';
+      return selectedPrompt.toLowerCase().includes(name.toLowerCase());
+    });
+    let foundConversation = conversations.find((c) => {
+      const name = c.label || '';
+      return selectedPrompt.toLowerCase().includes(name.toLowerCase());
+    });
+    if (foundAgent) setSelectedAgent(foundAgent.value);
+    if (foundConversation) setSelectedConversation(foundConversation);
+  }, [selectedPrompt, agents, conversations]);
+
   return (
     <AIGenerateContext.Provider
       value={{
