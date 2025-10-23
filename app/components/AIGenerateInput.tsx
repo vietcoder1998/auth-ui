@@ -86,10 +86,11 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
         modelId,
         conversationId,
       });
-      if (res.data && res.data.data?.data) {
-        setInputValue(res.data.data.data);
-        setContextValue(res.data.data.data);
-        onChange?.(res.data.data.data);
+      console.log('AI generate response:', res);
+      if (res.data && res.data.data?.content) {
+        setInputValue(res.data.data.content);
+        setContextValue(res.data.data.content);
+        onChange?.(res.data.data.content);
       } else {
         message.error('No data returned from AI');
       }
