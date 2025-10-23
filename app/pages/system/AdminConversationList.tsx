@@ -1,34 +1,10 @@
-import {
-  DeleteOutlined,
-  EyeOutlined,
-  RobotOutlined,
-  SendOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
 import type { TableProps } from 'antd';
-import {
-  Avatar,
-  Badge,
-  Button,
-  Card,
-  Divider,
-  Drawer,
-  Empty,
-  Input,
-  List,
-  message,
-  Popconfirm,
-  Select,
-  Space,
-  Spin,
-  Table,
-  Tag,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Card, Input, message, Select, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../apis/admin.api.ts';
 import CommonSearch from '../../components/CommonSearch.tsx';
+import ConversationDrawer from '../../components/ConversationDrawer.tsx';
+import ConversationTable from '../../components/ConversationTable.tsx';
 import { useAuth } from '../../hooks/useAuth.tsx';
 
 type ColumnsType<T> = TableProps<T>['columns'];
@@ -42,7 +18,17 @@ interface Agent {
   id: string;
   name: string;
   description: string;
-  model: string;
+  model:
+    | string
+    | {
+        id: string;
+        name: string;
+        description?: string;
+        type?: string;
+        platformId?: string;
+        createdAt?: string;
+        updatedAt?: string;
+      };
   isActive: boolean;
 }
 
@@ -165,19 +151,21 @@ export default function AdminConversationList() {
     }
   };
 
-  const deleteConversation = async (conversation: Conversation) => {
-    try {
-      await adminApi.deleteConversation(conversation.id);
-      message.success('Conversation deleted successfully');
-      fetchConversations();
-      if (selectedConversation?.id === conversation.id) {
-        setDrawerVisible(false);
-        setSelectedConversation(null);
-      }
-    } catch (error) {
-      console.error('Error deleting conversation:', error);
-      message.error('Failed to delete conversation');
-    }
+  const deleteConversation = (conversation: Conversation) => {
+    adminApi
+      .deleteConversation(conversation.id)
+      .then(() => {
+        message.success('Conversation deleted successfully');
+        fetchConversations();
+        if (selectedConversation?.id === conversation.id) {
+          setDrawerVisible(false);
+          setSelectedConversation(null);
+        }
+      })
+      .catch((error) => {
+        console.error('Error deleting conversation:', error);
+        message.error('Failed to delete conversation');
+      });
   };
 
   const viewConversation = (conversation: Conversation) => {
@@ -206,119 +194,6 @@ export default function AdminConversationList() {
     if (diffInHours < 24) return `${diffInHours}h ago`;
     return `${diffInDays}d ago`;
   };
-
-  const columns: ColumnsType<Conversation> = [
-    {
-      title: 'Conversation',
-      key: 'conversation',
-      width: 250,
-      render: (_: any, record: Conversation) => (
-        <div>
-          <div style={{ fontWeight: 500, marginBottom: '4px' }}>
-            {record.title || 'Untitled Conversation'}
-          </div>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            {record.summary || 'No summary available'}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Agent',
-      key: 'agent',
-      width: 180,
-      render: (_: any, record: Conversation) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar
-            size="small"
-            icon={<RobotOutlined />}
-            style={{ backgroundColor: record.agent.isActive ? '#52c41a' : '#d9d9d9' }}
-          />
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 500 }}>{record.agent.name}</div>
-            <Tag color="blue" style={{ fontSize: '11px' }}>
-              {record.agent.model}
-            </Tag>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'User',
-      key: 'user',
-      width: 180,
-      render: (_: any, record: Conversation) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar size="small" icon={<UserOutlined />} />
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 500 }}>
-              {record.user.nickname || record.user.email}
-            </div>
-            <Text type="secondary" style={{ fontSize: '11px' }}>
-              {record.user.email}
-            </Text>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Messages',
-      key: 'messages',
-      width: 100,
-      render: (_: any, record: Conversation) => (
-        <div style={{ textAlign: 'center' }}>
-          <Badge count={record._count?.messages || 0} showZero />
-        </div>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'status',
-      width: 100,
-      render: (isActive: boolean) => (
-        <Badge status={isActive ? 'success' : 'default'} text={isActive ? 'Active' : 'Archived'} />
-      ),
-    },
-    {
-      title: 'Last Updated',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 130,
-      render: (text: string) => (
-        <div>
-          <div style={{ fontSize: '12px' }}>{new Date(text).toLocaleDateString()}</div>
-          <Text type="secondary" style={{ fontSize: '11px' }}>
-            {getMessageTimeAgo(text)}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 120,
-      fixed: 'right',
-      render: (_: any, record: Conversation) => (
-        <Space>
-          <Tooltip title="View Conversation">
-            <Button type="text" icon={<EyeOutlined />} onClick={() => viewConversation(record)} />
-          </Tooltip>
-          <Popconfirm
-            title="Delete Conversation"
-            description="Are you sure you want to delete this conversation? This action cannot be undone."
-            onConfirm={() => deleteConversation(record)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip title="Delete">
-              <Button type="text" danger icon={<DeleteOutlined />} />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
 
   // Prepare filters for CommonSearch
   const filters = [
@@ -378,184 +253,31 @@ export default function AdminConversationList() {
       />
 
       <Card styles={{ body: { padding: 0 } }}>
-        <Table
-          columns={columns}
-          dataSource={conversations}
+        <ConversationTable
+          conversations={conversations}
           loading={loading}
-          rowKey="id"
-          scroll={{ x: 1200, y: 600 }}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `Total ${total} conversations`,
-          }}
+          onView={viewConversation}
+          onDelete={deleteConversation}
+          getMessageTimeAgo={getMessageTimeAgo}
         />
       </Card>
 
       {/* Conversation Details Drawer */}
-      <Drawer
-        title={
-          selectedConversation && (
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>
-                {selectedConversation.title || 'Untitled Conversation'}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Avatar
-                  size="small"
-                  icon={<RobotOutlined />}
-                  style={{
-                    backgroundColor: selectedConversation.agent.isActive ? '#52c41a' : '#d9d9d9',
-                  }}
-                />
-                <Text type="secondary">{selectedConversation.agent.name}</Text>
-                <Text type="secondary">•</Text>
-                <Avatar size="small" icon={<UserOutlined />} />
-                <Text type="secondary">
-                  {selectedConversation.user.nickname || selectedConversation.user.email}
-                </Text>
-              </div>
-            </div>
-          )
-        }
-        placement="right"
-        onClose={() => {
-          setDrawerVisible(false);
-          setSelectedConversation(null);
-          setMessages([]);
-        }}
+      <ConversationDrawer
         open={drawerVisible}
-        width={600}
-      >
-        {selectedConversation && (
-          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* Conversation Summary */}
-            {selectedConversation.summary && (
-              <>
-                <Card size="small" style={{ marginBottom: '16px' }}>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    Summary:
-                  </Text>
-                  <Paragraph style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
-                    {selectedConversation.summary}
-                  </Paragraph>
-                </Card>
-              </>
-            )}
-
-            {/* Messages */}
-            <div style={{ flex: 1, overflow: 'auto', marginBottom: '16px' }}>
-              {messagesLoading ? (
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                  <Spin />
-                </div>
-              ) : messages.length === 0 ? (
-                <Empty description="No messages yet" />
-              ) : (
-                <List
-                  dataSource={messages}
-                  renderItem={(message) => (
-                    <List.Item style={{ border: 'none', padding: '8px 0' }}>
-                      <div
-                        style={{
-                          width: '100%',
-                          display: 'flex',
-                          justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
-                        }}
-                      >
-                        <div
-                          style={{
-                            maxWidth: '80%',
-                            display: 'flex',
-                            gap: '8px',
-                            alignItems: 'flex-start',
-                            flexDirection: message.sender === 'user' ? 'row-reverse' : 'row',
-                          }}
-                        >
-                          <Avatar
-                            size="small"
-                            icon={message.sender === 'user' ? <UserOutlined /> : <RobotOutlined />}
-                            style={{
-                              backgroundColor: message.sender === 'user' ? '#1890ff' : '#52c41a',
-                              flexShrink: 0,
-                            }}
-                          />
-                          <div
-                            style={{
-                              background: message.sender === 'user' ? '#1890ff' : '#f0f2f5',
-                              color: message.sender === 'user' ? '#fff' : '#333',
-                              padding: '8px 12px',
-                              borderRadius: '12px',
-                              wordBreak: 'break-word',
-                            }}
-                          >
-                            <div style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div>
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginTop: '4px',
-                              }}
-                            >
-                              <Text
-                                style={{
-                                  fontSize: '11px',
-                                  opacity: 0.7,
-                                  color: message.sender === 'user' ? '#fff' : '#666',
-                                }}
-                              >
-                                {getMessageTimeAgo(message.createdAt)}
-                              </Text>
-                              {message.tokens && (
-                                <Text
-                                  style={{
-                                    fontSize: '11px',
-                                    opacity: 0.7,
-                                    color: message.sender === 'user' ? '#fff' : '#666',
-                                  }}
-                                >
-                                  {message.tokens} tokens
-                                </Text>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </List.Item>
-                  )}
-                />
-              )}
-            </div>
-
-            {/* Message Input */}
-            {selectedConversation.isActive && (
-              <>
-                <Divider style={{ margin: '12px 0' }} />
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-                  <TextArea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder={`Message ${selectedConversation.agent.name}...`}
-                    autoSize={{ minRows: 1, maxRows: 4 }}
-                    style={{ flex: 1 }}
-                    disabled={sending}
-                  />
-                  <Button
-                    type="primary"
-                    icon={<SendOutlined />}
-                    onClick={sendMessage}
-                    disabled={!newMessage.trim() || sending}
-                    loading={sending}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </Drawer>
+        selectedConversation={selectedConversation}
+        messages={messages}
+        messagesLoading={messagesLoading}
+        newMessage={newMessage}
+        sending={sending}
+        getMessageTimeAgo={getMessageTimeAgo}
+        handleKeyPress={handleKeyPress}
+        setDrawerVisible={setDrawerVisible}
+        setSelectedConversation={setSelectedConversation}
+        setMessages={setMessages}
+        setNewMessage={setNewMessage}
+        sendMessage={sendMessage}
+      />
     </div>
   );
 }
