@@ -2,6 +2,7 @@ import { ThunderboltOutlined } from '@ant-design/icons';
 import { Input, message, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getApiInstance } from '../apis/index.ts';
+import { LLMDebugApi } from '../apis/LLMDebugApi.ts';
 import { useAIGenerateProvider } from '../providers/AIGenerateProvider.tsx';
 
 interface AIGenerateInputProps {
@@ -72,15 +73,16 @@ const AIGenerateInput: React.FC<AIGenerateInputProps> = ({
     setLoading(true);
     const controller = new AbortController();
     setAbortController(controller);
+
     try {
-      const agent = agents.find((a: any) => a.value === selectedAgent?.value) || agents[0];
-      const model = models.find((m: any) => m.value === selectedModel?.value) || models[0];
-      const axios = getApiInstance();
-      const res = await axios.post(
-        apiPath || '/admin/prompts/generate',
-        { prompt, agentId: agent?.id, modelId: model?.id },
-        { signal: controller.signal }
-      );
+      // Use agentId/modelId from provider
+      const agentId = selectedAgent?.value || selectedAgent?.id || null;
+      const modelId = selectedModel?.value || selectedModel?.id || null;
+      const res = await LLMDebugApi.generateDebug({
+        prompt,
+        agentId,
+        modelId,
+      });
       if (res.data && res.data.data?.data) {
         setInputValue(res.data.data.data);
         setContextValue(res.data.data.data);

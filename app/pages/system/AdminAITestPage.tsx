@@ -2,23 +2,21 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Input, List, Modal, Row, Select, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import EditPromptModal from '~/components/EditPromptModal.tsx';
-import { adminApi } from '../../apis/admin.api.ts';
+import { LLMDebugApi } from '../../apis/LLMDebugApi.ts';
 import AIGenerateInput from '../../components/AIGenerateInput.tsx';
 import { AIGenerateProvider, useAIGenerateProvider } from '../../providers/AIGenerateProvider.tsx';
-
 const { Title } = Typography;
 
 function AdminAITestContent() {
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
   // Handler to call backend and display debug info
+  const { selectedModel } = useAIGenerateProvider();
   const handleAIGenerateDebug = async () => {
     try {
-      const { getApiInstance } = require('../../apis/index.ts');
-      const apiInstance = getApiInstance();
-      const agentId = selectedAgent?.value;
-      const modelId = null;
-      const res = await apiInstance.post('/admin/prompts/generate', {
+      const agentId = selectedAgent?.value || selectedAgent?.id || null;
+      const modelId = selectedModel?.value || selectedModel?.id || null;
+      const res = await LLMDebugApi.generateDebug({
         prompt: selectedPrompt,
         agentId,
         modelId,
