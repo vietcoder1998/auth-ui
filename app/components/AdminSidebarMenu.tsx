@@ -80,6 +80,24 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <FileTextOutlined />,
         label: 'Memory',
       },
+      // Documents group moved here
+      {
+        key: '/admin/system/documents-group',
+        icon: <FileTextOutlined />,
+        label: 'Documents',
+        children: [
+          {
+            key: '/admin/system/documents',
+            icon: <FileTextOutlined />,
+            label: 'Document List',
+          },
+          {
+            key: '/admin/system/files',
+            icon: <FileOutlined />,
+            label: 'File List',
+          },
+        ],
+      },
     ],
   },
   {
@@ -156,23 +174,6 @@ export const defaultSidebarMenu: MenuItem[] = [
         key: '/admin/settings/api-keys',
         icon: <KeyOutlined style={{ fontSize: 15 }} />,
         label: 'API Keys',
-      },
-    ],
-  },
-  {
-    key: '/admin/system/documents-group',
-    icon: <FileTextOutlined />,
-    label: 'Documents',
-    children: [
-      {
-        key: '/admin/system/documents',
-        icon: <FileTextOutlined />,
-        label: 'Document List',
-      },
-      {
-        key: '/admin/system/files',
-        icon: <FileOutlined />,
-        label: 'File List',
       },
     ],
   },
