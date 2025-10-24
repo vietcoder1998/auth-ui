@@ -58,6 +58,8 @@ export default [
     route('settings/config', 'pages/settings/AdminConfigPage.tsx'), // /admin/settings/config
     route('settings/seed', 'pages/settings/AdminSeedPage.tsx'), // /admin/settings/seed
     route('settings/database', 'pages/settings/AdminDatabasePage.tsx'), // /admin/settings/database
+    // Cookie Demo page
+    route('settings/cookie-demo', 'pages/settings/AdminCookieHandle.tsx'), // /admin/settings/cookie-demo
   ]),
 
   // Blog page
