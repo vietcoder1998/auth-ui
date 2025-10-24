@@ -1,5 +1,5 @@
 import { RobotOutlined } from '@ant-design/icons';
-import { Card, Divider, Input, Select, Typography, message } from 'antd';
+import { Card, Divider, message } from 'antd';
 import Cookies from 'js-cookie';
 import React, { useEffect, useRef, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
@@ -7,10 +7,6 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { LLMChatHeader } from './llmchat/LLMChatHeader.tsx';
 import { LLMChatInput } from './llmchat/LLMChatInput.tsx';
 import { LLMChatMessages } from './llmchat/LLMChatMessages.tsx';
-
-const { TextArea } = Input;
-const { Text, Paragraph } = Typography;
-const { Option } = Select;
 
 export interface Message {
   id: string;
@@ -62,7 +58,6 @@ export interface Conversation {
 }
 
 export default function LLMChat() {
-  const { token } = useAuth();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<string>('');
