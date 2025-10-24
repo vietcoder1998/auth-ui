@@ -19,6 +19,7 @@ import {
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React from 'react';
+import Cookies from 'js-cookie';
 
 export type MenuItem = {
   key: string;
@@ -207,6 +208,12 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <ThunderboltOutlined style={{ fontSize: 15 }} />,
         label: 'Socket Connections',
       },
+      // Cookie Demo Item
+      {
+        key: '/admin/settings/cookie-demo',
+        icon: <BellOutlined />,
+        label: 'Cookie Demo',
+      },
     ],
   },
   {
@@ -303,12 +310,17 @@ const AdminSidebarMenu: React.FC<{
   selectedKeys?: string[];
 }> = ({ role, onMenuClick, selectedKeys }) => {
   const menuItems = mapMenuItems(useSidebarMenu(role));
+  const handleMenuClick = ({ key }: { key: string }) => {
+    // Save last clicked menu key to cookie
+    Cookies.set('lastMenuKey', key, { expires: 7 });
+    onMenuClick?.(key);
+  };
   return (
     <Menu
       mode="inline"
       items={menuItems as any}
       selectedKeys={selectedKeys}
-      onClick={({ key }) => onMenuClick?.(key)}
+      onClick={handleMenuClick}
       style={{ height: '100%', borderRight: 0, fontSize: 13 }}
       inlineIndent={12}
     />
