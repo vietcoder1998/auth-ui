@@ -122,7 +122,15 @@ export default function AdminNotificationDropdown() {
             }}
           />
           {errors.length > 1 && (
-            <div style={{ textAlign: 'right', padding: '8px 16px' }}>
+            <div
+              style={{
+                textAlign: 'right',
+                padding: '8px 16px',
+                display: 'flex',
+                gap: 8,
+                justifyContent: 'flex-end',
+              }}
+            >
               <Button
                 size="small"
                 type="link"
@@ -130,6 +138,26 @@ export default function AdminNotificationDropdown() {
                 style={{ fontSize: '11px' }}
               >
                 Dismiss All
+              </Button>
+              <Button
+                size="small"
+                type="primary"
+                style={{ fontSize: '11px' }}
+                onClick={async () => {
+                  for (const data of errors) {
+                    const error = JSON.parse(data.errorPayload);
+                    setFixingId(data.id);
+                    await fixPermission(data.id, error, dismissError);
+                    setFixingId(null);
+                    setFixedIds((ids) => [...ids, data.id]);
+                    setTimeout(() => {
+                      setFixedIds((ids) => ids.filter((id) => id !== data.id));
+                      dismissError(data.id);
+                    }, 5000);
+                  }
+                }}
+              >
+                Resolve All
               </Button>
             </div>
           )}
