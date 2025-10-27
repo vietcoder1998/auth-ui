@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Space, Popconfirm, Tag } from 'antd';
+import { Table, Button, Modal, Form, Input, message, Space, Popconfirm, Tag, Tabs } from 'antd';
 import { ToolApi } from '../../../../apis/admin.api.ts';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
+
+const { TabPane } = Tabs;
 
 interface Tool {
   id: string;
@@ -123,7 +126,7 @@ const AdminToolPage: React.FC = () => {
     },
   ];
 
-  return (
+  const ToolListTab = () => (
     <div>
       <Button
         type="primary"
@@ -163,22 +166,32 @@ const AdminToolPage: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-            {' '}
-            <Input />{' '}
+            <Input />
           </Form.Item>
           <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-            {' '}
-            <Input />{' '}
+            <Input />
           </Form.Item>
           <Form.Item name="config" label="Config">
-            {' '}
-            <Input.TextArea rows={3} />{' '}
+            <Input.TextArea rows={3} />
           </Form.Item>
           <Form.Item name="enabled" label="Enabled" valuePropName="checked">
             <Input type="checkbox" />
           </Form.Item>
         </Form>
       </Modal>
+    </div>
+  );
+
+  return (
+    <div>
+      <Tabs defaultActiveKey="tools">
+        <TabPane tab="Tools" key="tools">
+          <ToolListTab />
+        </TabPane>
+        <TabPane tab="Tool Commands" key="commands">
+          <AdminToolCommandListPage />
+        </TabPane>
+      </Tabs>
     </div>
   );
 };
