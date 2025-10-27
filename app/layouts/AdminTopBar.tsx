@@ -1,6 +1,6 @@
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import { Dropdown, Input, List, Spin, Tag } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { adminApi } from '~/apis/admin.api.ts';
 import AdminNotificationDropdown from '~/components/AdminNotificationDropdown.tsx';
 import AppBackEndStatus from '~/components/AppBackEndStatus.tsx';
@@ -167,6 +167,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
   const [searchResults, setSearchResults] = React.useState<SearchResultItem[]>([]);
   const [searchVisible, setSearchVisible] = React.useState<boolean>(false);
   const [searchLoading, setSearchLoading] = React.useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState(false);
   const isMobile = window.innerWidth <= 768;
 
   // Extract extra info from systemStatus
@@ -175,6 +176,10 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
   const jobs = Array.isArray(systemStatus?.jobs) ? systemStatus.jobs : [];
   const processId = systemStatus?.childProcess?.pid;
   const childProcessInfo = systemStatus?.childProcess;
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
+  };
 
   React.useEffect(() => {
     if (search.length < 2) {
@@ -200,7 +205,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
       style={{
         background: '#fff',
         borderBottom: '1px solid #eee',
-        padding: isMobile ? '12px 8px' : 24,
+        padding: collapsed ? (isMobile ? '6px 8px' : '8px 24px') : isMobile ? '12px 8px' : 24,
         height: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -209,46 +214,80 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
         position: 'sticky',
         top: 0,
         zIndex: 1000,
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
       }}
+      onClick={toggleCollapse}
     >
-      {/* System Info Header - now using AppBackEndStatus */}
-      <AppBackEndStatus status={systemStatus || undefined} />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? 8 : 12,
-          justifyContent: isMobile ? 'flex-start' : 'space-between',
-          width: '100%',
-          marginTop: isMobile ? 8 : 20,
-        }}
-      >
-        <div style={{ width: isMobile ? '100%' : 'auto' }}>
-          <AdminSearchDropdown
-            search={search}
-            setSearch={setSearch}
-            searchResults={searchResults}
-            searchVisible={searchVisible}
-            setSearchVisible={setSearchVisible}
-            searchLoading={searchLoading}
-          />
-        </div>
+      {!collapsed && (
+        <>
+          {/* System Info Header - now using AppBackEndStatus */}
+          <AppBackEndStatus status={systemStatus || undefined} />
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'stretch' : 'center',
+              gap: isMobile ? 8 : 12,
+              justifyContent: isMobile ? 'flex-start' : 'space-between',
+              width: '100%',
+              marginTop: isMobile ? 8 : 20,
+            }}
+          >
+            <div style={{ width: isMobile ? '100%' : 'auto' }}>
+              <AdminSearchDropdown
+                search={search}
+                setSearch={setSearch}
+                searchResults={searchResults}
+                searchVisible={searchVisible}
+                setSearchVisible={setSearchVisible}
+                searchLoading={searchLoading}
+              />
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: isMobile ? 8 : 12,
+                justifyContent: isMobile ? 'flex-end' : undefined,
+                width: isMobile ? '100%' : 'auto',
+                marginTop: isMobile ? 8 : 0,
+              }}
+            >
+              <StatusIndicator />
+              <AdminNotificationDropdown />
+              <AdminProfileMenu user={user} />
+            </div>
+          </div>
+        </>
+      )}
+      {collapsed && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: isMobile ? 8 : 12,
-            justifyContent: isMobile ? 'flex-end' : undefined,
-            width: isMobile ? '100%' : 'auto',
-            marginTop: isMobile ? 8 : 0,
+            justifyContent: 'space-between',
+            width: '100%',
           }}
         >
-          <StatusIndicator />
-          <AdminNotificationDropdown />
-          <AdminProfileMenu user={user} />
+          <span style={{ fontSize: '12px', color: '#999' }}>Click to expand top bar</span>
+          <span style={{ fontSize: '12px', color: '#999' }}>
+            <DownOutlined />
+          </span>
         </div>
-      </div>
+      )}
+      {!collapsed && (
+        <span
+          style={{
+            fontSize: '12px',
+            color: '#999',
+            textAlign: 'right',
+            marginTop: 8,
+          }}
+        >
+          <UpOutlined />
+        </span>
+      )}
     </div>
   );
 };

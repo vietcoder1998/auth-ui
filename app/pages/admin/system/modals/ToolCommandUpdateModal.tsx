@@ -1,7 +1,7 @@
-import { Button, Divider, Form, Input, Modal, Select, Spin, Typography } from 'antd';
+import { Button, Collapse, Divider, Form, Input, Modal, Select, Spin, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
-import { ToolApi, ToolCommandApi } from '../../../../apis/admin.api.ts';
+import { ToolApi, ToolCommandApi, AgentApi } from '../../../../apis/admin.api.ts';
 
 interface ToolCommandUpdateModalProps {
   visible: boolean;
@@ -24,6 +24,9 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
   const [processing, setProcessing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toolOptions, setToolOptions] = useState<{ label: string; value: string }[]>([]);
+  const [agentOptions, setAgentOptions] = useState<{ label: string; value: string }[]>([]);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(undefined);
+  const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
 
   // Fetch command data by id when editingCommand changes
   useEffect(() => {
@@ -55,8 +58,22 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
         }
       } catch {}
     };
+    const fetchAgents = async () => {
+      try {
+        const res = await AgentApi.getAgents();
+        if (Array.isArray(res?.data?.data)) {
+          setAgentOptions(
+            res.data.data.map((agent: any) => ({
+              label: agent.name || agent.id,
+              value: agent.id,
+            }))
+          );
+        }
+      } catch {}
+    };
     fetchCommand();
     fetchTools();
+    fetchAgents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
@@ -68,7 +85,11 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
       // Simulate API call
       const values = form.getFieldsValue();
       // TODO: Replace with actual process command API call
-      const result = await ToolCommandApi.processCommand(values);
+      const result = await ToolCommandApi.processCommand({
+        ...values,
+        agentId: selectedAgentId,
+        type: selectedType,
+      });
       setProcessResult(result);
     } catch (error: any) {
       setProcessResult({ success: false, error: error?.message || 'Error processing command' });
@@ -127,59 +148,142 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
           </div>
           <div style={{ flex: 1, minWidth: 320, borderLeft: '1px solid #f0f0f0', paddingLeft: 24 }}>
             <Title level={5}>Process Command</Title>
+            <div style={{ marginBottom: 12 }}>
+              <Text strong>Select Type:</Text>
+              <Select
+                placeholder="Select command type"
+                options={[
+                  { label: 'Execute', value: 'execute' },
+                  { label: 'Query', value: 'query' },
+                  { label: 'Update', value: 'update' },
+                  { label: 'Create', value: 'create' },
+                  { label: 'Delete', value: 'delete' },
+                  { label: 'Transform', value: 'transform' },
+                ]}
+                value={selectedType}
+                onChange={setSelectedType}
+                allowClear
+                style={{ width: '100%', marginTop: 8 }}
+              />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <Text strong>Select Agent:</Text>
+              <Select
+                placeholder="Select an agent to process the command"
+                options={agentOptions}
+                value={selectedAgentId}
+                onChange={setSelectedAgentId}
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                style={{ width: '100%', marginTop: 8 }}
+              />
+            </div>
             <Button
               type="primary"
               onClick={handleProcessCommand}
               loading={processing}
-              style={{ marginBottom: 12 }}
+              disabled={!selectedAgentId || !selectedType}
+              style={{ marginBottom: 12, width: '100%' }}
             >
               Process
             </Button>
             <Divider style={{ margin: '12px 0' }} />
             <div style={{ marginBottom: 12 }}>
-              <Text strong>Config (parameters):</Text>
+              <Text strong style={{ fontSize: 12 }}>
+                Header Config:
+              </Text>
               <pre
                 style={{
-                  margin: 0,
+                  margin: '4px 0 0 0',
                   background: '#f6f8fa',
                   borderRadius: 4,
                   padding: 8,
-                  fontSize: 13,
+                  fontSize: 11,
                   fontFamily: 'monospace',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-all',
+                  maxHeight: 100,
+                  overflow: 'auto',
                 }}
               >
                 {(() => {
                   try {
-                    const params = form.getFieldValue('parameters');
+                    const headerConfig = {
+                      type: selectedType || 'not selected',
+                      agentId: selectedAgentId || 'not selected',
+                    };
+                    return JSON.stringify(headerConfig, null, 2);
+                  } catch {
+                    return 'No header config.';
+                  }
+                })()}
+              </pre>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <Text strong style={{ fontSize: 12 }}>
+                Payload Config:
+              </Text>
+              <pre
+                style={{
+                  margin: '4px 0 0 0',
+                  background: '#f6f8fa',
+                  borderRadius: 4,
+                  padding: 8,
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all',
+                  maxHeight: 100,
+                  overflow: 'auto',
+                }}
+              >
+                {(() => {
+                  try {
+                    const params = form.getFieldValue('params');
                     if (!params) return 'No parameters.';
                     if (typeof params === 'string') {
                       return JSON.stringify(JSON.parse(params), null, 2);
                     }
                     return JSON.stringify(params, null, 2);
                   } catch {
-                    return String(form.getFieldValue('parameters'));
+                    return String(form.getFieldValue('params'));
                   }
                 })()}
               </pre>
             </div>
-            <div
-              style={{
-                minHeight: 120,
-                background: '#fafafa',
-                borderRadius: 4,
-                padding: 12,
-                fontSize: 13,
-                fontFamily: 'monospace',
-                overflow: 'auto',
-              }}
-            >
-              <Text strong>Debug Output:</Text>
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                {processResult ? JSON.stringify(processResult, null, 2) : 'No output yet.'}
-              </pre>
-            </div>
+            <Collapse
+              defaultActiveKey={['1']}
+              size="small"
+              items={[
+                {
+                  key: '1',
+                  label: (
+                    <Text strong style={{ fontSize: 12 }}>
+                      Debug Output
+                    </Text>
+                  ),
+                  children: (
+                    <div
+                      style={{
+                        minHeight: 120,
+                        maxHeight: 400,
+                        background: '#fafafa',
+                        borderRadius: 4,
+                        padding: 12,
+                        fontSize: 11,
+                        fontFamily: 'monospace',
+                        overflow: 'auto',
+                      }}
+                    >
+                      <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                        {processResult ? JSON.stringify(processResult, null, 2) : 'No output yet.'}
+                      </pre>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
       </Spin>

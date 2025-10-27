@@ -80,6 +80,7 @@ const systemPageMap: Record<string, React.ComponentType> = {
  * - /admin/system/ai-keys -> AdminAIKeyPage
  * - /admin/system/billings -> AdminBillingPage
  * - /admin/system/ai-models -> AdminModelPage
+ * - /admin/system/tools -> AdminToolPage
  */
 export default function SystemPage() {
   const { name } = useParams<{ name: string }>();

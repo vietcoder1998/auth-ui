@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Form, message, Space, Popconfirm, Tag } from 'antd';
+import { useNavigate } from 'react-router';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ToolCommandCreateModal from '../modals/ToolCommandCreateModal.tsx';
@@ -18,6 +19,7 @@ interface ToolCommand {
 }
 
 const AdminToolCommandListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [commands, setCommands] = useState<ToolCommand[]>([]);
   const [loading, setLoading] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -92,9 +94,8 @@ const AdminToolCommandListPage: React.FC = () => {
 
   const openEditModal = (command: ToolCommand) => {
     console.log(command);
-    setEditingCommand(command);
-    form.setFieldsValue(command);
-    setUpdateModalVisible(true);
+    // Navigate to the new edit page instead of opening modal
+    navigate(`/admin/system/tools/${command.id}`);
   };
 
   const columns = [
