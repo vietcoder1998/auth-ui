@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Form, message, Space, Popconfirm, Tag, Tabs } from 'antd';
-import { ToolApi } from '../../../../apis/admin.api.ts';
 import { adminApi } from '../../../../apis/admin.api.ts';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import ToolModal from '../modal/ToolModal.tsx';
+import { ToolApiInstance } from '~/apis/adminApi/ToolApi.ts';
 
 const { TabPane } = Tabs;
 
@@ -19,6 +19,20 @@ interface Tool {
 }
 
 const AdminToolPage: React.FC = () => {
+  // Fetch a single tool by ID
+  const fetchTool = async (id: string): Promise<Tool | null> => {
+    try {
+      const response = await ToolApiInstance.getById(id);
+      const data = response.data?.data;
+      if (data && typeof data === 'object' && data.id === id) {
+        return data;
+      }
+      return null;
+    } catch (error) {
+      message.error('Failed to fetch tool');
+      return null;
+    }
+  };
   const [tools, setTools] = useState<Tool[]>([]);
   const [filteredTools, setFilteredTools] = useState<Tool[]>([]);
   const [availableTools, setAvailableTools] = useState<Tool[]>([]);
@@ -33,7 +47,7 @@ const AdminToolPage: React.FC = () => {
   const fetchTools = async () => {
     setLoading(true);
     try {
-      const response = await ToolApi.getTools();
+      const response = await ToolApiInstance.getAll();
       const toolsData = response.data.data.data || [];
       setTools(toolsData);
       setFilteredTools(toolsData);
@@ -105,7 +119,7 @@ const AdminToolPage: React.FC = () => {
 
   const handleCreate = async (values: any) => {
     try {
-      await ToolApi.createTool(values);
+      await ToolApiInstance.create(values);
       message.success('Tool created');
       setModalVisible(false);
       form.resetFields();
@@ -118,7 +132,7 @@ const AdminToolPage: React.FC = () => {
   const handleEdit = async (values: any) => {
     if (!editingTool) return;
     try {
-      await ToolApi.updateTool(editingTool.id, values);
+      await ToolApiInstance.update(editingTool.id, values);
       message.success('Tool updated');
       setModalVisible(false);
       setEditingTool(null);
@@ -131,7 +145,7 @@ const AdminToolPage: React.FC = () => {
 
   const handleDelete = async (tool: Tool) => {
     try {
-      await ToolApi.deleteTool(tool.id);
+      await ToolApiInstance.delete(tool.id);
       message.success('Tool deleted');
       fetchTools();
     } catch (error) {
@@ -252,6 +266,7 @@ const AdminToolPage: React.FC = () => {
         }}
         onCreate={handleCreate}
         onEdit={handleEdit}
+        fetchTool={fetchTool}
       />
     </div>
   );
