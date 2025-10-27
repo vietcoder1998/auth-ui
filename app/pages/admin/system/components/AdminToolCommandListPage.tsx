@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Space, Popconfirm, Tag, Select } from 'antd';
+import { Table, Button, Form, message, Space, Popconfirm, Tag } from 'antd';
+import CommonSearch from '../../../../components/CommonSearch.tsx';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import ToolCommandCreateModal from '../modals/ToolCommandCreateModal.tsx';
+import ToolCommandUpdateModal from '../modals/ToolCommandUpdateModal.tsx';
 import { ToolCommandApi } from '../../../../apis/admin.api.ts';
 
 interface ToolCommand {
@@ -17,15 +20,19 @@ interface ToolCommand {
 const AdminToolCommandListPage: React.FC = () => {
   const [commands, setCommands] = useState<ToolCommand[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingCommand, setEditingCommand] = useState<ToolCommand | null>(null);
   const [form] = Form.useForm();
 
-  const fetchCommands = async () => {
+  const [searchValue, setSearchValue] = useState('');
+
+  const fetchCommands = async (search?: string) => {
     setLoading(true);
     try {
-      const response = await ToolCommandApi.getToolCommands();
-      setCommands(response.data.data || []);
+      const params = search ? { q: search } : undefined;
+      const response = await ToolCommandApi.getToolCommands(params);
+      setCommands(response.data.data.data || []);
     } catch (error) {
       message.error('Failed to fetch tool commands');
     } finally {
@@ -37,11 +44,16 @@ const AdminToolCommandListPage: React.FC = () => {
     fetchCommands();
   }, []);
 
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    fetchCommands(value);
+  };
+
   const handleCreate = async (values: any) => {
     try {
       await ToolCommandApi.createToolCommand(values);
       message.success('Tool command created');
-      setModalVisible(false);
+      setCreateModalVisible(false);
       form.resetFields();
       fetchCommands();
     } catch (error) {
@@ -54,7 +66,7 @@ const AdminToolCommandListPage: React.FC = () => {
     try {
       await ToolCommandApi.updateToolCommand(editingCommand.id, values);
       message.success('Tool command updated');
-      setModalVisible(false);
+      setUpdateModalVisible(false);
       setEditingCommand(null);
       form.resetFields();
       fetchCommands();
@@ -76,16 +88,26 @@ const AdminToolCommandListPage: React.FC = () => {
   const openCreateModal = () => {
     setEditingCommand(null);
     form.resetFields();
-    setModalVisible(true);
+    setCreateModalVisible(true);
   };
 
   const openEditModal = (command: ToolCommand) => {
+    console.log(command);
     setEditingCommand(command);
     form.setFieldsValue(command);
-    setModalVisible(true);
+    setUpdateModalVisible(true);
   };
 
   const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      render: (id: string, record: ToolCommand) => (
+        <input type="checkbox" checked={!!id} readOnly style={{ pointerEvents: 'none' }} />
+      ),
+      width: 60,
+    },
     {
       title: 'Name',
       dataIndex: 'name',
@@ -136,6 +158,15 @@ const AdminToolCommandListPage: React.FC = () => {
 
   return (
     <div>
+      <CommonSearch
+        searchPlaceholder="Search by name, description, or command"
+        searchValue={searchValue}
+        onSearch={handleSearch}
+        onRefresh={() => fetchCommands(searchValue)}
+        loading={loading}
+        showRefresh
+        style={{ marginBottom: 16 }}
+      />
       <Button
         type="primary"
         icon={<PlusOutlined />}
@@ -151,48 +182,22 @@ const AdminToolCommandListPage: React.FC = () => {
         rowKey="id"
         pagination={{ pageSize: 10 }}
       />
-      <Modal
-        title={editingCommand ? 'Edit Tool Command' : 'Add Tool Command'}
-        open={modalVisible}
+      <ToolCommandCreateModal
+        visible={createModalVisible}
+        onCancel={() => setCreateModalVisible(false)}
+        onCreate={handleCreate}
+        form={form}
+      />
+      <ToolCommandUpdateModal
+        visible={updateModalVisible}
         onCancel={() => {
-          setModalVisible(false);
+          setUpdateModalVisible(false);
           setEditingCommand(null);
         }}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
-              if (editingCommand) {
-                handleEdit(values);
-              } else {
-                handleCreate(values);
-              }
-            })
-            .catch(() => {});
-        }}
-        okText={editingCommand ? 'Update' : 'Create'}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={2} />
-          </Form.Item>
-          <Form.Item name="command" label="Command" rules={[{ required: true }]}>
-            <Input placeholder="e.g., execute, query, transform" />
-          </Form.Item>
-          <Form.Item name="parameters" label="Parameters (JSON)">
-            <Input.TextArea rows={3} placeholder='{"param1": "value1", "param2": "value2"}' />
-          </Form.Item>
-          <Form.Item name="toolId" label="Tool ID" rules={[{ required: true }]}>
-            <Input placeholder="Associated tool ID" />
-          </Form.Item>
-          <Form.Item name="enabled" label="Enabled" valuePropName="checked">
-            <Input type="checkbox" />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onUpdate={handleEdit}
+        form={form}
+        editingCommand={editingCommand}
+      />
     </div>
   );
 };
