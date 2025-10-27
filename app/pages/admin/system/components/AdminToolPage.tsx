@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Form, message, Space, Popconfirm, Tag, Tabs } from 'antd';
 import { ToolApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '../../../../apis/admin.api.ts';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
@@ -21,6 +22,7 @@ const AdminToolPage: React.FC = () => {
   const [tools, setTools] = useState<Tool[]>([]);
   const [filteredTools, setFilteredTools] = useState<Tool[]>([]);
   const [availableTools, setAvailableTools] = useState<Tool[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
@@ -88,7 +90,18 @@ const AdminToolPage: React.FC = () => {
 
   useEffect(() => {
     fetchTools();
+    fetchAgents();
   }, []);
+
+  const fetchAgents = async () => {
+    try {
+      const response = await adminApi.getAgents();
+      const agents = response.data.data || [];
+      setAvailableAgents(agents.map((a: any) => ({ id: a.id, name: a.name })));
+    } catch (error) {
+      message.error('Failed to fetch agents');
+    }
+  };
 
   const handleCreate = async (values: any) => {
     try {
@@ -134,10 +147,10 @@ const AdminToolPage: React.FC = () => {
 
   const openEditModal = (tool: Tool) => {
     setEditingTool(tool);
-    // Populate form fields; if tool has relatedToolIds use it, otherwise empty
+    // Populate form fields; if tool has relatedAgentIds use it, otherwise empty
     form.setFieldsValue({
       ...tool,
-      relatedToolIds: (tool as any).relatedToolIds || [],
+      relatedAgentIds: (tool as any).relatedAgentIds || [],
     });
     setModalVisible(true);
   };
@@ -231,7 +244,7 @@ const AdminToolPage: React.FC = () => {
       <ToolModal
         visible={modalVisible}
         editingTool={editingTool}
-        availableTools={availableTools}
+        availableAgents={availableAgents}
         form={form}
         onCancel={() => {
           setModalVisible(false);
