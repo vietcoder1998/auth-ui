@@ -7,7 +7,7 @@ import CommonSearch from '../../../../components/CommonSearch.tsx';
 const { Title } = Typography;
 
 import AddAIKeyModal from '../../../../components/AddAIKeyModal.tsx';
-import AIKeyDetailModal from '../../../../modals/AIKeyDetailModal.tsx';
+import AIKeyDetailModal from '../modals/AIKeyDetailModal.tsx';
 
 export default function AdminAIKeyPage() {
   const [aiKeys, setAIKeys] = useState<any[]>([]);

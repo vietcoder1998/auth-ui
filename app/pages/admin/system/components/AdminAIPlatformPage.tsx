@@ -3,7 +3,7 @@ import { adminApi } from '../../../../apis/admin.api.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import AIPlatformModal from '../../../../modals/AIPlatformModal.tsx';
+import AIPlatformModal from '../modals/AIPlatformModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddAIPlatformModal for add/edit

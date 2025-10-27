@@ -1,6 +1,6 @@
 import { Modal, Form, Input, Select, Spin } from 'antd';
 import { useEffect, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../../../../apis/admin.api.ts';
 
 interface AIPlatformModalProps {
   visible: boolean;

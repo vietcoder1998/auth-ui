@@ -4,7 +4,7 @@ import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 // You should create AIModelModal similar to AIPlatformModal for add/edit
-import AIModelModal from '../../../../modals/AIModelModal.tsx';
+import AIModelModal from '../modals/AIModelModal.tsx';
 
 const { Title } = Typography;
 

@@ -32,7 +32,7 @@ import {
 import { useEffect, useState } from 'react';
 import { adminApi } from '../../../../apis/admin.api.ts';
 import { useAuth } from '../../../../hooks/useAuth.tsx';
-import AgentModal from '../../../../modal/AgentModal.tsx';
+import AgentModal from '../modals/AgentModal.tsx';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 
 type ColumnsType<T> = TableProps<T>['columns'];

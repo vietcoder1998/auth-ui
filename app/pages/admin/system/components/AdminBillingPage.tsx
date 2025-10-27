@@ -3,7 +3,7 @@ import { adminApi } from '../../../../apis/admin.api.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import BillingDetailModal from '../../../../modals/BillingDetailModal.tsx';
+import BillingDetailModal from '../modals/BillingDetailModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddBillingModal for add/edit
