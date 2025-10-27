@@ -135,7 +135,6 @@ const ToolModal: React.FC<ToolModalProps> = ({
               </Form.Item>
               {/* Related tools: multi-select with search */}
               <Form.Item name="relatedAgentIds" label="Related Agents">
-                {form.getFieldValue('relatedAgentIds')}
                 <Select
                   mode="multiple"
                   allowClear
