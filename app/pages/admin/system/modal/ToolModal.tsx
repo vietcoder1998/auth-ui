@@ -1,8 +1,6 @@
 import type { FormInstance } from 'antd';
-import { Descriptions, Form, Input, Modal, Select, Tabs } from 'antd';
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { Spin } from 'antd';
+import { Descriptions, Form, Input, Modal, Select, Spin, Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 interface Tool {
   id: string;
@@ -48,6 +46,7 @@ const ToolModal: React.FC<ToolModalProps> = ({
       setLoading(true);
       fetchTool(editingTool.id)
         .then((data) => {
+          console.log(data);
           setToolData(data);
           if (data) {
             form.setFieldsValue({
@@ -100,20 +99,17 @@ const ToolModal: React.FC<ToolModalProps> = ({
                 </Descriptions.Item>
                 <Descriptions.Item label="Created At">{toolData?.createdAt}</Descriptions.Item>
                 <Descriptions.Item label="Related Agents" span={3}>
-                  {Array.isArray((toolData as any)?.relatedAgentIds) &&
-                  (toolData as any)?.relatedAgentIds.length > 0 ? (
+                  {Array.isArray((toolData as any)?.agents) &&
+                  (toolData as any)?.agents.length > 0 ? (
                     <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                      {(toolData as any).relatedAgentIds.map((id: string) => {
-                        const agent = availableAgents.find((a) => a.id === id);
-                        return (
-                          <li key={id} style={{ marginBottom: 8 }}>
-                            <strong>{agent ? agent.name : id}</strong>
-                            <div style={{ fontSize: 12, color: '#888' }}>
-                              {agent && agent.model ? agent.model : 'Unknown Model'}
-                            </div>
-                          </li>
-                        );
-                      })}
+                      {(toolData as any).agents.map((agent: Agent) => (
+                        <li key={agent.id} style={{ marginBottom: 8 }}>
+                          <strong>{agent.name}</strong>
+                          <div style={{ fontSize: 12, color: '#888' }}>
+                            {agent.model ? agent.model : 'Unknown Model'}
+                          </div>
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     'None'
@@ -139,13 +135,14 @@ const ToolModal: React.FC<ToolModalProps> = ({
               </Form.Item>
               {/* Related tools: multi-select with search */}
               <Form.Item name="relatedAgentIds" label="Related Agents">
+                {form.getFieldValue('relatedAgentIds')}
                 <Select
                   mode="multiple"
                   allowClear
                   showSearch
                   placeholder="Select related agents"
                   optionFilterProp="children"
-                  value={form.getFieldValue('agentId') || []}
+                  value={form.getFieldValue('relatedAgentIds') || []}
                   filterOption={(input, option) =>
                     (option?.children as unknown as string)
                       .toLowerCase()

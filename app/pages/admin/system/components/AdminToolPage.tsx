@@ -23,7 +23,7 @@ const AdminToolPage: React.FC = () => {
   const fetchTool = async (id: string): Promise<Tool | null> => {
     try {
       const response = await ToolApiInstance.getById(id);
-      const data = response.data?.data;
+      const data = response.data?.data?.data;
       if (data && typeof data === 'object' && data.id === id) {
         return data;
       }
@@ -164,7 +164,7 @@ const AdminToolPage: React.FC = () => {
     // Populate form fields; if tool has relatedAgentIds use it, otherwise empty
     form.setFieldsValue({
       ...tool,
-      relatedAgentIds: (tool as any).relatedAgentIds || [],
+      relatedAgentIds: (tool as any).agents?.map((a: any) => a.id) || [],
     });
     setModalVisible(true);
   };
