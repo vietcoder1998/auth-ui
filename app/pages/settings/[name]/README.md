@@ -1,0 +1,43 @@
+/\*\*
+
+- Settings Routes Quick Reference
+-
+- All settings pages are now handled by a single dynamic route:
+- /admin/settings/:name
+-
+- To add a new settings page:
+-
+- 1.  Create your page component in `pages/settings/`
+- 2.  Import it in `pages/settings/[name]/page.tsx`
+- 3.  Add to the settingsPageMap object
+- 4.  Access via `/admin/settings/your-page-name`
+-
+- Example:
+-
+- // 1. Create pages/settings/AdminThemePage.tsx
+- export default function AdminThemePage() {
+- return <div>Theme Settings</div>;
+- }
+-
+- // 2. Import in pages/settings/[name]/page.tsx
+- import AdminThemePage from '../AdminThemePage.tsx';
+-
+- // 3. Add to settingsPageMap
+- const settingsPageMap = {
+- // ... existing mappings
+- 'theme': AdminThemePage,
+- };
+-
+- // 4. Access at /admin/settings/theme
+-
+- Available Settings Pages:
+- =========================
+-
+- - /admin/settings/api-keys -> API keys management
+- - /admin/settings/mail -> Mail settings
+- - /admin/settings/notifications -> Notification settings
+- - /admin/settings/config -> Configuration
+- - /admin/settings/seed -> Database seeding
+- - /admin/settings/database -> Database management
+- - /admin/settings/cookie-demo -> Cookie handling demo
+    \*/

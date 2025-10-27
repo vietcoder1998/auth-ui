@@ -1,0 +1,59 @@
+/\*\*
+
+- System Routes Quick Reference
+-
+- All system pages are now handled by a single dynamic route:
+- /admin/system/:name
+-
+- To add a new system page:
+-
+- 1.  Create your page component in `pages/system/`
+- 2.  Import it in `pages/system/[name]/page.tsx`
+- 3.  Add to the systemPageMap object
+- 4.  Access via `/admin/system/your-page-name`
+-
+- Example:
+-
+- // 1. Create pages/system/AdminToolsPage.tsx
+- export default function AdminToolsPage() {
+- return <div>Tools Page</div>;
+- }
+-
+- // 2. Import in pages/system/[name]/page.tsx
+- import AdminToolsPage from '../AdminToolsPage.tsx';
+-
+- // 3. Add to systemPageMap
+- const systemPageMap = {
+- // ... existing mappings
+- 'tools': AdminToolsPage,
+- };
+-
+- // 4. Access at /admin/system/tools
+-
+- Available System Pages:
+- ========================
+-
+- - /admin/system/users -> User management
+- - /admin/system/memory -> AI memory management
+- - /admin/system/tokens -> Token management
+- - /admin/system/roles -> Role management
+- - /admin/system/permissions -> Permission management
+- - /admin/system/sso -> SSO configuration
+- - /admin/system/login-history -> Login history
+- - /admin/system/logic-history -> Logic history
+- - /admin/system/cache -> Cache management
+- - /admin/system/logs -> System logs
+- - /admin/system/ai-test -> AI testing
+- - /admin/system/agents -> AI agents
+- - /admin/system/conversations -> Conversations
+- - /admin/system/prompt-history -> Prompt history
+- - /admin/system/faqs -> FAQ management
+- - /admin/system/jobs -> Job management
+- - /admin/system/sockets -> Socket configuration
+- - /admin/system/documents -> Document management
+- - /admin/system/files -> File management
+- - /admin/system/ai-platforms -> AI platforms
+- - /admin/system/ai-keys -> AI keys
+- - /admin/system/billings -> Billing management
+- - /admin/system/ai-models -> AI models
+    \*/
