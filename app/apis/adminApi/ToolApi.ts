@@ -10,6 +10,14 @@ export class ToolApi extends BaseApi {
     return BaseApi.staticGetAll('/admin/tools', params);
   }
 
+  static async getToolsByAgent(agentId: string, name?: string) {
+    const params: any = { agentId };
+    if (name) {
+      params.name = name;
+    }
+    return BaseApi.staticGetAll('/admin/tools', params);
+  }
+
   static async createTool(data: any) {
     return BaseApi.staticCreate('/admin/tools', data);
   }
