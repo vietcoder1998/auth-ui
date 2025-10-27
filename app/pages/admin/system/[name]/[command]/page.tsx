@@ -161,7 +161,7 @@ export default function ToolCommandEditPage() {
   return (
     <>
       <div className="mb-6">
-        <Button icon={<ArrowLeftOutlined />} onClick={handleBack} className="mb-4">
+        <Button size="small" icon={<ArrowLeftOutlined />} onClick={handleBack} className="mb-4">
           Back to {name}
         </Button>
         <Title level={2}>Edit Tool Command: {commandData?.name || command}</Title>
@@ -170,27 +170,36 @@ export default function ToolCommandEditPage() {
       <Row gutter={24}>
         {/* Left Panel - Form (3/12 = 25%) */}
         <Col xs={24} lg={9}>
-          <Card style={{ height: '100%' }}>
+          <Card size="small" style={{ height: '100%' }}>
             <Title level={4}>Command Details</Title>
-            <Form form={form} layout="vertical" onFinish={handleUpdate}>
+            <Form form={form} layout="vertical" onFinish={handleUpdate} size="small">
               <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-                <Input />
+                <Input size="small" />
               </Form.Item>
 
               <Form.Item name="description" label="Description">
-                <Input.TextArea rows={2} />
+                <Input.TextArea size="small" rows={2} />
               </Form.Item>
 
               <Form.Item name="params" label="Parameters (JSON)">
-                <Input.TextArea rows={4} placeholder='{"param1": "value1", "param2": "value2"}' />
+                <Input.TextArea
+                  size="small"
+                  rows={4}
+                  placeholder='{"param1": "value1", "param2": "value2"}'
+                />
               </Form.Item>
 
               <Form.Item name="exampleParams" label="Example Parameters (JSON)">
-                <Input.TextArea rows={4} placeholder='{"param1": "value1", "param2": "value2"}' />
+                <Input.TextArea
+                  size="small"
+                  rows={4}
+                  placeholder='{"param1": "value1", "param2": "value2"}'
+                />
               </Form.Item>
 
               <Form.Item name="toolId" label="Tool(s)" rules={[{ required: true }]}>
                 <Select
+                  size="small"
                   mode="multiple"
                   allowClear
                   placeholder="Select associated tool(s)"
@@ -202,10 +211,18 @@ export default function ToolCommandEditPage() {
               </Form.Item>
 
               <div style={{ display: 'flex', gap: 12 }}>
-                <Button type="primary" htmlType="submit" loading={saving} style={{ flex: 1 }}>
+                <Button
+                  size="small"
+                  type="primary"
+                  htmlType="submit"
+                  loading={saving}
+                  style={{ flex: 1 }}
+                >
                   Save Changes
                 </Button>
-                <Button onClick={handleBack}>Cancel</Button>
+                <Button size="small" onClick={handleBack}>
+                  Cancel
+                </Button>
               </div>
             </Form>
           </Card>
@@ -213,12 +230,13 @@ export default function ToolCommandEditPage() {
 
         {/* Right Panel - Process Command (9/12 = 75%) */}
         <Col xs={24} lg={15}>
-          <Card style={{ height: '100%' }}>
+          <Card size="small" style={{ height: '100%' }}>
             <Title level={4}>Process Command</Title>
 
             <div style={{ marginBottom: 12 }}>
               <Text strong>Select Type:</Text>
               <Select
+                size="small"
                 placeholder="Select command type"
                 options={[
                   { label: 'Execute', value: 'execute' },
@@ -238,6 +256,7 @@ export default function ToolCommandEditPage() {
             <div style={{ marginBottom: 12 }}>
               <Text strong>Select Agent:</Text>
               <Select
+                size="small"
                 placeholder="Select an agent to process the command"
                 options={agentOptions}
                 value={selectedAgentId}
@@ -251,6 +270,7 @@ export default function ToolCommandEditPage() {
 
             <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
               <Button
+                size="small"
                 type="primary"
                 icon={<BugOutlined />}
                 onClick={handleProcessCommand}
@@ -261,6 +281,7 @@ export default function ToolCommandEditPage() {
                 Test
               </Button>
               <Button
+                size="small"
                 type="default"
                 icon={<ThunderboltOutlined />}
                 onClick={handleExecuteCommand}
