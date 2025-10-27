@@ -9,7 +9,8 @@
     "typecheck": "react-router typegen && tsc",
     "test": "jest --passWithNoTests",
     "prepare": "husky install",
-    "docker:build": "docker build -t login-ui ."
+    "docker:build": "docker build -t login-ui .",
+    "docker:start": "docker run -p 3000:3000 login-ui"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,css,md}": [
