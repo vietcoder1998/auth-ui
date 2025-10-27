@@ -214,10 +214,8 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        cursor: 'pointer',
         transition: 'all 0.3s ease',
       }}
-      onClick={toggleCollapse}
     >
       {!collapsed && (
         <>
@@ -257,6 +255,28 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
               <StatusIndicator />
               <AdminNotificationDropdown />
               <AdminProfileMenu user={user} />
+              <button
+                onClick={toggleCollapse}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 4,
+                  marginLeft: 4,
+                  color: '#999',
+                  fontSize: 16,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#1890ff')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#999')}
+                title="Collapse top bar"
+                aria-label="Collapse top bar"
+              >
+                <UpOutlined />
+              </button>
             </div>
           </div>
         </>
@@ -271,22 +291,28 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ profileMenuItems }) => {
           }}
         >
           <span style={{ fontSize: '12px', color: '#999' }}>Click to expand top bar</span>
-          <span style={{ fontSize: '12px', color: '#999' }}>
+          <button
+            onClick={toggleCollapse}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 4,
+              color: '#999',
+              fontSize: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#1890ff')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#999')}
+            title="Expand top bar"
+            aria-label="Expand top bar"
+          >
             <DownOutlined />
-          </span>
+          </button>
         </div>
-      )}
-      {!collapsed && (
-        <span
-          style={{
-            fontSize: '12px',
-            color: '#999',
-            textAlign: 'right',
-            marginTop: 8,
-          }}
-        >
-          <UpOutlined />
-        </span>
       )}
     </div>
   );
