@@ -18,7 +18,7 @@ export class AgentApi extends BaseApi {
   static async getAgents(params?: any) {
     return BaseApi.staticGetAll('/admin/agents', params);
   }
-
+  //
   static async createAgent(data: any) {
     return BaseApi.staticCreate('/admin/agents', data);
   }
