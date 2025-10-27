@@ -24,7 +24,6 @@ const AdminToolCommandListPage: React.FC = () => {
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingCommand, setEditingCommand] = useState<ToolCommand | null>(null);
   const [form] = Form.useForm();
-
   const [searchValue, setSearchValue] = useState('');
 
   const fetchCommands = async (search?: string) => {
