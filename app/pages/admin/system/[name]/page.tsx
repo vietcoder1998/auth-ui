@@ -23,6 +23,7 @@ import AdminAIPlatformPage from '../components/AdminAIPlatformPage.tsx';
 import AdminAIKeyPage from '../components/AdminAIKeyPage.tsx';
 import AdminBillingPage from '../components/AdminBillingPage.tsx';
 import AdminModelPage from '../components/AdminModelPage.tsx';
+import AdminToolPage from '../components/AdminToolPage.tsx';
 
 // Route mapping for system pages
 const systemPageMap: Record<string, React.ComponentType> = {
@@ -49,6 +50,7 @@ const systemPageMap: Record<string, React.ComponentType> = {
   'ai-keys': AdminAIKeyPage,
   billings: AdminBillingPage,
   'ai-models': AdminModelPage,
+  tools: AdminToolPage,
 };
 
 /**

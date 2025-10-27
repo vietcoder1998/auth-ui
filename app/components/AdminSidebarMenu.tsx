@@ -15,11 +15,12 @@ import {
   SettingOutlined,
   TeamOutlined,
   ThunderboltOutlined,
+  ToolOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
-import React from 'react';
 import Cookies from 'js-cookie';
+import React from 'react';
 
 export type MenuItem = {
   key: string;
@@ -55,6 +56,11 @@ export const defaultSidebarMenu: MenuItem[] = [
         key: '/admin/system/ai-models',
         icon: <RobotOutlined />,
         label: 'AI Models',
+      },
+      {
+        key: '/admin/system/tools',
+        icon: <ToolOutlined style={{ fontSize: 15 }} />,
+        label: 'Tool Control',
       },
       {
         key: '/admin/system/conversations',
@@ -208,6 +214,7 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <ThunderboltOutlined style={{ fontSize: 15 }} />,
         label: 'Socket Connections',
       },
+
       // Cookie Demo Item
       {
         key: '/admin/settings/cookie-demo',
@@ -284,6 +291,7 @@ export function getIcon(iconName: string | React.ReactNode): React.ReactNode {
     HistoryOutlined: <HistoryOutlined />,
     AuditOutlined: <AuditOutlined />,
     ThunderboltOutlined: <ThunderboltOutlined />,
+    ToolOutlined: <ToolOutlined />,
   };
   return icons[iconName] || null;
 }
