@@ -106,8 +106,8 @@ export default function AdminUserPage() {
         const token = response.data.data.token || response.data.data.accessToken;
 
         if (token) {
-          // Create validation URL with token
-          const validationUrl = `/token-validation?token=${encodeURIComponent(token)}`;
+          // Create validation URL with token (updated path)
+          const validationUrl = `/auth/token-validation?token=${encodeURIComponent(token)}`;
 
           // Open new window for token validation
           const newWindow = window.open(
