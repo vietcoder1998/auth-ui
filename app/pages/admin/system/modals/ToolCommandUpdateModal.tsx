@@ -103,11 +103,14 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={2} />
               </Form.Item>
-              <Form.Item name="command" label="Command" rules={[{ required: true }]}>
+              {/* <Form.Item name="command" label="Command" rules={[{ required: true }]}>
                 <Input placeholder="e.g., execute, query, transform" />
+              </Form.Item> */}
+              <Form.Item name="params" label="Parameters (JSON)">
+                <Input.TextArea rows={4} placeholder='{"param1": "value1", "param2": "value2"}' />
               </Form.Item>
-              <Form.Item name="parameters" label="Parameters (JSON)">
-                <Input.TextArea rows={3} placeholder='{"param1": "value1", "param2": "value2"}' />
+              <Form.Item name="exampleParams" label="Example Parameters (JSON)">
+                <Input.TextArea rows={4} placeholder='{"param1": "value1", "param2": "value2"}' />
               </Form.Item>
               <Form.Item name="toolId" label="Tool(s)" rules={[{ required: true }]}>
                 <Select
@@ -119,9 +122,6 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
                   optionFilterProp="label"
                   style={{ width: '100%' }}
                 />
-              </Form.Item>
-              <Form.Item name="enabled" label="Enabled" valuePropName="checked">
-                <Input type="checkbox" />
               </Form.Item>
             </Form>
           </div>
