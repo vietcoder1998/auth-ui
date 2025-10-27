@@ -11,6 +11,11 @@ export class ToolCommandApi extends BaseApi {
     return BaseApi.staticGetAll('/admin/tool-commands', params);
   }
 
+  static async processCommand(data: any) {
+    const api = getApiInstance();
+    return api.post('/admin/tool-commands/process', data);
+  }
+
   static async getToolCommand(id: string) {
     const api = getApiInstance();
     return api.get(`/admin/tool-commands/${id}`);

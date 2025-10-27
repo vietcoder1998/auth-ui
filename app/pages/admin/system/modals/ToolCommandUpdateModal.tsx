@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Button, Divider, Typography, Spin } from 'antd';
+import { Button, Divider, Form, Input, Modal, Select, Spin, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
 
-import { ToolCommandApi } from '../../../../apis/admin.api.ts';
+import { ToolApi, ToolCommandApi } from '../../../../apis/admin.api.ts';
 
 interface ToolCommandUpdateModalProps {
   visible: boolean;
@@ -23,6 +23,7 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
   const [processResult, setProcessResult] = useState<any>(null);
   const [processing, setProcessing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toolOptions, setToolOptions] = useState<{ label: string; value: string }[]>([]);
 
   // Fetch command data by id when editingCommand changes
   useEffect(() => {
@@ -32,7 +33,7 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
         try {
           const res = await ToolCommandApi.getToolCommand(editingCommand.id);
           if (res?.data?.data) {
-            form.setFieldsValue(res.data.data);
+            form.setFieldsValue(res.data.data.data);
           }
         } catch (e) {
           // Optionally handle error
@@ -41,7 +42,21 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
         }
       }
     };
+    const fetchTools = async () => {
+      try {
+        const res = await ToolApi.getTools();
+        if (Array.isArray(res?.data?.data?.data)) {
+          setToolOptions(
+            res.data.data.data.map((tool: any) => ({
+              label: tool.name || tool.label || tool.id,
+              value: tool.id,
+            }))
+          );
+        }
+      } catch {}
+    };
     fetchCommand();
+    fetchTools();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
@@ -53,8 +68,7 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
       // Simulate API call
       const values = form.getFieldsValue();
       // TODO: Replace with actual process command API call
-      // const result = await ToolCommandApi.processCommand(values);
-      const result = { success: true, output: 'Command processed successfully', input: values };
+      const result = await ToolCommandApi.processCommand(values);
       setProcessResult(result);
     } catch (error: any) {
       setProcessResult({ success: false, error: error?.message || 'Error processing command' });
@@ -84,31 +98,30 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
           <div style={{ flex: 1 }}>
             <Form form={form} layout="vertical">
               <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-                {' '}
-                <Input />{' '}
+                <Input />
               </Form.Item>
               <Form.Item name="description" label="Description">
-                {' '}
-                <Input.TextArea rows={2} />{' '}
+                <Input.TextArea rows={2} />
               </Form.Item>
               <Form.Item name="command" label="Command" rules={[{ required: true }]}>
-                {' '}
-                <Input placeholder="e.g., execute, query, transform" />{' '}
+                <Input placeholder="e.g., execute, query, transform" />
               </Form.Item>
               <Form.Item name="parameters" label="Parameters (JSON)">
-                {' '}
-                <Input.TextArea
-                  rows={3}
-                  placeholder='{"param1": "value1", "param2": "value2"}'
-                />{' '}
+                <Input.TextArea rows={3} placeholder='{"param1": "value1", "param2": "value2"}' />
               </Form.Item>
-              <Form.Item name="toolId" label="Tool ID" rules={[{ required: true }]}>
-                {' '}
-                <Input placeholder="Associated tool ID" />{' '}
+              <Form.Item name="toolId" label="Tool(s)" rules={[{ required: true }]}>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  placeholder="Select associated tool(s)"
+                  options={toolOptions}
+                  showSearch
+                  optionFilterProp="label"
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
               <Form.Item name="enabled" label="Enabled" valuePropName="checked">
-                {' '}
-                <Input type="checkbox" />{' '}
+                <Input type="checkbox" />
               </Form.Item>
             </Form>
           </div>
