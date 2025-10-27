@@ -24,6 +24,7 @@ export default [
 
   // Root redirect (redirect to dashboard if authenticated, login if not)
   route('/', 'pages/page.tsx'),
+  route('/login', 'pages/auth/components/Login.tsx'),
 
   // 404 Not Found page (catch-all route)
   route('*', 'pages/components/NotFound.tsx'),
