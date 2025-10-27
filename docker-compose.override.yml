@@ -5,7 +5,7 @@ services:
       context: .
       target: development
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
     volumes:
@@ -18,7 +18,7 @@ services:
       context: .
       target: production
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - NODE_ENV=production
     command: npm run start
@@ -28,7 +28,7 @@ services:
       context: .
       target: local
     ports:
-      - "3002:3000"
+      - '3002:3000'
     environment:
       - NODE_ENV=local
     command: npm run dev
