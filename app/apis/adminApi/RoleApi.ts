@@ -1,28 +1,45 @@
-import { getApiInstance } from '../index.ts';
+import { BaseApi } from './BaseApi.ts';
 
-export class RoleApi {
+export class RoleApi extends BaseApi {
+  constructor() {
+    super('/admin/roles');
+  }
+
+  // Custom methods beyond CRUD
+  async getPermissionsNotInRole(roleId: string, params?: any) {
+    return this.customGet(`/${roleId}/permissions/available`, { params });
+  }
+
+  async addPermissionsToRole(roleId: string, permissionIds: string[]) {
+    return this.customPost(`/${roleId}/permissions/add`, { permissionIds });
+  }
+
+  // Static methods for backward compatibility
   static async getRoles(params?: any) {
-    const axios = getApiInstance();
-    return axios.get('/admin/roles', { params });
+    return BaseApi.staticGetAll('/admin/roles', params);
   }
+
   static async createRole(data: any) {
-    const axios = getApiInstance();
-    return axios.post('/admin/roles', data);
+    return BaseApi.staticCreate('/admin/roles', data);
   }
+
   static async updateRole(id: string | number, data: any) {
-    const axios = getApiInstance();
-    return axios.put(`/admin/roles/${id}`, data);
+    return BaseApi.staticUpdate('/admin/roles', id, data);
   }
+
   static async deleteRole(id: string | number) {
-    const axios = getApiInstance();
-    return axios.delete(`/admin/roles/${id}`);
+    return BaseApi.staticDelete('/admin/roles', id);
   }
+
   static async getPermissionsNotInRole(roleId: string, params?: any) {
-    const axios = getApiInstance();
-    return axios.get(`/admin/roles/${roleId}/permissions/available`, { params });
+    const instance = new RoleApi();
+    return instance.getPermissionsNotInRole(roleId, params);
   }
+
   static async addPermissionsToRole(roleId: string, permissionIds: string[]) {
-    const axios = getApiInstance();
-    return axios.post(`/admin/roles/${roleId}/permissions/add`, { permissionIds });
+    const instance = new RoleApi();
+    return instance.addPermissionsToRole(roleId, permissionIds);
   }
 }
+
+export const RoleApiInstance = new RoleApi();

@@ -1,32 +1,54 @@
-import { getApiInstance } from '../index.ts';
+import { BaseApi } from './BaseApi.ts';
 
-export class ApiKeyApi {
+export class ApiKeyApi extends BaseApi {
+  constructor() {
+    super('/admin/api-keys');
+  }
+
+  // Custom methods
+  async regenerateApiKey(id: string) {
+    return this.customPost(`/${id}/regenerate`);
+  }
+
+  async getApiKeyStats() {
+    return this.customGet('/stats');
+  }
+
+  async getApiKeyLogs(id: string, params?: any) {
+    return this.customGet(`/${id}/logs`, { params });
+  }
+
+  // Static methods for backward compatibility
   static async getApiKeys(params?: any) {
-    const axios = getApiInstance();
-    return axios.get('/admin/api-keys', { params });
+    return BaseApi.staticGetAll('/admin/api-keys', params);
   }
+
   static async createApiKey(data: any) {
-    const axios = getApiInstance();
-    return axios.post('/admin/api-keys', data);
+    return BaseApi.staticCreate('/admin/api-keys', data);
   }
+
   static async updateApiKey(id: string, data: any) {
-    const axios = getApiInstance();
-    return axios.put(`/admin/api-keys/${id}`, data);
+    return BaseApi.staticUpdate('/admin/api-keys', id, data);
   }
+
   static async deleteApiKey(id: string) {
-    const axios = getApiInstance();
-    return axios.delete(`/admin/api-keys/${id}`);
+    return BaseApi.staticDelete('/admin/api-keys', id);
   }
+
   static async regenerateApiKey(id: string) {
-    const axios = getApiInstance();
-    return axios.patch(`/admin/api-keys/${id}/regenerate`);
+    const instance = new ApiKeyApi();
+    return instance.regenerateApiKey(id);
   }
+
   static async getApiKeyStats() {
-    const axios = getApiInstance();
-    return axios.get('/admin/api-keys/stats');
+    const instance = new ApiKeyApi();
+    return instance.getApiKeyStats();
   }
+
   static async getApiKeyLogs(id: string, params?: any) {
-    const axios = getApiInstance();
-    return axios.get(`/admin/api-keys/${id}/logs`, { params });
+    const instance = new ApiKeyApi();
+    return instance.getApiKeyLogs(id, params);
   }
 }
+
+export const ApiKeyApiInstance = new ApiKeyApi();

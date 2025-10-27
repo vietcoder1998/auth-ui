@@ -26,6 +26,7 @@ import { TokenApi } from './adminApi/TokenApi.ts';
 import { UserApi } from './adminApi/UserApi.ts';
 import { AIMemoryApi } from './adminApi/AIMemoryApi.ts';
 import { AIModelApiInstance } from './adminApi/AIModelApi.ts';
+import { ToolApi } from './adminApi/ToolApi.ts';
 
 // Notification CRUD
 export {
@@ -48,6 +49,7 @@ export {
   SSOApi,
   TokenApi,
   AIMemoryApi,
+  ToolApi,
 };
 
 import axios from 'axios';
@@ -259,4 +261,10 @@ export const adminApi = {
 
   // System: Restart server
   restartServer: SystemApi.restartServer,
+
+  // ToolApi - CRUD for tools
+  getTools: ToolApi.getTools,
+  createTool: ToolApi.createTool,
+  updateTool: ToolApi.updateTool,
+  deleteTool: ToolApi.deleteTool,
 };

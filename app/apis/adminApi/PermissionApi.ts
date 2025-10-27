@@ -1,21 +1,33 @@
-import { getApiInstance } from '../index.ts';
+import { BaseApi } from './BaseApi.ts';
 
-export class PermissionApi {
-  static async getPermissions(params?: any) {
-    const axios = getApiInstance();
-    return axios.get('/admin/permissions', { params });
+export class PermissionApi extends BaseApi {
+  constructor() {
+    super('/admin/permissions');
   }
-  static async createPermission(data: any) {
-    const axios = getApiInstance();
-    return axios.post('/admin/permissions', data);
-  }
-  static async updatePermission(id: string | number, data: any, roles?: string[]) {
-    const axios = getApiInstance();
+
+  // Override update to support roles parameter
+  async updateWithRoles(id: string | number, data: any, roles?: string[]) {
     const payload = roles ? { ...data, roles } : data;
-    return axios.put(`/admin/permissions/${id}`, payload);
+    return this.update(id, payload);
   }
+
+  // Static methods for backward compatibility
+  static async getPermissions(params?: any) {
+    return BaseApi.staticGetAll('/admin/permissions', params);
+  }
+
+  static async createPermission(data: any) {
+    return BaseApi.staticCreate('/admin/permissions', data);
+  }
+
+  static async updatePermission(id: string | number, data: any, roles?: string[]) {
+    const instance = new PermissionApi();
+    return instance.updateWithRoles(id, data, roles);
+  }
+
   static async deletePermission(id: string | number) {
-    const axios = getApiInstance();
-    return axios.delete(`/admin/permissions/${id}`);
+    return BaseApi.staticDelete('/admin/permissions', id);
   }
 }
+
+export const PermissionApiInstance = new PermissionApi();

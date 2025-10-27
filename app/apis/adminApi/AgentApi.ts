@@ -1,28 +1,45 @@
-import { getApiInstance } from '../index.ts';
+import { BaseApi } from './BaseApi.ts';
 
-export class AgentApi {
+export class AgentApi extends BaseApi {
+  constructor() {
+    super('/admin/agents');
+  }
+
+  // Custom methods for agent memories
+  async getAgentMemories(id: string, params?: any) {
+    return this.customGet(`/${id}/memories`, { params });
+  }
+
+  async createAgentMemory(id: string, data: any) {
+    return this.customPost(`/${id}/memories`, data);
+  }
+
+  // Static methods for backward compatibility
   static async getAgents(params?: any) {
-    const axios = getApiInstance();
-    return axios.get('/admin/agents', { params });
+    return BaseApi.staticGetAll('/admin/agents', params);
   }
+
   static async createAgent(data: any) {
-    const axios = getApiInstance();
-    return axios.post('/admin/agents', data);
+    return BaseApi.staticCreate('/admin/agents', data);
   }
+
   static async updateAgent(id: string, data: any) {
-    const axios = getApiInstance();
-    return axios.put(`/admin/agents/${id}`, data);
+    return BaseApi.staticUpdate('/admin/agents', id, data);
   }
+
   static async deleteAgent(id: string) {
-    const axios = getApiInstance();
-    return axios.delete(`/admin/agents/${id}`);
+    return BaseApi.staticDelete('/admin/agents', id);
   }
+
   static async getAgentMemories(id: string, params?: any) {
-    const axios = getApiInstance();
-    return axios.get(`/admin/agents/${id}/memories`, { params });
+    const instance = new AgentApi();
+    return instance.getAgentMemories(id, params);
   }
+
   static async createAgentMemory(id: string, data: any) {
-    const axios = getApiInstance();
-    return axios.post(`/admin/agents/${id}/memories`, data);
+    const instance = new AgentApi();
+    return instance.createAgentMemory(id, data);
   }
 }
+
+export const AgentApiInstance = new AgentApi();

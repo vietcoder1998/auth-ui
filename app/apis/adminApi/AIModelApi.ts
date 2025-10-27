@@ -1,23 +1,27 @@
-import { getApiInstance } from '../index.ts';
+import { BaseApi } from './BaseApi.ts';
 
-export class AIModelApi {
-  private api = getApiInstance();
-
-  getAIModels(search?: string) {
-    const params = search ? { params: { search } } : {};
-    return this.api.get('/admin/ai-models', params);
+export class AIModelApi extends BaseApi {
+  constructor() {
+    super('/admin/ai-models');
   }
 
+  // Override getAll to support search parameter
+  getAIModels(search?: string) {
+    const params = search ? { search } : undefined;
+    return this.getAll(params);
+  }
+
+  // Alias methods for consistency
   createAIModel(data: any) {
-    return this.api.post('/admin/ai-models', data);
+    return this.create(data);
   }
 
   updateAIModel(id: string, data: any) {
-    return this.api.put(`/admin/ai-models/${id}`, data);
+    return this.update(id, data);
   }
 
   deleteAIModel(id: string) {
-    return this.api.delete(`/admin/ai-models/${id}`);
+    return this.delete(id);
   }
 }
 
