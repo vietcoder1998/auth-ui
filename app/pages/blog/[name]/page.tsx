@@ -1,7 +1,7 @@
 import { useParams } from 'react-router';
 import { Suspense } from 'react';
-import AdminBlogPage from '../components/AdminBlogPage.tsx';
-import AdminCategoryPage from '../components/AdminCategoryPage.tsx';
+import AdminBlogPage from '../../admin/settings/components/AdminBlogPage.tsx';
+import AdminCategoryPage from '../../admin/settings/components/AdminCategoryPage.tsx';
 
 // Route mapping for blog management pages
 const blogPageMap: Record<string, React.ComponentType> = {

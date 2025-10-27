@@ -1,42 +1,30 @@
 import { type RouteConfig, route } from '@react-router/dev/routes';
 
 export default [
-  // Auth pages (public, no layout)
-  route('/login', 'pages/Login.tsx'),
-  route('/sso/login', 'pages/SSOLogin.tsx'),
-  route('/sso/login-success', 'pages/SSOLoginSuccess.tsx'),
-  route('/register', 'pages/Register.tsx'),
-  route('/forgot-password', 'pages/ForgotPassword.tsx'),
-  route('/reset-password', 'pages/ResetPassword.tsx'),
-  route('/login-success', 'pages/LoginSuccess.tsx'),
-  route('/token-validation', 'pages/TokenValidationPage.tsx'), // Token validation for admin impersonation
+  // Auth pages (public, no layout) - Dynamic routing
+  route('/auth/:name', 'pages/auth/[name]/page.tsx'), // /auth/:name (login, register, sso-login, etc.)
 
   // Protected dashboard
 
   // Admin layout with protected subroutes
   route('/admin', 'layouts/AdminContentLayout.tsx', [
-    route('', 'pages/AdminIndexPage.tsx'), // /admin
-    route('profile', 'pages/Dashboard.tsx'),
-
-    // Blog management
-    route('blog/:name', 'pages/blog/[name]/page.tsx'), // /admin/blog/:name (dynamic)
-
+    route('', 'pages/admin/page.tsx'), // /admin
+    route('profile', 'pages/admin/components/UserProfile.tsx'),
     // System management routes (including AI Management)
-    route('system', 'pages/system/page.tsx'), // /admin/system
-    route('system/:name', 'pages/system/[name]/page.tsx'), // /admin/system/:name (dynamic)
+    route('system', 'pages/admin/system/page.tsx'), // /admin/system
+    route('system/:name', 'pages/admin/system/[name]/page.tsx'), // /admin/system/:name (dynamic)
 
     // Settings management routes
-    route('settings', 'pages/settings/page.tsx'), // /admin/settings
-    route('settings/:name', 'pages/settings/[name]/page.tsx'), // /admin/settings/:name (dynamic)
+    route('settings', 'pages/admin/settings/page.tsx'), // /admin/settings
+    route('settings/:name', 'pages/admin/settings/[name]/page.tsx'), // /admin/settings/:name (dynamic)
   ]),
 
-  // Blog page
-  route('/blog', 'pages/Blog.tsx'),
-  route('/blog/:id', 'pages/BlogDetail.tsx'),
+  // Public blog pages - Dynamic routing
+  route('/blog/:name', 'pages/blog/[name]/page.tsx'), // /blog/:name (dynamic - list/detail/:id)
 
   // Root redirect (redirect to dashboard if authenticated, login if not)
-  route('/', 'pages/Home.tsx'),
+  route('/', 'pages/page.tsx'),
 
   // 404 Not Found page (catch-all route)
-  route('*', 'pages/NotFound.tsx'),
+  route('*', 'pages/components/NotFound.tsx'),
 ] satisfies RouteConfig;
