@@ -1,6 +1,25 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Avatar, Tag, Divider, Row, Col, Typography, Space } from 'antd';
-import { UserOutlined, EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Avatar,
+  Tag,
+  Divider,
+  Row,
+  Col,
+  Typography,
+  Space,
+  Spin,
+} from 'antd';
+import {
+  UserOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../../../hooks/useAuth.tsx';
 
 const { Title, Text } = Typography;
@@ -8,6 +27,9 @@ const { Title, Text } = Typography;
 const Profile: React.FC = () => {
   const { user, logout, refreshUser, loading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [permissionSearch, setPermissionSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const [form] = Form.useForm();
 
   const handleRefreshUser = async () => {
@@ -41,6 +63,32 @@ const Profile: React.FC = () => {
       console.error('Failed to update profile');
     }
   };
+
+  // Debounce search with 0.5s delay
+  useEffect(() => {
+    setSearchLoading(true);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(permissionSearch);
+      setSearchLoading(false);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [permissionSearch]);
+
+  const filteredPermissions = useMemo(() => {
+    const permissions = (user?.role as any)?.permissions;
+    if (!permissions || !Array.isArray(permissions)) return [];
+    if (!debouncedSearch) return permissions;
+    const search = debouncedSearch.toLowerCase();
+    return permissions.filter(
+      (perm: any) =>
+        perm.name?.toLowerCase().includes(search) ||
+        perm.category?.toLowerCase().includes(search) ||
+        perm.description?.toLowerCase().includes(search)
+    );
+  }, [(user?.role as any)?.permissions, debouncedSearch]);
 
   if (loading) {
     return (
@@ -228,17 +276,61 @@ const Profile: React.FC = () => {
       {/* Debug Information (Development only) */}
       {process.env.NODE_ENV === 'development' && (
         <Card title="Debug Information" style={{ marginTop: 24 }}>
-          <pre
-            style={{
-              background: '#f5f5f5',
-              padding: 16,
-              borderRadius: 4,
-              overflow: 'auto',
-              fontSize: 12,
-            }}
-          >
-            {JSON.stringify(user, null, 2)}
-          </pre>
+          {user &&
+          (user.role as any)?.permissions &&
+          Array.isArray((user.role as any).permissions) &&
+          (user.role as any).permissions.length > 0 ? (
+            <div>
+              <Input
+                placeholder="Search permissions by name, category, or description..."
+                prefix={<SearchOutlined />}
+                suffix={searchLoading ? <Spin size="small" /> : null}
+                value={permissionSearch}
+                onChange={(e) => setPermissionSearch(e.target.value)}
+                allowClear
+                style={{ marginBottom: 16 }}
+              />
+              <strong>Permissions ({filteredPermissions.length}):</strong>
+              {searchLoading ? (
+                <div style={{ marginTop: 12, textAlign: 'center', padding: '20px 0' }}>
+                  <Spin tip="Searching..." />
+                </div>
+              ) : filteredPermissions.length === 0 ? (
+                <div style={{ marginTop: 12, color: '#888', textAlign: 'center' }}>
+                  No permissions found matching your search.
+                </div>
+              ) : (
+                <ul style={{ marginTop: 12, paddingLeft: 20, maxHeight: 400, overflowY: 'auto' }}>
+                  {filteredPermissions.map((perm: any) => (
+                    <li key={perm.id} style={{ marginBottom: 8 }}>
+                      <div>
+                        <b>Name:</b> <span style={{ color: '#1677ff' }}>{perm.name}</span>
+                      </div>
+                      <div>
+                        <b>Category:</b> <span style={{ color: '#52c41a' }}>{perm.category}</span>
+                      </div>
+                      <div>
+                        <b>Description:</b>{' '}
+                        <span style={{ color: '#888' }}>{perm.description}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
+            <pre
+              style={{
+                background: '#f5f5f5',
+                padding: 16,
+                borderRadius: 4,
+                overflow: 'auto',
+                fontSize: 12,
+              }}
+            >
+              {JSON.stringify(user, null, 2)}
+            </pre>
+          )}
         </Card>
       )}
     </>

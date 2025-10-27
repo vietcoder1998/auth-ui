@@ -23,7 +23,7 @@ const AdminToolPage: React.FC = () => {
     setLoading(true);
     try {
       const response = await ToolApi.getTools();
-      setTools(response.data.data || []);
+      setTools(response.data.data.data || []);
     } catch (error) {
       message.error('Failed to fetch tools');
     } finally {
