@@ -6,6 +6,7 @@ import { adminApi } from '../../../../apis/admin.api.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import ToolModal from '../modals/ToolModal.tsx';
 import AdminEntityListPage from './AdminEntityListPage.tsx';
+import AdminEntityMethodPage from './AdminEntityMethodPage.tsx';
 import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
 
 const { TabPane } = Tabs;
@@ -286,6 +287,9 @@ const AdminToolPage: React.FC = () => {
         </TabPane>
         <TabPane tab="Entities" key="entities">
           <AdminEntityListPage />
+        </TabPane>
+        <TabPane tab="Entity Methods" key="entity-methods">
+          <AdminEntityMethodPage />
         </TabPane>
       </Tabs>
     </div>

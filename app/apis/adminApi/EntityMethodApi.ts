@@ -5,6 +5,8 @@ export type EntityMethod = {
   entityId: string;
   name: string;
   description?: string;
+  createdAt?: string;
+  updatedAt?: string;
   // Add other entity method-specific fields here
 };
 
@@ -13,3 +15,5 @@ export class EntityMethodApi extends BaseApi<EntityMethod, string> {
     super('/admin/entity-methods');
   }
 }
+
+export const EntityMethodApiInstance = new EntityMethodApi();
