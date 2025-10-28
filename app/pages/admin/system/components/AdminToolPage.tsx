@@ -1,11 +1,12 @@
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Form, message, Popconfirm, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Form, message, Space, Popconfirm, Tag, Tabs } from 'antd';
-import { adminApi } from '../../../../apis/admin.api.ts';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
-import CommonSearch from '../../../../components/CommonSearch.tsx';
-import ToolModal from '../modal/ToolModal.tsx';
 import { ToolApiInstance } from '~/apis/adminApi/ToolApi.ts';
+import { adminApi } from '../../../../apis/admin.api.ts';
+import CommonSearch from '../../../../components/CommonSearch.tsx';
+import ToolModal from '../modals/ToolModal.tsx';
+import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
+import AdminEntityListPage from './AdminEntityListPage.tsx';
 
 const { TabPane } = Tabs;
 
@@ -279,6 +280,9 @@ const AdminToolPage: React.FC = () => {
         </TabPane>
         <TabPane tab="Tool Commands" key="commands">
           <AdminToolCommandListPage />
+        </TabPane>
+        <TabPane tab="Entities" key="entities">
+          <AdminEntityListPage />
         </TabPane>
       </Tabs>
     </div>

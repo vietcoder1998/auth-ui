@@ -54,8 +54,6 @@ export {
   ToolCommandApi,
 };
 
-import axios from 'axios';
-
 export const adminApi = {
   // AIModelApi (for /admin/ai-models)
   getAIModels: AIModelApiInstance.getAIModels.bind(AIModelApiInstance),
