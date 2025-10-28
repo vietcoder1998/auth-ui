@@ -1,5 +1,17 @@
 import type { FormInstance } from 'antd';
-import { Descriptions, Form, Input, Modal, Select, Spin, Tabs, Checkbox, Table, Tag } from 'antd';
+import {
+  Descriptions,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Spin,
+  Tabs,
+  Checkbox,
+  Table,
+  Tag,
+  Button,
+} from 'antd';
 import React, { useEffect, useState } from 'react';
 
 interface ToolCommand {
@@ -136,6 +148,17 @@ const ToolModal: React.FC<ToolModalProps> = ({
         <Tag color={enabled ? 'green' : 'red'}>{enabled ? 'Enabled' : 'Disabled'}</Tag>
       ),
     },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      width: 80,
+      render: (_: any, record: ToolCommand) => (
+        <Button color="blue" style={{ cursor: 'pointer' }} onClick={() => {}}>
+          Exec
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -145,7 +168,7 @@ const ToolModal: React.FC<ToolModalProps> = ({
       onCancel={onCancel}
       onOk={handleOk}
       okText={editingTool ? 'Update' : 'Create'}
-      width={900}
+      width={800}
     >
       <Spin spinning={loading} tip="Loading tool data...">
         <Tabs defaultActiveKey={editingTool ? 'edit' : 'detail'}>

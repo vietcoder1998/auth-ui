@@ -1,26 +1,21 @@
-import { useParams, useNavigate } from 'react-router';
-import { useEffect, useState } from 'react';
+import { ArrowLeftOutlined, BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Editor } from '@monaco-editor/react';
 import {
   Button,
+  Card,
+  Col,
   Collapse,
   Divider,
   Form,
   Input,
+  Row,
   Select,
   Spin,
   Typography,
-  Card,
-  Row,
-  Col,
 } from 'antd';
-import {
-  ArrowLeftOutlined,
-  PlayCircleOutlined,
-  ThunderboltOutlined,
-  BugOutlined,
-} from '@ant-design/icons';
-import { Editor } from '@monaco-editor/react';
-import { ToolApi, ToolCommandApi, AgentApi } from '../../../../../apis/admin.api.ts';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { AgentApi, ToolApi, ToolCommandApi } from '../../../../../apis/admin.api.ts';
 
 const { Text, Title } = Typography;
 
@@ -269,6 +264,40 @@ export default function ToolCommandEditPage() {
                 />
               </Form.Item>
 
+              <div style={{ marginBottom: 12 }}>
+                <Text strong>Select Type:</Text>
+                <Select
+                  size="small"
+                  placeholder="Select command type"
+                  options={[
+                    { label: 'Execute', value: 'execute' },
+                    { label: 'Query', value: 'query' },
+                    { label: 'Update', value: 'update' },
+                    { label: 'Create', value: 'create' },
+                    { label: 'Delete', value: 'delete' },
+                    { label: 'Transform', value: 'transform' },
+                  ]}
+                  value={selectedType}
+                  onChange={setSelectedType}
+                  allowClear
+                  style={{ width: '100%', marginTop: 8 }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <Text strong>Select Agent:</Text>
+                <Select
+                  size="small"
+                  placeholder="Select an agent to process the command"
+                  options={agentOptions}
+                  value={selectedAgentId}
+                  onChange={setSelectedAgentId}
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  style={{ width: '100%', marginTop: 8 }}
+                />
+              </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <Button
                   size="small"
@@ -291,41 +320,6 @@ export default function ToolCommandEditPage() {
         <Col xs={24} lg={15}>
           <Card size="small" style={{ height: '100%' }}>
             <Title level={4}>Process Command</Title>
-
-            <div style={{ marginBottom: 12 }}>
-              <Text strong>Select Type:</Text>
-              <Select
-                size="small"
-                placeholder="Select command type"
-                options={[
-                  { label: 'Execute', value: 'execute' },
-                  { label: 'Query', value: 'query' },
-                  { label: 'Update', value: 'update' },
-                  { label: 'Create', value: 'create' },
-                  { label: 'Delete', value: 'delete' },
-                  { label: 'Transform', value: 'transform' },
-                ]}
-                value={selectedType}
-                onChange={setSelectedType}
-                allowClear
-                style={{ width: '100%', marginTop: 8 }}
-              />
-            </div>
-
-            <div style={{ marginBottom: 12 }}>
-              <Text strong>Select Agent:</Text>
-              <Select
-                size="small"
-                placeholder="Select an agent to process the command"
-                options={agentOptions}
-                value={selectedAgentId}
-                onChange={setSelectedAgentId}
-                allowClear
-                showSearch
-                optionFilterProp="label"
-                style={{ width: '100%', marginTop: 8 }}
-              />
-            </div>
 
             <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
               <Button
