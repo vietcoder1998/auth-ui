@@ -5,8 +5,8 @@ import { ToolApiInstance } from '~/apis/adminApi/ToolApi.ts';
 import { adminApi } from '../../../../apis/admin.api.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import ToolModal from '../modals/ToolModal.tsx';
-import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
 import AdminEntityListPage from './AdminEntityListPage.tsx';
+import AdminToolCommandListPage from './AdminToolCommandListPage.tsx';
 
 const { TabPane } = Tabs;
 
@@ -49,7 +49,7 @@ const AdminToolPage: React.FC = () => {
     setLoading(true);
     try {
       const response = await ToolApiInstance.getAll();
-      const toolsData = response.data.data.data || [];
+      const toolsData = response.data.data || [];
       setTools(toolsData);
       setFilteredTools(toolsData);
       setAvailableTools(toolsData);
@@ -111,8 +111,11 @@ const AdminToolPage: React.FC = () => {
   const fetchAgents = async () => {
     try {
       const response = await adminApi.getAgents();
-      const agents = response.data.data.data || [];
-      setAvailableAgents(agents.map((a: any) => ({ id: a.id, name: a.name })));
+      const agents = response.data.data || [];
+
+      if (agents && Array.isArray(agents)) {
+        setAvailableAgents(agents.map((a: any) => ({ id: a.id, name: a.name })));
+      }
     } catch (error) {
       message.error('Failed to fetch agents');
     }

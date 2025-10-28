@@ -30,7 +30,7 @@ const AdminEntityListPage: React.FC = () => {
     try {
       const params = search ? { q: search } : undefined;
       const response = await EntityApiInstance.getAll(params);
-      setEntities(response.data.data.data || []);
+      setEntities(response.data.data || []);
     } catch (error) {
       message.error('Failed to fetch entities');
     } finally {

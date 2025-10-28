@@ -33,7 +33,7 @@ const AdminToolCommandListPage: React.FC = () => {
     try {
       const params = search ? { q: search } : undefined;
       const response = await ToolCommandApi.getToolCommands(params);
-      setCommands(response.data.data.data || []);
+      setCommands(response.data.data || []);
     } catch (error) {
       message.error('Failed to fetch tool commands');
     } finally {
