@@ -111,7 +111,7 @@ const AdminToolPage: React.FC = () => {
   const fetchAgents = async () => {
     try {
       const response = await adminApi.getAgents();
-      const agents = response.data.data || [];
+      const agents = response.data.data.data || [];
       setAvailableAgents(agents.map((a: any) => ({ id: a.id, name: a.name })));
     } catch (error) {
       message.error('Failed to fetch agents');

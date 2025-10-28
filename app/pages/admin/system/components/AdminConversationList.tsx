@@ -61,9 +61,9 @@ interface Conversation {
   updatedAt: string;
 }
 
-export default function AdminConversationList() {
-  const { token } = useAuth();
+const AdminConversationList: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const { token } = useAuth();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -90,7 +90,10 @@ export default function AdminConversationList() {
   const fetchAgents = async () => {
     try {
       const response = await adminApi.getAgents();
-      setAgents(response.data.data || []);
+      console.log(response);
+      if (response.data.data.data && Array.isArray(response.data.data.data)) {
+        setAgents(response.data.data.data || []);
+      }
     } catch (error) {
       console.error('Error fetching agents:', error);
     }
@@ -105,7 +108,10 @@ export default function AdminConversationList() {
       if (statusFilter) params.status = statusFilter;
 
       const response = await adminApi.getConversations(params);
-      setConversations(response.data.data || []);
+
+      if (response.data.data.data && Array.isArray(response.data.data.data)) {
+        setConversations(response.data.data.data || []);
+      }
     } catch (error) {
       console.error('Error fetching conversations:', error);
       message.error('Failed to fetch conversations');
@@ -227,18 +233,7 @@ export default function AdminConversationList() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-        }}
-      >
-        <Title level={2}>💬 Conversations</Title>
-      </div>
-
-      {/* Filters */}
+      <Title level={2}>💬 Conversations</Title>
       <CommonSearch
         searchPlaceholder="Search conversations..."
         searchValue={searchText}
@@ -280,4 +275,6 @@ export default function AdminConversationList() {
       />
     </div>
   );
-}
+};
+
+export default AdminConversationList;
