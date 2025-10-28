@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Button } from 'antd';
 
-interface EntityUpdateModalProps {
+interface EntityCreateModalProps {
   visible: boolean;
   onCancel: () => void;
   onSubmit: (values: any) => Promise<void> | void;
-  initialValues?: any;
+  initialValues?: Record<string, any>;
   loading?: boolean;
 }
 
-const EntityUpdateModal: React.FC<EntityUpdateModalProps> = ({
+const EntityCreateModal: React.FC<EntityCreateModalProps> = ({
   visible,
   onCancel,
   onSubmit,
@@ -18,43 +18,50 @@ const EntityUpdateModal: React.FC<EntityUpdateModalProps> = ({
 }) => {
   const [form] = Form.useForm();
 
-  // Set initial form values when modal visibles
+  // Set initial values when modal visibles
   useEffect(() => {
-    if (initialValues) form.setFieldsValue(initialValues);
-  }, [initialValues, form]);
+    if (visible) {
+      form.resetFields();
+      if (initialValues) form.setFieldsValue(initialValues);
+    }
+  }, [visible, initialValues, form]);
 
-  const handleOk = async () => {
+  const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       await onSubmit(values);
       form.resetFields();
-    } catch (error) {
-      console.error('Validation failed:', error);
+    } catch (err) {
+      console.error('Validation failed:', err);
     }
   };
 
   return (
     <Modal
-      title="Update Entity"
+      title="Create Entity"
       visible={visible}
       onCancel={onCancel}
+      destroyOnClose
       footer={[
         <Button key="cancel" onClick={onCancel}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-          Save
+        <Button key="create" type="primary" onClick={handleSubmit} loading={loading}>
+          Create
         </Button>,
       ]}
-      destroyOnClose
     >
-      <Form form={form} layout="vertical" name="entityUpdateForm" initialValues={initialValues}>
+      <Form form={form} layout="vertical" name="entityCreateForm" initialValues={initialValues}>
         <Form.Item
-          label="Name"
+          label="Entity Name"
           name="name"
-          rules={[{ required: true, message: 'Please input entity name!' }]}
+          rules={[{ required: true, message: 'Please enter entity name' }]}
         >
           <Input placeholder="Enter entity name" />
+        </Form.Item>
+
+        <Form.Item label="Label" name="label">
+          <Input placeholder="Enter entity label" />
         </Form.Item>
 
         <Form.Item label="Description" name="description">
@@ -65,4 +72,4 @@ const EntityUpdateModal: React.FC<EntityUpdateModalProps> = ({
   );
 };
 
-export default EntityUpdateModal;
+export default EntityCreateModal;
