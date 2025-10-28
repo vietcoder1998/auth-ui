@@ -1,22 +1,22 @@
-import React, { useEffect } from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Button, message } from 'antd';
+import { EntityApiInstance } from '../../../../apis/adminApi/EntityApi.ts';
 
 interface EntityCreateModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSubmit: (values: any) => Promise<void> | void;
+  onSuccess?: (entity: any) => void;
   initialValues?: Record<string, any>;
-  loading?: boolean;
 }
 
 const EntityCreateModal: React.FC<EntityCreateModalProps> = ({
   visible,
   onCancel,
-  onSubmit,
+  onSuccess,
   initialValues,
-  loading = false,
 }) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   // Set initial values when modal visibles
   useEffect(() => {
@@ -28,11 +28,24 @@ const EntityCreateModal: React.FC<EntityCreateModalProps> = ({
 
   const handleSubmit = async () => {
     try {
+      setLoading(true);
       const values = await form.validateFields();
-      await onSubmit(values);
+
+      // Create entity using EntityApiInstance
+      const response = await EntityApiInstance.create(values);
+
+      message.success('Entity created successfully');
       form.resetFields();
+      onCancel(); // Close modal
+
+      if (onSuccess && response.data) {
+        onSuccess(response.data);
+      }
     } catch (err) {
-      console.error('Validation failed:', err);
+      console.error('Failed to create entity:', err);
+      message.error('Failed to create entity');
+    } finally {
+      setLoading(false);
     }
   };
 

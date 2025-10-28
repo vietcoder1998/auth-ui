@@ -170,9 +170,6 @@ const AdminEntityListPage: React.FC = () => {
         visible={createModalVisible}
         onCancel={() => setCreateModalVisible(false)}
         initialValues={form}
-        onSubmit={function (values: any): Promise<void> | void {
-          throw new Error('Function not implemented.');
-        }}
       />
       <EntityUpdateModal
         visible={updateModalVisible}
