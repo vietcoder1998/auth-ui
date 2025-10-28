@@ -161,13 +161,6 @@ export function getApiInstance(): AxiosInstance {
 
       console.log(error);
 
-      addErrorToCookie({
-        message: errorMessage,
-        status: error.response?.status,
-        code: error.code || 'AXIOS_ERROR',
-        details: errorDetails,
-      });
-
       // Handle different error status codes with toasts
       switch (true) {
         case error.response?.status === 401:

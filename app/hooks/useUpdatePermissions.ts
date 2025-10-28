@@ -45,6 +45,7 @@ export function useUpdatePermissions() {
   // Extract permission from URL for 403 errors
   const extractPermissionFromError = (error: FixingError): string | null => {
     if (error.status !== 403) return null;
+    console.log(error);
     const url = error?.url;
     const method = error?.method || 'GET';
     const permissionInfo = extractPermissionFromUrl(url ?? '', method);
