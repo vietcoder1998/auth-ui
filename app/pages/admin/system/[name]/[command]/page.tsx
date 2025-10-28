@@ -97,9 +97,9 @@ export default function ToolCommandEditPage() {
     const fetchAgents = async () => {
       try {
         const res = await AgentApi.getAgents();
-        if (Array.isArray(res?.data?.data)) {
+        if (Array.isArray(res?.data?.data?.data)) {
           setAgentOptions(
-            res.data.data.map((agent: any) => ({
+            res.data.data.data.map((agent: any) => ({
               label: agent.name || agent.id,
               value: agent.id,
             }))
