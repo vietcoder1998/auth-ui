@@ -1,5 +1,5 @@
 import type { FormInstance } from 'antd';
-import { Descriptions, Form, Input, Modal, Select, Spin, Tabs } from 'antd';
+import { Descriptions, Form, Input, Modal, Select, Spin, Tabs, Checkbox } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 interface Tool {
@@ -14,7 +14,9 @@ interface Tool {
 interface Agent {
   id: string;
   name: string;
-  model?: string;
+  model?: {
+    name?: string;
+  };
 }
 
 interface ToolModalProps {
@@ -106,7 +108,7 @@ const ToolModal: React.FC<ToolModalProps> = ({
                         <li key={agent.id} style={{ marginBottom: 8 }}>
                           <strong>{agent.name}</strong>
                           <div style={{ fontSize: 12, color: '#888' }}>
-                            {agent.model ? agent.model : 'Unknown Model'}
+                            {agent.model?.name ? agent.model?.name : 'Unknown Model'}
                           </div>
                         </li>
                       ))}
@@ -133,6 +135,9 @@ const ToolModal: React.FC<ToolModalProps> = ({
               <Form.Item name="type" label="Type" rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
+              <Form.Item name="description" label="Description">
+                <Input.TextArea rows={2} placeholder="Brief description of the tool" />
+              </Form.Item>
               {/* Related tools: multi-select with search */}
               <Form.Item name="relatedAgentIds" label="Related Agents">
                 <Select
@@ -150,7 +155,8 @@ const ToolModal: React.FC<ToolModalProps> = ({
                 >
                   {availableAgents.map((agent) => (
                     <Select.Option key={agent.id} value={agent.id}>
-                      {agent.name}
+                      <p>{agent.name}</p>
+                      <small>{agent?.model?.name}</small>
                     </Select.Option>
                   ))}
                 </Select>
@@ -183,7 +189,7 @@ const ToolModal: React.FC<ToolModalProps> = ({
                 </Form.Item>
               </Form.Item>
               <Form.Item name="enabled" label="Enabled" valuePropName="checked">
-                <Input type="checkbox" />
+                <Checkbox>Enabled</Checkbox>
               </Form.Item>
             </Form>
           </Tabs.TabPane>
