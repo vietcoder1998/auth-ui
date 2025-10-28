@@ -1,6 +1,18 @@
 import type { FormInstance } from 'antd';
-import { Descriptions, Form, Input, Modal, Select, Spin, Tabs, Checkbox } from 'antd';
+import { Descriptions, Form, Input, Modal, Select, Spin, Tabs, Checkbox, Table, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
+
+interface ToolCommand {
+  id: string;
+  name: string;
+  description: string;
+  action: string;
+  repository: string;
+  params: string;
+  exampleParams: string;
+  enabled: boolean;
+  createdAt: string;
+}
 
 interface Tool {
   id: string;
@@ -9,6 +21,7 @@ interface Tool {
   config: string;
   enabled: boolean;
   createdAt: string;
+  commands?: ToolCommand[];
 }
 
 interface Agent {
@@ -80,6 +93,51 @@ const ToolModal: React.FC<ToolModalProps> = ({
       .catch(() => {});
   };
 
+  const commandColumns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      width: 80,
+      render: (action: string) => {
+        const colorMap: Record<string, string> = {
+          GET: 'blue',
+          POST: 'green',
+          PUT: 'orange',
+          DELETE: 'red',
+        };
+        return <Tag color={colorMap[action] || 'default'}>{action}</Tag>;
+      },
+    },
+    {
+      title: 'Repository',
+      dataIndex: 'repository',
+      key: 'repository',
+      width: 120,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'enabled',
+      key: 'enabled',
+      width: 80,
+      render: (enabled: boolean) => (
+        <Tag color={enabled ? 'green' : 'red'}>{enabled ? 'Enabled' : 'Disabled'}</Tag>
+      ),
+    },
+  ];
+
   return (
     <Modal
       title={editingTool ? 'Edit Tool' : 'Add Tool'}
@@ -87,6 +145,7 @@ const ToolModal: React.FC<ToolModalProps> = ({
       onCancel={onCancel}
       onOk={handleOk}
       okText={editingTool ? 'Update' : 'Create'}
+      width={900}
     >
       <Spin spinning={loading} tip="Loading tool data...">
         <Tabs defaultActiveKey={editingTool ? 'edit' : 'detail'}>
@@ -125,6 +184,60 @@ const ToolModal: React.FC<ToolModalProps> = ({
                   </pre>
                 </Descriptions.Item>
               </Descriptions>
+
+              {/* Tool Commands Section */}
+              {toolData?.commands && toolData.commands.length > 0 && (
+                <div style={{ marginTop: 24 }}>
+                  <h3 style={{ marginBottom: 12 }}>Tool Commands ({toolData.commands.length})</h3>
+                  <Table
+                    dataSource={toolData.commands}
+                    columns={commandColumns}
+                    rowKey="id"
+                    size="small"
+                    pagination={false}
+                    scroll={{ x: 800 }}
+                    expandable={{
+                      expandedRowRender: (record) => (
+                        <div style={{ padding: '8px 16px' }}>
+                          <div style={{ marginBottom: 8 }}>
+                            <strong>Params:</strong>
+                            <pre
+                              style={{
+                                background: '#f5f5f5',
+                                padding: 8,
+                                borderRadius: 4,
+                                marginTop: 4,
+                                fontSize: 12,
+                              }}
+                            >
+                              {typeof record.params === 'string'
+                                ? JSON.stringify(JSON.parse(record.params), null, 2)
+                                : JSON.stringify(record.params, null, 2)}
+                            </pre>
+                          </div>
+                          <div>
+                            <strong>Example Params:</strong>
+                            <pre
+                              style={{
+                                background: '#f5f5f5',
+                                padding: 8,
+                                borderRadius: 4,
+                                marginTop: 4,
+                                fontSize: 12,
+                              }}
+                            >
+                              {typeof record.exampleParams === 'string'
+                                ? JSON.stringify(JSON.parse(record.exampleParams), null, 2)
+                                : JSON.stringify(record.exampleParams, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      ),
+                      rowExpandable: (record) => !!record.params || !!record.exampleParams,
+                    }}
+                  />
+                </div>
+              )}
             </Tabs.TabPane>
           )}
           <Tabs.TabPane tab="Edit" key="edit">
@@ -188,6 +301,49 @@ const ToolModal: React.FC<ToolModalProps> = ({
                   )}
                 </Form.Item>
               </Form.Item>
+              {/* ✅ Commands List */}
+              <Form.Item label="Commands">
+                {toolData?.commands && toolData.commands.length > 0 ? (
+                  <div
+                    style={{
+                      background: '#fafafa',
+                      border: '1px solid #f0f0f0',
+                      borderRadius: 6,
+                      padding: 8,
+                      maxHeight: 200,
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {toolData?.commands?.map((cmd: any, idx: number) => (
+                      <div
+                        key={cmd.id || idx}
+                        style={{
+                          padding: '6px 8px',
+                          borderBottom:
+                            idx < Number(toolData?.commands?.length) - 1
+                              ? '1px solid #eee'
+                              : 'none',
+                        }}
+                      >
+                        <strong>{cmd.label || cmd.name}</strong>
+                        {cmd.description && (
+                          <p style={{ margin: '4px 0', fontSize: 12, color: '#555' }}>
+                            {cmd.description}
+                          </p>
+                        )}
+                        {cmd.model?.name && (
+                          <small style={{ color: '#888' }}>Model: {cmd.model.name}</small>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ color: '#888', fontStyle: 'italic' }}>
+                    No commands linked to this tool.
+                  </p>
+                )}
+              </Form.Item>
+
               <Form.Item name="enabled" label="Enabled" valuePropName="checked">
                 <Checkbox>Enabled</Checkbox>
               </Form.Item>
