@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { getMe } from '../apis/auth.api.ts';
-import { COOKIE_FIXING_ERRORS } from '~/env.ts';
 import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
 import { adminApi } from '../apis/admin.api.ts';
-import { useCookie, useLoginCookie } from './useCookie.tsx';
+import { getMe } from '../apis/auth.api.ts';
+import { useLoginCookie } from './useCookie.tsx';
+
 // Type for errors saved in fixing_errors cookie
 export interface FixingError {
   id: string;
@@ -40,7 +40,16 @@ export function useUpdatePermissions() {
   const [, , removeLoginCookie] = useLoginCookie();
   const [errors, setErrors] = useState<NotificationItem[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const prevErrorCount = useRef(0);
+
+  // Set loading state for a specific notification
+  const setLoading = (id: string, isLoading: boolean) => {
+    setLoadingStates((prev) => ({ ...prev, [id]: isLoading }));
+  };
+
+  // Check if a notification is loading
+  const isLoading = (id: string) => loadingStates[id] || false;
 
   // Extract permission from URL for 403 errors
   const extractPermissionFromError = (error: FixingError): string | null => {
@@ -100,55 +109,103 @@ export function useUpdatePermissions() {
     dismissErrorFn: (id: string) => void,
     onRefreshPermissions?: () => void
   ) => {
-    console.log(error);
     const permission = extractPermissionFromError(error);
-    if (!permission) return;
-    try {
-      let permissionId: string | null = null;
-      const permissionsResponse = await adminApi.getPermissions();
-      const permissions: any[] = Array.isArray(permissionsResponse.data)
-        ? permissionsResponse.data
-        : (permissionsResponse.data?.data ?? []);
-      const existingPermission = permissions.find((p: any) => p.resource === permission);
-      if (existingPermission) {
-        permissionId = existingPermission.id;
-      } else {
-        let route = `/api${error?.url || ''}`;
-        route = route.replace(/\/(\w*id)\b/g, '/:id');
-        console.log(error);
-        const newPermResponse = await adminApi.createPermission({
-          resource: permission,
-          name: permission,
-          action: permission.includes(':write') ? 'write' : 'read',
-          description: `Auto-generated permission for ${permission}`,
-          route,
-          method: error?.method || 'GET',
-          category: 'custom',
-        });
-        if (!newPermResponse.data?.id) {
-          throw new Error('Failed to create permission');
-        }
-        permissionId = newPermResponse.data.id;
-      }
-      const rolesResponse = await adminApi.getRoles();
-      const roles = Array.isArray(rolesResponse.data)
-        ? rolesResponse.data
-        : (rolesResponse.data ?? []);
-      const superAdminRole = roles.find((role: any) => role.name === 'superadmin');
+    if (!permission) {
+      console.warn('No permission extracted from error:', error);
+      return;
+    }
 
-      if (superAdminRole && typeof permissionId === 'string') {
-        await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
-        await dismissErrorFn(dataId);
-        removeLoginCookie();
-        await getMe();
-        onRefreshPermissions?.();
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+    // Set loading state
+    setLoading(dataId, true);
+
+    try {
+      // Get or create permission
+      let permissionId = await getOrCreatePermission(permission, error);
+      if (!permissionId) {
+        throw new Error('Failed to get or create permission');
       }
+
+      // Assign permission to superadmin role
+      await assignPermissionToSuperadmin(permissionId);
+
+      // Cleanup and refresh
+      await dismissErrorFn(dataId);
+      removeLoginCookie();
+      await getMe();
+      onRefreshPermissions?.();
+
+      // Reload page after a short delay
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error('Failed to fix permission:', error);
+      setLoading(dataId, false);
+      throw error;
+    } finally {
+      // Clear loading state after a delay if page doesn't reload
+      setTimeout(() => setLoading(dataId, false), 2000);
     }
+  };
+
+  const getOrCreatePermission = async (
+    permission: string,
+    error: FixingError
+  ): Promise<string | null> => {
+    const permissionsResponse = await adminApi.getPermissions();
+    const permissions: any[] = Array.isArray(permissionsResponse.data)
+      ? permissionsResponse.data
+      : (permissionsResponse.data?.data ?? []);
+
+    // Check if permission already exists
+    const existingPermission = permissions.find((p: any) => p.resource === permission);
+    if (existingPermission) {
+      return existingPermission.id;
+    }
+
+    // Create new permission
+    const route = `/api${error?.url || ''}`.replace(/\/(\w*id)\b/g, '/:id');
+    const method = error?.method?.toUpperCase() || 'GET';
+    const action = getActionFromMethod(method);
+
+    const newPermResponse = await adminApi.createPermission({
+      resource: permission,
+      name: permission,
+      action,
+      description: `Auto-generated permission for ${permission}`,
+      route,
+      method: error?.method || 'GET',
+      category: 'custom',
+    });
+
+    return newPermResponse.data?.id || null;
+  };
+
+  const getActionFromMethod = (method: string): string => {
+    switch (method) {
+      case 'POST':
+      case 'PUT':
+      case 'PATCH':
+      case 'DELETE':
+        return 'write';
+      case 'GET':
+      case 'HEAD':
+      case 'OPTIONS':
+      default:
+        return 'read';
+    }
+  };
+
+  const assignPermissionToSuperadmin = async (permissionId: string): Promise<void> => {
+    const rolesResponse = await adminApi.getRoles();
+    const roles = Array.isArray(rolesResponse.data)
+      ? rolesResponse.data
+      : (rolesResponse.data ?? []);
+
+    const superAdminRole = roles.find((role: any) => role.name === 'superadmin');
+    if (!superAdminRole) {
+      throw new Error('Superadmin role not found');
+    }
+
+    await adminApi.addPermissionsToRole(superAdminRole.id, [permissionId]);
   };
 
   return {
@@ -158,5 +215,7 @@ export function useUpdatePermissions() {
     setNotifOpen,
     dismissError,
     dismissAllErrors,
+    loadingStates,
+    isLoading,
   };
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Dropdown, List, Button, Badge } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Dropdown, List, Button, Badge, Spin } from 'antd';
+import { ExclamationCircleOutlined, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 import {
   FixingError,
   NotificationItem,
@@ -9,9 +9,16 @@ import {
 import { ReloadOutlined } from '@ant-design/icons';
 
 export default function AdminNotificationDropdown() {
-  const { errors, notifOpen, setNotifOpen, dismissError, dismissAllErrors, fixPermission } =
-    useUpdatePermissions();
-  const [fixingId, setFixingId] = useState<string | null>(null);
+  const {
+    errors,
+    notifOpen,
+    setNotifOpen,
+    dismissError,
+    dismissAllErrors,
+    fixPermission,
+    loadingStates,
+    isLoading,
+  } = useUpdatePermissions();
   const [fixedIds, setFixedIds] = useState<string[]>([]);
 
   return (
@@ -82,20 +89,25 @@ export default function AdminNotificationDropdown() {
                       </div>
                     )}
                     <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                      {fixedIds.includes(error.id) ? (
-                        <Button size="small" type="text" disabled style={{ color: 'green' }}>
+                      {fixedIds.includes(data.id) ? (
+                        <Button
+                          size="small"
+                          type="text"
+                          disabled
+                          icon={<CheckOutlined />}
+                          style={{ color: 'green' }}
+                        >
                           Fixed
                         </Button>
                       ) : (
                         <Button
                           size="small"
                           type="link"
-                          icon={<ReloadOutlined />}
-                          loading={fixingId === error.id}
+                          icon={isLoading(data.id) ? <LoadingOutlined /> : <ReloadOutlined />}
+                          loading={isLoading(data.id)}
+                          disabled={isLoading(data.id)}
                           onClick={async () => {
-                            setFixingId(data.id);
                             await fixPermission(data.id, error, dismissError);
-                            setFixingId(null);
                             setFixedIds((ids) => [...ids, data.id]);
                             setTimeout(() => {
                               setFixedIds((ids) => ids.filter((id) => id !== data.id));
@@ -104,13 +116,14 @@ export default function AdminNotificationDropdown() {
                           }}
                           key="fix"
                         >
-                          Fix
+                          {isLoading(data.id) ? 'Fixing...' : 'Fix'}
                         </Button>
                       )}
                       <Button
                         size="small"
                         type="text"
                         onClick={() => dismissError(data.id)}
+                        disabled={isLoading(data.id)}
                         key="close"
                       >
                         Dismiss
@@ -143,12 +156,12 @@ export default function AdminNotificationDropdown() {
                 size="small"
                 type="primary"
                 style={{ fontSize: '11px' }}
+                icon={Object.values(loadingStates).some(Boolean) ? <LoadingOutlined /> : undefined}
+                disabled={Object.values(loadingStates).some(Boolean)}
                 onClick={async () => {
                   for (const data of errors) {
                     const error = JSON.parse(data.errorPayload);
-                    setFixingId(data.id);
                     await fixPermission(data.id, error, dismissError);
-                    setFixingId(null);
                     setFixedIds((ids) => [...ids, data.id]);
                     setTimeout(() => {
                       setFixedIds((ids) => ids.filter((id) => id !== data.id));
@@ -157,7 +170,7 @@ export default function AdminNotificationDropdown() {
                   }
                 }}
               >
-                Resolve All
+                {Object.values(loadingStates).some(Boolean) ? 'Resolving...' : 'Resolve All'}
               </Button>
             </div>
           )}
