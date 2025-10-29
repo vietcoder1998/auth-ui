@@ -82,9 +82,9 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
   command,
 }) => {
   const [form] = Form.useForm();
-  const [executing, setExecuting] = useState(false);
-  const [executionResult, setExecutionResult] = useState<any>(null);
-  const [executionError, setExecutionError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [processResult, setProcessResult] = useState<any>(null);
+  const [processError, setProcessError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [commandDetails, setCommandDetails] = useState<ToolCommand | null>(null);
   const [parsedParams, setParsedParams] = useState<any>(null);
@@ -128,8 +128,8 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
   useEffect(() => {
     if (visible && command?.id) {
       // Reset state when modal opens
-      setExecutionResult(null);
-      setExecutionError(null);
+      setProcessResult(null);
+      setProcessError(null);
       setCommandDetails(null);
       setParsedParams(null);
 
@@ -143,67 +143,93 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
 
     try {
       const values = await form.validateFields();
-      setExecuting(true);
-      setExecutionResult(null);
-      setExecutionError(null);
+      setProcessing(true);
+      setProcessResult(null);
+      setProcessError(null);
 
       // Parse parameters
       let executionParams = {};
-      if (values.parameters) {
+      if (values.parameters?.trim()) {
         try {
           executionParams = JSON.parse(values.parameters);
         } catch (parseError) {
-          message.error('Invalid JSON parameters');
+          message.error(
+            'Invalid JSON parameters: ' +
+              (parseError instanceof Error ? parseError.message : 'Parse error')
+          );
+          setProcessing(false);
           return;
         }
       }
 
-      // Simulate API call (replace with actual implementation)
-      const response = await new Promise<any>((resolve, reject) => {
-        setTimeout(
-          () => {
-            // Simulate success/failure randomly for demo
-            if (Math.random() > 0.2) {
-              resolve({
-                success: true,
-                data: {
-                  result: `Command "${commandDetails.name}" executed successfully`,
-                  executionTime: Math.floor(Math.random() * 1000) + 100,
-                  output: `Execution completed for command: ${commandDetails.name}\n\nTool: ${commandDetails.tool?.name} (${commandDetails.tool?.type})\nAction: ${commandDetails.command}\n\nParameters used:\n${JSON.stringify(executionParams, null, 2)}\n\nEntity Methods involved:\n${commandDetails.entityMethods?.map((em) => `- ${em.entityMethod.name} (${em.entityMethod.entity?.name})`).join('\n') || 'None'}`,
-                  params: executionParams,
-                  timestamp: new Date().toISOString(),
-                  commandInfo: {
-                    id: commandDetails.id,
-                    name: commandDetails.name,
-                    tool: commandDetails.tool?.name,
-                    action: commandDetails.command,
-                    entityMethodCount: commandDetails.entityMethods?.length || 0,
-                  },
-                },
-              });
-            } else {
-              reject(new Error('Command execution failed: Network timeout or invalid parameters'));
-            }
-          },
-          1000 + Math.random() * 2000
-        ); // Random delay 1-3 seconds
+      // Process command using ToolCommandApi (same as page)
+      const startTime = Date.now();
+      const response = await ToolCommandApi.processCommand({
+        id: commandDetails.id,
+        name: commandDetails.name,
+        command: commandDetails.command,
+        description: commandDetails.description,
+        toolId: commandDetails.toolId,
+        params: JSON.stringify(executionParams),
+        exampleParams: JSON.stringify(executionParams),
+        input: executionParams,
+        executedBy: 'admin', // You can replace with actual user ID
+        agentId: 'default', // Add default agentId
+        type: 'tool', // Add default type
       });
+      const executionTime = Date.now() - startTime;
 
-      setExecutionResult(response.data);
-      message.success('Command executed successfully!');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Execution failed';
-      setExecutionError(errorMessage);
-      message.error(`Execution failed: ${errorMessage}`);
+      // Transform API response to match expected format
+      const transformedResponse = {
+        success: true,
+        data: {
+          result: `Command "${commandDetails.name}" executed successfully`,
+          executionTime: executionTime,
+          output:
+            response.data?.output ||
+            `Execution completed for command: ${commandDetails.name}\n\nTool: ${commandDetails.tool?.name} (${commandDetails.tool?.type})\nAction: ${commandDetails.command}\n\nParameters used:\n${JSON.stringify(executionParams, null, 2)}\n\nEntity Methods involved:\n${commandDetails.entityMethods?.map((em) => `- ${em.entityMethod.name} (${em.entityMethod.entity?.name})`).join('\n') || 'None'}\n\nExecution Result:\n${JSON.stringify(response.data, null, 2)}`,
+          params: executionParams,
+          timestamp: new Date().toISOString(),
+          commandInfo: {
+            id: commandDetails.id,
+            name: commandDetails.name,
+            tool: commandDetails.tool?.name,
+            action: commandDetails.command,
+            entityMethodCount: commandDetails.entityMethods?.length || 0,
+          },
+          apiResponse: response.data, // Include the actual API response
+          executionId: response.data?.executionId || null,
+          status: response.data?.status || 'completed',
+        },
+      };
+
+      setProcessResult(transformedResponse.data);
+      message.success('Command processed successfully!');
+    } catch (error: any) {
+      let errorMessage = 'Execution failed';
+
+      // Handle different types of errors
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      setProcessError(errorMessage);
+      message.error(`Processing failed: ${errorMessage}`);
     } finally {
-      setExecuting(false);
+      setProcessing(false);
     }
   };
 
   const handleCancel = () => {
     form.resetFields();
-    setExecutionResult(null);
-    setExecutionError(null);
+    setProcessResult(null);
+    setProcessError(null);
     setCommandDetails(null);
     setParsedParams(null);
     onCancel();
@@ -216,7 +242,7 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <PlayCircleOutlined />
-          <span>Execute Command: {commandDetails?.name || command?.name || 'Loading...'}</span>
+          <span>Process Command: {commandDetails?.name || command?.name || 'Loading...'}</span>
         </div>
       }
       open={visible}
@@ -355,7 +381,7 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
                 label={
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <CodeOutlined />
-                    <span>Execution Parameters (JSON)</span>
+                    <span>Processing Parameters (JSON)</span>
                   </div>
                 }
                 name="parameters"
@@ -375,23 +401,23 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
               >
                 <TextArea
                   rows={6}
-                  placeholder="Enter execution parameters in JSON format (optional)"
+                  placeholder="Enter processing parameters in JSON format (optional)"
                   style={{ fontFamily: 'monospace' }}
                 />
               </Form.Item>
             </Form>
 
-            {/* Execution Controls */}
+            {/* Processing Controls */}
             <div style={{ marginBottom: 16 }}>
               <Space>
                 <Button
                   type="primary"
                   icon={<PlayCircleOutlined />}
                   onClick={handleExecute}
-                  loading={executing}
+                  loading={processing}
                   disabled={!commandDetails.enabled}
                 >
-                  {executing ? 'Executing...' : 'Execute Command'}
+                  {processing ? 'Processing...' : 'Process Command'}
                 </Button>
                 <Button onClick={handleCancel}>Cancel</Button>
                 {!commandDetails.enabled && <Tag color="red">Command is disabled</Tag>}
@@ -402,87 +428,24 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
 
         <Divider />
 
-        {/* Execution Results */}
-        {executing && (
-          <Card size="small" style={{ backgroundColor: '#f0f8ff', border: '1px solid #1890ff' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <PlayCircleOutlined spin style={{ color: '#1890ff' }} />
-              <Text>Executing command... Please wait.</Text>
-            </div>
-          </Card>
-        )}
-
-        {executionResult && (
+        {/* Processing Results */}
+        {processing && (
           <Card
             size="small"
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: '#52c41a' }}>✅</span>
-                <span>Execution Result</span>
+                <PlayCircleOutlined spin style={{ color: '#1890ff' }} />
+                <span>Processing Command</span>
               </div>
             }
-            style={{ backgroundColor: '#f6ffed', border: '1px solid #52c41a' }}
+            style={{ backgroundColor: '#f0f8ff', border: '1px solid #1890ff' }}
           >
-            <Descriptions size="small" column={2} bordered style={{ marginBottom: 12 }}>
-              <Descriptions.Item label="Execution Time">
-                <Tag color="green">{executionResult.executionTime}ms</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Timestamp">
-                <Text code>{new Date(executionResult.timestamp).toLocaleString()}</Text>
-              </Descriptions.Item>
-              {executionResult.commandInfo && (
-                <>
-                  <Descriptions.Item label="Command ID">
-                    <Text code>{executionResult.commandInfo.id}</Text>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Tool Used">
-                    <Tag color="cyan">{executionResult.commandInfo.tool}</Tag>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Action">
-                    <Tag color="blue">{executionResult.commandInfo.action}</Tag>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Entity Methods">
-                    <Tag color="purple">
-                      {executionResult.commandInfo.entityMethodCount} method(s)
-                    </Tag>
-                  </Descriptions.Item>
-                </>
-              )}
-            </Descriptions>
-
             <div>
-              <Text strong>Execution Output:</Text>
-              <pre
-                style={{
-                  background: '#fff',
-                  padding: 12,
-                  borderRadius: 4,
-                  border: '1px solid #d9d9d9',
-                  marginTop: 8,
-                  fontSize: '12px',
-                  whiteSpace: 'pre-wrap',
-                  maxHeight: '300px',
-                  overflowY: 'auto',
-                }}
-              >
-                {executionResult.output}
-              </pre>
-            </div>
-          </Card>
-        )}
-
-        {executionError && (
-          <Card
-            size="small"
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: '#ff4d4f' }}>❌</span>
-                <span>Execution Error</span>
+              <Text>Processing "{commandDetails?.name}" via API...</Text>
+              <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
+                Tool: {commandDetails?.tool?.name} | Action: {commandDetails?.command}
               </div>
-            }
-            style={{ backgroundColor: '#fff2f0', border: '1px solid #ff4d4f' }}
-          >
-            <Text style={{ color: '#ff4d4f' }}>{executionError}</Text>
+            </div>
           </Card>
         )}
       </div>
