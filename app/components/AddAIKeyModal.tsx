@@ -97,7 +97,12 @@ export default function AddAIKeyModal({
           >
             {(filteredAgents as any[]).map((a) => (
               <Select.Option key={a.id} value={a.id}>
-                {a.name}
+                <div>
+                  <div style={{ fontWeight: 500 }}>{a.name}</div>
+                  {a?.model?.name && (
+                    <div style={{ fontSize: '12px', color: '#888' }}>Model: {a.model.name}</div>
+                  )}
+                </div>
               </Select.Option>
             ))}
           </Select>

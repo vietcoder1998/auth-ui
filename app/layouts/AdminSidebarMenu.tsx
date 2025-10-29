@@ -38,25 +38,20 @@ export const defaultSidebarMenu: MenuItem[] = [
     label: 'Dashboard',
   },
   {
+    key: '/admin/system/jobs',
+    icon: <ThunderboltOutlined />,
+    label: 'Jobs',
+  },
+  {
+    key: '/admin/system/ai-test',
+    icon: <RobotOutlined />,
+    label: 'AI Test',
+  },
+  {
     key: '/admin/system/ai-generator',
     icon: <RobotOutlined />,
     label: 'AI Generator',
     children: [
-      {
-        key: '/admin/system/ai-test',
-        icon: <RobotOutlined />,
-        label: 'AI Test',
-      },
-      {
-        key: '/admin/system/agents',
-        icon: <RobotOutlined />,
-        label: 'AI Agents',
-      },
-      {
-        key: '/admin/system/ai-models',
-        icon: <RobotOutlined />,
-        label: 'AI Models',
-      },
       {
         key: '/admin/system/tools',
         icon: <ToolOutlined style={{ fontSize: 15 }} />,
@@ -77,11 +72,7 @@ export const defaultSidebarMenu: MenuItem[] = [
         icon: <FileTextOutlined />,
         label: 'FAQ',
       },
-      {
-        key: '/admin/system/jobs',
-        icon: <ThunderboltOutlined />,
-        label: 'Jobs',
-      },
+
       {
         key: '/admin/system/memory',
         icon: <FileTextOutlined />,
@@ -116,6 +107,16 @@ export const defaultSidebarMenu: MenuItem[] = [
         key: '/admin/system/ai-platforms',
         icon: <DatabaseOutlined />,
         label: 'AI Platforms',
+      },
+      {
+        key: '/admin/system/ai-models',
+        icon: <RobotOutlined />,
+        label: 'AI Models',
+      },
+      {
+        key: '/admin/system/agents',
+        icon: <RobotOutlined />,
+        label: 'AI Agents',
       },
       {
         key: '/admin/system/ai-keys',
