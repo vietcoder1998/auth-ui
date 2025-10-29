@@ -119,16 +119,6 @@ const AdminToolCommandListPage: React.FC = () => {
       key: 'description',
     },
     {
-      title: 'Command',
-      dataIndex: 'command',
-      key: 'command',
-      render: (command: string) => (
-        <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4 }}>
-          {command}
-        </code>
-      ),
-    },
-    {
       title: 'Enabled',
       dataIndex: 'enabled',
       key: 'enabled',
