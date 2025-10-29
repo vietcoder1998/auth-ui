@@ -1,3 +1,5 @@
+import { AxiosInstance } from 'axios';
+import { getApiInstance } from '../index.ts';
 import { BaseApi } from './BaseApi.ts';
 
 export class ToolApi extends BaseApi {
@@ -28,6 +30,23 @@ export class ToolApi extends BaseApi {
 
   static async deleteTool(id: string | number) {
     return BaseApi.staticDelete('/admin/tools', id);
+  }
+
+  static async enableTool(agentId: string, toolName: string) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/tools/agent/${agentId}/enable/${toolName}`);
+  }
+
+  static async disableTool(agentId: string, toolName: string) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/tools/agent/${agentId}/disable/${toolName}`);
+  }
+
+  static async updateAgentTools(agentId: string, selectedToolIds: string[], allTools?: any[]) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/tools/agent/${agentId}/bulk-update`, {
+      toolIds: selectedToolIds,
+    });
   }
 }
 

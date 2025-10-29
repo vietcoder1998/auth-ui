@@ -46,6 +46,21 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
 }) => {
   // Only trigger search on button click
   const [inputValue, setInputValue] = React.useState(searchValue);
+  const [isSticky, setIsSticky] = React.useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        setIsSticky(rect.top <= 0);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -54,7 +69,22 @@ const CommonSearch: React.FC<CommonSearchProps> = ({
   };
 
   return (
-    <Card style={{ ...style, padding: 0, border: 'none' }} styles={{ body: { padding: 0 } }}>
+    <Card
+      ref={cardRef}
+      style={{
+        ...style,
+        padding: 0,
+        border: 'none',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        backgroundColor: '#fff',
+        boxShadow: isSticky ? '0 2px 8px rgba(0, 0, 0, 0.1)' : 'none',
+        marginBottom: '16px',
+        transition: 'box-shadow 0.2s ease-in-out',
+      }}
+      styles={{ body: { padding: 0 } }}
+    >
       <Space direction="vertical" style={{ width: '100%' }}>
         {/* Main search row */}
         <div
