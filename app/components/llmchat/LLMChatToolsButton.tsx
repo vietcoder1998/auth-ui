@@ -273,13 +273,8 @@ export function LLMChatToolsButton({
         placement="topRight"
       >
         <Tooltip title="View agent tools">
-          <Button
-            icon={<ToolOutlined />}
-            disabled={isLoading}
-            type={tools.length > 0 ? 'default' : 'dashed'}
-          >
-            {tools.length > 0 && <span style={{ fontSize: '10px' }}>{tools.length}</span>}
-          </Button>
+          <ToolOutlined disabled={isLoading} type={tools.length > 0 ? 'default' : 'dashed'} />
+          {tools.length > 0 && <span style={{ fontSize: '10px' }}>{tools.length}</span>}
         </Tooltip>
       </Popover>
 

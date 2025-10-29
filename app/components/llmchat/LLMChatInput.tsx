@@ -1,19 +1,11 @@
-import {
-  PlusOutlined,
-  ReloadOutlined,
-  RobotOutlined,
-  SendOutlined,
-  UploadOutlined,
-} from '@ant-design/icons';
-import { Badge, Button, Input, Select, Tooltip, Typography, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { Input } from 'antd';
 import React from 'react';
 import { Agent, Conversation } from '../LLMChat.tsx';
 import { LLMChatFiles } from './LLMChatFiles.tsx';
-import { LLMChatToolsButton } from './LLMChatToolsButton.tsx';
+import { LLMInputAction } from './LLMInputAction.tsx';
 
 const { TextArea } = Input;
-const { Text } = Typography;
-const { Option } = Select;
 
 interface UploadedFile {
   id: string;
@@ -93,80 +85,13 @@ export function LLMChatInput({
 
   return (
     <>
-      {/* Header Section */}
-      <div style={{ padding: '8px 16px', borderBottom: '1px solid #f0f0f0' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            flexWrap: 'nowrap',
-            overflow: 'hidden',
-          }}
-        >
-          <Button
-            type="text"
-            size="small"
-            icon={<ReloadOutlined />}
-            onClick={handleRefresh}
-            style={{ marginRight: 8 }}
-            aria-label="Refresh"
-          />
-          <Select
-            style={{ width: '160px', flexShrink: 0, fontSize: 10 }}
-            placeholder="Agent"
-            value={selectedAgent}
-            onChange={setSelectedAgent}
-            loading={isLoadingAgents}
-            suffixIcon={<RobotOutlined />}
-          >
-            {agents.map((agent: Agent) => (
-              <Option key={agent.id} value={agent.id} style={{ fontSize: 10, spacing: 2 }}>
-                <p style={{ fontSize: 10, lineHeight: '8px' }}>
-                  <Badge
-                    status={agent.isActive ? 'success' : 'default'}
-                    style={{ marginRight: '4px', fontSize: 10 }}
-                  />
-                  {agent.name}
-                </p>
-                <span style={{ fontSize: 10 }}>{agent?.model?.name}</span>
-              </Option>
-            ))}
-          </Select>
-          {selectedAgent && (
-            <>
-              <Select
-                style={{ flex: 1, minWidth: '80px', fontSize: 10 }}
-                placeholder="Chat"
-                value={selectedConversation}
-                onChange={setSelectedConversation}
-                allowClear
-                optionLabelProp="label"
-              >
-                {conversations.map((conv) => (
-                  <Option key={conv.id} value={conv.id} label={conv.title} style={{ fontSize: 10 }}>
-                    <Text strong style={{ fontSize: 10 }}>
-                      {conv.title}
-                    </Text>
-                  </Option>
-                ))}
-              </Select>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={createNewConversation}
-                size="small"
-                style={{ flexShrink: 0 }}
-              />
-            </>
-          )}
-          {/* <Button type="text" icon={<SettingOutlined />} size="small" style={{ flexShrink: 0 }} /> */}
-        </div>
-      </div>
-
-      {/* Input Section */}
       <div
-        style={{ padding: '6px', position: 'relative' }}
+        style={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          flexShrink: 0,
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -211,8 +136,10 @@ export function LLMChatInput({
             position: 'relative',
             display: 'flex',
             flexDirection: 'column',
+            flexShrink: 0,
           }}
         >
+          {/* Controls Row moved to bottom right */}
           <TextArea
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
@@ -226,66 +153,26 @@ export function LLMChatInput({
               fontSize: 10,
               padding: 0,
               outline: 'none',
-              minHeight: 28,
+              minHeight: 88,
             }}
             disabled={isLoading}
           />
-          <div
-            style={{
-              position: 'absolute',
-              right: 12,
-              bottom: 8,
-              display: 'flex',
-              alignItems: 'flex-end',
-              gap: 2,
-            }}
-          >
-            <LLMChatToolsButton
-              selectedAgentData={selectedAgentData}
-              isLoading={isLoading}
-              onCommandResult={handleCommandResult}
-            />
-            <Upload
-              beforeUpload={handleFileUpload}
-              showUploadList={false}
-              multiple
-              accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
-            >
-              <Tooltip title="Upload context files">
-                <Button
-                  icon={<UploadOutlined />}
-                  disabled={isLoading}
-                  type="text"
-                  size="small"
-                  style={{
-                    border: 'none',
-                    background: 'none',
-                    boxShadow: 'none',
-                    height: 24,
-                    width: 24,
-                    minWidth: 24,
-                    padding: 0,
-                  }}
-                />
-              </Tooltip>
-            </Upload>
-            <Button
-              type="primary"
-              icon={<SendOutlined style={{ fontSize: 12 }} />}
-              onClick={sendMessage}
-              disabled={(!inputValue.trim() && uploadedFiles.length === 0) || isLoading}
-              loading={isLoading}
-              size="small"
-              style={{
-                borderRadius: 4,
-                width: 28,
-                height: 28,
-                marginLeft: 2,
-                padding: 0,
-                fontSize: 12,
-              }}
-            />
-          </div>
+          <LLMInputAction
+            inputValue={inputValue}
+            isLoading={isLoading}
+            handleFileUpload={handleFileUpload}
+            uploadedFiles={uploadedFiles}
+            sendMessage={sendMessage}
+            selectedAgentData={selectedAgentData}
+            agents={agents}
+            selectedAgent={selectedAgent}
+            setSelectedAgent={setSelectedAgent}
+            conversations={conversations}
+            selectedConversation={selectedConversation}
+            setSelectedConversation={setSelectedConversation}
+            createNewConversation={createNewConversation}
+            onCommandResult={handleCommandResult}
+          />
         </div>
       </div>
     </>
