@@ -13,7 +13,7 @@ export default [
     // System management routes (including AI Management)
     route('system', 'pages/admin/system/page.tsx'), // /admin/system
     route('system/:name', 'pages/admin/system/[name]/page.tsx'), // /admin/system/:name (dynamic)
-    route('system/:name/:command', 'pages/admin/system/[name]/[command]/page.tsx'), // /admin/system/:name/:command (tool command edit)
+    route('system/:name/:command', 'pages/admin/system/[name]/[commandId]/page.tsx'), // /admin/system/:name/:command (tool command edit)
 
     // Settings management routes
     route('settings', 'pages/admin/settings/page.tsx'), // /admin/settings

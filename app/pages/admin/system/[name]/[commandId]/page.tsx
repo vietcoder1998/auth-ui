@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AgentApi, ToolApi, ToolCommandApi } from '../../../../../apis/admin.api.ts';
+import { EntityMethodApiInstance } from '../../../../../apis/adminApi/EntityMethodApi.ts';
 
 const { Text, Title } = Typography;
 
@@ -31,6 +32,9 @@ export default function ToolCommandEditPage() {
   const [saving, setSaving] = useState(false);
   const [toolOptions, setToolOptions] = useState<{ label: string; value: string }[]>([]);
   const [agentOptions, setAgentOptions] = useState<{ label: string; value: string }[]>([]);
+  const [entityMethodOptions, setEntityMethodOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(undefined);
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
   const [commandData, setCommandData] = useState<any>(null);
@@ -110,9 +114,26 @@ export default function ToolCommandEditPage() {
       }
     };
 
+    const fetchEntityMethods = async () => {
+      try {
+        const res = await EntityMethodApiInstance.getAll();
+        if (Array.isArray(res?.data?.data)) {
+          setEntityMethodOptions(
+            res.data.data.map((method: any) => ({
+              label: `${method.name} - ${method.description || 'No description'}`,
+              value: method.id,
+            }))
+          );
+        }
+      } catch (e) {
+        console.error('Error fetching entity methods:', e);
+      }
+    };
+
     fetchCommand();
     fetchTools();
     fetchAgents();
+    fetchEntityMethods();
   }, [command, form]);
 
   const handleUpdate = async (values: any) => {
@@ -258,6 +279,19 @@ export default function ToolCommandEditPage() {
                   allowClear
                   placeholder="Select associated tool(s)"
                   options={toolOptions}
+                  showSearch
+                  optionFilterProp="label"
+                  style={{ width: '100%' }}
+                />
+              </Form.Item>
+
+              <Form.Item name="entityMethodIds" label="Entity Methods">
+                <Select
+                  size="small"
+                  mode="multiple"
+                  allowClear
+                  placeholder="Select entity methods"
+                  options={entityMethodOptions}
                   showSearch
                   optionFilterProp="label"
                   style={{ width: '100%' }}
