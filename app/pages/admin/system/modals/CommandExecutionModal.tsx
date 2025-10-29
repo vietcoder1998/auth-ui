@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Input, message, Space, Tag, Divider, Typography, Card } from 'antd';
-import { PlayCircleOutlined, CodeOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  Modal,
+  Button,
+  Form,
+  Input,
+  message,
+  Space,
+  Tag,
+  Divider,
+  Typography,
+  Card,
+  Spin,
+  Descriptions,
+} from 'antd';
+import {
+  PlayCircleOutlined,
+  CodeOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
+import { ToolCommandApi } from '../../../../apis/admin.api.ts';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -66,34 +85,61 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
   const [executing, setExecuting] = useState(false);
   const [executionResult, setExecutionResult] = useState<any>(null);
   const [executionError, setExecutionError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [commandDetails, setCommandDetails] = useState<ToolCommand | null>(null);
+  const [parsedParams, setParsedParams] = useState<any>(null);
 
-  useEffect(() => {
-    if (visible && command) {
-      // Reset state when modal opens
-      setExecutionResult(null);
-      setExecutionError(null);
+  const fetchCommandDetails = async (commandId: string) => {
+    setLoading(true);
+    try {
+      const response = await ToolCommandApi.getToolCommand(commandId);
+      const fullCommand = response.data.data;
+      setCommandDetails(fullCommand);
 
-      // Pre-fill form with example parameters if available
+      // Parse command parameters
+      let parsedCommandParams = null;
       let defaultParams = '';
-      if (command.parameters) {
+
+      if (fullCommand.parameters) {
         try {
-          const parsedParams = JSON.parse(command.parameters);
-          if (parsedParams.exampleParams) {
-            defaultParams = JSON.stringify(JSON.parse(parsedParams.exampleParams), null, 2);
+          parsedCommandParams = JSON.parse(fullCommand.parameters);
+          setParsedParams(parsedCommandParams);
+
+          if (parsedCommandParams.exampleParams) {
+            defaultParams = JSON.stringify(JSON.parse(parsedCommandParams.exampleParams), null, 2);
           }
         } catch (parseError) {
           console.warn('Failed to parse command parameters:', parseError);
+          setParsedParams({ error: 'Invalid JSON format' });
         }
       }
 
       form.setFieldsValue({
         parameters: defaultParams,
       });
+    } catch (error) {
+      message.error('Failed to fetch command details');
+      console.error('Error fetching command:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [visible, command, form]);
+  };
+
+  useEffect(() => {
+    if (visible && command?.id) {
+      // Reset state when modal opens
+      setExecutionResult(null);
+      setExecutionError(null);
+      setCommandDetails(null);
+      setParsedParams(null);
+
+      // Fetch full command details
+      fetchCommandDetails(command.id);
+    }
+  }, [visible, command?.id, form]);
 
   const handleExecute = async () => {
-    if (!command) return;
+    if (!commandDetails) return;
 
     try {
       const values = await form.validateFields();
@@ -121,11 +167,18 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
               resolve({
                 success: true,
                 data: {
-                  result: `Command "${command.name}" executed successfully`,
+                  result: `Command "${commandDetails.name}" executed successfully`,
                   executionTime: Math.floor(Math.random() * 1000) + 100,
-                  output: `Execution completed for command: ${command.name}\n\nParameters used:\n${JSON.stringify(executionParams, null, 2)}\n\nEntity Methods involved:\n${command.entityMethods?.map((em) => `- ${em.entityMethod.name} (${em.entityMethod.entity?.name})`).join('\n')}`,
+                  output: `Execution completed for command: ${commandDetails.name}\n\nTool: ${commandDetails.tool?.name} (${commandDetails.tool?.type})\nAction: ${commandDetails.command}\n\nParameters used:\n${JSON.stringify(executionParams, null, 2)}\n\nEntity Methods involved:\n${commandDetails.entityMethods?.map((em) => `- ${em.entityMethod.name} (${em.entityMethod.entity?.name})`).join('\n') || 'None'}`,
                   params: executionParams,
                   timestamp: new Date().toISOString(),
+                  commandInfo: {
+                    id: commandDetails.id,
+                    name: commandDetails.name,
+                    tool: commandDetails.tool?.name,
+                    action: commandDetails.command,
+                    entityMethodCount: commandDetails.entityMethods?.length || 0,
+                  },
                 },
               });
             } else {
@@ -151,6 +204,8 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
     form.resetFields();
     setExecutionResult(null);
     setExecutionError(null);
+    setCommandDetails(null);
+    setParsedParams(null);
     onCancel();
   };
 
@@ -161,7 +216,7 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <PlayCircleOutlined />
-          <span>Execute Command: {command.name}</span>
+          <span>Execute Command: {commandDetails?.name || command?.name || 'Loading...'}</span>
         </div>
       }
       open={visible}
@@ -170,93 +225,180 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
       footer={null}
     >
       <div style={{ marginBottom: 20 }}>
-        {/* Command Information */}
-        <Card size="small" style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <InfoCircleOutlined style={{ color: '#1890ff' }} />
-            <Text strong>Command Information</Text>
+        {/* Loading State */}
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
+              tip="Loading command details..."
+            />
           </div>
+        )}
 
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <div>
-              <Text type="secondary">Tool: </Text>
-              <Tag color="cyan">{command.tool?.name || 'Unknown'}</Tag>
-              <Tag color="purple">{command.tool?.type || 'Unknown'}</Tag>
-            </div>
-
-            <div>
-              <Text type="secondary">Description: </Text>
-              <Text>{command.description || 'No description'}</Text>
-            </div>
-
-            {command.entityMethods && command.entityMethods.length > 0 && (
-              <div>
-                <Text type="secondary">Entity Methods ({command.entityMethods.length}): </Text>
-                <div style={{ marginTop: 4 }}>
-                  {command.entityMethods.map((em) => (
-                    <Tag
-                      key={em.id}
-                      color="blue"
-                      style={{ marginBottom: 4 }}
-                      title={em.entityMethod.description}
-                    >
-                      {em.entityMethod.name} ({em.entityMethod.entity?.name})
-                    </Tag>
-                  ))}
-                </div>
+        {/* Command Information */}
+        {!loading && commandDetails && (
+          <>
+            <Card size="small" style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                <Text strong>Command Information</Text>
               </div>
+
+              <Descriptions size="small" column={1} bordered>
+                <Descriptions.Item label="Command Name">
+                  <Text strong>{commandDetails.name}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Tool">
+                  <Space>
+                    <Tag color="cyan">{commandDetails.tool?.name || 'Unknown'}</Tag>
+                    <Tag color="purple">{commandDetails.tool?.type || 'Unknown'}</Tag>
+                  </Space>
+                </Descriptions.Item>
+                <Descriptions.Item label="Description">
+                  {commandDetails.description || 'No description'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Action">
+                  <Tag color="blue">{commandDetails.command || 'N/A'}</Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  <Tag color={commandDetails.enabled ? 'green' : 'red'}>
+                    {commandDetails.enabled ? 'Enabled' : 'Disabled'}
+                  </Tag>
+                </Descriptions.Item>
+                {commandDetails.entityMethods && commandDetails.entityMethods.length > 0 && (
+                  <Descriptions.Item
+                    label={`Entity Methods (${commandDetails.entityMethods.length})`}
+                  >
+                    <Space wrap>
+                      {commandDetails.entityMethods.map((em) => (
+                        <Tag key={em.id} color="blue" title={em.entityMethod.description}>
+                          {em.entityMethod.name} ({em.entityMethod.entity?.name})
+                        </Tag>
+                      ))}
+                    </Space>
+                  </Descriptions.Item>
+                )}
+              </Descriptions>
+            </Card>
+
+            {/* Command Parameters Display */}
+            {parsedParams && (
+              <Card size="small" style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <CodeOutlined style={{ color: '#1890ff' }} />
+                  <Text strong>Command Parameters</Text>
+                </div>
+
+                <Descriptions size="small" column={1} bordered>
+                  {parsedParams.error ? (
+                    <Descriptions.Item label="Error">
+                      <Text type="danger">{parsedParams.error}</Text>
+                    </Descriptions.Item>
+                  ) : (
+                    <>
+                      {parsedParams.name && (
+                        <Descriptions.Item label="Name">{parsedParams.name}</Descriptions.Item>
+                      )}
+                      {parsedParams.route && (
+                        <Descriptions.Item label="Route">
+                          <Text code>{parsedParams.route}</Text>
+                        </Descriptions.Item>
+                      )}
+                      {parsedParams.method && (
+                        <Descriptions.Item label="HTTP Method">
+                          <Tag color="orange">{parsedParams.method}</Tag>
+                        </Descriptions.Item>
+                      )}
+                      {parsedParams.exampleParams && (
+                        <Descriptions.Item label="Example Parameters">
+                          <pre
+                            style={{
+                              background: '#f5f5f5',
+                              padding: 8,
+                              borderRadius: 4,
+                              fontSize: '12px',
+                              margin: 0,
+                              whiteSpace: 'pre-wrap',
+                            }}
+                          >
+                            {JSON.stringify(JSON.parse(parsedParams.exampleParams), null, 2)}
+                          </pre>
+                        </Descriptions.Item>
+                      )}
+                      <Descriptions.Item label="Full Parameters">
+                        <pre
+                          style={{
+                            background: '#f5f5f5',
+                            padding: 8,
+                            borderRadius: 4,
+                            fontSize: '12px',
+                            margin: 0,
+                            whiteSpace: 'pre-wrap',
+                          }}
+                        >
+                          {JSON.stringify(parsedParams, null, 2)}
+                        </pre>
+                      </Descriptions.Item>
+                    </>
+                  )}
+                </Descriptions>
+              </Card>
             )}
-          </Space>
-        </Card>
+          </>
+        )}
 
         {/* Parameter Input Form */}
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label={
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <CodeOutlined />
-                <span>Execution Parameters (JSON)</span>
-              </div>
-            }
-            name="parameters"
-            rules={[
-              {
-                validator: (_, value) => {
-                  if (!value) return Promise.resolve();
-                  try {
-                    JSON.parse(value);
-                    return Promise.resolve();
-                  } catch {
-                    return Promise.reject(new Error('Invalid JSON format'));
-                  }
-                },
-              },
-            ]}
-          >
-            <TextArea
-              rows={6}
-              placeholder="Enter execution parameters in JSON format (optional)"
-              style={{ fontFamily: 'monospace' }}
-            />
-          </Form.Item>
-        </Form>
+        {!loading && commandDetails && (
+          <>
+            <Form form={form} layout="vertical">
+              <Form.Item
+                label={
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <CodeOutlined />
+                    <span>Execution Parameters (JSON)</span>
+                  </div>
+                }
+                name="parameters"
+                rules={[
+                  {
+                    validator: (_, value) => {
+                      if (!value) return Promise.resolve();
+                      try {
+                        JSON.parse(value);
+                        return Promise.resolve();
+                      } catch {
+                        return Promise.reject(new Error('Invalid JSON format'));
+                      }
+                    },
+                  },
+                ]}
+              >
+                <TextArea
+                  rows={6}
+                  placeholder="Enter execution parameters in JSON format (optional)"
+                  style={{ fontFamily: 'monospace' }}
+                />
+              </Form.Item>
+            </Form>
 
-        {/* Execution Controls */}
-        <div style={{ marginBottom: 16 }}>
-          <Space>
-            <Button
-              type="primary"
-              icon={<PlayCircleOutlined />}
-              onClick={handleExecute}
-              loading={executing}
-              disabled={!command.enabled}
-            >
-              {executing ? 'Executing...' : 'Execute Command'}
-            </Button>
-            <Button onClick={handleCancel}>Cancel</Button>
-            {!command.enabled && <Tag color="red">Command is disabled</Tag>}
-          </Space>
-        </div>
+            {/* Execution Controls */}
+            <div style={{ marginBottom: 16 }}>
+              <Space>
+                <Button
+                  type="primary"
+                  icon={<PlayCircleOutlined />}
+                  onClick={handleExecute}
+                  loading={executing}
+                  disabled={!commandDetails.enabled}
+                >
+                  {executing ? 'Executing...' : 'Execute Command'}
+                </Button>
+                <Button onClick={handleCancel}>Cancel</Button>
+                {!commandDetails.enabled && <Tag color="red">Command is disabled</Tag>}
+              </Space>
+            </div>
+          </>
+        )}
 
         <Divider />
 
@@ -281,34 +423,51 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
             }
             style={{ backgroundColor: '#f6ffed', border: '1px solid #52c41a' }}
           >
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <div>
-                <Text strong>Execution Time: </Text>
+            <Descriptions size="small" column={2} bordered style={{ marginBottom: 12 }}>
+              <Descriptions.Item label="Execution Time">
                 <Tag color="green">{executionResult.executionTime}ms</Tag>
-              </div>
-
-              <div>
-                <Text strong>Timestamp: </Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Timestamp">
                 <Text code>{new Date(executionResult.timestamp).toLocaleString()}</Text>
-              </div>
+              </Descriptions.Item>
+              {executionResult.commandInfo && (
+                <>
+                  <Descriptions.Item label="Command ID">
+                    <Text code>{executionResult.commandInfo.id}</Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Tool Used">
+                    <Tag color="cyan">{executionResult.commandInfo.tool}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Action">
+                    <Tag color="blue">{executionResult.commandInfo.action}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Entity Methods">
+                    <Tag color="purple">
+                      {executionResult.commandInfo.entityMethodCount} method(s)
+                    </Tag>
+                  </Descriptions.Item>
+                </>
+              )}
+            </Descriptions>
 
-              <div>
-                <Text strong>Output:</Text>
-                <pre
-                  style={{
-                    background: '#fff',
-                    padding: 12,
-                    borderRadius: 4,
-                    border: '1px solid #d9d9d9',
-                    marginTop: 8,
-                    fontSize: '12px',
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {executionResult.output}
-                </pre>
-              </div>
-            </Space>
+            <div>
+              <Text strong>Execution Output:</Text>
+              <pre
+                style={{
+                  background: '#fff',
+                  padding: 12,
+                  borderRadius: 4,
+                  border: '1px solid #d9d9d9',
+                  marginTop: 8,
+                  fontSize: '12px',
+                  whiteSpace: 'pre-wrap',
+                  maxHeight: '300px',
+                  overflowY: 'auto',
+                }}
+              >
+                {executionResult.output}
+              </pre>
+            </div>
           </Card>
         )}
 
