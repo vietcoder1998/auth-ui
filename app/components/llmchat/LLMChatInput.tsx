@@ -1,9 +1,9 @@
-import { SendOutlined, UploadOutlined, ToolOutlined } from '@ant-design/icons';
-import { Button, Input, Tooltip, Typography, Upload, Popover, List, Tag, Spin } from 'antd';
+import { SendOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Input, Tooltip, Typography, Upload } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { Agent } from '../LLMChat.tsx';
 import { LLMChatFiles } from './LLMChatFiles.tsx';
-import { ToolApi } from '~/apis/adminApi/ToolApi.ts';
+import { LLMChatToolsButton } from './LLMChatToolsButton.tsx';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -47,76 +47,9 @@ export function LLMChatInput({
   sendMessage,
   selectedAgentData,
 }: LLMChatInputProps) {
-  const [tools, setTools] = useState<any[]>([]);
-  const [loadingTools, setLoadingTools] = useState(false);
-  const [toolsVisible, setToolsVisible] = useState(false);
-
-  // Fetch tools when agent changes
-  useEffect(() => {
-    if (selectedAgentData?.id) {
-      fetchAgentTools();
-    } else {
-      setTools([]);
-    }
-  }, [selectedAgentData?.id]);
-
-  const fetchAgentTools = async () => {
-    if (!selectedAgentData?.id) return;
-
-    setLoadingTools(true);
-    try {
-      const response = await ToolApi.getToolsByAgent(selectedAgentData.id);
-      setTools(response.data?.data || []);
-    } catch (error) {
-      console.error('Failed to fetch tools:', error);
-      setTools([]);
-    } finally {
-      setLoadingTools(false);
-    }
+  const handleCommandResult = (result: string) => {
+    setInputValue(inputValue ? `${inputValue}\n\n${result}` : result);
   };
-
-  const toolsContent = (
-    <div style={{ width: 300, maxHeight: 400, overflow: 'auto' }}>
-      {loadingTools ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <Spin />
-        </div>
-      ) : tools.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-          No tools available for this agent
-        </div>
-      ) : (
-        <List
-          size="small"
-          dataSource={tools}
-          renderItem={(tool: any) => (
-            <List.Item key={tool.id}>
-              <List.Item.Meta
-                title={
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {tool.name}
-                    {tool.enabled && (
-                      <Tag color="green" style={{ fontSize: '10px' }}>
-                        Enabled
-                      </Tag>
-                    )}
-                  </div>
-                }
-                description={
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#666' }}>
-                      {tool.description || 'No description'}
-                    </div>
-                    <Tag style={{ fontSize: '10px', marginTop: 4 }}>{tool.type}</Tag>
-                  </div>
-                }
-              />
-            </List.Item>
-          )}
-        />
-      )}
-    </div>
-  );
 
   return (
     <div
@@ -164,26 +97,11 @@ export function LLMChatInput({
           disabled={isLoading}
         />
         {/* Tools Button */}
-        {selectedAgentData && (
-          <Popover
-            content={toolsContent}
-            title={`Tools for ${selectedAgentData.name}`}
-            trigger="click"
-            open={toolsVisible}
-            onOpenChange={setToolsVisible}
-            placement="topRight"
-          >
-            <Tooltip title="View agent tools">
-              <Button
-                icon={<ToolOutlined />}
-                disabled={isLoading}
-                type={tools.length > 0 ? 'default' : 'dashed'}
-              >
-                {tools.length > 0 && <span style={{ fontSize: '10px' }}>{tools.length}</span>}
-              </Button>
-            </Tooltip>
-          </Popover>
-        )}
+        <LLMChatToolsButton
+          selectedAgentData={selectedAgentData}
+          isLoading={isLoading}
+          onCommandResult={handleCommandResult}
+        />
         {/* Upload Button */}
         <Upload
           beforeUpload={handleFileUpload}

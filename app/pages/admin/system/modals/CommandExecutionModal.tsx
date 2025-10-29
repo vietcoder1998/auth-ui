@@ -12,6 +12,7 @@ import {
   Card,
   Spin,
   Descriptions,
+  Tabs,
 } from 'antd';
 import {
   PlayCircleOutlined,
@@ -261,192 +262,330 @@ const CommandExecutionModal: React.FC<CommandExecutionModalProps> = ({
           </div>
         )}
 
-        {/* Command Information */}
+        {/* Tabbed Content */}
         {!loading && commandDetails && (
-          <>
-            <Card size="small" style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <InfoCircleOutlined style={{ color: '#1890ff' }} />
-                <Text strong>Command Information</Text>
-              </div>
+          <Tabs
+            defaultActiveKey="info"
+            items={[
+              {
+                key: 'info',
+                label: (
+                  <span>
+                    <InfoCircleOutlined />
+                    Command Info
+                  </span>
+                ),
+                children: (
+                  <div>
+                    {/* Command Information */}
+                    <Card size="small" style={{ marginBottom: 16 }}>
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}
+                      >
+                        <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                        <Text strong>Command Information</Text>
+                      </div>
 
-              <Descriptions size="small" column={1} bordered>
-                <Descriptions.Item label="Command Name">
-                  <Text strong>{commandDetails.name}</Text>
-                </Descriptions.Item>
-                <Descriptions.Item label="Tool">
-                  <Space>
-                    <Tag color="cyan">{commandDetails.tool?.name || 'Unknown'}</Tag>
-                    <Tag color="purple">{commandDetails.tool?.type || 'Unknown'}</Tag>
-                  </Space>
-                </Descriptions.Item>
-                <Descriptions.Item label="Description">
-                  {commandDetails.description || 'No description'}
-                </Descriptions.Item>
-                <Descriptions.Item label="Action">
-                  <Tag color="blue">{commandDetails.command || 'N/A'}</Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="Status">
-                  <Tag color={commandDetails.enabled ? 'green' : 'red'}>
-                    {commandDetails.enabled ? 'Enabled' : 'Disabled'}
-                  </Tag>
-                </Descriptions.Item>
-                {commandDetails.entityMethods && commandDetails.entityMethods.length > 0 && (
-                  <Descriptions.Item
-                    label={`Entity Methods (${commandDetails.entityMethods.length})`}
-                  >
-                    <Space wrap>
-                      {commandDetails.entityMethods.map((em) => (
-                        <Tag key={em.id} color="blue" title={em.entityMethod.description}>
-                          {em.entityMethod.name} ({em.entityMethod.entity?.name})
-                        </Tag>
-                      ))}
-                    </Space>
-                  </Descriptions.Item>
-                )}
-              </Descriptions>
-            </Card>
+                      <Descriptions size="small" column={1} bordered>
+                        <Descriptions.Item label="Command Name">
+                          <Text strong>{commandDetails.name}</Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Tool">
+                          <Space>
+                            <Tag color="cyan">{commandDetails.tool?.name || 'Unknown'}</Tag>
+                            <Tag color="purple">{commandDetails.tool?.type || 'Unknown'}</Tag>
+                          </Space>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Description">
+                          {commandDetails.description || 'No description'}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Action">
+                          <Tag color="blue">{commandDetails.command || 'N/A'}</Tag>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Status">
+                          <Tag color={commandDetails.enabled ? 'green' : 'red'}>
+                            {commandDetails.enabled ? 'Enabled' : 'Disabled'}
+                          </Tag>
+                        </Descriptions.Item>
+                        {commandDetails.entityMethods &&
+                          commandDetails.entityMethods.length > 0 && (
+                            <Descriptions.Item
+                              label={`Entity Methods (${commandDetails.entityMethods.length})`}
+                            >
+                              <Space wrap>
+                                {commandDetails.entityMethods.map((em) => (
+                                  <Tag key={em.id} color="blue" title={em.entityMethod.description}>
+                                    {em.entityMethod.name} ({em.entityMethod.entity?.name})
+                                  </Tag>
+                                ))}
+                              </Space>
+                            </Descriptions.Item>
+                          )}
+                      </Descriptions>
+                    </Card>
 
-            {/* Command Parameters Display */}
-            {parsedParams && (
-              <Card size="small" style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <CodeOutlined style={{ color: '#1890ff' }} />
-                  <Text strong>Command Parameters</Text>
-                </div>
-
-                <Descriptions size="small" column={1} bordered>
-                  {parsedParams.error ? (
-                    <Descriptions.Item label="Error">
-                      <Text type="danger">{parsedParams.error}</Text>
-                    </Descriptions.Item>
-                  ) : (
-                    <>
-                      {parsedParams.name && (
-                        <Descriptions.Item label="Name">{parsedParams.name}</Descriptions.Item>
-                      )}
-                      {parsedParams.route && (
-                        <Descriptions.Item label="Route">
-                          <Text code>{parsedParams.route}</Text>
-                        </Descriptions.Item>
-                      )}
-                      {parsedParams.method && (
-                        <Descriptions.Item label="HTTP Method">
-                          <Tag color="orange">{parsedParams.method}</Tag>
-                        </Descriptions.Item>
-                      )}
-                      {parsedParams.exampleParams && (
-                        <Descriptions.Item label="Example Parameters">
-                          <pre
-                            style={{
-                              background: '#f5f5f5',
-                              padding: 8,
-                              borderRadius: 4,
-                              fontSize: '12px',
-                              margin: 0,
-                              whiteSpace: 'pre-wrap',
-                            }}
-                          >
-                            {JSON.stringify(JSON.parse(parsedParams.exampleParams), null, 2)}
-                          </pre>
-                        </Descriptions.Item>
-                      )}
-                      <Descriptions.Item label="Full Parameters">
-                        <pre
+                    {/* Command Parameters Display */}
+                    {parsedParams && (
+                      <Card size="small" style={{ marginBottom: 16 }}>
+                        <div
                           style={{
-                            background: '#f5f5f5',
-                            padding: 8,
-                            borderRadius: 4,
-                            fontSize: '12px',
-                            margin: 0,
-                            whiteSpace: 'pre-wrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            marginBottom: 12,
                           }}
                         >
-                          {JSON.stringify(parsedParams, null, 2)}
-                        </pre>
-                      </Descriptions.Item>
-                    </>
-                  )}
-                </Descriptions>
-              </Card>
-            )}
-          </>
-        )}
+                          <CodeOutlined style={{ color: '#1890ff' }} />
+                          <Text strong>Command Parameters</Text>
+                        </div>
 
-        {/* Parameter Input Form */}
-        {!loading && commandDetails && (
-          <>
-            <Form form={form} layout="vertical">
-              <Form.Item
-                label={
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <CodeOutlined />
-                    <span>Processing Parameters (JSON)</span>
+                        <Descriptions size="small" column={1} bordered>
+                          {parsedParams.error ? (
+                            <Descriptions.Item label="Error">
+                              <Text type="danger">{parsedParams.error}</Text>
+                            </Descriptions.Item>
+                          ) : (
+                            <>
+                              {parsedParams.name && (
+                                <Descriptions.Item label="Name">
+                                  {parsedParams.name}
+                                </Descriptions.Item>
+                              )}
+                              {parsedParams.route && (
+                                <Descriptions.Item label="Route">
+                                  <Text code>{parsedParams.route}</Text>
+                                </Descriptions.Item>
+                              )}
+                              {parsedParams.method && (
+                                <Descriptions.Item label="HTTP Method">
+                                  <Tag color="orange">{parsedParams.method}</Tag>
+                                </Descriptions.Item>
+                              )}
+                              {parsedParams.exampleParams && (
+                                <Descriptions.Item label="Example Parameters">
+                                  <pre
+                                    style={{
+                                      background: '#f5f5f5',
+                                      padding: 8,
+                                      borderRadius: 4,
+                                      fontSize: '12px',
+                                      margin: 0,
+                                      whiteSpace: 'pre-wrap',
+                                    }}
+                                  >
+                                    {JSON.stringify(
+                                      JSON.parse(parsedParams.exampleParams),
+                                      null,
+                                      2
+                                    )}
+                                  </pre>
+                                </Descriptions.Item>
+                              )}
+                              <Descriptions.Item label="Full Parameters">
+                                <pre
+                                  style={{
+                                    background: '#f5f5f5',
+                                    padding: 8,
+                                    borderRadius: 4,
+                                    fontSize: '12px',
+                                    margin: 0,
+                                    whiteSpace: 'pre-wrap',
+                                  }}
+                                >
+                                  {JSON.stringify(parsedParams, null, 2)}
+                                </pre>
+                              </Descriptions.Item>
+                            </>
+                          )}
+                        </Descriptions>
+                      </Card>
+                    )}
                   </div>
-                }
-                name="parameters"
-                rules={[
-                  {
-                    validator: (_, value) => {
-                      if (!value) return Promise.resolve();
-                      try {
-                        JSON.parse(value);
-                        return Promise.resolve();
-                      } catch {
-                        return Promise.reject(new Error('Invalid JSON format'));
-                      }
-                    },
-                  },
-                ]}
-              >
-                <TextArea
-                  rows={6}
-                  placeholder="Enter processing parameters in JSON format (optional)"
-                  style={{ fontFamily: 'monospace' }}
-                />
-              </Form.Item>
-            </Form>
+                ),
+              },
+              {
+                key: 'process',
+                label: (
+                  <span>
+                    <PlayCircleOutlined />
+                    Process Command
+                  </span>
+                ),
+                children: (
+                  <div>
+                    {/* Parameter Input Form */}
+                    <Form form={form} layout="vertical">
+                      <Form.Item
+                        label={
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <CodeOutlined />
+                            <span>Processing Parameters (JSON)</span>
+                          </div>
+                        }
+                        name="parameters"
+                        rules={[
+                          {
+                            validator: (_, value) => {
+                              if (!value) return Promise.resolve();
+                              try {
+                                JSON.parse(value);
+                                return Promise.resolve();
+                              } catch {
+                                return Promise.reject(new Error('Invalid JSON format'));
+                              }
+                            },
+                          },
+                        ]}
+                      >
+                        <TextArea
+                          rows={6}
+                          placeholder="Enter processing parameters in JSON format (optional)"
+                          style={{ fontFamily: 'monospace' }}
+                        />
+                      </Form.Item>
+                    </Form>
 
-            {/* Processing Controls */}
-            <div style={{ marginBottom: 16 }}>
-              <Space>
-                <Button
-                  type="primary"
-                  icon={<PlayCircleOutlined />}
-                  onClick={handleExecute}
-                  loading={processing}
-                  disabled={!commandDetails.enabled}
-                >
-                  {processing ? 'Processing...' : 'Process Command'}
-                </Button>
-                <Button onClick={handleCancel}>Cancel</Button>
-                {!commandDetails.enabled && <Tag color="red">Command is disabled</Tag>}
-              </Space>
-            </div>
-          </>
-        )}
+                    {/* Processing Controls */}
+                    <div style={{ marginBottom: 16 }}>
+                      <Space>
+                        <Button
+                          type="primary"
+                          icon={<PlayCircleOutlined />}
+                          onClick={handleExecute}
+                          loading={processing}
+                          disabled={!commandDetails.enabled}
+                        >
+                          {processing ? 'Processing...' : 'Process Command'}
+                        </Button>
+                        <Button onClick={handleCancel}>Cancel</Button>
+                        {!commandDetails.enabled && <Tag color="red">Command is disabled</Tag>}
+                      </Space>
+                    </div>
 
-        <Divider />
+                    <Divider />
 
-        {/* Processing Results */}
-        {processing && (
-          <Card
-            size="small"
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <PlayCircleOutlined spin style={{ color: '#1890ff' }} />
-                <span>Processing Command</span>
-              </div>
-            }
-            style={{ backgroundColor: '#f0f8ff', border: '1px solid #1890ff' }}
-          >
-            <div>
-              <Text>Processing "{commandDetails?.name}" via API...</Text>
-              <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
-                Tool: {commandDetails?.tool?.name} | Action: {commandDetails?.command}
-              </div>
-            </div>
-          </Card>
+                    {/* Processing Results */}
+                    {processing && (
+                      <Card
+                        size="small"
+                        title={
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <PlayCircleOutlined spin style={{ color: '#1890ff' }} />
+                            <span>Processing Command</span>
+                          </div>
+                        }
+                        style={{ backgroundColor: '#f0f8ff', border: '1px solid #1890ff' }}
+                      >
+                        <div>
+                          <Text>Processing "{commandDetails?.name}" via API...</Text>
+                          <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
+                            Tool: {commandDetails?.tool?.name} | Action: {commandDetails?.command}
+                          </div>
+                        </div>
+                      </Card>
+                    )}
+
+                    {/* Process Success Results */}
+                    {processResult && (
+                      <Card
+                        size="small"
+                        title={
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <PlayCircleOutlined style={{ color: '#52c41a' }} />
+                            <span>Process Results</span>
+                          </div>
+                        }
+                        style={{
+                          backgroundColor: '#f6ffed',
+                          border: '1px solid #52c41a',
+                          marginBottom: 16,
+                        }}
+                      >
+                        <Descriptions size="small" column={1} bordered>
+                          <Descriptions.Item label="Status">
+                            <Tag color="green">Success</Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Execution Time">
+                            {processResult.executionTime}ms
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Timestamp">
+                            {new Date(processResult.timestamp).toLocaleString()}
+                          </Descriptions.Item>
+                          {processResult.executionId && (
+                            <Descriptions.Item label="Execution ID">
+                              <Text code>{processResult.executionId}</Text>
+                            </Descriptions.Item>
+                          )}
+                          <Descriptions.Item label="Result">
+                            <Text>{processResult.result}</Text>
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Output">
+                            <pre
+                              style={{
+                                background: '#f5f5f5',
+                                padding: 12,
+                                borderRadius: 4,
+                                fontSize: '12px',
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                maxHeight: '300px',
+                                overflow: 'auto',
+                              }}
+                            >
+                              {processResult.output}
+                            </pre>
+                          </Descriptions.Item>
+                          {processResult.apiResponse && (
+                            <Descriptions.Item label="API Response">
+                              <pre
+                                style={{
+                                  background: '#f0f0f0',
+                                  padding: 12,
+                                  borderRadius: 4,
+                                  fontSize: '11px',
+                                  margin: 0,
+                                  whiteSpace: 'pre-wrap',
+                                  maxHeight: '200px',
+                                  overflow: 'auto',
+                                }}
+                              >
+                                {JSON.stringify(processResult.apiResponse, null, 2)}
+                              </pre>
+                            </Descriptions.Item>
+                          )}
+                        </Descriptions>
+                      </Card>
+                    )}
+
+                    {/* Process Error Results */}
+                    {processError && (
+                      <Card
+                        size="small"
+                        title={
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <PlayCircleOutlined style={{ color: '#ff4d4f' }} />
+                            <span>Process Error</span>
+                          </div>
+                        }
+                        style={{
+                          backgroundColor: '#fff2f0',
+                          border: '1px solid #ff4d4f',
+                          marginBottom: 16,
+                        }}
+                      >
+                        <div>
+                          <Tag color="red">Error</Tag>
+                          <div style={{ marginTop: 8 }}>
+                            <Text type="danger">{processError}</Text>
+                          </div>
+                        </div>
+                      </Card>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+          />
         )}
       </div>
     </Modal>
