@@ -127,80 +127,80 @@ export function LLMChatToolsButton({
   };
 
   const toolsContent = (
-    <div style={{ width: 350, maxHeight: 400, overflow: 'auto' }}>
+    <div style={{ width: 300, maxHeight: 350, overflow: 'auto' }}>
       {/* Tool Management Header */}
-      <div style={{ padding: '8px 0', borderBottom: '1px solid #f0f0f0', marginBottom: '8px' }}>
+      <div style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0', marginBottom: '6px' }}>
         <Button
           type="dashed"
           size="small"
           icon={<SettingOutlined />}
           onClick={handleToolSelectionOpen}
-          style={{ width: '100%' }}
+          style={{ width: '100%', fontSize: '11px', height: '24px' }}
         >
-          Manage Agent Tools
+          Manage Tools
         </Button>
       </div>
 
       {loadingTools ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <Spin />
+        <div style={{ textAlign: 'center', padding: '12px' }}>
+          <Spin size="small" />
         </div>
       ) : tools.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-          No tools available for this agent
+        <div style={{ textAlign: 'center', padding: '12px', color: '#999', fontSize: '11px' }}>
+          No tools available
         </div>
       ) : (
         <div>
           {tools.map((tool: any) => (
-            <div key={tool.id} style={{ marginBottom: '12px' }}>
+            <div key={tool.id} style={{ marginBottom: '8px' }}>
               {/* Tool Header */}
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '8px 12px',
+                  padding: '6px 8px',
                   background: '#f5f5f5',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   border: '1px solid #d9d9d9',
                   cursor: 'pointer',
                 }}
                 onClick={() => handleToolClick(tool.id)}
               >
                 <Tooltip title={`${tool.description || 'No description'} | Type: ${tool.type}`}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-                    <span style={{ fontWeight: 500, fontSize: '13px' }}>{tool.name}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}>
+                    <span style={{ fontWeight: 500, fontSize: '11px' }}>{tool.name}</span>
                     <Tag
                       color={tool.enabled ? 'green' : 'red'}
-                      style={{ fontSize: '10px', margin: 0 }}
+                      style={{ fontSize: '9px', margin: 0, padding: '0 4px', lineHeight: '16px' }}
                     >
-                      {tool.enabled ? 'Enabled' : 'Disabled'}
+                      {tool.enabled ? 'ON' : 'OFF'}
                     </Tag>
                     {toolCommands[tool.id] && toolCommands[tool.id].length > 0 && (
-                      <span style={{ fontSize: '10px', color: '#666' }}>
-                        ({toolCommands[tool.id].length} commands)
+                      <span style={{ fontSize: '9px', color: '#666' }}>
+                        ({toolCommands[tool.id].length})
                       </span>
                     )}
                   </div>
                 </Tooltip>
-                <span style={{ fontSize: '12px', color: '#666' }}>
+                <span style={{ fontSize: '10px', color: '#666' }}>
                   {expandedTools[tool.id] ? <DownOutlined /> : <RightOutlined />}
                 </span>
               </div>
 
               {/* Tool Commands - Collapsible */}
               {expandedTools[tool.id] && (
-                <div style={{ paddingLeft: '12px', paddingTop: '4px' }}>
+                <div style={{ paddingLeft: '8px', paddingTop: '2px' }}>
                   {loadingCommands[tool.id] ? (
-                    <div style={{ textAlign: 'center', padding: '12px' }}>
+                    <div style={{ textAlign: 'center', padding: '8px' }}>
                       <Spin size="small" />
-                      <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
-                        Loading commands...
+                      <div style={{ fontSize: '10px', color: '#999', marginTop: '2px' }}>
+                        Loading...
                       </div>
                     </div>
                   ) : !toolCommands[tool.id] || toolCommands[tool.id].length === 0 ? (
-                    <div style={{ fontSize: '12px', color: '#999', padding: '8px' }}>
-                      No commands available
+                    <div style={{ fontSize: '10px', color: '#999', padding: '4px 6px' }}>
+                      No commands
                     </div>
                   ) : (
                     toolCommands[tool.id].map((command: any) => (
@@ -210,21 +210,26 @@ export function LLMChatToolsButton({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '6px 8px',
+                          padding: '4px 6px',
                           background: '#fafafa',
-                          borderRadius: '4px',
-                          marginBottom: '4px',
+                          borderRadius: '3px',
+                          marginBottom: '2px',
                           border: '1px solid #e8e8e8',
                         }}
                       >
                         <Tooltip title={command.description || 'No description'}>
-                          <div style={{ flex: 1, fontSize: '12px' }}>
+                          <div style={{ flex: 1, fontSize: '10px' }}>
                             <div style={{ fontWeight: 500 }}>{command.name}</div>
                             <Tag
                               color={command.enabled ? 'blue' : 'default'}
-                              style={{ fontSize: '10px', marginTop: '2px' }}
+                              style={{
+                                fontSize: '8px',
+                                marginTop: '1px',
+                                padding: '0 3px',
+                                lineHeight: '14px',
+                              }}
                             >
-                              {command.enabled ? 'Active' : 'Inactive'}
+                              {command.enabled ? 'ON' : 'OFF'}
                             </Tag>
                           </div>
                         </Tooltip>
@@ -237,9 +242,9 @@ export function LLMChatToolsButton({
                             handleProcessCommand(command);
                           }}
                           disabled={!command.enabled}
-                          style={{ fontSize: '10px' }}
+                          style={{ fontSize: '9px', height: '20px', padding: '0 6px' }}
                         >
-                          Process
+                          Run
                         </Button>
                       </div>
                     ))

@@ -9,7 +9,7 @@ import { AxiosInstance, AxiosRequestConfig } from 'axios';
  * @template ID - The type of the entity ID (string | number)
  */
 export class BaseApi<T = any, ID = string | number> {
-  protected api: AxiosInstance;
+  public api: AxiosInstance;
   protected basePath: string;
 
   /**
