@@ -19,17 +19,15 @@ export interface Agent {
   id: string;
   name: string;
   description: string;
-  model:
-    | string
-    | {
-        id: string;
-        name: string;
-        description?: string;
-        type?: string;
-        platformId?: string;
-        createdAt?: string;
-        updatedAt?: string;
-      };
+  model: {
+    id: string;
+    name: string;
+    description?: string;
+    type?: string;
+    platformId?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
   isActive: boolean;
 }
 
@@ -123,13 +121,13 @@ export default function LLMChat() {
   };
 
   // Refresh all data (agents, conversations, messages)
-  const handleRefresh = async () => {
+  const handleRefresh = React.useCallback(async () => {
     await fetchAgents();
     if (selectedAgent) await fetchConversations();
     if (selectedConversation) await fetchMessages();
-  };
+  }, [selectedAgent, selectedConversation]);
 
-  const fetchAgents = async () => {
+  const fetchAgents = React.useCallback(async () => {
     try {
       setIsLoadingAgents(true);
       const response = await adminApi.getAgents();
@@ -146,9 +144,9 @@ export default function LLMChat() {
     } finally {
       setIsLoadingAgents(false);
     }
-  };
+  }, [selectedAgent]);
 
-  const fetchConversations = async () => {
+  const fetchConversations = React.useCallback(async () => {
     try {
       const response = await adminApi.getConversations({ agentId: selectedAgent });
       console.log('response ->', response);
@@ -156,9 +154,9 @@ export default function LLMChat() {
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }
-  };
+  }, [selectedAgent]);
 
-  const fetchMessages = async () => {
+  const fetchMessages = React.useCallback(async () => {
     try {
       // Use the dedicated getMessages endpoint for better performance
       const response = await adminApi.getMessages(selectedConversation);
@@ -175,9 +173,9 @@ export default function LLMChat() {
         console.error('Error fetching messages (fallback):', fallbackError);
       }
     }
-  };
+  }, [selectedConversation]);
 
-  const createNewConversation = async () => {
+  const createNewConversation = React.useCallback(async () => {
     if (!selectedAgent) return;
 
     try {
@@ -194,9 +192,9 @@ export default function LLMChat() {
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
-  };
+  }, [selectedAgent]);
 
-  const sendMessage = async () => {
+  const sendMessage = React.useCallback(async () => {
     if (!inputValue.trim() || !selectedConversation || isLoading) return;
 
     const userMessage = inputValue.trim();
@@ -305,16 +303,19 @@ export default function LLMChat() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [inputValue, selectedConversation, selectedAgent, uploadedFiles, isLoading]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
+  const handleKeyPress = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    },
+    [sendMessage]
+  );
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = React.useCallback(async (file: File) => {
     try {
       const fileData = {
         id: Date.now().toString(),
@@ -342,34 +343,40 @@ export default function LLMChat() {
       message.error('Failed to upload file');
       return false;
     }
-  };
+  }, []);
 
-  const removeFile = (fileId: string) => {
+  const removeFile = React.useCallback((fileId: string) => {
     setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(true);
-  };
+  }, []);
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-  };
+  }, []);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
+  const handleDrop = React.useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    files.forEach((file) => handleFileUpload(file));
-  };
+      const files = Array.from(e.dataTransfer.files);
+      files.forEach((file) => handleFileUpload(file));
+    },
+    [handleFileUpload]
+  );
 
-  const selectedAgentData = agents.find((agent) => agent.id === selectedAgent);
+  const selectedAgentData = React.useMemo(
+    () => agents.find((agent) => agent.id === selectedAgent),
+    [agents, selectedAgent]
+  );
 
   return (
     <>

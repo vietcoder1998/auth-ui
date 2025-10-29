@@ -48,7 +48,7 @@ export function LLMChatHeader({
           aria-label="Refresh"
         />
         <Select
-          style={{ width: '160px', flexShrink: 0 }}
+          style={{ width: '160px', flexShrink: 0, fontSize: 8 }}
           size="small"
           placeholder="Agent"
           value={selectedAgent}
@@ -57,19 +57,19 @@ export function LLMChatHeader({
           suffixIcon={<RobotOutlined />}
         >
           {agents.map((agent) => (
-            <Option key={agent.id} value={agent.id}>
+            <Option key={agent.id} value={agent.id} style={{ fontSize: 8 }}>
               <Badge
                 status={agent.isActive ? 'success' : 'default'}
                 style={{ marginRight: '4px' }}
               />
-              {agent.name}
+              <p>{agent.name}</p>
             </Option>
           ))}
         </Select>
         {selectedAgent && (
           <>
             <Select
-              style={{ flex: 1, minWidth: '80px' }}
+              style={{ flex: 1, minWidth: '80px', fontSize: 8 }}
               size="small"
               placeholder="Chat"
               value={selectedConversation}

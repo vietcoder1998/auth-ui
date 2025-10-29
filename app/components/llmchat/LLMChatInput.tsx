@@ -75,9 +75,13 @@ export function LLMChatInput({
   createNewConversation,
   handleRefresh,
 }: LLMChatInputProps) {
-  const handleCommandResult = (result: string) => {
-    setInputValue(inputValue ? `${inputValue}\n\n${result}` : result);
-  };
+  const handleCommandResult = React.useCallback((result: string) => {
+    setInputValue(result);
+  }, []);
+
+  const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+  }, []);
 
   return (
     <>
@@ -101,29 +105,30 @@ export function LLMChatInput({
             aria-label="Refresh"
           />
           <Select
-            style={{ width: '160px', flexShrink: 0 }}
-            size="small"
+            style={{ width: '160px', flexShrink: 0, fontSize: 10 }}
             placeholder="Agent"
             value={selectedAgent}
             onChange={setSelectedAgent}
             loading={isLoadingAgents}
             suffixIcon={<RobotOutlined />}
           >
-            {agents.map((agent) => (
-              <Option key={agent.id} value={agent.id}>
-                <Badge
-                  status={agent.isActive ? 'success' : 'default'}
-                  style={{ marginRight: '4px' }}
-                />
-                {agent.name}
+            {agents.map((agent: Agent) => (
+              <Option key={agent.id} value={agent.id} style={{ fontSize: 10, spacing: 2 }}>
+                <p style={{ fontSize: 10, lineHeight: '8px' }}>
+                  <Badge
+                    status={agent.isActive ? 'success' : 'default'}
+                    style={{ marginRight: '4px', fontSize: 10 }}
+                  />
+                  {agent.name}
+                </p>
+                <span style={{ fontSize: 10 }}>{agent?.model?.name}</span>
               </Option>
             ))}
           </Select>
           {selectedAgent && (
             <>
               <Select
-                style={{ flex: 1, minWidth: '80px' }}
-                size="small"
+                style={{ flex: 1, minWidth: '80px', fontSize: 10 }}
                 placeholder="Chat"
                 value={selectedConversation}
                 onChange={setSelectedConversation}
@@ -131,8 +136,8 @@ export function LLMChatInput({
                 optionLabelProp="label"
               >
                 {conversations.map((conv) => (
-                  <Option key={conv.id} value={conv.id} label={conv.title}>
-                    <Text strong style={{ fontSize: '12px' }}>
+                  <Option key={conv.id} value={conv.id} label={conv.title} style={{ fontSize: 10 }}>
+                    <Text strong style={{ fontSize: 10 }}>
                       {conv.title}
                     </Text>
                   </Option>
@@ -147,7 +152,7 @@ export function LLMChatInput({
               />
             </>
           )}
-          <Button type="text" icon={<SettingOutlined />} size="small" style={{ flexShrink: 0 }} />
+          {/* <Button type="text" icon={<SettingOutlined />} size="small" style={{ flexShrink: 0 }} /> */}
         </div>
       </div>
 
@@ -189,7 +194,8 @@ export function LLMChatInput({
         <LLMChatFiles uploadedFiles={uploadedFiles} removeFile={removeFile} />
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
           <TextArea
-            onChange={(e) => setInputValue(e.target.value)}
+            value={inputValue}
+            onChange={handleInputChange}
             onKeyDown={handleKeyPress}
             placeholder={`Message ${selectedAgentData?.name || 'AI Agent'}...`}
             autoSize={{ minRows: 1, maxRows: 4 }}

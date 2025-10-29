@@ -20,6 +20,13 @@ export function LLMChatMessages({
   isLoading,
   messagesEndRef,
 }: LLMChatMessagesProps) {
+  // Auto-scroll to bottom when new messages arrive
+  React.useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages, messagesEndRef]);
+
   return (
     <div
       style={{
@@ -49,8 +56,9 @@ export function LLMChatMessages({
           <List
             dataSource={messages}
             style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: '8px' }}
-            renderItem={(message) => (
+            renderItem={(message, index) => (
               <List.Item
+                ref={index === messages.length - 1 ? messagesEndRef : null}
                 style={{
                   border: 'none',
                   padding: '8px 0',
@@ -94,7 +102,6 @@ export function LLMChatMessages({
                         wordBreak: 'break-word',
                         overflowWrap: 'break-word',
                         maxWidth: '100%',
-                        maxHeight: '300px',
                         overflowY: 'auto',
                         overflowX: 'hidden',
                       }}
@@ -166,7 +173,6 @@ export function LLMChatMessages({
           )}
         </div>
       )}
-      <div ref={messagesEndRef} />
     </div>
   );
 }
