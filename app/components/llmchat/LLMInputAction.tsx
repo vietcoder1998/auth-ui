@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { Badge, Tooltip, Typography, Upload } from 'antd';
 import React from 'react';
-import { Agent, Conversation } from '../LLMChat.tsx';
+import { Agent, Conversation } from './LLMChat.tsx';
 import { LLMChatToolsButton } from './LLMChatToolsButton.tsx';
 
 const { Text } = Typography;

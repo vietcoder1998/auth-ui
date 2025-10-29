@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Dropdown, Tooltip, Typography } from 'antd';
 import { DragOutlined, ExpandOutlined, MinusOutlined, MessageOutlined } from '@ant-design/icons';
-import LLMChat from '../components/LLMChat.tsx';
+import LLMChat from './llmchat/LLMChat.tsx';
 
 interface AdminChatWidgetProps {
   isChatCollapsed: boolean;

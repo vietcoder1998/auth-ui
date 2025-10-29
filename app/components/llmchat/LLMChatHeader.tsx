@@ -1,6 +1,6 @@
 import { PlusOutlined, ReloadOutlined, RobotOutlined, SettingOutlined } from '@ant-design/icons';
 import { Badge, Button, Select, Typography } from 'antd';
-import { Agent, Conversation } from '../LLMChat.tsx';
+import { Agent, Conversation } from './LLMChat.tsx';
 
 const { Option } = Select;
 const { Text } = Typography;

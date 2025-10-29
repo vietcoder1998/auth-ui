@@ -2,10 +2,10 @@ import { RobotOutlined } from '@ant-design/icons';
 import { Card, Divider, message } from 'antd';
 import Cookies from 'js-cookie';
 import React, { useEffect, useRef, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { LLMChatInput } from './llmchat/LLMChatInput.tsx';
-import { LLMChatMessages } from './llmchat/LLMChatMessages.tsx';
+import { adminApi } from '../../apis/admin.api.ts';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { LLMChatInput } from './LLMChatInput.tsx';
+import { LLMChatMessages } from './LLMChatMessages.tsx';
 
 export interface Message {
   id: string;

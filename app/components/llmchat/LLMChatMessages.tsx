@@ -1,7 +1,7 @@
 import { MessageOutlined, RobotOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Empty, List, Spin, Typography } from 'antd';
 import React from 'react';
-import { Message } from '../LLMChat.tsx';
+import { Message } from './LLMChat.tsx';
 
 const { Text, Paragraph } = Typography;
 

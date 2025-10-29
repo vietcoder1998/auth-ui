@@ -1,7 +1,7 @@
 import { UploadOutlined } from '@ant-design/icons';
 import { Input } from 'antd';
 import React from 'react';
-import { Agent, Conversation } from '../LLMChat.tsx';
+import { Agent, Conversation } from './LLMChat.tsx';
 import { LLMChatFiles } from './LLMChatFiles.tsx';
 import { LLMInputAction } from './LLMInputAction.tsx';
 

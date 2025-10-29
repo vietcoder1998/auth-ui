@@ -9,7 +9,7 @@ import { Button, Popover, Spin, Tag, Tooltip } from 'antd';
 import { useState } from 'react';
 import { ToolCommandApi } from '~/apis/admin.api.ts';
 import { ToolApi } from '~/apis/adminApi/ToolApi.ts';
-import { Agent } from '../LLMChat.tsx';
+import { Agent } from './LLMChat.tsx';
 import { LLMChatToolSelectionModal } from './LLMChatToolSelectionModal.tsx';
 
 interface LLMChatToolsButtonProps {
@@ -273,7 +273,14 @@ export function LLMChatToolsButton({
         placement="topRight"
       >
         <Tooltip title="View agent tools">
-          <ToolOutlined disabled={isLoading} type={tools.length > 0 ? 'default' : 'dashed'} />
+          <ToolOutlined
+            disabled={isLoading}
+            style={{
+              border: tools.length === 0 ? 'default' : 'dashed 1px',
+              cursor: 'pointer',
+              borderRadius: 2,
+            }}
+          />
           {tools.length > 0 && <span style={{ fontSize: '10px' }}>{tools.length}</span>}
         </Tooltip>
       </Popover>
