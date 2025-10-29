@@ -152,6 +152,7 @@ export default function LLMChat() {
   const fetchConversations = async () => {
     try {
       const response = await adminApi.getConversations({ agentId: selectedAgent });
+      console.log('response ->', response);
       setConversations(response.data.data || []);
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -162,7 +163,7 @@ export default function LLMChat() {
     try {
       // Use the dedicated getMessages endpoint for better performance
       const response = await adminApi.getMessages(selectedConversation);
-      const messages = response.data.data || [];
+      const messages = response.data.data.data || [];
       setMessages(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -186,7 +187,7 @@ export default function LLMChat() {
         title: `Chat ${new Date().toLocaleString()}`,
       });
 
-      const newConversation = response.data;
+      const newConversation = response.data.data;
       setConversations((prev) => [newConversation, ...prev]);
       setSelectedConversation(newConversation.id);
       setMessages([]);
