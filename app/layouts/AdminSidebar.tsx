@@ -6,8 +6,8 @@ import {
 } from '@ant-design/icons';
 import React, { useContext } from 'react';
 import { Button, Input } from 'antd';
-import AdminSidebarMenu from '~/components/AdminSidebarMenu.tsx';
-import type { MenuItem } from '../components/AdminSidebarMenu.tsx';
+import AdminSidebarMenu from '~/layouts/AdminSidebarMenu.tsx';
+import type { MenuItem } from './AdminSidebarMenu.tsx';
 import { useResponsive } from '~/hooks/useResponsive.tsx';
 
 export interface AdminSidebarProps {

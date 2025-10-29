@@ -31,7 +31,7 @@ export default function AdminHeader({ profileMenuItems, generateBreadcrumb }: an
         }}
         onClick={toggleCollapse}
       >
-        {!collapsed && <Breadcrumb items={generateBreadcrumb()} style={{ fontSize: '14px' }} />}
+        {!collapsed && <Breadcrumb items={generateBreadcrumb()} style={{ fontSize: '12px' }} />}
         {collapsed && (
           <span style={{ fontSize: '12px', color: '#999' }}>Click to expand breadcrumb</span>
         )}

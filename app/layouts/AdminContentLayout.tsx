@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ResponsiveProvider } from '~/hooks/useResponsive.tsx';
 import ResponsiveContent from './ResponsiveContent.tsx';
-import AdminBreadcrumb from '../components/AdminBreadcrumb.tsx';
+import AdminBreadcrumb from './AdminBreadcrumb.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { Layout } from 'antd';
 
