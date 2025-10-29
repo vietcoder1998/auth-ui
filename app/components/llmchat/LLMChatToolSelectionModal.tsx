@@ -81,7 +81,7 @@ export function LLMChatToolSelectionModal({
     setSubmitting(true);
     try {
       // Call API to update agent tools
-      await ToolApi.updateAgentTools(selectedAgentData.id, selectedToolIds, allAvailableTools);
+      await ToolApi.updateAgentTools(selectedAgentData.id, selectedToolIds);
 
       console.log('Agent tools updated successfully');
 

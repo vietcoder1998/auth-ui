@@ -42,42 +42,11 @@ export class ToolApi extends BaseApi {
     return axios.put(`/admin/tools/agent/${agentId}/disable/${toolName}`);
   }
 
-  static async updateAgentTools(agentId: string, selectedToolIds: string[], allTools: any[]) {
-    const results = [];
-
-    // Get current tools to compare
-    const currentResponse = await this.getToolsByAgent(agentId);
-    const currentToolIds = currentResponse.data?.data?.map((tool: any) => tool.id) || [];
-
-    // Enable selected tools that aren't currently enabled
-    for (const toolId of selectedToolIds) {
-      const tool = allTools.find((t) => t.id === toolId);
-      if (tool && !currentToolIds.includes(toolId)) {
-        try {
-          await this.enableTool(agentId, tool.name);
-          results.push({ action: 'enabled', tool: tool.name });
-        } catch (error) {
-          console.error(`Failed to enable tool ${tool.name}:`, error);
-        }
-      }
-    }
-
-    // Disable tools that are currently enabled but not selected
-    for (const toolId of currentToolIds) {
-      if (!selectedToolIds.includes(toolId)) {
-        const tool = allTools.find((t) => t.id === toolId);
-        if (tool) {
-          try {
-            await this.disableTool(agentId, tool.name);
-            results.push({ action: 'disabled', tool: tool.name });
-          } catch (error) {
-            console.error(`Failed to disable tool ${tool.name}:`, error);
-          }
-        }
-      }
-    }
-
-    return { data: { results } };
+  static async updateAgentTools(agentId: string, selectedToolIds: string[], allTools?: any[]) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/tools/agent/${agentId}/bulk-update`, {
+      toolIds: selectedToolIds,
+    });
   }
 }
 
