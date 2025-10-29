@@ -144,7 +144,7 @@ export default function LLMChat() {
     } finally {
       setIsLoadingAgents(false);
     }
-  }, [selectedAgent]);
+  }, []);
 
   const fetchConversations = React.useCallback(async () => {
     try {

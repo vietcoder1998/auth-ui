@@ -36,7 +36,7 @@ export function LLMChatMessages({
         padding: selectedConversation ? '0 6px' : '0',
         background: selectedConversation ? '#fafafa' : 'transparent',
         minHeight: 0,
-        maxHeight: 400,
+        maxHeight: 350,
         scrollBehavior: 'smooth',
       }}
       className="messages-container"

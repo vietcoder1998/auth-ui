@@ -3,7 +3,6 @@ import {
   ReloadOutlined,
   RobotOutlined,
   SendOutlined,
-  SettingOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
 import { Badge, Button, Input, Select, Tooltip, Typography, Upload } from 'antd';
@@ -75,12 +74,21 @@ export function LLMChatInput({
   createNewConversation,
   handleRefresh,
 }: LLMChatInputProps) {
-  const handleCommandResult = React.useCallback((result: string) => {
-    setInputValue(result);
-  }, []);
+  const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleCommandResult = React.useCallback(
+    (result: string) => {
+      setInputValue(result);
+    },
+    [setInputValue]
+  );
 
   const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
+    const value = e.target.value;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setInputValue(value);
+    }, 200);
   }, []);
 
   return (
@@ -192,40 +200,92 @@ export function LLMChatInput({
         )}
         {/* Uploaded Files Display */}
         <LLMChatFiles uploadedFiles={uploadedFiles} removeFile={removeFile} />
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+        <div
+          style={{
+            background: '#f6f8fa',
+            padding: '8px 16px 32px 16px',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+            border: '1px solid #e4e7ec',
+            gap: 8,
+            marginTop: 8,
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <TextArea
-            value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
             placeholder={`Message ${selectedAgentData?.name || 'AI Agent'}...`}
             autoSize={{ minRows: 1, maxRows: 4 }}
-            style={{ flex: 1 }}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              boxShadow: 'none',
+              resize: 'none',
+              fontSize: 10,
+              padding: 0,
+              outline: 'none',
+              minHeight: 28,
+            }}
             disabled={isLoading}
           />
-          {/* Tools Button */}
-          <LLMChatToolsButton
-            selectedAgentData={selectedAgentData}
-            isLoading={isLoading}
-            onCommandResult={handleCommandResult}
-          />
-          {/* Upload Button */}
-          <Upload
-            beforeUpload={handleFileUpload}
-            showUploadList={false}
-            multiple
-            accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
+          <div
+            style={{
+              position: 'absolute',
+              right: 12,
+              bottom: 8,
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: 2,
+            }}
           >
-            <Tooltip title="Upload context files">
-              <Button icon={<UploadOutlined />} disabled={isLoading} />
-            </Tooltip>
-          </Upload>
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
-            onClick={sendMessage}
-            disabled={(!inputValue.trim() && uploadedFiles.length === 0) || isLoading}
-            loading={isLoading}
-          />
+            <LLMChatToolsButton
+              selectedAgentData={selectedAgentData}
+              isLoading={isLoading}
+              onCommandResult={handleCommandResult}
+            />
+            <Upload
+              beforeUpload={handleFileUpload}
+              showUploadList={false}
+              multiple
+              accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
+            >
+              <Tooltip title="Upload context files">
+                <Button
+                  icon={<UploadOutlined />}
+                  disabled={isLoading}
+                  type="text"
+                  size="small"
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    boxShadow: 'none',
+                    height: 24,
+                    width: 24,
+                    minWidth: 24,
+                    padding: 0,
+                  }}
+                />
+              </Tooltip>
+            </Upload>
+            <Button
+              type="primary"
+              icon={<SendOutlined style={{ fontSize: 12 }} />}
+              onClick={sendMessage}
+              disabled={(!inputValue.trim() && uploadedFiles.length === 0) || isLoading}
+              loading={isLoading}
+              size="small"
+              style={{
+                borderRadius: 4,
+                width: 28,
+                height: 28,
+                marginLeft: 2,
+                padding: 0,
+                fontSize: 12,
+              }}
+            />
+          </div>
         </div>
       </div>
     </>
