@@ -20,7 +20,7 @@ const AdminChatWidget: React.FC<AdminChatWidgetProps> = ({
     style={{
       position: 'fixed',
       width: '400px',
-      height: isChatCollapsed ? '60px' : '500px',
+      height: isChatCollapsed ? '60px' : '550px',
       background: '#fff',
       boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
       border: '1px solid #e0e0e0',

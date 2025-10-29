@@ -4,7 +4,6 @@ import Cookies from 'js-cookie';
 import React, { useEffect, useRef, useState } from 'react';
 import { adminApi } from '../apis/admin.api.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
-import { LLMChatHeader } from './llmchat/LLMChatHeader.tsx';
 import { LLMChatInput } from './llmchat/LLMChatInput.tsx';
 import { LLMChatMessages } from './llmchat/LLMChatMessages.tsx';
 
@@ -417,8 +416,30 @@ export default function LLMChat() {
             },
           }}
         >
-          {/* Header */}
-          <LLMChatHeader
+          {/* Messages */}
+          <LLMChatMessages
+            selectedAgent={selectedAgent}
+            selectedConversation={selectedConversation}
+            messages={messages}
+            isLoading={isLoading}
+            messagesEndRef={messagesEndRef}
+          />
+          {/* Input with Header */}
+          <Divider style={{ margin: 0 }} />
+          <LLMChatInput
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            handleKeyPress={handleKeyPress}
+            isLoading={isLoading}
+            handleFileUpload={handleFileUpload}
+            uploadedFiles={uploadedFiles}
+            removeFile={removeFile}
+            isDragOver={isDragOver}
+            handleDragOver={handleDragOver}
+            handleDragLeave={handleDragLeave}
+            handleDrop={handleDrop}
+            sendMessage={sendMessage}
+            selectedAgentData={selectedAgentData}
             agents={agents}
             selectedAgent={selectedAgent}
             setSelectedAgent={setSelectedAgent}
@@ -429,35 +450,6 @@ export default function LLMChat() {
             createNewConversation={createNewConversation}
             handleRefresh={handleRefresh}
           />
-          {/* Messages */}
-          <LLMChatMessages
-            selectedAgent={selectedAgent}
-            selectedConversation={selectedConversation}
-            messages={messages}
-            isLoading={isLoading}
-            messagesEndRef={messagesEndRef}
-          />
-          {/* Input */}
-          {selectedConversation && (
-            <>
-              <Divider style={{ margin: 0 }} />
-              <LLMChatInput
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-                handleKeyPress={handleKeyPress}
-                isLoading={isLoading}
-                handleFileUpload={handleFileUpload}
-                uploadedFiles={uploadedFiles}
-                removeFile={removeFile}
-                isDragOver={isDragOver}
-                handleDragOver={handleDragOver}
-                handleDragLeave={handleDragLeave}
-                handleDrop={handleDrop}
-                sendMessage={sendMessage}
-                selectedAgentData={selectedAgentData}
-              />
-            </>
-          )}
         </Card>
       ) : (
         <div style={{ textAlign: 'center', padding: '32px 0', color: '#888' }}>
