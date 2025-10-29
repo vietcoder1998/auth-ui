@@ -125,7 +125,7 @@ export default function LLMChat() {
     await fetchAgents();
     if (selectedAgent) await fetchConversations();
     if (selectedConversation) await fetchMessages();
-  }, [selectedAgent, selectedConversation]);
+  }, []);
 
   const fetchAgents = React.useCallback(async () => {
     try {
