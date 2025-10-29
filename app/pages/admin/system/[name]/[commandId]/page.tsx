@@ -85,10 +85,10 @@ export default function ToolCommandEditPage() {
     const fetchTools = async () => {
       try {
         const res = await ToolApi.getTools();
-        if (Array.isArray(res?.data?.data?.data)) {
+        if (Array.isArray(res?.data?.data)) {
           setToolOptions(
-            res.data.data.data.map((tool: any) => ({
-              label: tool.name || tool.label || tool.id,
+            res.data.data.map((tool: any) => ({
+              label: tool.name || tool.label || `Tool ${tool.id}`,
               value: tool.id,
             }))
           );
