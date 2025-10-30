@@ -38,8 +38,9 @@ export default function ToolCommandEditPage() {
   const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(undefined);
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
   const [commandData, setCommandData] = useState<any>(null);
-  const [paramsValue, setParamsValue] = useState<string>('{}');
-  const [exampleParamsValue, setExampleParamsValue] = useState<string>('{}');
+  const [metadataValue, setMetadataValue] = useState<string>(
+    '{\n  "permission": {\n    "name": "",\n    "route": "",\n    "method": ""\n  },\n  "entity": {\n    "permissionId": "{permission_id}"\n  },\n  "example": {\n  }\n}'
+  );
 
   // Fetch command data by id
   useEffect(() => {
@@ -52,26 +53,36 @@ export default function ToolCommandEditPage() {
             const data = res.data.data.data || res.data.data;
             setCommandData(data);
 
-            // Format JSON for Monaco Editor
-            const params = data.params;
-            const exampleParams = data.exampleParams;
-
-            if (params) {
-              const formattedParams =
-                typeof params === 'string' ? params : JSON.stringify(params, null, 2);
-              setParamsValue(formattedParams);
+            // Handle metadata or legacy params/exampleParams
+            if (data.metadata) {
+              // Use new metadata structure
+              const formattedMetadata =
+                typeof data.metadata === 'string'
+                  ? data.metadata
+                  : JSON.stringify(data.metadata, null, 2);
+              setMetadataValue(formattedMetadata);
+            } else if (data.params || data.exampleParams) {
+              // Convert legacy params/exampleParams to new metadata structure
+              const legacyMetadata = {
+                permission: data.params
+                  ? typeof data.params === 'string'
+                    ? JSON.parse(data.params)
+                    : data.params
+                  : {},
+                entity: {
+                  permissionId: '{permission_id}',
+                },
+                example: data.exampleParams
+                  ? typeof data.exampleParams === 'string'
+                    ? JSON.parse(data.exampleParams)
+                    : data.exampleParams
+                  : {},
+              };
+              setMetadataValue(JSON.stringify(legacyMetadata, null, 2));
             }
 
-            if (exampleParams) {
-              const formattedExampleParams =
-                typeof exampleParams === 'string'
-                  ? exampleParams
-                  : JSON.stringify(exampleParams, null, 2);
-              setExampleParamsValue(formattedExampleParams);
-            }
-
-            // Set form values without params and exampleParams (handled by Monaco)
-            const { params: _, exampleParams: __, ...formData } = data;
+            // Set form values without metadata (handled by Monaco)
+            const { params: _, exampleParams: __, metadata: ___, ...formData } = data;
             form.setFieldsValue(formData);
           }
         } catch (e) {
@@ -141,11 +152,12 @@ export default function ToolCommandEditPage() {
 
     setSaving(true);
     try {
-      // Merge form values with Monaco editor values
+      // Merge form values with metadata
       const updateData = {
         ...values,
-        params: paramsValue,
-        exampleParams: exampleParamsValue,
+        metadata: metadataValue,
+        params: null, // Set legacy fields to null
+        exampleParams: null,
       };
 
       await ToolCommandApi.updateToolCommand(command, updateData);
@@ -164,8 +176,9 @@ export default function ToolCommandEditPage() {
       const values = form.getFieldsValue();
       const result = await ToolCommandApi.processCommand({
         ...values,
-        params: paramsValue,
-        exampleParams: exampleParamsValue,
+        metadata: metadataValue,
+        params: null, // Legacy fields for backward compatibility
+        exampleParams: null,
         agentId: selectedAgentId,
         type: selectedType,
       });
@@ -184,8 +197,9 @@ export default function ToolCommandEditPage() {
       const values = form.getFieldsValue();
       const result = await ToolCommandApi.executeToolCommand(command || '', {
         ...values,
-        params: paramsValue,
-        exampleParams: exampleParamsValue,
+        metadata: metadataValue,
+        params: null, // Legacy fields for backward compatibility
+        exampleParams: null,
         agentId: selectedAgentId,
         type: selectedType,
       });
@@ -232,13 +246,13 @@ export default function ToolCommandEditPage() {
                 <Input.TextArea size="small" rows={2} />
               </Form.Item>
 
-              <Form.Item label="Parameters (JSON)">
+              <Form.Item label="Metadata (JSON)">
                 <div style={{ border: '1px solid #d9d9d9', borderRadius: 2 }}>
                   <Editor
-                    height="200px"
+                    height="400px"
                     defaultLanguage="json"
-                    value={paramsValue}
-                    onChange={(value: string | undefined) => setParamsValue(value || '{}')}
+                    value={metadataValue}
+                    onChange={(value: string | undefined) => setMetadataValue(value || '{}')}
                     options={{
                       minimap: { enabled: false },
                       fontSize: 12,
@@ -250,25 +264,9 @@ export default function ToolCommandEditPage() {
                     theme="vs-light"
                   />
                 </div>
-              </Form.Item>
-
-              <Form.Item label="Example Parameters (JSON)">
-                <div style={{ border: '1px solid #d9d9d9', borderRadius: 2 }}>
-                  <Editor
-                    height="200px"
-                    defaultLanguage="json"
-                    value={exampleParamsValue}
-                    onChange={(value: string | undefined) => setExampleParamsValue(value || '{}')}
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 12,
-                      lineNumbers: 'on',
-                      scrollBeyondLastLine: false,
-                      automaticLayout: true,
-                      tabSize: 2,
-                    }}
-                    theme="vs-light"
-                  />
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                  Structure:{' '}
+                  {`{ "permission": { "name": "", "route": "", "method": "" }, "entity": { "permissionId": "{permission_id}" }, "example": {} }`}
                 </div>
               </Form.Item>
 
@@ -454,10 +452,10 @@ export default function ToolCommandEditPage() {
                     >
                       {(() => {
                         try {
-                          if (!paramsValue || paramsValue === '{}') return 'No parameters.';
-                          return JSON.stringify(JSON.parse(paramsValue), null, 2);
+                          if (!metadataValue || metadataValue === '{}') return 'No metadata.';
+                          return JSON.stringify(JSON.parse(metadataValue), null, 2);
                         } catch {
-                          return paramsValue || 'No parameters.';
+                          return metadataValue || 'No metadata.';
                         }
                       })()}
                     </pre>
