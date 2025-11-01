@@ -92,22 +92,20 @@ export function LLMInputAction({
         }}
       >
         <div style={{ position: 'relative' }}>
-          <Badge count={agents.length} size="small" offset={[2, -2]}>
-            <RobotOutlined
-              style={{
-                fontSize: 18,
-                color: selectedAgentData ? '#1890ff' : '#888',
-                background: selectedAgentData ? '#e6f7ff' : 'transparent',
-                borderRadius: '50%',
-                padding: 2,
-                cursor: 'pointer',
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setAgentDropdownOpen((open) => !open);
-              }}
-            />
-          </Badge>
+          <RobotOutlined
+            style={{
+              fontSize: 18,
+              color: selectedAgentData ? '#1890ff' : '#888',
+              background: selectedAgentData ? '#e6f7ff' : 'transparent',
+              borderRadius: '50%',
+              padding: 2,
+              cursor: 'pointer',
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setAgentDropdownOpen((open) => !open);
+            }}
+          />
         </div>
         {/* Bot name under icon */}
         {selectedAgentData && (
