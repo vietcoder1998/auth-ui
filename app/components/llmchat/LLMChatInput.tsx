@@ -75,13 +75,13 @@ export function LLMChatInput({
     [setInputValue]
   );
 
-  const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
+  const handleInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const value = e.target.value;
       setInputValue(value);
-    }, 200);
-  }, []);
+    },
+    [setInputValue]
+  );
 
   return (
     <>
