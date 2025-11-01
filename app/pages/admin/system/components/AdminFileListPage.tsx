@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Tag, Space, Modal, Spin, message, Popconfirm, Typography } from 'antd';
 import { DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import { getApiInstance } from '../../../../apis/index.ts';
+import { getApiInstance } from '~/apis/index.ts';
 import UploadFileModal from '../../../blog/modals/UploadFileModal.tsx';
 
 export default function AdminFileListPage() {

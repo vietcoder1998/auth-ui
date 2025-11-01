@@ -1,5 +1,5 @@
 // Public API for Blog and Category (no auth)
-// Structure mirrors admin.api.ts but only for public blog/category endpoints
+// Structure mirrors admin/index.ts but only for public blog/category endpoints
 
 import { PublicBlogApi } from './publicApi/PublicBlogApi.ts';
 import { PublicCategoryApi } from './publicApi/PublicCategoryApi.ts';

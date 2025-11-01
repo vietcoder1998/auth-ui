@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Button, message, Modal, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import JobCreateModal from '../modals/JobCreateModal.tsx';
 
 const { Title } = Typography;

@@ -1,8 +1,8 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, message, Popconfirm, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { ToolApiInstance } from '~/apis/adminApi/ToolApi.ts';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { ToolApiInstance } from '~/apis/admin/ToolApi.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import ToolModal from '../modals/ToolModal.tsx';
 import AdminEntityListPage from './AdminEntityListPage.tsx';

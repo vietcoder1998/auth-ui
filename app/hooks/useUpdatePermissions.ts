@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
-import { adminApi } from '../apis/admin.api.ts';
-import { getMe } from '../apis/auth.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
+import { authApi } from '~/apis/auth.api.ts';
 import { useLoginCookie } from './useCookie.tsx';
 
 // Type for errors saved in fixing_errors cookie
@@ -131,7 +131,7 @@ export function useUpdatePermissions() {
       // Cleanup and refresh
       await dismissErrorFn(dataId);
       removeLoginCookie();
-      await getMe();
+      await authApi.getMe();
       onRefreshPermissions?.();
 
       // Reload page after a short delay

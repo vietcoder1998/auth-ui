@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Cookies from 'js-cookie';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../apis/admin/index.ts';
 import { useAuth } from '../hooks/useAuth.tsx';
 
 export function useAIAssistant() {

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
-import { ssoLogin } from '../apis/auth.api.ts';
+import { adminApi } from '../apis/admin/index.ts';
+import { authApi } from '../apis/auth.api.ts';
 
 interface SSOValidationResult {
   success: boolean;
@@ -151,7 +151,7 @@ export const useSSOValidate = (): UseSSOValidateReturn => {
       setLoginState({ step: 'logging-in', message: 'Processing SSO login...', progress: 75 });
 
       try {
-        const result = await ssoLogin(loginData);
+        const result = await authApi.ssoLogin(loginData);
 
         // The result should contain loginHistory and user info
         if (result.data && result.data.user) {

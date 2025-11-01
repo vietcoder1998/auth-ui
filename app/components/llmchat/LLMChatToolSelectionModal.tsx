@@ -1,7 +1,7 @@
 import { Button, Checkbox, Input, List, Modal, Spin, Tag } from 'antd';
 import { useState, useEffect } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
-import { ToolApi } from '~/apis/adminApi/ToolApi.ts';
+import { ToolApi } from '~/apis/admin/ToolApi.ts';
 import { Agent } from './LLMChat.tsx';
 
 interface LLMChatToolSelectionModalProps {

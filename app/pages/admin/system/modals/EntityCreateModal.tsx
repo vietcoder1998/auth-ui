@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Button, message } from 'antd';
-import { EntityApiInstance } from '../../../../apis/adminApi/EntityApi.ts';
+import { EntityApiInstance } from '~/apis/admin/EntityApi.ts';
 
 interface EntityCreateModalProps {
   visible: boolean;

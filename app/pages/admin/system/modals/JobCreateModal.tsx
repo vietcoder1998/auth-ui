@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Select, Button, message, DatePicker } from 'antd';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 const jobTypes = [
   { value: 'fine-tuning', label: 'Fine-tuning' },

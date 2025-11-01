@@ -8,7 +8,7 @@ import {
   ExclamationCircleOutlined,
   HomeOutlined,
 } from '@ant-design/icons';
-import { adminApi } from '../../../apis/admin.api.ts';
+import { adminApi } from '../../../apis/admin/index.ts';
 
 const { Title, Text, Paragraph } = Typography;
 const { Step } = Steps;

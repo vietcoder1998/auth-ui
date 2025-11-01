@@ -19,7 +19,7 @@ import {
   Select,
   Divider,
 } from 'antd';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import {
   DeleteOutlined,
   ReloadOutlined,

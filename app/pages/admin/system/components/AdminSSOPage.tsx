@@ -34,7 +34,7 @@ import {
   LinkOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import CreateSSOModal from '../modals/CreateSSOModal.tsx';
 import EditSSOModal from '../modals/EditSSOModal.tsx';
 import SSOLoginLinkModal from '../../../../components/SSOLoginLinkModal.tsx';

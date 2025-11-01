@@ -1,7 +1,7 @@
 import { Button, Collapse, Divider, Form, Input, Modal, Select, Spin, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
-import { ToolApi, ToolCommandApi, AgentApi } from '../../../../apis/admin.api.ts';
+import { ToolApi, ToolCommandApi, AgentApi } from '~/apis/admin/index.ts';
 
 interface ToolCommandUpdateModalProps {
   visible: boolean;

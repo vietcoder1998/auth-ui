@@ -154,7 +154,7 @@ Add `debugger;` statements in the interceptor (already added) to inspect error h
 app/
 ├── apis/
 │   ├── index.ts              # Main axios instance (MODIFIED)
-│   ├── admin.api.ts          # Uses getApiInstance()
+│   ├── admin/index.ts          # Uses getApiInstance()
 │   └── auth.api.ts           # Uses getApiInstance()
 ├── components/
 │   ├── ErrorDisplay.tsx      # Cookie-based error display

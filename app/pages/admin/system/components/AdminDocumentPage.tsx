@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { documentApi } from '../../../../apis/document.api.ts';
+import { documentApi } from '~/apis/document.api.ts';
 import {
   Table,
   Button,

@@ -15,7 +15,7 @@ import {
   Typography,
 } from 'antd';
 import { SafetyOutlined, SettingOutlined, PlusOutlined } from '@ant-design/icons';
-import { adminApi } from '../../../apis/admin.api.ts';
+import { adminApi } from '../../../apis/admin/index.ts';
 
 const { Option } = Select;
 const { Title, Text } = Typography;

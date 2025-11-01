@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, message, Popconfirm, Space, Table, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { EntityApiInstance } from '~/apis/adminApi/EntityApi.ts';
+import { EntityApiInstance } from '~/apis/admin/EntityApi.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import EntityCreateModal from '../modals/EntityCreateModal.tsx';
 import EntityUpdateModal from '../modals/EntityUpdateModal.tsx';

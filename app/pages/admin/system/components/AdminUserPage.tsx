@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import { Alert, Button, Space, Spin, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import AddUserModal from '../../../blog/modals/AddUserModal.tsx';
 import AdminEditUserModal from '../../../blog/modals/AdminEditUserModal.tsx';

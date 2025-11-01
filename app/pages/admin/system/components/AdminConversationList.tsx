@@ -1,7 +1,7 @@
 import type { TableProps } from 'antd';
 import { Card, Input, message, Select, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import ConversationDrawer from '../../../../components/ConversationDrawer.tsx';
 import ConversationTable from '../../../../components/ConversationTable.tsx';

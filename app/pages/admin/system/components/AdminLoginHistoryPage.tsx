@@ -24,7 +24,7 @@ import {
   DesktopOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 interface LoginHistoryEntry {
   id: string;

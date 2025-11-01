@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Table, Button, Input, Space, Tag, Typography, message, Checkbox } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 const { Text } = Typography;
 

@@ -1,6 +1,6 @@
 import { Modal, Button, Select, message, Typography } from 'antd';
 import { useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 export default function BackupModal({ open, onCancel, onBackedUp, job }: any) {
   const [db, setDb] = useState<string>('');

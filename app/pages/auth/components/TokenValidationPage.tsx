@@ -6,7 +6,7 @@ import {
   UserOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons';
-import { adminApi } from '../../../apis/admin.api.ts';
+import { adminApi } from '../../../apis/admin/index.ts';
 
 interface TokenValidationPageProps {
   token?: string;

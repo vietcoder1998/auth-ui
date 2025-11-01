@@ -1,6 +1,6 @@
 import { Modal, Form, Input, Select, Divider, Switch, Button, Space } from 'antd';
 import { useEffect, useState } from 'react';
-import { adminApi } from '~/apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 const { TextArea } = Input;
 const { Option } = Select;

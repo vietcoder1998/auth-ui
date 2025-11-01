@@ -6,7 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, PlayCircleOutlined } from '
 import ToolCommandCreateModal from '../modals/ToolCommandCreateModal.tsx';
 import ToolCommandUpdateModal from '../modals/ToolCommandUpdateModal.tsx';
 import CommandExecutionModal from '../modals/CommandExecutionModal.tsx';
-import { ToolCommandApi } from '../../../../apis/admin.api.ts';
+import { ToolCommandApi } from '~/apis/admin/index.ts';
 
 interface Entity {
   id: string;

@@ -2,7 +2,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Input, List, Modal, Row, Select, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import EditPromptModal from '~/components/EditPromptModal.tsx';
-import { LLMDebugApi } from '../../../../apis/LLMDebugApi.ts';
+import { LLMDebugApi } from '~/apis/llmDebug.api.ts';
 import AIGenerateInput from '../../../../components/AIGenerateInput.tsx';
 import {
   AIGenerateProvider,

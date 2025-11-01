@@ -1,6 +1,6 @@
 import { Modal, Button, Select, message, Typography } from 'antd';
 import { useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 export default function FileTuningModal({ open, onCancel, onTuned, job }: any) {
   const [modal, setModal] = useState<string>('');

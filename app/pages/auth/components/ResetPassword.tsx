@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { resetPassword } from '../../../apis/auth.api.ts';
+import { authApi } from '~/apis/auth.api.ts';
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -22,7 +22,7 @@ const ResetPassword: React.FC = () => {
     }
     setLoading(true);
     try {
-      await resetPassword({ token: token || '', password });
+      await authApi.resetPassword({ token: token || '', password });
       setMessage('Password reset successful. You can now login.');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {

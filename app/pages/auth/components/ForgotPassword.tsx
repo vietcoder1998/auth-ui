@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { forgotPassword } from '../../../apis/auth.api.ts';
+import { authApi } from '~/apis/auth.api.ts';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +13,7 @@ const ForgotPassword: React.FC = () => {
     setError(null);
     setMessage(null);
     try {
-      await forgotPassword({ email });
+      await authApi.forgotPassword({ email });
       setMessage('Password reset link sent to your email.');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to send reset link');

@@ -2,7 +2,7 @@ import { RobotOutlined } from '@ant-design/icons';
 import { Card, Divider, message } from 'antd';
 import Cookies from 'js-cookie';
 import React, { useEffect, useRef, useState } from 'react';
-import { adminApi } from '../../apis/admin.api.ts';
+import { adminApi } from '../../apis/admin/index.ts';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { LLMChatInput } from './LLMChatInput.tsx';
 import { LLMChatMessages } from './LLMChatMessages.tsx';

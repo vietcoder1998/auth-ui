@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Form, Input, Button, Card, Alert, Spin, Typography, Space, Divider } from 'antd';
 import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
-import { login as loginApi } from '../../../apis/auth.api.ts';
+import { authApi } from '~/apis/auth.api.ts';
 import { useAuth } from '../../../hooks/useAuth.tsx';
 import AuthStatus from '../../../layouts/AuthStatus.tsx';
 
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await loginApi({ email: values.email, password: values.password });
+      const res = await authApi.loginUser({ email: values.email, password: values.password });
 
       // Use auth context to handle login (saves to cookies and updates state)
       await login(res.data.accessToken, res.data.user);

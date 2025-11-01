@@ -1,7 +1,7 @@
 import { CheckCircleOutlined, ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Badge, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../apis/admin.api.ts';
+import { adminApi } from '../apis/admin/index.ts';
 
 interface StatusIndicatorProps {
   className?: string;

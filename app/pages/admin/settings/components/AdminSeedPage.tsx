@@ -6,7 +6,7 @@ import SeedQuickActions from '../../../../components/seed/SeedQuickActions.tsx';
 import SeedOperationsList from '../../../../components/seed/SeedOperationsList.tsx';
 import LastOperationResult from '../../../../components/seed/LastOperationResult.tsx';
 import SeedDataViewerDrawer from '../../../../components/seed/SeedDataViewerDrawer.tsx';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 const { Title, Text, Paragraph } = Typography;
 const { confirm } = Modal;

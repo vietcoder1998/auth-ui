@@ -1,10 +1,7 @@
 import { Form, FormInstance, Input, Modal, Select, message, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import {
-  EntityMethodApiInstance,
-  CreateEntityMethodData,
-} from '../../../../apis/adminApi/EntityMethodApi.ts';
-import { EntityApiInstance } from '../../../../apis/adminApi/EntityApi.ts';
+import { EntityMethodApiInstance, CreateEntityMethodData } from '~/apis/admin/EntityMethodApi.ts';
+import { EntityApiInstance } from '~/apis/admin/EntityApi.ts';
 
 interface EntityMethodModalProps {
   visible: boolean;

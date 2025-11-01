@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register } from '~/apis/auth.api.ts';
+import { authApi } from '~/apis/auth.api.ts';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ const Register: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await register({ email, password, nickname });
+      await authApi.register({ email, password, nickname });
       navigate('/login');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Registration failed');

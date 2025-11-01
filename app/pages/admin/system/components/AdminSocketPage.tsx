@@ -15,7 +15,7 @@ import {
   Typography,
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;

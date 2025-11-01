@@ -3,7 +3,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { RichText } from '../../../../lib/RichText.tsx';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 export default function AdminMailPage() {
   const [mailTemplates, setMailTemplates] = useState([]);

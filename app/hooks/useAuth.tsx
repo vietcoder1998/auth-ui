@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getMe } from '../apis/auth.api.ts';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { authApi } from '~/apis/auth.api.ts';
 
 interface User {
   id: string;
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Try to get fresh user data from API
         try {
-          const { data: userData } = await getMe();
+          const { data: userData } = await authApi.getMe();
           setUser(userData);
           // Update user cookie with fresh data
           setCookie('auth_user', JSON.stringify(userData));
@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData) {
         userToSet = userData;
       } else {
-        userToSet = await getMe();
+        userToSet = await authApi.getMe();
       }
 
       setUser(userToSet);
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!token) return;
 
     try {
-      const userData = await getMe();
+      const userData = await authApi.getMe();
       setUser(userData);
       setCookie('auth_user', JSON.stringify(userData));
     } catch (error) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
@@ -7,7 +7,7 @@ import CommonSearch from '../../../../components/CommonSearch.tsx';
 const { Title } = Typography;
 import AddPromptModal from '../modals/AddPromptModal.tsx';
 import PromptDetailModal from '../modals/PromptDetailModal.tsx';
-import { ConversationApi } from '../../../../apis/adminApi/ConversationApi.ts';
+import { ConversationApi } from '~/apis/admin/ConversationApi.ts';
 
 export default function AdminPromptHistory() {
   const [prompts, setPrompts] = useState<any[]>([]);

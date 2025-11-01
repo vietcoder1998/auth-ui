@@ -1,7 +1,7 @@
 import { Tooltip, message } from 'antd';
 import { SyncOutlined, LinkOutlined, PoweroffOutlined } from '@ant-design/icons';
 import React from 'react';
-import { adminApi } from '~/apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import { COOKIE_DOMAIN } from '~/env.ts';
 
 export interface AppBackEndStatusProps {

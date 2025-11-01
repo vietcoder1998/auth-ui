@@ -30,7 +30,7 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 
 const { Title, Text } = Typography;

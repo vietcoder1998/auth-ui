@@ -15,8 +15,8 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { AgentApi, ToolApi, ToolCommandApi } from '../../../../../apis/admin.api.ts';
-import { EntityMethodApiInstance } from '../../../../../apis/adminApi/EntityMethodApi.ts';
+import { AgentApi, ToolApi, ToolCommandApi } from '~/apis/admin/index.ts';
+import { EntityMethodApiInstance } from '~/apis/admin/EntityMethodApi.ts';
 
 const { Text, Title } = Typography;
 

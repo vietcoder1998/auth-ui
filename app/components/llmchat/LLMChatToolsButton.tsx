@@ -7,8 +7,8 @@ import {
 } from '@ant-design/icons';
 import { Button, Popover, Spin, Tag, Tooltip } from 'antd';
 import { useState } from 'react';
-import { ToolCommandApi } from '~/apis/admin.api.ts';
-import { ToolApi } from '~/apis/adminApi/ToolApi.ts';
+import { ToolCommandApi } from '~/apis/admin/index.ts';
+import { ToolApi } from '~/apis/admin/ToolApi.ts';
 import { Agent } from './LLMChat.tsx';
 import { LLMChatToolSelectionModal } from './LLMChatToolSelectionModal.tsx';
 

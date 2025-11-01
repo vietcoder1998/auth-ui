@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Button, message, Space, Divider, Select, Typography } from 'antd';
 import { SettingOutlined, PlusOutlined, SecurityScanOutlined } from '@ant-design/icons';
-import { adminApi } from '../../../apis/admin.api.ts';
+import { adminApi } from '../../../apis/admin/index.ts';
 
 const { Option } = Select;
 const { Title, Text } = Typography;

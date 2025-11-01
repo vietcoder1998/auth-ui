@@ -20,7 +20,7 @@ import {
   InfoCircleOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
-import { ToolCommandApi } from '../../../../apis/admin.api.ts';
+import { ToolCommandApi } from '~/apis/admin/index.ts';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;

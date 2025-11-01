@@ -9,7 +9,7 @@ import {
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 const { Title, Paragraph } = Typography;
 

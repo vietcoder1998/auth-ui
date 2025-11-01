@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, message, Modal, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import AdminFaqCreateModal from '../modals/AdminFaqCreateModal.tsx';
 import EditFaqModal from '../modals/EditFaqModal.tsx';

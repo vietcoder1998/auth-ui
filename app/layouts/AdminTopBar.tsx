@@ -1,13 +1,14 @@
 import { SearchOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import { Dropdown, Input, List, Spin, Tag } from 'antd';
 import React, { useState } from 'react';
-import { adminApi } from '~/apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 import AdminNotificationDropdown from '~/components/AdminNotificationDropdown.tsx';
 import AppBackEndStatus from '~/components/AppBackEndStatus.tsx';
 import StatusIndicator from '~/components/StatusIndicator.tsx';
 import { useAuth } from '~/hooks/useAuth.tsx';
 import AdminProfileMenu from '../components/AdminProfileMenu.tsx';
 import AdminSearchDropdown from '../components/AdminSearchDropdown.tsx';
+
 // System status fetcher
 type SystemStatus = {
   api?: boolean;

@@ -22,7 +22,7 @@ import {
   BellOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
-import { adminApi } from '../../../../apis/admin.api.ts';
+import { adminApi } from '~/apis/admin/index.ts';
 
 interface LogicHistoryEntry {
   id: string;

@@ -1,7 +1,7 @@
 import { UploadOutlined } from '@ant-design/icons';
 import { message, Modal, Upload, Select } from 'antd';
 import React, { useState } from 'react';
-import { getApiInstance } from '../../../../apis/index.ts';
+import { getApiInstance } from '~/apis/index.ts';
 
 interface UploadFileModalProps {
   visible: boolean;

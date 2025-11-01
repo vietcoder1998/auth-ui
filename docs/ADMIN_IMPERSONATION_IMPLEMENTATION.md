@@ -74,7 +74,7 @@ const [openWindows, setOpenWindows] = useState<{[key: string]: Window | null}>({
 ### API Updates
 
 ```typescript
-// admin.api.ts
+// admin/index.ts
 async validateUserToken(token: string) {
   return axios.post('/admin/users/validate-token', { token });
 }
