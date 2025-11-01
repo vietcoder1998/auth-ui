@@ -13,29 +13,29 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const {
+    loginAndDirection,
+    isAuthenticated,
+    loading: authLoading,
+    redirectToSSOLogin,
+    directionWithParams,
+  } = useAuth();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      const redirect = searchParams.get('redirect');
-      navigate(redirect || '/admin');
+      directionWithParams();
     }
-  }, [isAuthenticated, authLoading, navigate, searchParams]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await authApi.loginUser({ email: values.email, password: values.password });
+      const response = await authApi.loginUser({ email: values.email, password: values.password });
 
       // Use auth context to handle login (saves to cookies and updates state)
-      await login(res.data.data.accessToken, res.data.data.user);
-
-      // Redirect to url param if exists
-      const redirect = searchParams.get('redirect');
-      navigate(redirect || '/admin');
+      await loginAndDirection(response.data.accessToken, response.data.user);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Login failed');
     } finally {
@@ -141,11 +141,7 @@ const Login: React.FC = () => {
             <Button
               type="link"
               style={{ color: '#1890ff', padding: 0 }}
-              onClick={() => {
-                const redirect = searchParams.get('redirect');
-                const ssoUrl = `/sso/login?isSSO=true${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
-                navigate(ssoUrl);
-              }}
+              onClick={redirectToSSOLogin}
             >
               SSO Login
             </Button>

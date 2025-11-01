@@ -35,7 +35,7 @@ const SSOLogin: React.FC = () => {
   const [urlFixed, setUrlFixed] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { loginAndDirection, isAuthenticated, loading: authLoading } = useAuth();
 
   // Use the SSO validation hook
   const {
@@ -166,7 +166,7 @@ const SSOLogin: React.FC = () => {
       const result = await performSSOLogin(loginData, redirectUrl ?? undefined);
       console.log('SSO Login Result:', result);
       if (result.success && result.userData && result.token) {
-        await login(result.token, result.userData);
+        await loginAndDirection(result.token, result.userData);
         setCurrentStep(3);
 
         // If this is a popup, send success message to parent window

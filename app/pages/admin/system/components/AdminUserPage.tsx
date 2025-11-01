@@ -101,6 +101,7 @@ export default function AdminUserPage() {
     try {
       setLoading(true);
       const response = await adminApi.loginAsUser(email);
+      console.log(response.data);
 
       if (response.data.success) {
         const token = response.data.data.token || response.data.data.accessToken;

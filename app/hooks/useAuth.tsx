@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '~/apis/auth.api.ts';
 
 interface User {
@@ -15,11 +16,13 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, userData?: User) => Promise<void>;
+  loginAndDirection: (token: string, userData?: User) => Promise<void>;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
   refreshUser: () => Promise<void>;
+  directionWithParams: () => void;
+  redirectToSSOLogin: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,11 +57,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Initialize auth state from cookies on mount
   useEffect(() => {
     initializeAuth();
   }, []);
+
+  const redirectToSSOLogin = () => {
+    const redirect = searchParams.get('redirect');
+    const ssoUrl = `/sso/login?isSSO=true${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
+    navigate(ssoUrl);
+  };
+
+  const directionWithParams = () => {
+    const directionLink = searchParams.get('redirect') || '/admin';
+    navigate(directionLink);
+  };
 
   const initializeAuth = async () => {
     try {
@@ -98,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (newToken: string, userData?: User) => {
+  const loginAndDirection = async (newToken: string, userData?: User) => {
     try {
       setLoading(true);
       setToken(newToken);
@@ -115,12 +131,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       setUser(userToSet);
-
-      // Save user data to cookie
       setCookie('auth_user', JSON.stringify(userToSet));
-
-      // Also save to localStorage for backward compatibility
-      localStorage.setItem('token', newToken);
+      directionWithParams();
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -136,9 +148,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Clear cookies
     deleteCookie('auth_token');
     deleteCookie('auth_user');
-
-    // Clear localStorage for backward compatibility
-    localStorage.removeItem('token');
 
     setLoading(false);
   };
@@ -158,15 +167,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const isAuthenticated = !!user && !!token;
-
   const contextValue: AuthContextType = {
     user,
     token,
-    login,
+    loginAndDirection,
     logout,
     loading,
     isAuthenticated,
     refreshUser,
+    directionWithParams,
+    redirectToSSOLogin,
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
