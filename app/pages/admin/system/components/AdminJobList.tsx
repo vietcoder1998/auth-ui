@@ -11,14 +11,18 @@ import { Button, message, Modal, Popconfirm, Space, Spin, Table, Tag, Typography
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
 import JobCreateModal from '../modals/JobCreateModal.tsx';
+import CommonSearch from '~/components/CommonSearch.tsx';
 
 const { Title } = Typography;
 
 export default function AdminJobList() {
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewJob, setViewJob] = useState<any>(null);
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchJobs();
@@ -28,12 +32,52 @@ export default function AdminJobList() {
     setLoading(true);
     try {
       const res = await adminApi.getJobs();
-      setJobs(res.data.data || []);
+      const jobsData = res.data.data || [];
+      setJobs(jobsData);
+      setFilteredJobs(jobsData);
     } catch {
       message.error('Failed to load jobs');
       setJobs([]);
+      setFilteredJobs([]);
     }
     setLoading(false);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    applyFilters(value, filterValues);
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    const newFilterValues = { ...filterValues, [key]: value };
+    setFilterValues(newFilterValues);
+    applyFilters(searchValue, newFilterValues);
+  };
+
+  const applyFilters = (search: string, filters: Record<string, string>) => {
+    let filtered = [...jobs];
+
+    // Apply search filter
+    if (search.trim()) {
+      filtered = filtered.filter(
+        (job: any) =>
+          job.type?.toLowerCase().includes(search.toLowerCase()) ||
+          job.status?.toLowerCase().includes(search.toLowerCase()) ||
+          job.id?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (filters.status) {
+      filtered = filtered.filter((job: any) => job.status === filters.status);
+    }
+
+    // Apply type filter
+    if (filters.type) {
+      filtered = filtered.filter((job: any) => job.type === filters.type);
+    }
+
+    setFilteredJobs(filtered);
   };
 
   const handleStartJob = (job: any) => {
@@ -125,19 +169,64 @@ export default function AdminJobList() {
     },
   ];
 
+  // Define filter options
+  const filterOptions = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'pending', label: 'Pending' },
+        { value: 'running', label: 'Running' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'failed', label: 'Failed' },
+        { value: 'cancelled', label: 'Cancelled' },
+      ],
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      options: [
+        { value: 'extract', label: 'Extract' },
+        { value: 'file-tuning', label: 'File Tuning' },
+        { value: 'backup', label: 'Backup' },
+        { value: 'sync', label: 'Sync' },
+        { value: 'cleanup', label: 'Cleanup' },
+      ],
+    },
+  ];
+
   return (
     <div style={{ padding: 16 }}>
-      <Title level={2}>Job List</Title>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => setCreateModalVisible(true)}
-      >
-        Create Job
-      </Button>
+      <Title level={2} style={{ marginBottom: 16 }}>
+        Job List
+      </Title>
+      <CommonSearch
+        searchPlaceholder="Search jobs by type, status, or ID..."
+        searchValue={searchValue}
+        onSearch={handleSearch}
+        onRefresh={fetchJobs}
+        loading={loading}
+        showRefresh={true}
+        filters={filterOptions}
+        filterValues={filterValues}
+        onFilterChange={handleFilterChange}
+        extra={
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalVisible(true)}
+          >
+            Create Job
+          </Button>
+        }
+      />
       <Spin spinning={loading}>
-        <Table rowKey="id" columns={columns} dataSource={jobs} pagination={{ pageSize: 10 }} />
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={filteredJobs}
+          pagination={{ pageSize: 10 }}
+        />
       </Spin>
       {/* View Job Modal - switch by job type */}
       <Modal open={!!viewJob} title="Job Details" onCancel={() => setViewJob(null)} footer={null}>
