@@ -16,19 +16,29 @@ export class AgentApi extends BaseApi {
 
   // Static methods for backward compatibility
   static async getAgents(params?: any) {
-    return BaseApi.staticGetAll('/admin/agents', params);
+    const instance = new AgentApi();
+
+    debugger;
+
+    return instance.getAll(params);
   }
   //
   static async createAgent(data: any) {
-    return BaseApi.staticCreate('/admin/agents', data);
+    const instance = new AgentApi();
+
+    return instance.create(data);
   }
 
   static async updateAgent(id: string, data: any) {
-    return BaseApi.staticUpdate('/admin/agents', id, data);
+    const instance = new AgentApi();
+
+    return instance.update(id, data);
   }
 
   static async deleteAgent(id: string) {
-    return BaseApi.staticDelete('/admin/agents', id);
+    const instance = new AgentApi();
+
+    return instance.delete(id);
   }
 
   static async getAgentMemories(id: string, params?: any) {

@@ -1,4 +1,4 @@
-import { addErrorToCookie } from '~/apis/index.ts';
+import { ApiUtils } from '~/apis/index.ts';
 
 // Utility function to handle axios errors in components
 export const handleApiError = (error: any, context?: string) => {
@@ -57,7 +57,7 @@ export const handleApiError = (error: any, context?: string) => {
   }
 
   // Add error to cookie for display
-  addErrorToCookie({
+  ApiUtils.addErrorToCookie({
     message: errorMessage,
     status,
     code: errorCode,
@@ -73,7 +73,7 @@ export const addSuccessMessage = (message: string) => {
 
 // Utility function to manually add warnings
 export const addWarningMessage = (message: string, details?: any) => {
-  addErrorToCookie({
+  ApiUtils.addErrorToCookie({
     message,
     code: 'WARNING',
     details,

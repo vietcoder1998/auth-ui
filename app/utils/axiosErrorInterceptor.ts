@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { addErrorToCookie } from '~/apis/index.ts';
+import { ApiUtils } from '~/apis/index.ts';
 // Create axios interceptor for error handling that works with existing axios instances
 export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
   const axiosInstance = instance || axios;
@@ -17,7 +17,7 @@ export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
         const errorMessage = getErrorMessage(error);
         const errorDetails = getErrorDetails(error);
 
-        addErrorToCookie({
+        ApiUtils.addErrorToCookie({
           message: errorMessage,
           status: error.response.status,
           code: error.code || 'AXIOS_ERROR',
@@ -25,7 +25,7 @@ export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
         });
       } else if (error.request) {
         // Request was made but no response received
-        addErrorToCookie({
+        ApiUtils.addErrorToCookie({
           message: 'Network error: No response from server',
           code: error.code || 'NETWORK_ERROR',
           details: {
@@ -36,7 +36,7 @@ export const setupAxiosErrorInterceptor = (instance?: AxiosInstance) => {
         });
       } else {
         // Something else happened
-        addErrorToCookie({
+        ApiUtils.addErrorToCookie({
           message: error.message || 'Unknown error occurred',
           code: error.code || 'UNKNOWN_ERROR',
           details: {
