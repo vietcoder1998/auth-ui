@@ -28,6 +28,7 @@ import { ToolApi } from './ToolApi.ts';
 import { ToolCommandApi } from './ToolCommandApi.ts';
 import { UserApi } from './UserApi.ts';
 import { EntityApi } from './EntityApi.ts';
+import { AIKeyApi } from './AIKeyApi.ts';
 
 // Notification CRUD
 export {
@@ -52,6 +53,7 @@ export {
   TokenApi,
   ToolApi,
   ToolCommandApi,
+  AIKeyApi,
 };
 
 export class AdminApi {
@@ -61,10 +63,10 @@ export class AdminApi {
   updateAIModel = AIModelApiInstance.updateAIModel.bind(AIModelApiInstance);
   deleteAIModel = AIModelApiInstance.deleteAIModel.bind(AIModelApiInstance);
   // AIKeyApi (for /ai-keys)
-  getAIKeys = ApiKeyApi.getApiKeys;
-  createAIKey = ApiKeyApi.createApiKey;
-  updateAIKey = ApiKeyApi.updateApiKey;
-  deleteAIKey = ApiKeyApi.deleteApiKey;
+  getAIKeys = AIKeyApi.getAIKeys.bind(AIKeyApi);
+  createAIKey = AIKeyApi.createAIKey.bind(AIKeyApi);
+  updateAIKey = AIKeyApi.updateAIKey.bind(AIKeyApi);
+  deleteAIKey = AIKeyApi.deleteAIKey.bind(AIKeyApi);
   // UserApi
   getUsers = UserApi.getUsers;
   createUser = UserApi.createUser;
