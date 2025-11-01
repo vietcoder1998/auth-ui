@@ -21,6 +21,11 @@ export class BaseApi<T = any, ID = string | number> {
     this.basePath = basePath;
   }
 
+  protected get instance() {
+    const instance = getApiInstance();
+
+    return instance;
+  }
   /**
    * Get all entities with optional query parameters
    * @param params - Query parameters for filtering, pagination, etc.

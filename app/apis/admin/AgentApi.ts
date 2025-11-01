@@ -5,50 +5,42 @@ export class AgentApi extends BaseApi {
     super('/admin/agents');
   }
 
+  get instance() {
+    return super.instance;
+  }
+
   // Custom methods for agent memories
   async getAgentMemories(id: string, params?: any) {
-    return this.customGet(`/${id}/memories`, { params });
+    return BaseApi.staticGetAll(`/admin/agents/${id}/memories`, { params });
   }
 
   async createAgentMemory(id: string, data: any) {
-    return this.customPost(`/${id}/memories`, data);
+    return BaseApi.staticCreate(`/admin/memories/${id}`, data);
   }
 
   // Static methods for backward compatibility
   static async getAgents(params?: any) {
-    const instance = new AgentApi();
-
-    debugger;
-
-    return instance.getAll(params);
+    return BaseApi.staticGetAll('/admin/agents', params);
   }
   //
   static async createAgent(data: any) {
-    const instance = new AgentApi();
-
-    return instance.create(data);
+    return BaseApi.staticCreate('/admin/agents', data);
   }
 
   static async updateAgent(id: string, data: any) {
-    const instance = new AgentApi();
-
-    return instance.update(id, data);
+    return BaseApi.staticUpdate(`/admin/agents`, id, data);
   }
 
   static async deleteAgent(id: string) {
-    const instance = new AgentApi();
-
-    return instance.delete(id);
+    return BaseApi.staticDelete(`/admin/agents`, id);
   }
 
   static async getAgentMemories(id: string, params?: any) {
-    const instance = new AgentApi();
-    return instance.getAgentMemories(id, params);
+    return BaseApi.staticGetAll(`/admin/agents/${id}/memories`, params);
   }
 
   static async createAgentMemory(id: string, data: any) {
-    const instance = new AgentApi();
-    return instance.createAgentMemory(id, data);
+    return BaseApi.staticCreate(`/admin/agents/${id}/memories`, data);
   }
 }
 
