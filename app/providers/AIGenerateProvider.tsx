@@ -103,7 +103,7 @@ export const AIGenerateProvider: React.FC<{ children: ReactNode }> = ({ children
         setModels(modelOption);
         setSelectedModel(modelOption[0] || null);
         // Fetch agent memory
-        const memoriesRes = await adminApi.getAgentMemories?.(agent?.id);
+        const memoriesRes = await adminApi.getAgentMemories?.({ agentId: agent?.id });
         setPromptMemory(memoriesRes?.data?.[0]?.memory || '');
       } catch (err) {
         setAgents([]);

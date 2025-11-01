@@ -5,10 +5,6 @@ export class AgentApi extends BaseApi {
     super('/admin/agents');
   }
 
-  get instance() {
-    return super.instance;
-  }
-
   // Custom methods for agent memories
   async getAgentMemories(id: string, params?: any) {
     return BaseApi.staticGetAll(`/admin/agents/${id}/memories`, { params });

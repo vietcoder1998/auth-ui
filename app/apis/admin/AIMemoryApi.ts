@@ -1,13 +1,13 @@
 // AI Memory API routes
 // Usage: adminApi.getAgentMemories({ q })
 
-import { getApiInstance } from '../index.ts';
+import { BaseApi } from './BaseApi.ts';
 
 export class AIMemoryApi {
   static async getAgentMemories(params?: { q?: string; agentId?: string }) {
     // Adjust endpoint as needed
-    const api = getApiInstance();
-    const response = await api.get('/admin/memories', { params });
+    const response = await BaseApi.staticGetAll('/admin/memories', { params });
+
     return response.data;
   }
   // Add more CRUD methods as needed

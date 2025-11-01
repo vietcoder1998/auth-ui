@@ -21,7 +21,7 @@ export class BaseApi<T = any, ID = string | number> {
     this.basePath = basePath;
   }
 
-  protected get instance() {
+  public static get instance() {
     const instance = getApiInstance();
 
     return instance;
@@ -137,8 +137,7 @@ export class BaseApi<T = any, ID = string | number> {
    * Static method for getting all entities (for backward compatibility)
    */
   static async staticGetAll(basePath: string, params?: any): Promise<any> {
-    const axios = getApiInstance();
-    return axios.get(basePath, { params });
+    return BaseApi.instance.get(basePath, { params });
   }
 
   /**

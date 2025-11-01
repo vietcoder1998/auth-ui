@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '~/apis/auth.api.ts';
@@ -6,7 +7,7 @@ interface User {
   id: string;
   email: string;
   nickname?: string;
-  role?: {
+  role: {
     id: string;
     name: string;
   };
@@ -16,7 +17,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  loginAndDirection: (token: string, userData?: User) => Promise<void>;
+  loginAndDirection: (token: string, userData: User) => Promise<void>;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
@@ -30,28 +31,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 interface AuthProviderProps {
   children: ReactNode;
 }
-
-// Cookie utility functions
-const setCookie = (name: string, value: string, days: number = 7) => {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
-};
-
-const getCookie = (name: string): string | null => {
-  const nameEQ = name + '=';
-  const ca = document.cookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-  }
-  return null;
-};
-
-const deleteCookie = (name: string) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-};
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -78,60 +57,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const initializeAuth = async () => {
     try {
-      const savedToken = getCookie('auth_token');
-      const savedUser = getCookie('auth_user');
+      const savedToken = Cookies.get('auth_token');
+      const savedUser = Cookies.get('auth_user');
 
       if (savedToken) {
         setToken(savedToken);
 
-        // Try to get fresh user data from API
-        try {
-          const { data: userData } = await authApi.getMe();
-          setUser(userData);
-          // Update user cookie with fresh data
-          setCookie('auth_user', JSON.stringify(userData));
-        } catch (error) {
-          // If API call fails, try to use saved user data
-          if (savedUser) {
-            try {
-              const parsedUser = JSON.parse(savedUser);
-              setUser(parsedUser);
-            } catch (parseError) {
-              console.error('Failed to parse saved user data:', parseError);
-              // Clear invalid cookies
-              logout();
-            }
-          } else {
-            // No saved user data and API call failed, logout
-            logout();
-          }
+        if (!savedUser) {
+          throw new Error('No user data in cookies');
         }
+
+        setUser(JSON.parse(savedUser));
       }
     } catch (error) {
       console.error('Failed to initialize auth:', error);
+      logout();
     } finally {
       setLoading(false);
     }
   };
 
-  const loginAndDirection = async (newToken: string, userData?: User) => {
+  const loginAndDirection = async (newToken: string, userData: User) => {
     try {
       setLoading(true);
       setToken(newToken);
-
+      const { role, ...user } = userData;
+      const userRole = role ? { id: role.id, name: role.name } : undefined;
+      debugger;
       // Save token to cookie
-      setCookie('auth_token', newToken);
-
-      // Get user data if not provided
-      let userToSet: User;
-      if (userData) {
-        userToSet = userData;
-      } else {
-        userToSet = await authApi.getMe();
-      }
-
-      setUser(userToSet);
-      setCookie('auth_user', JSON.stringify(userToSet));
+      Cookies.set('auth_token', newToken);
+      Cookies.set('auth_user', JSON.stringify({ ...user, role: userRole }));
       directionWithParams();
     } catch (error) {
       console.error('Login error:', error);
@@ -146,8 +101,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
 
     // Clear cookies
-    deleteCookie('auth_token');
-    deleteCookie('auth_user');
+    Cookies.remove('auth_token');
+    Cookies.remove('auth_user');
 
     setLoading(false);
   };
@@ -158,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const userData = await authApi.getMe();
       setUser(userData);
-      setCookie('auth_user', JSON.stringify(userData));
+      Cookies.set('auth_user', JSON.stringify(userData));
     } catch (error) {
       console.error('Failed to refresh user data:', error);
       // If refresh fails, logout to prevent inconsistent state

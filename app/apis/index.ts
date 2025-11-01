@@ -71,7 +71,6 @@ export class ApiUtils {
   }
 
   static getApiInstance(): AxiosInstance {
-    debugger;
     const instance = axios.create({
       baseURL: import.meta.env.VITE_API_URL || 'http://localhost:13030/api',
       withCredentials: true,
