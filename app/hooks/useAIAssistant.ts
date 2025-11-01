@@ -1,65 +1,62 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
 import Cookies from 'js-cookie';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi } from '../apis/admin/index.ts';
-import { useAuth } from '../hooks/useAuth.tsx';
 
-export function useAIAssistant() {
-  const { token } = useAuth();
-  // Types
-  type Message = {
+// Types
+type Message = {
+  id: string;
+  content: string;
+  sender: 'user' | 'agent';
+  createdAt: string;
+  tokens?: number;
+};
+type Agent = {
+  id: string;
+  name: string;
+  description: string;
+  model:
+    | string
+    | {
+        id: string;
+        name: string;
+        description?: string;
+        type?: string;
+        platformId?: string;
+        createdAt?: string;
+        updatedAt?: string;
+      };
+  isActive: boolean;
+};
+type Conversation = {
+  id: string;
+  title: string;
+  agentId: string;
+  messages?: Message[];
+  lastMessage?: Message;
+  user?: {
     id: string;
-    content: string;
-    sender: 'user' | 'agent';
-    createdAt: string;
-    tokens?: number;
+    email: string;
+    nickname: string;
+    status: string;
   };
-  type Agent = {
+  agent?: {
     id: string;
     name: string;
-    description: string;
-    model:
-      | string
-      | {
-          id: string;
-          name: string;
-          description?: string;
-          type?: string;
-          platformId?: string;
-          createdAt?: string;
-          updatedAt?: string;
-        };
+    model: string;
     isActive: boolean;
   };
-  type Conversation = {
-    id: string;
-    title: string;
-    agentId: string;
-    messages?: Message[];
-    lastMessage?: Message;
-    user?: {
-      id: string;
-      email: string;
-      nickname: string;
-      status: string;
-    };
-    agent?: {
-      id: string;
-      name: string;
-      model: string;
-      isActive: boolean;
-    };
-    _count?: {
-      messages: number;
-    };
+  _count?: {
+    messages: number;
   };
-  type UploadedFile = {
-    id: string;
-    name: string;
-    size: number;
-    type: string;
-    content: string | null;
-  };
-
+};
+type UploadedFile = {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  content: string | null;
+};
+export function useAIAssistant() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<string>('');
