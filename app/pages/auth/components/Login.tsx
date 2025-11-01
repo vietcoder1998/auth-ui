@@ -31,7 +31,7 @@ const Login: React.FC = () => {
       const res = await authApi.loginUser({ email: values.email, password: values.password });
 
       // Use auth context to handle login (saves to cookies and updates state)
-      await login(res.data.accessToken, res.data.user);
+      await login(res.data.data.accessToken, res.data.data.user);
 
       // Redirect to url param if exists
       const redirect = searchParams.get('redirect');
