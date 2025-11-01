@@ -30,7 +30,7 @@ export default function AdminFaqMenu() {
     adminApi
       .getFaqs(search)
       .then((res: any) => {
-        setFaqs(res.data.data.data || []);
+        setFaqs(res.data.data || []);
         setLoading(false);
       })
       .catch(() => {
@@ -43,7 +43,7 @@ export default function AdminFaqMenu() {
     setLoading(true);
     try {
       const res = await adminApi.getFaqs();
-      setFaqs(res.data.data.data || []);
+      setFaqs(res.data.data || []);
     } catch (error) {
       message.error('Failed to load FAQs');
       setFaqs([]);

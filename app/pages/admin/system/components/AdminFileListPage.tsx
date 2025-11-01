@@ -20,7 +20,7 @@ export default function AdminFileListPage() {
     try {
       const axios = getApiInstance();
       const res = await axios.get('/admin/documents', { params: { search } });
-      setFiles(res.data.data.data || []);
+      setFiles(res.data.data || []);
     } catch (error) {
       message.error('Failed to load files');
       setFiles([]);

@@ -160,7 +160,7 @@ export default function LLMChat() {
     try {
       // Use the dedicated getMessages endpoint for better performance
       const response = await adminApi.getMessages(selectedConversation);
-      const messages = response.data.data.data || [];
+      const messages = response.data.data || [];
       setMessages(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);

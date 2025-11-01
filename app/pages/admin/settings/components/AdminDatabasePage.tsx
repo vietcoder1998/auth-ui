@@ -124,10 +124,10 @@ export default function AdminDatabasePage() {
     try {
       const response = await adminApi.getDatabaseConnections();
       // Updated to match the new controller response format: { data: T[], total: number }
-      if (response.data && Array.isArray(response.data.data.data)) {
-        setConnections(response.data.data.data);
+      if (response.data && Array.isArray(response.data.data)) {
+        setConnections(response.data.data);
       } else {
-        console.error('Invalid response format:', response.data.data.data);
+        console.error('Invalid response format:', response.data.data);
         setConnections([]);
         message.error('Failed to fetch database connections');
       }

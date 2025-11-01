@@ -50,7 +50,7 @@ export default function ToolCommandEditPage() {
         try {
           const res = await ToolCommandApi.getToolCommand(command);
           if (res?.data?.data) {
-            const data = res.data.data.data || res.data.data;
+            const data = res.data.data || res.data.data;
             setCommandData(data);
 
             // Handle metadata or legacy params/exampleParams

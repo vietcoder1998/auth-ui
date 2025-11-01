@@ -91,8 +91,8 @@ const AdminConversationList: React.FC = () => {
     try {
       const response = await adminApi.getAgents();
       console.log(response);
-      if (response.data.data.data && Array.isArray(response.data.data.data)) {
-        setAgents(response.data.data.data || []);
+      if (response.data.data && Array.isArray(response.data.data)) {
+        setAgents(response.data.data || []);
       }
     } catch (error) {
       console.error('Error fetching agents:', error);
@@ -109,8 +109,8 @@ const AdminConversationList: React.FC = () => {
 
       const response = await adminApi.getConversations(params);
 
-      if (response.data.data.data && Array.isArray(response.data.data.data)) {
-        setConversations(response.data.data.data || []);
+      if (response.data.data && Array.isArray(response.data.data)) {
+        setConversations(response.data.data || []);
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);

@@ -36,7 +36,7 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
         try {
           const res = await ToolCommandApi.getToolCommand(editingCommand.id);
           if (res?.data?.data) {
-            form.setFieldsValue(res.data.data.data);
+            form.setFieldsValue(res.data.data);
           }
         } catch (e) {
           // Optionally handle error
@@ -50,7 +50,7 @@ const ToolCommandUpdateModal: React.FC<ToolCommandUpdateModalProps> = ({
         const res = await ToolApi.getTools();
         if (Array.isArray(res?.data?.data?.data)) {
           setToolOptions(
-            res.data.data.data.map((tool: any) => ({
+            res.data.data.map((tool: any) => ({
               label: tool.name || tool.label || tool.id,
               value: tool.id,
             }))

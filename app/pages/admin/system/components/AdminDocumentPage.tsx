@@ -36,7 +36,7 @@ export default function AdminDocumentPage() {
     setLoading(true);
     try {
       const res = await documentApi.listDocuments({ type: 'document', search });
-      setDocuments(res.data.data.data || []);
+      setDocuments(res.data.data || []);
     } catch (error) {
       message.error('Failed to load documents');
       setDocuments([]);

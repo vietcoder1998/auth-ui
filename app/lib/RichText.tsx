@@ -182,11 +182,11 @@ export const RichText: React.FC<RichTextProps> = ({ value, onChange, style }) =>
                 // Use AIGenerateInput logic directly for one-click generation
                 const axios = (await import('../apis/index.ts')).getApiInstance();
                 const res = await axios.post('/admin/prompts/generate', { prompt: aiPrompt });
-                if (res.data && res.data.data.data) {
-                  setHtmlValue(res.data.data.data);
-                  if (editorRef.current) editorRef.current.innerHTML = res.data.data.data;
-                  onChange(res.data.data.data);
-                  setAIContextValue(res.data.data.data);
+                if (res.data && res.data.data) {
+                  setHtmlValue(res.data.data);
+                  if (editorRef.current) editorRef.current.innerHTML = res.data.data;
+                  onChange(res.data.data);
+                  setAIContextValue(res.data.data);
                   message.success('AI generated content');
                 } else {
                   message.error('No data returned from AI');

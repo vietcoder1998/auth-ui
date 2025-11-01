@@ -28,7 +28,7 @@ export default function AdminJobList() {
     setLoading(true);
     try {
       const res = await adminApi.getJobs();
-      setJobs(res.data.data.data || []);
+      setJobs(res.data.data || []);
     } catch {
       message.error('Failed to load jobs');
       setJobs([]);
