@@ -5,7 +5,7 @@ import {
   SendOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
-import { Badge, Tooltip, Typography, Upload } from 'antd';
+import { Badge, Typography, Upload } from 'antd';
 import React from 'react';
 import { Agent, Conversation } from './LLMChat.tsx';
 import { LLMChatToolsButton } from './LLMChatToolsButton.tsx';
@@ -92,24 +92,22 @@ export function LLMInputAction({
         }}
       >
         <div style={{ position: 'relative' }}>
-          <Tooltip title={selectedAgentData?.name || 'Select Agent'}>
-            <Badge count={agents.length} size="small" offset={[2, -2]}>
-              <RobotOutlined
-                style={{
-                  fontSize: 18,
-                  color: selectedAgentData ? '#1890ff' : '#888',
-                  background: selectedAgentData ? '#e6f7ff' : 'transparent',
-                  borderRadius: '50%',
-                  padding: 2,
-                  cursor: 'pointer',
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setAgentDropdownOpen((open) => !open);
-                }}
-              />
-            </Badge>
-          </Tooltip>
+          <Badge count={agents.length} size="small" offset={[2, -2]}>
+            <RobotOutlined
+              style={{
+                fontSize: 18,
+                color: selectedAgentData ? '#1890ff' : '#888',
+                background: selectedAgentData ? '#e6f7ff' : 'transparent',
+                borderRadius: '50%',
+                padding: 2,
+                cursor: 'pointer',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setAgentDropdownOpen((open) => !open);
+              }}
+            />
+          </Badge>
         </div>
         {/* Bot name under icon */}
         {selectedAgentData && (
@@ -188,36 +186,22 @@ export function LLMInputAction({
             }}
           >
             <div style={{ position: 'relative' }}>
-              <Tooltip
-                title={
-                  conversations.length === 0
-                    ? 'No conversations available'
-                    : selectedConversation
-                      ? conversations.find((c) => c.id === selectedConversation)?.title
-                      : 'Select Chat'
-                }
-              >
-                <MessageOutlined
-                  style={{
-                    fontSize: 18,
-                    color:
-                      conversations.length === 0
-                        ? '#ccc'
-                        : selectedConversation
-                          ? '#1890ff'
-                          : '#888',
-                    background: selectedConversation ? '#e6f7ff' : 'transparent',
-                    borderRadius: '50%',
-                    padding: 2,
-                    cursor: conversations.length === 0 ? 'not-allowed' : 'pointer',
-                  }}
-                  onClick={(e) => {
-                    if (conversations.length === 0) return;
-                    e.stopPropagation();
-                    setConversationDropdownOpen((open) => !open);
-                  }}
-                />
-              </Tooltip>
+              <MessageOutlined
+                style={{
+                  fontSize: 18,
+                  color:
+                    conversations.length === 0 ? '#ccc' : selectedConversation ? '#1890ff' : '#888',
+                  background: selectedConversation ? '#e6f7ff' : 'transparent',
+                  borderRadius: '50%',
+                  padding: 2,
+                  cursor: conversations.length === 0 ? 'not-allowed' : 'pointer',
+                }}
+                onClick={(e) => {
+                  if (conversations.length === 0) return;
+                  e.stopPropagation();
+                  setConversationDropdownOpen((open) => !open);
+                }}
+              />
             </div>
             {/* Conversation name under icon */}
             {selectedConversation && (
@@ -294,12 +278,10 @@ export function LLMInputAction({
               </div>
             )}
           </div>
-          <Tooltip title="New chat">
-            <PlusOutlined
-              style={{ fontSize: 16, color: '#1890ff', marginLeft: 2, cursor: 'pointer' }}
-              onClick={createNewConversation}
-            />
-          </Tooltip>
+          <PlusOutlined
+            style={{ fontSize: 16, color: '#1890ff', marginLeft: 2, cursor: 'pointer' }}
+            onClick={createNewConversation}
+          />
         </>
       )}
       {/* Tools, Upload, Send */}
@@ -314,35 +296,31 @@ export function LLMInputAction({
         multiple
         accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv,.py,.java,.cpp,.c,.h,.sql"
       >
-        <Tooltip title="Upload context files">
-          <UploadOutlined
-            style={{
-              fontSize: 18,
-              color: isLoading ? '#ccc' : '#1890ff',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              marginLeft: 2,
-            }}
-          />
-        </Tooltip>
-      </Upload>
-      <Tooltip title="Send">
-        <SendOutlined
+        <UploadOutlined
           style={{
             fontSize: 18,
-            color:
-              (!inputValue.trim() && uploadedFiles.length === 0) || isLoading ? '#ccc' : '#1890ff',
-            cursor:
-              (!inputValue.trim() && uploadedFiles.length === 0) || isLoading
-                ? 'not-allowed'
-                : 'pointer',
+            color: isLoading ? '#ccc' : '#1890ff',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
             marginLeft: 2,
           }}
-          onClick={() => {
-            if ((!inputValue.trim() && uploadedFiles.length === 0) || isLoading) return;
-            sendMessage();
-          }}
         />
-      </Tooltip>
+      </Upload>
+      <SendOutlined
+        style={{
+          fontSize: 18,
+          color:
+            (!inputValue.trim() && uploadedFiles.length === 0) || isLoading ? '#ccc' : '#1890ff',
+          cursor:
+            (!inputValue.trim() && uploadedFiles.length === 0) || isLoading
+              ? 'not-allowed'
+              : 'pointer',
+          marginLeft: 2,
+        }}
+        onClick={() => {
+          if ((!inputValue.trim() && uploadedFiles.length === 0) || isLoading) return;
+          sendMessage();
+        }}
+      />
     </div>
   );
 }
