@@ -83,24 +83,50 @@ export function LLMInputAction({
       }}
     >
       {/* Agent Icon Button with Dropdown */}
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <Tooltip title={selectedAgentData?.name || 'Select Agent'}>
-          <RobotOutlined
+      <div
+        style={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ position: 'relative' }}>
+          <Tooltip title={selectedAgentData?.name || 'Select Agent'}>
+            <Badge count={agents.length} size="small" offset={[2, -2]}>
+              <RobotOutlined
+                style={{
+                  fontSize: 18,
+                  color: selectedAgentData ? '#1890ff' : '#888',
+                  background: selectedAgentData ? '#e6f7ff' : 'transparent',
+                  borderRadius: '50%',
+                  padding: 2,
+                  cursor: 'pointer',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAgentDropdownOpen((open) => !open);
+                }}
+              />
+            </Badge>
+          </Tooltip>
+        </div>
+        {/* Bot name under icon */}
+        {selectedAgentData && (
+          <Text
             style={{
-              fontSize: 18,
-              color: selectedAgentData ? '#1890ff' : '#888',
-              background: selectedAgentData ? '#e6f7ff' : 'transparent',
-              borderRadius: '50%',
-              padding: 2,
-              marginRight: 2,
-              cursor: 'pointer',
+              fontSize: 8,
+              color: '#666',
+              textAlign: 'center',
+              lineHeight: 1,
+              marginTop: 2,
+              maxWidth: 40,
+              wordBreak: 'break-all',
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setAgentDropdownOpen((open) => !open);
-            }}
-          />
-        </Tooltip>
+          >
+            {selectedAgentData.name}
+          </Text>
+        )}
         {/* Agent Dropdown */}
         {agentDropdownOpen && (
           <div
@@ -153,30 +179,62 @@ export function LLMInputAction({
       {/* Conversation Select */}
       {selectedAgent && (
         <>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Tooltip
-              title={
-                selectedConversation
-                  ? conversations.find((c) => c.id === selectedConversation)?.title
-                  : 'Select Chat'
-              }
-            >
-              <MessageOutlined
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <Tooltip
+                title={
+                  conversations.length === 0
+                    ? 'No conversations available'
+                    : selectedConversation
+                      ? conversations.find((c) => c.id === selectedConversation)?.title
+                      : 'Select Chat'
+                }
+              >
+                <MessageOutlined
+                  style={{
+                    fontSize: 18,
+                    color:
+                      conversations.length === 0
+                        ? '#ccc'
+                        : selectedConversation
+                          ? '#1890ff'
+                          : '#888',
+                    background: selectedConversation ? '#e6f7ff' : 'transparent',
+                    borderRadius: '50%',
+                    padding: 2,
+                    cursor: conversations.length === 0 ? 'not-allowed' : 'pointer',
+                  }}
+                  onClick={(e) => {
+                    if (conversations.length === 0) return;
+                    e.stopPropagation();
+                    setConversationDropdownOpen((open) => !open);
+                  }}
+                />
+              </Tooltip>
+            </div>
+            {/* Conversation name under icon */}
+            {selectedConversation && (
+              <Text
                 style={{
-                  fontSize: 18,
-                  color: selectedConversation ? '#1890ff' : '#888',
-                  background: selectedConversation ? '#e6f7ff' : 'transparent',
-                  borderRadius: '50%',
-                  padding: 2,
-                  marginLeft: 2,
-                  cursor: 'pointer',
+                  fontSize: 8,
+                  color: '#666',
+                  textAlign: 'center',
+                  lineHeight: 1,
+                  marginTop: 2,
+                  maxWidth: 50,
+                  wordBreak: 'break-all',
                 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setConversationDropdownOpen((open) => !open);
-                }}
-              />
-            </Tooltip>
+              >
+                {conversations.find((c) => c.id === selectedConversation)?.title || 'Chat'}
+              </Text>
+            )}
             {/* Conversation Dropdown */}
             {conversationDropdownOpen && (
               <div
@@ -196,28 +254,43 @@ export function LLMInputAction({
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
               >
-                {conversations.map((conv) => (
+                {conversations.length === 0 ? (
                   <div
-                    key={conv.id}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      padding: '4px 8px',
-                      cursor: 'pointer',
-                      background: selectedConversation === conv.id ? '#e6f7ff' : 'transparent',
-                      borderRadius: 3,
+                      justifyContent: 'center',
+                      padding: '8px 12px',
+                      color: '#999',
                       fontSize: 10,
                     }}
-                    onClick={() => {
-                      setSelectedConversation(conv.id);
-                      setConversationDropdownOpen(false);
-                    }}
                   >
-                    <Text strong style={{ fontSize: 10 }}>
-                      {conv.title}
-                    </Text>
+                    <Text style={{ fontSize: 10, color: '#999' }}>Empty</Text>
                   </div>
-                ))}
+                ) : (
+                  conversations.map((conv) => (
+                    <div
+                      key={conv.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '4px 8px',
+                        cursor: 'pointer',
+                        background: selectedConversation === conv.id ? '#e6f7ff' : 'transparent',
+                        borderRadius: 3,
+                        fontSize: 10,
+                      }}
+                      onClick={() => {
+                        setSelectedConversation(conv.id);
+                        setConversationDropdownOpen(false);
+                      }}
+                    >
+                      <Text strong style={{ fontSize: 10 }}>
+                        {conv.title}
+                      </Text>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>

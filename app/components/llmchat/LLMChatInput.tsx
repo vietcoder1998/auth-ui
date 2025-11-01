@@ -150,7 +150,7 @@ export function LLMChatInput({
               background: 'transparent',
               boxShadow: 'none',
               resize: 'none',
-              fontSize: 10,
+              fontSize: 12,
               padding: 0,
               outline: 'none',
               minHeight: 88,
