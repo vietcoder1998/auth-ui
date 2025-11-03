@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
+import { AgentApi } from '~/apis/admin/AgentApi.ts';
 import { Button, Card, List, message, Typography, Popconfirm, Tag } from 'antd';
-import { EditOutlined, DeleteOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  TagOutlined,
+  UserOutlined,
+  KeyOutlined,
+} from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 // You should create AIModelModal similar to AIPlatformModal for add/edit
 import AIModelModal from '../modals/AIModelModal.tsx';
+import UpdateModelKeyModal from '../modals/UpdateModelKeyModal.tsx';
 
 const { Title } = Typography;
 
@@ -12,7 +20,9 @@ export default function AdminModelPage() {
   const [models, setModels] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [keyModalVisible, setKeyModalVisible] = useState(false);
   const [editingModel, setEditingModel] = useState<any | null>(null);
+  const [selectedModel, setSelectedModel] = useState<any | null>(null);
   const [search, setSearch] = useState('');
   const [platformOptions, setPlatformOptions] = useState<Array<{ label: string; value: string }>>(
     []
@@ -94,6 +104,36 @@ export default function AdminModelPage() {
     setModalVisible(true);
   };
 
+  const handleUpdateKey = async (keyId: string) => {
+    if (!selectedModel) return;
+    try {
+      // Get all agents using this model
+      const agents = selectedModel.agents || [];
+
+      if (agents.length === 0) {
+        message.warning('No agents are using this model');
+        setKeyModalVisible(false);
+        setSelectedModel(null);
+        return;
+      }
+
+      // Update each agent to use the selected AI key using the new API
+      await Promise.all(agents.map((agent: any) => AgentApi.updateAgentKeys(agent.id, [keyId])));
+
+      message.success(`AI Key assigned to ${agents.length} agent(s)`);
+      setKeyModalVisible(false);
+      setSelectedModel(null);
+      fetchModels();
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Failed to update AI Key');
+    }
+  };
+
+  const showKeyModal = (model: any) => {
+    setSelectedModel(model);
+    setKeyModalVisible(true);
+  };
+
   return (
     <div>
       <Title level={2}>AI Model Management</Title>
@@ -129,6 +169,13 @@ export default function AdminModelPage() {
                   onClick={() => showEditModal(item)}
                   title="Edit"
                   key="edit"
+                />,
+                <Button
+                  type="text"
+                  icon={<KeyOutlined />}
+                  onClick={() => showKeyModal(item)}
+                  title="Update AI Key"
+                  key="key"
                 />,
                 <Button
                   type="text"
@@ -226,6 +273,15 @@ export default function AdminModelPage() {
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
         platformOptions={platformOptions}
+      />
+      <UpdateModelKeyModal
+        visible={keyModalVisible}
+        model={selectedModel}
+        onOk={handleUpdateKey}
+        onCancel={() => {
+          setKeyModalVisible(false);
+          setSelectedModel(null);
+        }}
       />
     </div>
   );
