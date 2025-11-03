@@ -170,31 +170,12 @@ export default function AdminAIPlatformPage() {
                     </pre>
 
                     {/* Display AI Models */}
-                    {Array.isArray(item.AIModel) && item.AIModel.length > 0 && (
+                    {Array.isArray(item.models) && item.models.length > 0 && (
                       <div style={{ marginBottom: 8 }}>
                         <span style={{ fontSize: 13, color: '#666', marginRight: 8 }}>
-                          <AppstoreOutlined /> Models ({item.AIModel.length}):
+                          <AppstoreOutlined /> Models ({item.models.length}):
                         </span>
-                        {item.AIModel.map((model: any) => (
-                          <Tag key={model.id} color="purple" style={{ marginBottom: 4 }}>
-                            {model.name}
-                            {model.type && (
-                              <span style={{ fontSize: 11, color: '#888', marginLeft: 4 }}>
-                                ({model.type})
-                              </span>
-                            )}
-                          </Tag>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Fallback for old field name */}
-                    {Array.isArray(item.aiModels) && item.aiModels.length > 0 && !item.AIModel && (
-                      <div style={{ marginBottom: 8 }}>
-                        <span style={{ fontSize: 13, color: '#666', marginRight: 8 }}>
-                          <AppstoreOutlined /> Models ({item.aiModels.length}):
-                        </span>
-                        {item.aiModels.map((model: any) => (
+                        {item.models.map((model: any) => (
                           <Tag key={model.id} color="purple" style={{ marginBottom: 4 }}>
                             {model.name}
                             {model.type && (
