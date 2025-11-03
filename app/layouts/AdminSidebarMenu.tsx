@@ -106,22 +106,29 @@ export const defaultSidebarMenu: MenuItem[] = [
       {
         key: '/admin/system/ai-platforms',
         icon: <DatabaseOutlined />,
-        label: 'AI Platforms',
-      },
-      {
-        key: '/admin/system/ai-models',
-        icon: <RobotOutlined />,
-        label: 'AI Models',
+        label: 'AI Key Control',
+        children: [
+          {
+            key: '/admin/system/ai-models',
+            icon: <RobotOutlined />,
+            label: 'AI Models',
+          },
+          {
+            key: '/admin/system/ai-keys',
+            icon: <KeyOutlined />,
+            label: 'AI Keys',
+          },
+          {
+            key: '/admin/system/ai-platforms',
+            icon: <DatabaseOutlined />,
+            label: 'AI Platforms',
+          },
+        ],
       },
       {
         key: '/admin/system/agents',
         icon: <RobotOutlined />,
         label: 'AI Agents',
-      },
-      {
-        key: '/admin/system/ai-keys',
-        icon: <KeyOutlined />,
-        label: 'AI Keys',
       },
 
       {
