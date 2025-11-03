@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
-import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
+import { Button, Card, message, Typography, Popconfirm, Table, Tag, Space } from 'antd';
+import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 
 const { Title } = Typography;
@@ -106,6 +106,131 @@ export default function AdminAIKeyPage() {
     setModalVisible(true);
   };
 
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 120,
+      render: (id: string, record: any) => (
+        <Button
+          type="link"
+          style={{
+            padding: 0,
+            fontWeight: 700,
+            color: '#1890ff',
+          }}
+          onClick={() => {
+            setSelectedAIKey(record);
+            setDetailModalVisible(true);
+          }}
+        >
+          {id.substring(0, 8)}...
+        </Button>
+      ),
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      width: 150,
+      render: (name: string) => <strong>{name || 'N/A'}</strong>,
+    },
+    {
+      title: 'Platform',
+      dataIndex: 'platform',
+      key: 'platform',
+      width: 120,
+      render: (platform: any) => <Tag color="blue">{platform?.name || 'N/A'}</Tag>,
+    },
+    {
+      title: 'Agents',
+      dataIndex: 'agents',
+      key: 'agents',
+      width: 200,
+      render: (agents: any[]) => (
+        <Space direction="vertical" size="small" style={{ width: '100%' }}>
+          {agents && agents.length > 0 ? (
+            agents.map((agent: any) => (
+              <Tag key={agent.id} color="green">
+                {agent.name}
+                {agent.model && (
+                  <span style={{ fontSize: 11, color: '#666', marginLeft: 4 }}>
+                    ({agent.model.name})
+                  </span>
+                )}
+              </Tag>
+            ))
+          ) : (
+            <span style={{ color: '#999' }}>No agents</span>
+          )}
+        </Space>
+      ),
+    },
+    {
+      title: 'Key',
+      dataIndex: 'key',
+      key: 'key',
+      ellipsis: true,
+      render: (key: string) => (
+        <code
+          style={{
+            fontSize: 11,
+            background: '#f5f5f5',
+            padding: '2px 6px',
+            borderRadius: 3,
+          }}
+        >
+          {key ? `${key.substring(0, 20)}...` : 'N/A'}
+        </code>
+      ),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      render: (desc: string) => desc || '-',
+    },
+    {
+      title: 'Updated',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      width: 150,
+      render: (date: string) => (
+        <span style={{ fontSize: 12 }}>{date ? new Date(date).toLocaleString() : 'N/A'}</span>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 120,
+      fixed: 'right' as const,
+      render: (_: any, record: any) => (
+        <Space>
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              setSelectedAIKey(record);
+              setDetailModalVisible(true);
+            }}
+            title="View Details"
+          />
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => showEditModal(record)}
+            title="Edit"
+          />
+          <Popconfirm title="Delete this AI Key?" onConfirm={() => handleDeleteAIKey(record.id)}>
+            <Button type="text" icon={<DeleteOutlined />} danger title="Delete" />
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <div>
       <Title level={2}>AI Key Management</Title>
@@ -129,78 +254,17 @@ export default function AdminAIKeyPage() {
         Add AI Key
       </Button>
       <Card style={{ marginTop: 0 }}>
-        <List
+        <Table
           loading={loading}
           dataSource={aiKeys}
-          renderItem={(item) => (
-            <List.Item
-              actions={[
-                <Button
-                  type="text"
-                  icon={<EditOutlined />}
-                  onClick={() => showEditModal(item)}
-                  title="Edit"
-                  key="edit"
-                />,
-                <Button
-                  type="text"
-                  icon={<TagOutlined />}
-                  title="Label"
-                  key="label"
-                  onClick={() => {
-                    /* TODO: Label action */
-                  }}
-                />,
-                <Popconfirm
-                  title="Delete this AI Key?"
-                  onConfirm={() => handleDeleteAIKey(item.id)}
-                  key="delete"
-                >
-                  <Button type="text" icon={<DeleteOutlined />} danger title="Delete" />
-                </Popconfirm>,
-              ]}
-            >
-              <List.Item.Meta
-                title={
-                  <span>
-                    Key ID:{' '}
-                    <Button
-                      type="link"
-                      style={{
-                        padding: 0,
-                        fontWeight: 700,
-                        color: '#1890ff',
-                        background: '#e6f7ff',
-                        borderRadius: 4,
-                        marginRight: 8,
-                      }}
-                      onClick={() => {
-                        setSelectedAIKey(item);
-                        setDetailModalVisible(true);
-                      }}
-                    >
-                      {item.id}
-                    </Button>
-                    {item.platformId && (
-                      <span style={{ marginLeft: 12, color: '#888', fontSize: 13 }}>
-                        Platform: <b>{item.platformName || item.platformId}</b>
-                      </span>
-                    )}
-                  </span>
-                }
-                description={
-                  <div>
-                    <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{item.key}</pre>
-                    {item.updatedAt && (
-                      <span style={{ fontSize: 12, color: '#aaa' }}>
-                        Updated: {new Date(item.updatedAt).toLocaleString()}
-                      </span>
-                    )}
-                  </div>
-                }
-              />
-            </List.Item>
-          )}
+          columns={columns}
+          rowKey="id"
+          scroll={{ x: 1200 }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `Total ${total} items`,
+          }}
         />
       </Card>
       <AddAIKeyModal

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
-import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
+import { Button, Card, List, message, Typography, Popconfirm, Tag } from 'antd';
+import { EditOutlined, DeleteOutlined, TagOutlined, AppstoreOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import AIPlatformModal from '../modals/AIPlatformModal.tsx';
 
@@ -168,16 +168,45 @@ export default function AdminAIPlatformPage() {
                     <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>
                       {item.description}
                     </pre>
-                    {Array.isArray(item.aiModels) && item.aiModels.length > 0 && (
-                      <div style={{ marginBottom: 4 }}>
-                        <b>Models:</b>{' '}
-                        {item.aiModels.map((model: any, idx: number) => (
-                          <span key={model.id || idx} style={{ marginRight: 8, color: '#1890ff' }}>
-                            {model.name || model.id}
-                          </span>
+
+                    {/* Display AI Models */}
+                    {Array.isArray(item.AIModel) && item.AIModel.length > 0 && (
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{ fontSize: 13, color: '#666', marginRight: 8 }}>
+                          <AppstoreOutlined /> Models ({item.AIModel.length}):
+                        </span>
+                        {item.AIModel.map((model: any) => (
+                          <Tag key={model.id} color="purple" style={{ marginBottom: 4 }}>
+                            {model.name}
+                            {model.type && (
+                              <span style={{ fontSize: 11, color: '#888', marginLeft: 4 }}>
+                                ({model.type})
+                              </span>
+                            )}
+                          </Tag>
                         ))}
                       </div>
                     )}
+
+                    {/* Fallback for old field name */}
+                    {Array.isArray(item.aiModels) && item.aiModels.length > 0 && !item.AIModel && (
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{ fontSize: 13, color: '#666', marginRight: 8 }}>
+                          <AppstoreOutlined /> Models ({item.aiModels.length}):
+                        </span>
+                        {item.aiModels.map((model: any) => (
+                          <Tag key={model.id} color="purple" style={{ marginBottom: 4 }}>
+                            {model.name}
+                            {model.type && (
+                              <span style={{ fontSize: 11, color: '#888', marginLeft: 4 }}>
+                                ({model.type})
+                              </span>
+                            )}
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
+
                     {item.updatedAt && (
                       <span style={{ fontSize: 12, color: '#aaa' }}>
                         Updated: {new Date(item.updatedAt).toLocaleString()}

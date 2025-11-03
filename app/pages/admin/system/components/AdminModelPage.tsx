@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
-import { Button, Card, List, message, Typography, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined, TagOutlined } from '@ant-design/icons';
+import { Button, Card, List, message, Typography, Popconfirm, Tag } from 'antd';
+import { EditOutlined, DeleteOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 // You should create AIModelModal similar to AIPlatformModal for add/edit
 import AIModelModal from '../modals/AIModelModal.tsx';
@@ -181,6 +181,33 @@ export default function AdminModelPage() {
                     <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>
                       {item.description}
                     </pre>
+
+                    {/* Display Platform */}
+                    {item.platform && (
+                      <div style={{ marginBottom: 8 }}>
+                        <Tag color="blue">Platform: {item.platform.name}</Tag>
+                      </div>
+                    )}
+
+                    {/* Display Agents */}
+                    {item.agents && item.agents.length > 0 && (
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{ fontSize: 13, color: '#666', marginRight: 8 }}>
+                          <UserOutlined /> Agents ({item.agents.length}):
+                        </span>
+                        {item.agents.map((agent: any) => (
+                          <Tag key={agent.id} color="green" style={{ marginBottom: 4 }}>
+                            {agent.name}
+                            {agent.description && (
+                              <span style={{ fontSize: 11, color: '#888', marginLeft: 4 }}>
+                                - {agent.description}
+                              </span>
+                            )}
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
+
                     {item.updatedAt && (
                       <span style={{ fontSize: 12, color: '#aaa' }}>
                         Updated: {new Date(item.updatedAt).toLocaleString()}
