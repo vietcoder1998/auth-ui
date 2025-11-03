@@ -150,8 +150,8 @@ export class ApiUtils {
             message.error(errorMessage);
             setTimeout(() => {
               if (!window.location.pathname.includes('/login')) {
-                Cookies.remove('auth_token', { path: COOKIE_PATH, domain: COOKIE_DOMAIN });
-                Cookies.remove('auth_user', { path: COOKIE_PATH, domain: COOKIE_DOMAIN });
+                Cookies.remove('auth_token');
+                Cookies.remove('auth_user');
                 window.location.href = '/login';
               }
             }, 1000);

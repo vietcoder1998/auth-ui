@@ -7,10 +7,12 @@ import {
   TagOutlined,
   AppstoreOutlined,
   KeyOutlined,
+  PlusSquareOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import AIPlatformModal from '../modals/AIPlatformModal.tsx';
 import AddAIKeyIntoPlatformModal from '../modals/AddAIKeyIntoPlatformModal.tsx';
+import AddAIModelIntoPlatformModal from '../modals/AddAIModelIntoPlatformModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddAIPlatformModal for add/edit
@@ -23,6 +25,7 @@ export default function AdminAIPlatformPage() {
   const [search, setSearch] = useState('');
   const [addKeyModalVisible, setAddKeyModalVisible] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<any | null>(null);
+  const [addModelModalVisible, setAddModelModalVisible] = useState(false);
 
   useEffect(() => {
     fetchPlatforms();
@@ -101,6 +104,17 @@ export default function AdminAIPlatformPage() {
     fetchPlatforms();
   };
 
+  const handleAddModelToPlatform = (platform: any) => {
+    setSelectedPlatform(platform);
+    setAddModelModalVisible(true);
+  };
+
+  const handleAddModelSuccess = () => {
+    setAddModelModalVisible(false);
+    setSelectedPlatform(null);
+    fetchPlatforms();
+  };
+
   return (
     <div>
       <Title level={2}>AI Platform Management</Title>
@@ -139,6 +153,13 @@ export default function AdminAIPlatformPage() {
                 />,
                 <Button
                   type="text"
+                  icon={<PlusSquareOutlined />}
+                  title="Add Model"
+                  key="addModel"
+                  onClick={() => handleAddModelToPlatform(item)}
+                />,
+                <Button
+                  type="text"
                   icon={<KeyOutlined />}
                   title="Add API Key"
                   key="addKey"
@@ -165,7 +186,7 @@ export default function AdminAIPlatformPage() {
               <List.Item.Meta
                 title={
                   <span>
-                    Platform ID:{' '}
+                    Platform ID:
                     <Button
                       type="link"
                       style={{
@@ -240,6 +261,16 @@ export default function AdminAIPlatformPage() {
         onOk={handleAddKeySuccess}
         onCancel={() => {
           setAddKeyModalVisible(false);
+          setSelectedPlatform(null);
+        }}
+      />
+      <AddAIModelIntoPlatformModal
+        visible={addModelModalVisible}
+        platformId={selectedPlatform?.id}
+        platformName={selectedPlatform?.name}
+        onOk={handleAddModelSuccess}
+        onCancel={() => {
+          setAddModelModalVisible(false);
           setSelectedPlatform(null);
         }}
       />

@@ -32,7 +32,7 @@ export default function AdminJobList() {
     setLoading(true);
     try {
       const res = await adminApi.getJobs();
-      const jobsData = res.data.data || [];
+      const jobsData = res.data.data.jobs || [];
       setJobs(jobsData);
       setFilteredJobs(jobsData);
     } catch {
