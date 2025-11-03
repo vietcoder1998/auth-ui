@@ -129,8 +129,10 @@ export function useUpdatePermissions() {
       // Assign permission to superadmin role
       await assignPermissionToSuperadmin(permissionId);
 
-      // Cleanup and refresh
+      // Remove the notification from backend and local state
       await dismissErrorFn(dataId);
+
+      // Cleanup and refresh
       removeLoginCookie();
       await authApi.getMe();
       onRefreshPermissions?.();
