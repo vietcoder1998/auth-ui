@@ -98,7 +98,13 @@ export default function UpdateModelKeyModal({
             label="Select AI Key"
             rules={[{ required: true, message: 'Please select an AI Key' }]}
           >
-            <Select placeholder="Select an AI Key" showSearch optionFilterProp="children">
+            <Select
+              placeholder="Select an AI Key"
+              showSearch
+              optionFilterProp="children"
+              loading={loading}
+              notFoundContent={loading ? <Spin size="small" /> : 'No AI Keys found'}
+            >
               {aiKeys.map((key) => (
                 <Option key={key.id} value={key.id}>
                   <div>
@@ -122,7 +128,20 @@ export default function UpdateModelKeyModal({
             </Select>
           </Form.Item>
 
-          {model?.platform && (
+          {loading ? (
+            <div
+              style={{
+                marginTop: 8,
+                padding: 12,
+                background: '#f5f5f5',
+                borderRadius: 4,
+                textAlign: 'center',
+              }}
+            >
+              <Spin size="small" />
+              <span style={{ marginLeft: 8, fontSize: 12, color: '#666' }}>Loading AI Keys...</span>
+            </div>
+          ) : model?.platform ? (
             <div style={{ marginTop: 8, padding: 12, background: '#f5f5f5', borderRadius: 4 }}>
               <div style={{ fontSize: 12, color: '#666' }}>
                 <strong>Model Platform:</strong> {model.platform.name}
@@ -133,7 +152,7 @@ export default function UpdateModelKeyModal({
                   : 'No AI Keys available for this platform'}
               </div>
             </div>
-          )}
+          ) : null}
         </Form>
       </Spin>
     </Modal>
