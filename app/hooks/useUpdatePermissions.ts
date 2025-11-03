@@ -57,6 +57,7 @@ export function useUpdatePermissions() {
     console.log(error);
     const url = error?.url;
     const method = error?.method || 'GET';
+    debugger;
     const permissionInfo = extractPermissionFromUrl(url ?? '', method);
     return permissionInfo?.resource || null;
   };
@@ -167,7 +168,7 @@ export function useUpdatePermissions() {
     const action = getActionFromMethod(method);
 
     const permissionName = permission.includes(':id') ? `${permission}/:id` : permission;
-
+    debugger;
     const newPermResponse = await adminApi.createPermission({
       resource: permission,
       name: permissionName,

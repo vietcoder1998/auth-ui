@@ -39,16 +39,17 @@ export const extractPermissionFromUrl = (
 
   // Determine action based on HTTP method using switch-case
   const normalizedMethod = method.toUpperCase();
-  let action: 'read' | 'write' | 'delete';
+  let action: 'read' | 'write' | 'delete' | 'create' | 'update' = 'read';
 
   switch (normalizedMethod) {
     case 'DELETE':
       action = 'delete';
       break;
     case 'POST':
+      action = 'create';
+      break;
     case 'PUT':
-    case 'PATCH':
-      action = 'write';
+      action = 'update';
       break;
     case 'GET':
     default:
