@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
 import { Button, Card, List, message, Typography, Popconfirm, Tag } from 'antd';
-import { EditOutlined, DeleteOutlined, TagOutlined, AppstoreOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  TagOutlined,
+  AppstoreOutlined,
+  KeyOutlined,
+} from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import AIPlatformModal from '../modals/AIPlatformModal.tsx';
+import AddAIKeyIntoPlatformModal from '../modals/AddAIKeyIntoPlatformModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddAIPlatformModal for add/edit
@@ -14,6 +21,8 @@ export default function AdminAIPlatformPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPlatform, setEditingPlatform] = useState<any | null>(null);
   const [search, setSearch] = useState('');
+  const [addKeyModalVisible, setAddKeyModalVisible] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState<any | null>(null);
 
   useEffect(() => {
     fetchPlatforms();
@@ -81,6 +90,17 @@ export default function AdminAIPlatformPage() {
     setModalVisible(true);
   };
 
+  const handleAddKeyToPlatform = (platform: any) => {
+    setSelectedPlatform(platform);
+    setAddKeyModalVisible(true);
+  };
+
+  const handleAddKeySuccess = () => {
+    setAddKeyModalVisible(false);
+    setSelectedPlatform(null);
+    fetchPlatforms();
+  };
+
   return (
     <div>
       <Title level={2}>AI Platform Management</Title>
@@ -116,6 +136,13 @@ export default function AdminAIPlatformPage() {
                   onClick={() => showEditModal(item)}
                   title="Edit"
                   key="edit"
+                />,
+                <Button
+                  type="text"
+                  icon={<KeyOutlined />}
+                  title="Add API Key"
+                  key="addKey"
+                  onClick={() => handleAddKeyToPlatform(item)}
                 />,
                 <Button
                   type="text"
@@ -205,6 +232,16 @@ export default function AdminAIPlatformPage() {
         editingPlatform={editingPlatform}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
+      />
+      <AddAIKeyIntoPlatformModal
+        visible={addKeyModalVisible}
+        platformId={selectedPlatform?.id}
+        platformName={selectedPlatform?.name}
+        onOk={handleAddKeySuccess}
+        onCancel={() => {
+          setAddKeyModalVisible(false);
+          setSelectedPlatform(null);
+        }}
       />
     </div>
   );
