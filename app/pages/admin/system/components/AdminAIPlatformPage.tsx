@@ -8,11 +8,13 @@ import {
   AppstoreOutlined,
   KeyOutlined,
   PlusSquareOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';
 import AIPlatformModal from '../modals/AIPlatformModal.tsx';
 import AddAIKeyIntoPlatformModal from '../modals/AddAIKeyIntoPlatformModal.tsx';
 import AddAIModelIntoPlatformModal from '../modals/AddAIModelIntoPlatformModal.tsx';
+import AddAgentIntoPlatformModal from '../modals/AddAgentIntoPlatformModal.tsx';
 
 const { Title } = Typography;
 // TODO: Create AddAIPlatformModal for add/edit
@@ -26,6 +28,7 @@ export default function AdminAIPlatformPage() {
   const [addKeyModalVisible, setAddKeyModalVisible] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<any | null>(null);
   const [addModelModalVisible, setAddModelModalVisible] = useState(false);
+  const [addAgentModalVisible, setAddAgentModalVisible] = useState(false);
 
   useEffect(() => {
     fetchPlatforms();
@@ -115,6 +118,17 @@ export default function AdminAIPlatformPage() {
     fetchPlatforms();
   };
 
+  const handleAddAgentToPlatform = (platform: any) => {
+    setSelectedPlatform(platform);
+    setAddAgentModalVisible(true);
+  };
+
+  const handleAddAgentSuccess = () => {
+    setAddAgentModalVisible(false);
+    setSelectedPlatform(null);
+    fetchPlatforms();
+  };
+
   return (
     <div>
       <Title level={2}>AI Platform Management</Title>
@@ -150,6 +164,13 @@ export default function AdminAIPlatformPage() {
                   onClick={() => showEditModal(item)}
                   title="Edit"
                   key="edit"
+                />,
+                <Button
+                  type="text"
+                  icon={<RobotOutlined />}
+                  title="Add Agent"
+                  key="addAgent"
+                  onClick={() => handleAddAgentToPlatform(item)}
                 />,
                 <Button
                   type="text"
@@ -271,6 +292,16 @@ export default function AdminAIPlatformPage() {
         onOk={handleAddModelSuccess}
         onCancel={() => {
           setAddModelModalVisible(false);
+          setSelectedPlatform(null);
+        }}
+      />
+      <AddAgentIntoPlatformModal
+        visible={addAgentModalVisible}
+        platformId={selectedPlatform?.id}
+        platformName={selectedPlatform?.name}
+        onOk={handleAddAgentSuccess}
+        onCancel={() => {
+          setAddAgentModalVisible(false);
           setSelectedPlatform(null);
         }}
       />
