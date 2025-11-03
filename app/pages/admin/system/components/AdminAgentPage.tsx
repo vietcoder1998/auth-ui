@@ -31,6 +31,7 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 import { AIKeyApi, AIKeyApiInstance } from '~/apis/admin/AIKeyApi.ts';
+import { AgentApi } from '~/apis/admin/AgentApi.ts';
 import AIKeyDetailModal from '../modals/AIKeyDetailModal.tsx';
 import { adminApi } from '~/apis/admin/index.ts';
 import { useAuth } from '../../../../hooks/useAuth.tsx';
@@ -161,11 +162,11 @@ export default function AdminAgentPage() {
 
   // Handler to change key for agent's model
   const handleChangeKey = async (key: any) => {
-    if (!selectedAgent || !selectedAgent.model || !key) return;
+    if (!selectedAgent || !key) return;
     try {
-      // Assume backend supports updating model's key by agent/model id
-      await adminApi.updateAgent(selectedAgent.id, { aiKeyId: key.id });
-      message.success('AI Key updated for model');
+      // Update agent's AI keys using the new many-to-many relationship
+      await AgentApi.updateAgentKeys(selectedAgent.id, [key.id]);
+      message.success('AI Key updated for agent');
       setKeyModalVisible(false);
       setSelectedKey(null);
       fetchAgents();
@@ -359,7 +360,7 @@ export default function AdminAgentPage() {
       render: (_: string, record: Agent) => {
         const modelName = typeof record.model === 'string' ? record.model : record.model?.name;
         // Fallback for key name
-        const keyName = typeof record.model !== 'string' && (record.model as any).aiKeyName;
+        const keyName = typeof record.model !== 'string' && (record?.model as any)?.name;
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Avatar
@@ -536,7 +537,7 @@ export default function AdminAgentPage() {
                     <span style={{ fontSize: 12, color: '#888' }}>Key:</span>
                     <Tag color="purple">
                       {(typeof selectedAgent.model !== 'string' &&
-                        (selectedAgent.model as any).aiKeyName) ||
+                        (selectedAgent?.model as any)?.name) ||
                         'N/A'}
                     </Tag>
                     <Button size="small" onClick={handleOpenKeyModal}>

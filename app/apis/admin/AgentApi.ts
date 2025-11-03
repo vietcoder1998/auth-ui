@@ -1,4 +1,5 @@
 import { BaseApi } from './BaseApi.ts';
+import { getApiInstance } from '../index.ts';
 
 export class AgentApi extends BaseApi {
   constructor() {
@@ -37,6 +38,21 @@ export class AgentApi extends BaseApi {
 
   static async createAgentMemory(id: string, data: any) {
     return BaseApi.staticCreate(`/admin/agents/${id}/memories`, data);
+  }
+
+  static async updateAgentKeys(id: string, aiKeyIds: string[]) {
+    const axios = getApiInstance();
+    return axios.put(`/admin/agents/${id}/ai-keys`, { aiKeyIds });
+  }
+
+  static async addKeysToAgent(id: string, aiKeyIds: string[]) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/agents/${id}/ai-keys/add`, { aiKeyIds });
+  }
+
+  static async removeKeysFromAgent(id: string, aiKeyIds: string[]) {
+    const axios = getApiInstance();
+    return axios.post(`/admin/agents/${id}/ai-keys/remove`, { aiKeyIds });
   }
 }
 

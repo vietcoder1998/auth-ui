@@ -1,9 +1,10 @@
-import { Modal, Form, Input, Select, Divider, Switch, Button, Space } from 'antd';
+import { Modal, Form, Input, Select, Divider, Switch, Button, Space, Collapse } from 'antd';
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
 
 const { TextArea } = Input;
 const { Option } = Select;
+const { Panel } = Collapse;
 
 const personalityTraits = [
   'helpful',
@@ -106,59 +107,71 @@ export default function AgentModal({
           />
         </Form.Item>
 
-        <Divider>Personality Configuration</Divider>
+        <Collapse ghost>
+          <Panel header="Personality Configuration" key="personality">
+            <Form.Item name="traits" label="Personality Traits">
+              <Select
+                mode="multiple"
+                placeholder="Select personality traits"
+                style={{ width: '100%' }}
+              >
+                {personalityTraits.map((trait) => (
+                  <Option key={trait} value={trait}>
+                    {trait}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-        <Form.Item name="traits" label="Personality Traits">
-          <Select mode="multiple" placeholder="Select personality traits" style={{ width: '100%' }}>
-            {personalityTraits.map((trait) => (
-              <Option key={trait} value={trait}>
-                {trait}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+            <Form.Item name="tone" label="Communication Tone">
+              <Select placeholder="Select communication tone">
+                <Option value="professional">Professional</Option>
+                <Option value="friendly">Friendly</Option>
+                <Option value="casual">Casual</Option>
+                <Option value="formal">Formal</Option>
+                <Option value="technical">Technical</Option>
+              </Select>
+            </Form.Item>
 
-        <Form.Item name="tone" label="Communication Tone">
-          <Select placeholder="Select communication tone">
-            <Option value="professional">Professional</Option>
-            <Option value="friendly">Friendly</Option>
-            <Option value="casual">Casual</Option>
-            <Option value="formal">Formal</Option>
-            <Option value="technical">Technical</Option>
-          </Select>
-        </Form.Item>
+            <Form.Item name="style" label="Response Style">
+              <Select placeholder="Select response style">
+                <Option value="concise">Concise</Option>
+                <Option value="detailed">Detailed</Option>
+                <Option value="conversational">Conversational</Option>
+                <Option value="structured">Structured</Option>
+              </Select>
+            </Form.Item>
 
-        <Form.Item name="style" label="Response Style">
-          <Select placeholder="Select response style">
-            <Option value="concise">Concise</Option>
-            <Option value="detailed">Detailed</Option>
-            <Option value="conversational">Conversational</Option>
-            <Option value="structured">Structured</Option>
-          </Select>
-        </Form.Item>
+            <Form.Item name="expertise" label="Areas of Expertise">
+              <Input placeholder="e.g., customer service, technical support, sales (comma-separated)" />
+            </Form.Item>
+          </Panel>
 
-        <Form.Item name="expertise" label="Areas of Expertise">
-          <Input placeholder="e.g., customer service, technical support, sales (comma-separated)" />
-        </Form.Item>
+          <Panel header="Model Configuration" key="modelConfig">
+            <Form.Item name="temperature" label="Temperature">
+              <Input
+                type="number"
+                min={0}
+                max={2}
+                step={0.1}
+                placeholder="0.7"
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
 
-        <Divider>Model Configuration</Divider>
+            <Form.Item name="maxTokens" label="Max Tokens">
+              <Input
+                type="number"
+                min={1}
+                max={4000}
+                placeholder="1000"
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+          </Panel>
+        </Collapse>
 
-        <Form.Item name="temperature" label="Temperature">
-          <Input
-            type="number"
-            min={0}
-            max={2}
-            step={0.1}
-            placeholder="0.7"
-            style={{ width: '100%' }}
-          />
-        </Form.Item>
-
-        <Form.Item name="maxTokens" label="Max Tokens">
-          <Input type="number" min={1} max={4000} placeholder="1000" style={{ width: '100%' }} />
-        </Form.Item>
-
-        <Form.Item name="isActive" label="Status" valuePropName="checked">
+        <Form.Item name="isActive" label="Status" valuePropName="checked" style={{ marginTop: 16 }}>
           <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
         </Form.Item>
 
