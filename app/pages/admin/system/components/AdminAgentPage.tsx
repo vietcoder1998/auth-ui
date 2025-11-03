@@ -30,6 +30,8 @@ import {
   Typography,
 } from 'antd';
 import { useEffect, useState } from 'react';
+import { AIKeyApi, AIKeyApiInstance } from '~/apis/admin/AIKeyApi.ts';
+import AIKeyDetailModal from '../modals/AIKeyDetailModal.tsx';
 import { adminApi } from '~/apis/admin/index.ts';
 import { useAuth } from '../../../../hooks/useAuth.tsx';
 import AgentModal from '../modals/AgentModal.tsx';
@@ -139,6 +141,38 @@ export default function AdminAgentPage() {
     tasks: AgentTask[];
   }>({ memories: [], tools: [], tasks: [] });
   const [search, setSearch] = useState('');
+  const [aiKeys, setAIKeys] = useState<any[]>([]);
+  const [keyModalVisible, setKeyModalVisible] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<any | null>(null);
+  // Fetch all AI Keys for modal
+  const fetchAIKeys = async () => {
+    try {
+      const res = await AIKeyApi.getAIKeys();
+      setAIKeys(res.data?.data || []);
+    } catch (e) {
+      setAIKeys([]);
+    }
+  };
+  // Handler to open key modal
+  const handleOpenKeyModal = () => {
+    fetchAIKeys();
+    setKeyModalVisible(true);
+  };
+
+  // Handler to change key for agent's model
+  const handleChangeKey = async (key: any) => {
+    if (!selectedAgent || !selectedAgent.model || !key) return;
+    try {
+      // Assume backend supports updating model's key by agent/model id
+      await adminApi.updateAgent(selectedAgent.id, { aiKeyId: key.id });
+      message.success('AI Key updated for model');
+      setKeyModalVisible(false);
+      setSelectedKey(null);
+      fetchAgents();
+    } catch (e) {
+      message.error('Failed to update AI Key');
+    }
+  };
 
   useEffect(() => {
     fetchAgents();
@@ -321,40 +355,34 @@ export default function AdminAgentPage() {
       title: 'Agent',
       dataIndex: 'name',
       key: 'name',
-      width: 250,
-      render: (text: string, record: Agent) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar
-            icon={<RobotOutlined />}
-            style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9', width: 80 }}
-          />
-          <div>
-            <div style={{ fontWeight: 500 }}>{text}</div>
-            <Text type="secondary" style={{ fontSize: '12px' }}>
-              {record.description || 'No description'}
-            </Text>
+      width: 350,
+      render: (_: string, record: Agent) => {
+        const modelName = typeof record.model === 'string' ? record.model : record.model?.name;
+        // Fallback for key name
+        const keyName = typeof record.model !== 'string' && (record.model as any).aiKeyName;
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Avatar
+              icon={<RobotOutlined />}
+              style={{ backgroundColor: record.isActive ? '#52c41a' : '#d9d9d9', width: 60 }}
+            />
+            <div>
+              <div style={{ fontWeight: 500 }}>{record.name}</div>
+              <Text type="secondary" style={{ fontSize: '12px' }}>
+                {record.description || 'No description'}
+              </Text>
+              <div style={{ marginTop: 4 }}>
+                <Tag color="blue">{modelName || 'N/A'}</Tag>
+                <Tag color={record.isActive ? 'green' : 'default'}>
+                  {record.isActive ? 'Active' : 'Inactive'}
+                </Tag>
+                <span style={{ fontSize: 12, color: '#888', marginLeft: 8 }}>Key:</span>
+                <Tag color="purple">{keyName || 'N/A'}</Tag>
+              </div>
+            </div>
           </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Model',
-      dataIndex: 'model',
-      key: 'model',
-      width: 120,
-      render: (model: Agent['model']) => {
-        const modelName = typeof model === 'string' ? model : model?.name;
-        return <Tag color="blue">{modelName || 'N/A'}</Tag>;
+        );
       },
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'status',
-      width: 100,
-      render: (isActive: boolean) => (
-        <Badge status={isActive ? 'success' : 'default'} text={isActive ? 'Active' : 'Inactive'} />
-      ),
     },
     {
       title: 'Usage Stats',
@@ -497,12 +525,73 @@ export default function AdminAgentPage() {
                   {selectedAgent.description}
                 </Descriptions.Item>
                 <Descriptions.Item label="Model">
-                  <Tag color="blue">
-                    {typeof selectedAgent.model === 'string'
-                      ? selectedAgent.model
-                      : selectedAgent.model?.name || 'N/A'}
-                  </Tag>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Tag color="blue">
+                      {typeof selectedAgent.model === 'string'
+                        ? selectedAgent.model
+                        : selectedAgent.model?.name || 'N/A'}
+                    </Tag>
+                    {/* Display used AI Key if available */}
+                    {/* TODO: Update backend to include used key with model. Fallback: show N/A */}
+                    <span style={{ fontSize: 12, color: '#888' }}>Key:</span>
+                    <Tag color="purple">
+                      {(typeof selectedAgent.model !== 'string' &&
+                        (selectedAgent.model as any).aiKeyName) ||
+                        'N/A'}
+                    </Tag>
+                    <Button size="small" onClick={handleOpenKeyModal}>
+                      Change Key
+                    </Button>
+                  </div>
                 </Descriptions.Item>
+                {/* AI Key Selection Modal */}
+                <AIKeyDetailModal
+                  visible={keyModalVisible}
+                  aiKey={selectedKey}
+                  onCancel={() => {
+                    setKeyModalVisible(false);
+                    setSelectedKey(null);
+                  }}
+                />
+                {/* List of keys for selection */}
+                {keyModalVisible && (
+                  <Drawer
+                    title="Select AI Key for Model"
+                    open={keyModalVisible}
+                    onClose={() => setKeyModalVisible(false)}
+                    width={480}
+                  >
+                    <List
+                      dataSource={aiKeys}
+                      renderItem={(key) => (
+                        <List.Item
+                          actions={[
+                            <Button
+                              type="primary"
+                              size="small"
+                              onClick={() => handleChangeKey(key)}
+                            >
+                              Use This Key
+                            </Button>,
+                          ]}
+                        >
+                          <List.Item.Meta
+                            title={key.name}
+                            description={
+                              <>
+                                <div>ID: {key.id}</div>
+                                <div>
+                                  Key: <span style={{ fontFamily: 'monospace' }}>{key.key}</span>
+                                </div>
+                                <div>Platform: {key.platformName || key.platformId || 'N/A'}</div>
+                              </>
+                            }
+                          />
+                        </List.Item>
+                      )}
+                    />
+                  </Drawer>
+                )}
                 <Descriptions.Item label="Status">
                   <Badge
                     status={selectedAgent.isActive ? 'success' : 'default'}
