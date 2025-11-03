@@ -12,7 +12,9 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "~/apis/*": ["./app/apis/*"]
+      "~/apis/*": ["./app/apis/*"],
+      "~/utils/*": ["./app/utils/*"],
+      "~/types/*": ["./app/types/*"]
     },
     "esModuleInterop": true,
     "noEmit": true,

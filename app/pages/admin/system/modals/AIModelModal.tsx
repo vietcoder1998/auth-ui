@@ -1,5 +1,7 @@
 import { Modal, Form, Input, Select } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { AgentApi } from '~/apis/admin/AgentApi.ts';
+
 export interface AIModelModalProps {
   visible: boolean;
   editingModel?: any | null;
@@ -16,6 +18,29 @@ export default function AIModelModal({
   platformOptions = [],
 }: AIModelModalProps) {
   const [form] = Form.useForm();
+  const [agents, setAgents] = useState<any[]>([]);
+  const [loadingAgents, setLoadingAgents] = useState(false);
+
+  // Fetch agents when modal opens
+  useEffect(() => {
+    const fetchAgents = async () => {
+      if (visible) {
+        setLoadingAgents(true);
+        try {
+          const response = await AgentApi.getAgents();
+          const agentsData = response.data?.data || [];
+          setAgents(agentsData);
+        } catch (error) {
+          console.error('Failed to fetch agents:', error);
+          setAgents([]);
+        } finally {
+          setLoadingAgents(false);
+        }
+      }
+    };
+
+    fetchAgents();
+  }, [visible]);
 
   useEffect(() => {
     if (editingModel) {
@@ -26,6 +51,7 @@ export default function AIModelModal({
           typeof editingModel.platformId === 'string'
             ? editingModel.platformId
             : editingModel.platform?.id || '',
+        agentIds: editingModel.agents?.map((a: any) => a.id || a.agentId) || [],
       };
       form.setFieldsValue(initialValues);
     } else {
@@ -70,6 +96,30 @@ export default function AIModelModal({
             {platformOptions.map((opt: { label: string; value: string }) => (
               <Select.Option key={opt.value} value={opt.value} label={opt.label}>
                 {opt.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Agents" name="agentIds">
+          <Select
+            mode="multiple"
+            placeholder="Select agents (optional)"
+            allowClear
+            showSearch
+            optionFilterProp="children"
+            loading={loadingAgents}
+            filterOption={(input, option) =>
+              (option?.children as any)?.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            {agents.map((agent: any) => (
+              <Select.Option key={agent.id} value={agent.id}>
+                <div>
+                  <div style={{ fontWeight: 500 }}>{agent.name}</div>
+                  {agent.description && (
+                    <div style={{ fontSize: '12px', color: '#888' }}>{agent.description}</div>
+                  )}
+                </div>
               </Select.Option>
             ))}
           </Select>

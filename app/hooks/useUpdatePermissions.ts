@@ -166,9 +166,11 @@ export function useUpdatePermissions() {
     const method = error?.method?.toUpperCase() || 'GET';
     const action = getActionFromMethod(method);
 
+    const permissionName = permission.includes(':id') ? `${permission}/:id` : permission;
+
     const newPermResponse = await adminApi.createPermission({
       resource: permission,
-      name: permission,
+      name: permissionName,
       action,
       description: `Auto-generated permission for ${permission}`,
       route,

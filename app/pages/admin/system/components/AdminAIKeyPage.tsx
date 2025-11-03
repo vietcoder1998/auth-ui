@@ -212,7 +212,6 @@ export default function AdminAIKeyPage() {
         }}
         editingKey={editingKey}
         platforms={platforms}
-        agents={agents}
       />
       <AIKeyDetailModal
         visible={detailModalVisible}

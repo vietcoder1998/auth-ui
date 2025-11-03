@@ -9,19 +9,22 @@ export const handleApiError = (error: any, context?: string) => {
   let status: number | undefined;
   let details: any = {};
 
-  // Handle axios errors
-  if (error.response) {
-    status = error.response.status;
-    errorCode = error.code || 'API_ERROR';
+  // Handle axios errors with switch-case
+  const errorType = error.response ? 'response' : error.request ? 'request' : 'client';
 
-    // Extract meaningful error message
-    if (error.response.data) {
+  switch (errorType) {
+    case 'response': {
+      // Server responded with error
+      status = error.response.status;
+      errorCode = error.code || 'API_ERROR';
       const data = error.response.data;
+
+      // Extract error message
       if (typeof data === 'string') {
         errorMessage = data;
-      } else if (data.message) {
+      } else if (data?.message) {
         errorMessage = data.message;
-      } else if (data.error) {
+      } else if (data?.error) {
         errorMessage =
           typeof data.error === 'string' ? data.error : data.error.message || 'API Error';
       } else {
@@ -34,21 +37,29 @@ export const handleApiError = (error: any, context?: string) => {
         responseData: data,
         context,
       };
-    } else {
-      errorMessage = `Request failed with status ${status}`;
+      break;
     }
-  } else if (error.request) {
-    errorMessage = 'Network error: Unable to connect to server';
-    errorCode = 'NETWORK_ERROR';
-    details = {
-      url: error.config?.url,
-      method: error.config?.method?.toUpperCase(),
-      context,
-    };
-  } else if (error.message) {
-    errorMessage = error.message;
-    errorCode = error.code || 'CLIENT_ERROR';
-    details = { context };
+
+    case 'request': {
+      // Request was made but no response received
+      errorMessage = 'Network error: Unable to connect to server';
+      errorCode = 'NETWORK_ERROR';
+      details = {
+        url: error.config?.url,
+        method: error.config?.method?.toUpperCase(),
+        context,
+      };
+      break;
+    }
+
+    case 'client':
+    default: {
+      // Client-side error
+      errorMessage = error.message || 'An unexpected error occurred';
+      errorCode = error.code || 'CLIENT_ERROR';
+      details = { context };
+      break;
+    }
   }
 
   // Add context to error message if provided
