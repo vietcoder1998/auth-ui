@@ -165,13 +165,17 @@ export default function AdminAIPlatformPage() {
                   title="Edit"
                   key="edit"
                 />,
-                <Button
-                  type="text"
-                  icon={<RobotOutlined />}
-                  title="Add Agent"
-                  key="addAgent"
-                  onClick={() => handleAddAgentToPlatform(item)}
-                />,
+                ...(Array.isArray(item.models) && item.models.length > 0
+                  ? [
+                      <Button
+                        type="text"
+                        icon={<RobotOutlined />}
+                        title="Add Agent"
+                        key="addAgent"
+                        onClick={() => handleAddAgentToPlatform(item)}
+                      />,
+                    ]
+                  : []),
                 <Button
                   type="text"
                   icon={<PlusSquareOutlined />}
@@ -179,13 +183,17 @@ export default function AdminAIPlatformPage() {
                   key="addModel"
                   onClick={() => handleAddModelToPlatform(item)}
                 />,
-                <Button
-                  type="text"
-                  icon={<KeyOutlined />}
-                  title="Add API Key"
-                  key="addKey"
-                  onClick={() => handleAddKeyToPlatform(item)}
-                />,
+                ...(Array.isArray(item.models) && item.models.length > 0
+                  ? [
+                      <Button
+                        type="text"
+                        icon={<KeyOutlined />}
+                        title="Add API Key"
+                        key="addKey"
+                        onClick={() => handleAddKeyToPlatform(item)}
+                      />,
+                    ]
+                  : []),
                 <Button
                   type="text"
                   icon={<TagOutlined />}

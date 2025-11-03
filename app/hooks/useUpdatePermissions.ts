@@ -184,11 +184,14 @@ export function useUpdatePermissions() {
   const getActionFromMethod = (method: string): string => {
     switch (method) {
       case 'POST':
+        return 'create';
       case 'PUT':
       case 'PATCH':
+        return 'update';
       case 'DELETE':
-        return 'write';
+        return 'delete';
       case 'GET':
+        return 'read';
       case 'HEAD':
       case 'OPTIONS':
       default:
