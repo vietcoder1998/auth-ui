@@ -1,5 +1,17 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Form,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Spin,
+  Table,
+  Tag,
+  Typography,
+  message,
+} from 'antd';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
 import CommonSearch from '~/components/CommonSearch.tsx';
@@ -7,6 +19,7 @@ import AddPermissionModal from '../../../blog/modals/AddPermissionModal.tsx';
 import EditPermissionModal from '../../../blog/modals/EditPermissionModal.tsx';
 
 const { Title } = Typography;
+const { Option } = Select;
 
 export default function AdminPermissionPage() {
   const [permissions, setPermissions] = useState([]);
@@ -30,9 +43,17 @@ export default function AdminPermissionPage() {
   const [form] = Form.useForm();
   const [roles, setRoles] = useState<any[]>([]);
 
+  // Permission Group Assignment Modal State
+  const [assignGroupModalVisible, setAssignGroupModalVisible] = useState(false);
+  const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
+  const [permissionGroups, setPermissionGroups] = useState<any[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+  const [assignLoading, setAssignLoading] = useState(false);
+
   useEffect(() => {
     fetchPermissions();
     fetchRoles();
+    fetchPermissionGroups();
   }, []);
 
   const fetchRoles = async () => {
@@ -41,6 +62,16 @@ export default function AdminPermissionPage() {
       setRoles(res.data.data || res.data || []);
     } catch (error) {
       setRoles([]);
+    }
+  };
+
+  const fetchPermissionGroups = async () => {
+    try {
+      const res = await adminApi.getPermissionGroups();
+      setPermissionGroups(res.data.data || res.data || []);
+    } catch (error) {
+      console.error('Failed to fetch permission groups:', error);
+      setPermissionGroups([]);
     }
   };
 
@@ -135,6 +166,47 @@ export default function AdminPermissionPage() {
     fetchPermissions({ search: '', category: '', method: '', page: 1 });
   };
 
+  const handleAssignToGroup = (permission: Permission) => {
+    setSelectedPermission(permission);
+    setSelectedGroupId(permission.permissionGroup?.id || '');
+    setAssignGroupModalVisible(true);
+  };
+
+  const handleGroupAssignmentSave = async () => {
+    if (!selectedPermission) return;
+
+    setAssignLoading(true);
+    try {
+      if (selectedGroupId) {
+        // Add permission to the selected group
+        await adminApi.addPermissionsToGroup(selectedGroupId, {
+          permissionIds: [selectedPermission.id.toString()],
+        });
+        message.success('Permission assigned to group successfully');
+      } else {
+        // Remove from current group if no group selected
+        if (selectedPermission.permissionGroup?.id) {
+          await adminApi.removePermissionsFromGroup(selectedPermission.permissionGroup.id, {
+            permissionIds: [selectedPermission.id.toString()],
+          });
+          message.success('Permission removed from group successfully');
+        }
+      }
+
+      setAssignGroupModalVisible(false);
+      setSelectedPermission(null);
+      setSelectedGroupId('');
+      fetchPermissions(); // Refresh the permissions list
+    } catch (error: any) {
+      console.error('Failed to update permission group assignment:', error);
+      message.error(
+        `Failed to update permission group: ${error?.response?.data?.message || error.message || 'Unknown error'}`
+      );
+    } finally {
+      setAssignLoading(false);
+    }
+  };
+
   interface Permission {
     id: number;
     name: string;
@@ -196,9 +268,17 @@ export default function AdminPermissionPage() {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
-      width: 250,
-      render: (description: string) =>
-        description || <em style={{ color: '#999' }}>No description</em>,
+      width: 150,
+      render: (description: string) => {
+        if (!description) return <em style={{ color: '#999' }}>No description</em>;
+        const truncated =
+          description.length > 50 ? description.substring(0, 50) + '...' : description;
+        return (
+          <div title={description} style={{ fontSize: '12px' }}>
+            {truncated}
+          </div>
+        );
+      },
     },
     {
       title: 'Permission Group',
@@ -312,10 +392,18 @@ export default function AdminPermissionPage() {
     {
       title: 'Actions',
       key: 'actions',
-      width: 150,
+      width: 200,
       fixed: 'right' as const,
       render: (_, p) => (
         <Space size="small">
+          <Button
+            size="small"
+            icon={<TeamOutlined />}
+            onClick={() => handleAssignToGroup(p)}
+            title="Assign to Group"
+          >
+            Group
+          </Button>
           <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(p)}>
             Edit
           </Button>
@@ -362,7 +450,7 @@ export default function AdminPermissionPage() {
           dataSource={permissions}
           columns={columns}
           rowKey="id"
-          scroll={{ x: 1590 }}
+          scroll={{ x: 1640 }}
           onChange={handleTableChange}
           pagination={pagination}
           locale={{
@@ -396,6 +484,78 @@ export default function AdminPermissionPage() {
         }}
         onSave={handleEditSave}
       />
+
+      {/* Permission Group Assignment Modal */}
+      <Modal
+        title={`Assign "${selectedPermission?.name}" to Permission Group`}
+        open={assignGroupModalVisible}
+        onOk={handleGroupAssignmentSave}
+        onCancel={() => {
+          setAssignGroupModalVisible(false);
+          setSelectedPermission(null);
+          setSelectedGroupId('');
+        }}
+        confirmLoading={assignLoading}
+        okText="Save Assignment"
+        width={500}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <p>
+            Select a permission group to assign this permission to, or select "None" to remove from
+            current group:
+          </p>
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>
+            Current Group:
+          </label>
+          {selectedPermission?.permissionGroup ? (
+            <Tag color="purple">{selectedPermission.permissionGroup.name}</Tag>
+          ) : (
+            <Tag color="default">Ungrouped</Tag>
+          )}
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>
+            Assign to Group:
+          </label>
+          <Select
+            style={{ width: '100%' }}
+            placeholder="Select a permission group"
+            value={selectedGroupId || undefined}
+            onChange={setSelectedGroupId}
+            allowClear
+          >
+            <Option value="">None (Remove from group)</Option>
+            {permissionGroups.map((group: any) => (
+              <Option key={group.id} value={group.id}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{group.name}</span>
+                  {group.description && (
+                    <span style={{ fontSize: '12px', color: '#666' }}>{group.description}</span>
+                  )}
+                </div>
+              </Option>
+            ))}
+          </Select>
+        </div>
+
+        {selectedGroupId && (
+          <div style={{ marginTop: 12, padding: 12, backgroundColor: '#f0f2f5', borderRadius: 4 }}>
+            <div style={{ fontSize: '12px', color: '#666' }}>
+              Selected Group:{' '}
+              <strong>{permissionGroups.find((g) => g.id === selectedGroupId)?.name}</strong>
+            </div>
+            {permissionGroups.find((g) => g.id === selectedGroupId)?.description && (
+              <div style={{ fontSize: '12px', color: '#888' }}>
+                {permissionGroups.find((g) => g.id === selectedGroupId)?.description}
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
