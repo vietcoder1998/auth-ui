@@ -141,6 +141,11 @@ export default function AdminPermissionPage() {
     createdAt: string;
     roles?: any[];
     usageCount?: number;
+    permissionGroup?: {
+      id: string;
+      name: string;
+      description?: string;
+    };
     [key: string]: any;
   }
 
@@ -196,28 +201,24 @@ export default function AdminPermissionPage() {
         description || <em style={{ color: '#999' }}>No description</em>,
     },
     {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 120,
-      sorter: (a: Permission, b: Permission) =>
-        (a.category || 'other').localeCompare(b.category || 'other'),
-      render: (category: string) => {
-        const colors = {
-          user: 'blue',
-          role: 'green',
-          permission: 'purple',
-          system: 'red',
-          content: 'orange',
-          report: 'cyan',
-          api: 'magenta',
-          other: 'default',
-        };
-        return (
-          <Tag color={colors[category as keyof typeof colors] || 'default'}>
-            {category || 'other'}
-          </Tag>
-        );
+      title: 'Permission Group',
+      dataIndex: 'permissionGroup',
+      key: 'permissionGroup',
+      width: 150,
+      sorter: (a: Permission, b: Permission) => {
+        const aGroup = a.permissionGroup?.name || 'Ungrouped';
+        const bGroup = b.permissionGroup?.name || 'Ungrouped';
+        return aGroup.localeCompare(bGroup);
+      },
+      render: (permissionGroup: any) => {
+        if (permissionGroup) {
+          return (
+            <Tag color="purple" title={permissionGroup.description}>
+              {permissionGroup.name}
+            </Tag>
+          );
+        }
+        return <Tag color="default">Ungrouped</Tag>;
       },
     },
     {
@@ -343,7 +344,7 @@ export default function AdminPermissionPage() {
         </Title>
 
         <CommonSearch
-          searchPlaceholder="Search permissions by name, description, category, route, method, or role..."
+          searchPlaceholder="Search permissions by name, description, group, route, method, or role..."
           searchValue={searchText}
           onSearch={handleSearch}
           onRefresh={handleRefresh}

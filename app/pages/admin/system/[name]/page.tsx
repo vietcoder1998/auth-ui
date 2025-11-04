@@ -24,6 +24,7 @@ import AdminAIKeyPage from '../components/AdminAIKeyPage.tsx';
 import AdminBillingPage from '../components/AdminBillingPage.tsx';
 import AdminModelPage from '../components/AdminModelPage.tsx';
 import AdminToolPage from '../components/AdminToolPage.tsx';
+import AddPermissionRolePage from '../components/AddPermissionRolePage.tsx';
 
 // Route mapping for system pages
 const systemPageMap: Record<string, React.ComponentType> = {
@@ -32,6 +33,7 @@ const systemPageMap: Record<string, React.ComponentType> = {
   tokens: AdminTokenPage,
   roles: AdminRolePage,
   permissions: AdminPermissionPage,
+  'permission-roles': AddPermissionRolePage,
   sso: AdminSSOPage,
   'login-history': AdminLoginHistoryPage,
   'logic-history': AdminLogicHistoryPage,
@@ -62,6 +64,7 @@ const systemPageMap: Record<string, React.ComponentType> = {
  * - /admin/system/tokens -> AdminTokenPage
  * - /admin/system/roles -> AdminRolePage
  * - /admin/system/permissions -> AdminPermissionPage
+ * - /admin/system/permission-roles -> AddPermissionRolePage
  * - /admin/system/sso -> AdminSSOPage
  * - /admin/system/login-history -> AdminLoginHistoryPage
  * - /admin/system/logic-history -> AdminLogicHistoryPage

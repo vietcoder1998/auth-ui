@@ -168,6 +168,11 @@ export const defaultSidebarMenu: MenuItem[] = [
             icon: <SafetyOutlined style={{ fontSize: 14 }} />,
             label: 'Permissions',
           },
+          {
+            key: '/admin/system/permission-roles',
+            icon: <SafetyOutlined style={{ fontSize: 14 }} />,
+            label: 'Permission Groups',
+          },
         ],
       },
       {
