@@ -14,7 +14,8 @@
       "~/*": ["./app/*"],
       "~/apis/*": ["./app/apis/*"],
       "~/utils/*": ["./app/utils/*"],
-      "~/types/*": ["./app/types/*"]
+      "~/types/*": ["./app/types/*"],
+      "~/components/*": ["./app/components/*"]
     },
     "esModuleInterop": true,
     "noEmit": true,

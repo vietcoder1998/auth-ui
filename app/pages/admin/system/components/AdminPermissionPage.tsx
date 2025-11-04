@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
-import CommonSearch from '../../../../components/CommonSearch.tsx';
+import CommonSearch from '~/components/CommonSearch.tsx';
 import AddPermissionModal from '../../../blog/modals/AddPermissionModal.tsx';
 import EditPermissionModal from '../../../blog/modals/EditPermissionModal.tsx';
 
