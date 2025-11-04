@@ -4,6 +4,7 @@ import React from 'react';
 
 import { LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '~/hooks/useAuth.tsx';
 
 interface AdminProfileMenuProps {
   user: {
@@ -14,8 +15,9 @@ interface AdminProfileMenuProps {
   onLogout?: () => void;
 }
 
-const AdminProfileMenu: React.FC<AdminProfileMenuProps> = ({ user, onLogout }) => {
+const AdminProfileMenu: React.FC<AdminProfileMenuProps> = ({ user }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const profileMenuItems = [
     {
       key: 'profile',
@@ -30,7 +32,7 @@ const AdminProfileMenu: React.FC<AdminProfileMenuProps> = ({ user, onLogout }) =
       key: 'logout',
       icon: <LogoutOutlined />,
       label: 'Logout',
-      onClick: onLogout,
+      onClick: logout,
       danger: true,
     },
   ];
