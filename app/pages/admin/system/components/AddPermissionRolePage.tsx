@@ -419,39 +419,20 @@ export default function AddPermissionRolePage() {
         description || <em style={{ color: '#999' }}>No description</em>,
     },
     {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 120,
-      render: (category: string) => {
-        const colors = {
-          user: 'blue',
-          role: 'green',
-          permission: 'purple',
-          system: 'red',
-          content: 'orange',
-          report: 'cyan',
-          api: 'magenta',
-          other: 'default',
-        };
-        return (
-          <Tag color={colors[category as keyof typeof colors] || 'default'}>
-            {category || 'other'}
-          </Tag>
-        );
-      },
-    },
-    {
       title: 'Permission Group',
       dataIndex: 'permissionGroup',
       key: 'permissionGroup',
       width: 150,
-      render: (permissionGroup: any) =>
-        permissionGroup ? (
-          <Tag color="purple">{permissionGroup.name}</Tag>
-        ) : (
-          <em style={{ color: '#999' }}>Not grouped</em>
-        ),
+      render: (permissionGroup: any) => {
+        if (permissionGroup) {
+          return (
+            <Tag color="purple" title={permissionGroup.description}>
+              {permissionGroup.name}
+            </Tag>
+          );
+        }
+        return <Tag color="default">Ungrouped</Tag>;
+      },
     },
     {
       title: 'Actions',
@@ -819,7 +800,7 @@ export default function AddPermissionRolePage() {
               key: permission.id,
               title: permission.name,
               description: permission.description || 'No description',
-              category: permission.category || 'other',
+              group: permission.permissionGroup?.name || 'Ungrouped',
             }))}
             targetKeys={transferTargetKeys}
             onChange={(targetKeys) => setTransferTargetKeys(targetKeys as string[])}
@@ -829,7 +810,7 @@ export default function AddPermissionRolePage() {
                   <div style={{ fontWeight: 'bold' }}>{item.title}</div>
                   <div style={{ fontSize: '12px', color: '#666' }}>{item.description}</div>
                 </div>
-                <Tag color="blue">{item.category}</Tag>
+                <Tag color={item.group === 'Ungrouped' ? 'default' : 'purple'}>{item.group}</Tag>
               </div>
             )}
             listStyle={{
