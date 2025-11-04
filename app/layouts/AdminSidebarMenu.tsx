@@ -154,20 +154,28 @@ export const defaultSidebarMenu: MenuItem[] = [
         label: 'Tokens',
       },
       {
-        key: '/admin/system/roles',
-        icon: <TeamOutlined style={{ fontSize: 15 }} />,
-        label: 'Roles',
+        key: '/admin/system/roles-permissions',
+        icon: <SafetyOutlined style={{ fontSize: 15 }} />,
+        label: 'Access Control',
+        children: [
+          {
+            key: '/admin/system/roles',
+            icon: <TeamOutlined style={{ fontSize: 14 }} />,
+            label: 'Roles',
+          },
+          {
+            key: '/admin/system/permissions',
+            icon: <SafetyOutlined style={{ fontSize: 14 }} />,
+            label: 'Permissions',
+          },
+        ],
       },
       {
         key: '/admin/system/login-history',
         icon: <HistoryOutlined style={{ fontSize: 15 }} />,
         label: 'Login History',
       },
-      {
-        key: '/admin/system/permissions',
-        icon: <SafetyOutlined style={{ fontSize: 15 }} />,
-        label: 'Permissions',
-      },
+
       {
         key: '/admin/blog',
         icon: <FileTextOutlined style={{ fontSize: 15 }} />,
