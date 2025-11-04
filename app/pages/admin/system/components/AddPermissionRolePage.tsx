@@ -52,11 +52,11 @@ interface PermissionGroup {
   id: string;
   name: string;
   description?: string;
-  roleId?: string;
-  role?: any;
+  roles?: Role[]; // Changed from single role to array of roles for n:n relationship
   permissions?: Permission[];
   _count?: {
     permissions: number;
+    roles?: number;
   };
   createdAt: string;
   updatedAt: string;
@@ -114,6 +114,24 @@ export default function AddPermissionRolePage() {
 
   // Roles state
   const [roles, setRoles] = useState<Role[]>([]);
+  const [roleLoading, setRoleLoading] = useState(false);
+  const [roleSearchText, setRoleSearchText] = useState('');
+  const [rolePagination, setRolePagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number, range: [number, number]) =>
+      `${range[0]}-${range[1]} of ${total} roles`,
+  });
+
+  // Assign roles to group modal state
+  const [assignRolesToGroupModalVisible, setAssignRolesToGroupModalVisible] = useState(false);
+  const [selectedGroupForRoles, setSelectedGroupForRoles] = useState<PermissionGroup | null>(null);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
+  const [roleTransferLoading, setRoleTransferLoading] = useState(false);
+  const [roleTransferTargetKeys, setRoleTransferTargetKeys] = useState<string[]>([]);
 
   // Forms
   const [permissionForm] = Form.useForm();
@@ -123,13 +141,18 @@ export default function AddPermissionRolePage() {
   const [activeTab, setActiveTab] = useState('permissions');
 
   useEffect(() => {
-    fetchRoles();
     if (activeTab === 'permissions') {
       fetchPermissions();
     } else if (activeTab === 'groups') {
       fetchPermissionGroups();
+    } else if (activeTab === 'roles') {
+      fetchRolesWithGroups();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    fetchRoles(); // Fetch roles for dropdowns
+  }, []);
 
   const fetchRoles = async () => {
     try {
@@ -139,6 +162,51 @@ export default function AddPermissionRolePage() {
       console.error('Failed to fetch roles:', error);
       setRoles([]);
     }
+  };
+
+  // Roles with permission groups for the roles tab
+  const fetchRolesWithGroups = async (params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+  }) => {
+    setRoleLoading(true);
+    try {
+      const queryParams = {
+        page: params?.page || rolePagination.current,
+        pageSize: params?.pageSize || rolePagination.pageSize,
+        q: params?.search || roleSearchText,
+        includePermissionGroups: true,
+      };
+
+      Object.keys(queryParams).forEach((key) => {
+        if (!queryParams[key as keyof typeof queryParams]) {
+          delete queryParams[key as keyof typeof queryParams];
+        }
+      });
+
+      const res = await adminApi.getRoles(queryParams);
+      const responseData = res.data;
+
+      const rolesData = responseData.data || responseData || [];
+      const total = responseData.total || rolesData.length;
+      const currentPage = responseData.page || queryParams.page || 1;
+      const pageSize = responseData.limit || queryParams.pageSize || 10;
+
+      setRoles(rolesData);
+      setRolePagination((prev) => ({
+        ...prev,
+        current: currentPage,
+        pageSize: pageSize,
+        total: total,
+      }));
+    } catch (error) {
+      console.error('Failed to fetch roles with groups:', error);
+      message.error('Failed to fetch roles');
+      setRoles([]);
+      setRolePagination((prev) => ({ ...prev, total: 0 }));
+    }
+    setRoleLoading(false);
   };
 
   // Permission Functions
@@ -198,7 +266,7 @@ export default function AddPermissionRolePage() {
         pageSize: params?.pageSize || groupPagination.pageSize,
         q: params?.search || groupSearchText,
         includePermissions: true,
-        includeRole: true,
+        includeRoles: true,
       };
 
       Object.keys(queryParams).forEach((key) => {
@@ -277,6 +345,17 @@ export default function AddPermissionRolePage() {
     fetchPermissionGroups({ search: '', page: 1 });
   };
 
+  const handleRoleSearch = (searchValue: string) => {
+    setRoleSearchText(searchValue);
+    fetchRolesWithGroups({ search: searchValue, page: 1 });
+  };
+
+  const handleRoleRefresh = () => {
+    setRoleSearchText('');
+    setRolePagination((prev) => ({ ...prev, current: 1 }));
+    fetchRolesWithGroups({ search: '', page: 1 });
+  };
+
   // Group Management Functions
   const handleCreateGroup = async (values: any) => {
     try {
@@ -298,7 +377,6 @@ export default function AddPermissionRolePage() {
     groupForm.setFieldsValue({
       name: group.name,
       description: group.description,
-      roleId: group.roleId,
     });
     setEditGroupModalVisible(true);
   };
@@ -375,6 +453,71 @@ export default function AddPermissionRolePage() {
       );
     } finally {
       setTransferLoading(false);
+    }
+  };
+
+  // Assign Roles to Group Functions
+  const handleAssignRolesToGroup = async (group: PermissionGroup) => {
+    setSelectedGroupForRoles(group);
+    setRoleTransferLoading(true);
+
+    try {
+      // Fetch all available roles
+      const res = await adminApi.getRoles();
+      setAvailableRoles(res.data.data || res.data || []);
+
+      // Set currently assigned roles as selected
+      const currentRoleIds = group.roles?.map((role) => role.id) || [];
+      setRoleTransferTargetKeys(currentRoleIds);
+
+      setAssignRolesToGroupModalVisible(true);
+    } catch (error: any) {
+      console.error('Failed to fetch roles:', error);
+      message.error('Failed to fetch roles');
+    } finally {
+      setRoleTransferLoading(false);
+    }
+  };
+
+  const handleTransferRoles = async () => {
+    if (!selectedGroupForRoles) {
+      message.warning('No group selected');
+      return;
+    }
+
+    setRoleTransferLoading(true);
+    try {
+      // Since the current API only supports 1:n relationship, we'll assign the group to the first selected role
+      // and unassign if no roles are selected. This is a temporary implementation until the backend
+      // supports n:n relationships between permission groups and roles.
+
+      if (roleTransferTargetKeys.length > 0) {
+        // Assign to the first selected role (limitation of current API)
+        const primaryRoleId = roleTransferTargetKeys[0];
+        await adminApi.assignGroupToRole(selectedGroupForRoles.id, primaryRoleId);
+
+        if (roleTransferTargetKeys.length > 1) {
+          message.warning(
+            'Multiple role assignment not fully supported yet. Only the first role will be assigned.'
+          );
+        }
+      } else {
+        // Unassign from role
+        await adminApi.unassignGroupFromRole(selectedGroupForRoles.id);
+      }
+
+      message.success(`Successfully updated role assignments for "${selectedGroupForRoles.name}"`);
+      setAssignRolesToGroupModalVisible(false);
+      setSelectedGroupForRoles(null);
+      setRoleTransferTargetKeys([]);
+      fetchPermissionGroups(); // Refresh the groups list
+    } catch (error: any) {
+      console.error('Failed to update role assignments:', error);
+      message.error(
+        `Failed to update role assignments: ${error?.response?.data?.message || error.message || 'Unknown error'}`
+      );
+    } finally {
+      setRoleTransferLoading(false);
     }
   };
 
@@ -489,33 +632,46 @@ export default function AddPermissionRolePage() {
         description || <em style={{ color: '#999' }}>No description</em>,
     },
     {
-      title: 'Assigned Role',
-      dataIndex: 'role',
-      key: 'role',
-      width: 150,
-      render: (role: any) =>
-        role ? (
-          <Tag
-            color={role.name === 'superadmin' ? 'red' : role.name === 'admin' ? 'orange' : 'blue'}
-          >
-            <TeamOutlined style={{ marginRight: 4 }} />
-            {role.name}
-          </Tag>
-        ) : (
-          <em style={{ color: '#999' }}>No role assigned</em>
-        ),
+      title: 'Assigned Roles',
+      dataIndex: 'roles',
+      key: 'roles',
+      width: 200,
+      render: (roles: Role[]) => {
+        if (!roles || roles.length === 0) {
+          return <em style={{ color: '#999' }}>No roles assigned</em>;
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {roles.map((role) => (
+              <Tag
+                key={role.id}
+                color={
+                  role.name === 'superadmin' ? 'red' : role.name === 'admin' ? 'orange' : 'blue'
+                }
+              >
+                <TeamOutlined style={{ marginRight: 4 }} />
+                {role.name}
+              </Tag>
+            ))}
+          </div>
+        );
+      },
     },
     {
-      title: 'Permissions Count',
+      title: 'Counts',
       dataIndex: '_count',
-      key: 'permissionCount',
+      key: 'counts',
       width: 120,
-      render: (_count: any) => (
+      render: (_count: any, group: PermissionGroup) => (
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1890ff' }}>
+          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1890ff' }}>
             {_count?.permissions || 0}
           </div>
-          <div style={{ fontSize: '11px', color: '#999' }}>permissions</div>
+          <div style={{ fontSize: '10px', color: '#999' }}>permissions</div>
+          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#52c41a' }}>
+            {group.roles?.length || 0}
+          </div>
+          <div style={{ fontSize: '10px', color: '#999' }}>roles</div>
         </div>
       ),
     },
@@ -538,16 +694,23 @@ export default function AddPermissionRolePage() {
     {
       title: 'Actions',
       key: 'actions',
-      width: 200,
+      width: 280,
       fixed: 'right' as const,
       render: (_: any, group: PermissionGroup) => (
-        <Space size="small">
+        <Space size="small" wrap>
           <Button
             size="small"
             icon={<UserAddOutlined />}
             onClick={() => handleAddPermissionsToGroup(group)}
           >
             Add Permissions
+          </Button>
+          <Button
+            size="small"
+            icon={<TeamOutlined />}
+            onClick={() => handleAssignRolesToGroup(group)}
+          >
+            Assign Roles
           </Button>
           <Button size="small" icon={<EditOutlined />} onClick={() => handleEditGroup(group)}>
             Edit
@@ -559,6 +722,94 @@ export default function AddPermissionRolePage() {
             cancelText="Cancel"
             okType="danger"
             onConfirm={() => handleDeleteGroup(group.id)}
+          >
+            <Button size="small" danger icon={<DeleteOutlined />}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  const roleColumns = [
+    {
+      title: 'Role Name',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+      render: (name: string) => (
+        <div style={{ fontWeight: 'bold', color: '#1890ff' }}>
+          <TeamOutlined style={{ marginRight: 8 }} />
+          {name}
+        </div>
+      ),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      width: 250,
+      render: (description: string) =>
+        description || <em style={{ color: '#999' }}>No description</em>,
+    },
+    {
+      title: 'Permission Groups',
+      dataIndex: 'permissionGroups',
+      key: 'permissionGroups',
+      width: 300,
+      render: (permissionGroups: PermissionGroup[]) => {
+        if (!permissionGroups || permissionGroups.length === 0) {
+          return <em style={{ color: '#999' }}>No permission groups assigned</em>;
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {permissionGroups.map((group) => (
+              <Tag key={group.id} color="purple">
+                <GroupOutlined style={{ marginRight: 4 }} />
+                {group.name}
+              </Tag>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Created Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 180,
+      render: (createdAt: string) => {
+        if (!createdAt) return <em style={{ color: '#999' }}>-</em>;
+        const date = new Date(createdAt);
+        return (
+          <div>
+            <div>{date.toLocaleDateString()}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{date.toLocaleTimeString()}</div>
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 150,
+      fixed: 'right' as const,
+      render: (_: any, role: Role) => (
+        <Space size="small">
+          <Button size="small" icon={<EditOutlined />}>
+            Edit
+          </Button>
+          <Popconfirm
+            title={`Delete Role`}
+            description={`Are you sure you want to delete role "${role.name}"?`}
+            okText="Delete"
+            cancelText="Cancel"
+            okType="danger"
+            onConfirm={() => {
+              // Add delete role functionality here if needed
+              message.info('Role deletion not implemented yet');
+            }}
           >
             <Button size="small" danger icon={<DeleteOutlined />}>
               Delete
@@ -659,6 +910,38 @@ export default function AddPermissionRolePage() {
             </Spin>
           </Card>
         </TabPane>
+
+        <TabPane tab="Roles" key="roles">
+          <Card>
+            <CommonSearch
+              searchPlaceholder="Search roles by name, description..."
+              searchValue={roleSearchText}
+              onSearch={handleRoleSearch}
+              onRefresh={handleRoleRefresh}
+              loading={roleLoading}
+            />
+
+            <Spin spinning={roleLoading}>
+              <Table
+                dataSource={roles}
+                columns={roleColumns}
+                rowKey="id"
+                scroll={{ x: 1000 }}
+                onChange={(paginationConfig) => {
+                  const { current, pageSize } = paginationConfig;
+                  fetchRolesWithGroups({ page: current, pageSize });
+                }}
+                pagination={rolePagination}
+                locale={{
+                  emptyText: roleSearchText
+                    ? `No roles found matching "${roleSearchText}"`
+                    : 'No roles available',
+                }}
+                style={{ marginTop: '16px' }}
+              />
+            </Spin>
+          </Card>
+        </TabPane>
       </Tabs>
 
       {/* Add Permission Modal */}
@@ -713,18 +996,6 @@ export default function AddPermissionRolePage() {
                 <Input.TextArea rows={3} placeholder="Enter group description (optional)" />
               </Form.Item>
             </Col>
-            <Col span={24}>
-              <Form.Item name="roleId" label="Assign to Role (Optional)">
-                <Select placeholder="Select a role to assign this group">
-                  <Option value="">No role assignment</Option>
-                  {roles.map((role) => (
-                    <Option key={role.id} value={role.id}>
-                      {role.name} - {role.description}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
           </Row>
         </Form>
       </Modal>
@@ -755,18 +1026,6 @@ export default function AddPermissionRolePage() {
             <Col span={24}>
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} placeholder="Enter group description (optional)" />
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item name="roleId" label="Assign to Role (Optional)">
-                <Select placeholder="Select a role to assign this group">
-                  <Option value="">No role assignment</Option>
-                  {roles.map((role) => (
-                    <Option key={role.id} value={role.id}>
-                      {role.name} - {role.description}
-                    </Option>
-                  ))}
-                </Select>
               </Form.Item>
             </Col>
           </Row>
@@ -818,6 +1077,69 @@ export default function AddPermissionRolePage() {
               height: 400,
             }}
             titles={['Available Permissions', 'Selected Permissions']}
+            showSearch
+            filterOption={(inputValue, item) =>
+              item.title!.toLowerCase().includes(inputValue.toLowerCase()) ||
+              item.description!.toLowerCase().includes(inputValue.toLowerCase())
+            }
+          />
+        </Spin>
+      </Modal>
+
+      {/* Assign Roles to Group Modal */}
+      <Modal
+        title={`Assign Roles to "${selectedGroupForRoles?.name}"`}
+        open={assignRolesToGroupModalVisible}
+        onOk={handleTransferRoles}
+        onCancel={() => {
+          setAssignRolesToGroupModalVisible(false);
+          setSelectedGroupForRoles(null);
+          setRoleTransferTargetKeys([]);
+        }}
+        width={800}
+        confirmLoading={roleTransferLoading}
+        okText={`Update Role Assignments`}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <p>Select a role to assign to the "{selectedGroupForRoles?.name}" group:</p>
+          <div
+            style={{
+              backgroundColor: '#fff7e6',
+              border: '1px solid #ffd591',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              color: '#d46b08',
+            }}
+          >
+            <strong>Note:</strong> Currently, each permission group can only be assigned to one
+            role. Multi-role assignment will be available when the backend supports many-to-many
+            relationships.
+          </div>
+        </div>
+
+        <Spin spinning={roleTransferLoading}>
+          <Transfer
+            dataSource={availableRoles.map((role) => ({
+              key: role.id,
+              title: role.name,
+              description: role.description || 'No description',
+            }))}
+            targetKeys={roleTransferTargetKeys}
+            onChange={(targetKeys) => setRoleTransferTargetKeys(targetKeys as string[])}
+            render={(item) => (
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>{item.title}</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>{item.description}</div>
+                </div>
+              </div>
+            )}
+            listStyle={{
+              width: 350,
+              height: 400,
+            }}
+            titles={['Available Roles', 'Assigned Roles']}
             showSearch
             filterOption={(inputValue, item) =>
               item.title!.toLowerCase().includes(inputValue.toLowerCase()) ||
