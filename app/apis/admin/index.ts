@@ -18,6 +18,7 @@ import { LoginHistoryApi } from './LoginHistoryApi.ts';
 import { MailApi } from './MailApi.ts';
 import { NotificationApi } from './NotificationApi.ts';
 import { PermissionApi } from './PermissionApi.ts';
+import { PermissionGroupApiInstance } from './PermissionGroupApi.ts';
 import { PromptHistoryApi } from './PromptHistoryApi.ts';
 import { RoleApi } from './RoleApi.ts';
 import { SeedApi } from './SeedApi.ts';
@@ -96,6 +97,37 @@ export class AdminApi {
   createPermission = PermissionApi.createPermission;
   updatePermission = PermissionApi.updatePermission;
   deletePermission = PermissionApi.deletePermission;
+
+  // PermissionGroupApi
+  getPermissionGroups = PermissionGroupApiInstance.getPermissionGroups.bind(
+    PermissionGroupApiInstance
+  );
+  createPermissionGroup = PermissionGroupApiInstance.createPermissionGroup.bind(
+    PermissionGroupApiInstance
+  );
+  getPermissionGroupById = PermissionGroupApiInstance.getPermissionGroupById.bind(
+    PermissionGroupApiInstance
+  );
+  updatePermissionGroup = PermissionGroupApiInstance.updatePermissionGroup.bind(
+    PermissionGroupApiInstance
+  );
+  deletePermissionGroup = PermissionGroupApiInstance.deletePermissionGroup.bind(
+    PermissionGroupApiInstance
+  );
+  getPermissionsNotInGroup = PermissionGroupApiInstance.getPermissionsNotInGroup.bind(
+    PermissionGroupApiInstance
+  );
+  addPermissionsToGroup = PermissionGroupApiInstance.addPermissionsToGroup.bind(
+    PermissionGroupApiInstance
+  );
+  removePermissionsFromGroup = PermissionGroupApiInstance.removePermissionsFromGroup.bind(
+    PermissionGroupApiInstance
+  );
+  assignGroupToRole = PermissionGroupApiInstance.assignGroupToRole.bind(PermissionGroupApiInstance);
+  unassignGroupFromRole = PermissionGroupApiInstance.unassignGroupFromRole.bind(
+    PermissionGroupApiInstance
+  );
+  getGroupsByRole = PermissionGroupApiInstance.getGroupsByRole.bind(PermissionGroupApiInstance);
 
   // MailApi
   getMailTemplates = MailApi.getMailTemplates;
