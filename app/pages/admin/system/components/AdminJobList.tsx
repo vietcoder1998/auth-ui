@@ -1,7 +1,13 @@
 // Backup of AdminJobList.tsx on 2025-10-20
 
 import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
   EyeOutlined,
+  LoadingOutlined,
+  PauseCircleOutlined,
   PlayCircleOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -32,15 +38,24 @@ export default function AdminJobList() {
 
   const fetchJobs = async () => {
     setLoading(true);
+
+    // Set a timeout to automatically hide loading after 10 seconds
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      message.warning('Loading timeout after 10 seconds');
+    }, 10000);
+
     try {
       const res = await adminApi.getJobs();
       const jobsData = res.data.data || [];
       setJobs(jobsData);
       setFilteredJobs(jobsData);
+      clearTimeout(timeoutId); // Clear timeout on successful response
     } catch {
       message.error('Failed to load jobs');
       setJobs([]);
       setFilteredJobs([]);
+      clearTimeout(timeoutId); // Clear timeout on error
     }
     setLoading(false);
   };
@@ -126,6 +141,19 @@ export default function AdminJobList() {
       render: (type: string) => <Tag color="blue">{type}</Tag>,
     },
     {
+      title: 'Priority',
+      dataIndex: 'priority',
+      key: 'priority',
+      render: (priority: number) => {
+        let color = 'default';
+        if (priority >= 8) color = 'red';
+        else if (priority >= 5) color = 'orange';
+        else if (priority >= 3) color = 'blue';
+        else color = 'green';
+        return <Tag color={color}>{priority ?? 1}</Tag>;
+      },
+    },
+    {
       title: 'Total Run',
       dataIndex: 'totalRun',
       key: 'totalRun',
@@ -137,10 +165,44 @@ export default function AdminJobList() {
       key: 'status',
       render: (status: string) => {
         let color = 'default';
-        if (status === 'completed') color = 'green';
-        else if (status === 'failed') color = 'red';
-        else if (status === 'running') color = 'orange';
-        return <Tag color={color}>{status}</Tag>;
+        let icon = null;
+        let displayText = status || 'Unknown';
+
+        switch (status?.toLowerCase()) {
+          case 'completed':
+            color = 'green';
+            icon = <CheckCircleOutlined />;
+            break;
+          case 'failed':
+            color = 'red';
+            icon = <CloseCircleOutlined />;
+            break;
+          case 'running':
+            color = 'orange';
+            icon = <LoadingOutlined />;
+            break;
+          case 'pending':
+            color = 'blue';
+            icon = <ClockCircleOutlined />;
+            break;
+          case 'cancelled':
+            color = 'volcano';
+            icon = <StopOutlined />;
+            break;
+          case 'paused':
+            color = 'purple';
+            icon = <PauseCircleOutlined />;
+            break;
+          default:
+            color = 'default';
+            icon = <ExclamationCircleOutlined />;
+        }
+
+        return (
+          <Tag color={color} icon={icon} style={{ textTransform: 'capitalize' }}>
+            {displayText}
+          </Tag>
+        );
       },
     },
     {
