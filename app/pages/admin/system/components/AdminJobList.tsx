@@ -13,6 +13,7 @@ import { adminApi } from '~/apis/admin/index.ts';
 import JobCreateModal from '../modals/JobCreateModal.tsx';
 import ViewJobModal from '../modals/ViewJobModal.tsx';
 import CommonSearch from '~/components/CommonSearch.tsx';
+import { JobStatus, RestartJobPayload } from '~/types/job.type.ts';
 
 const { Title } = Typography;
 
@@ -81,9 +82,13 @@ export default function AdminJobList() {
     setFilteredJobs(filtered);
   };
 
-  const handleStartJob = (job: any) => {
+  const handleStartJob = (job: RestartJobPayload) => {
+    const restartJobPayload: RestartJobPayload = {
+      ...job,
+      status: JobStatus.Restart,
+    };
     adminApi
-      .startJob(job.id)
+      .startJob(job.id, restartJobPayload)
       .then(() => {
         message.success('Job started');
         fetchJobs();

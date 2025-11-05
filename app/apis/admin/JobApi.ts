@@ -1,3 +1,4 @@
+import { RestartJobPayload } from '~/types/job.type.ts';
 // JobApi.ts
 // API methods for job management
 import { getApiInstance } from '../index.ts';
@@ -11,9 +12,9 @@ export const JobApi = {
     const api = getApiInstance();
     return api.post('/admin/jobs', data);
   },
-  startJob: (id: string): Promise<any> => {
+  startJob: (id: string, restartJobPayload: RestartJobPayload): Promise<any> => {
     const api = getApiInstance();
-    return api.post(`/admin/jobs/${id}/start`);
+    return api.post(`/admin/jobs/${id}/start`, restartJobPayload);
   },
   restartJob: (id: string): Promise<any> => {
     const api = getApiInstance();
