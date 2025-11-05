@@ -7,10 +7,11 @@ import {
   ReloadOutlined,
   StopOutlined,
 } from '@ant-design/icons';
-import { Button, message, Modal, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
+import { Button, message, Popconfirm, Space, Spin, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { adminApi } from '~/apis/admin/index.ts';
 import JobCreateModal from '../modals/JobCreateModal.tsx';
+import ViewJobModal from '../modals/ViewJobModal.tsx';
 import CommonSearch from '~/components/CommonSearch.tsx';
 
 const { Title } = Typography;
@@ -32,7 +33,7 @@ export default function AdminJobList() {
     setLoading(true);
     try {
       const res = await adminApi.getJobs();
-      const jobsData = res.data.data.jobs || [];
+      const jobsData = res.data.data || [];
       setJobs(jobsData);
       setFilteredJobs(jobsData);
     } catch {
@@ -229,46 +230,7 @@ export default function AdminJobList() {
         />
       </Spin>
       {/* View Job Modal - switch by job type */}
-      <Modal open={!!viewJob} title="Job Details" onCancel={() => setViewJob(null)} footer={null}>
-        {viewJob && !['extract', 'file-tuning', 'backup'].includes(viewJob.type) && (
-          <div>
-            <p>
-              <b>Type:</b> <Tag color="blue">{viewJob.type}</Tag>
-            </p>
-            <p>
-              <b>Total Run:</b> <Tag color="purple">{viewJob.totalRun ?? 0}</Tag>
-            </p>
-            <p>
-              <b>Status:</b>{' '}
-              <Tag
-                color={
-                  viewJob.status === 'completed'
-                    ? 'green'
-                    : viewJob.status === 'failed'
-                      ? 'red'
-                      : viewJob.status === 'running'
-                        ? 'orange'
-                        : 'default'
-                }
-              >
-                {viewJob.status}
-              </Tag>
-            </p>
-            <p>
-              <b>Created:</b> {new Date(viewJob.createdAt).toLocaleString()}
-            </p>
-            <p>
-              <b>Result:</b> <pre>{viewJob.result}</pre>
-            </p>
-            <p>
-              <b>Error:</b> <pre>{viewJob.error}</pre>
-            </p>
-            <p>
-              <b>Payload:</b> <pre>{viewJob.payload}</pre>
-            </p>
-          </div>
-        )}
-      </Modal>
+      <ViewJobModal visible={!!viewJob} job={viewJob} onCancel={() => setViewJob(null)} />
       <JobCreateModal
         open={createModalVisible}
         onCancel={() => setCreateModalVisible(false)}
