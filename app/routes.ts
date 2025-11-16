@@ -15,6 +15,9 @@ export default [
     route('system/:name', 'pages/admin/system/[name]/page.tsx'), // /admin/system/:name (dynamic)
     route('system/:name/:command', 'pages/admin/system/[name]/[commandId]/page.tsx'), // /admin/system/:name/:command (tool command edit)
 
+    // Gateway management routes
+    route('gateway', 'pages/admin/gateway/page.tsx'), // /admin/gateway
+
     // Settings management routes
     route('settings', 'pages/admin/settings/page.tsx'), // /admin/settings
     route('settings/:name', 'pages/admin/settings/[name]/page.tsx'), // /admin/settings/:name (dynamic)
