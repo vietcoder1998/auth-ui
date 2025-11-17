@@ -181,11 +181,6 @@ export class ApiUtils {
               });
             }
             // Push notification for 403 error
-            pushNotification({
-              message: errorMessage,
-              type: 'error',
-              errorPayload: JSON.stringify(errorDetails),
-            });
             message.error(errorMessage);
             break;
           case error.response?.status === 404:
