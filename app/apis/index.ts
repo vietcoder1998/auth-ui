@@ -72,12 +72,12 @@ export class ApiUtils {
 
   static getApiInstance(): AxiosInstance {
     const instance = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:13030/api',
+      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
       withCredentials: true,
       timeout: 20000,
       headers: {
         'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Origin': import.meta.env.VITE_API_URL || 'http://localhost:5174',
+        'Access-Control-Allow-Origin': import.meta.env.VITE_API_URL || 'http://localhost:3000',
         'Content-Type': 'application/json',
       },
     });
