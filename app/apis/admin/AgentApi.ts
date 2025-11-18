@@ -1,4 +1,4 @@
-import { BaseApi } from './BaseApi.ts';
+import { BaseApi } from '../base.ts';
 import { getApiInstance } from '../index.ts';
 
 export class AgentApi extends BaseApi {

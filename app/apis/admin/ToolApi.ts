@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 import { getApiInstance } from '../index.ts';
-import { BaseApi } from './BaseApi.ts';
+import { BaseApi } from '../base.ts';
 
 export class ToolApi extends BaseApi {
   constructor() {

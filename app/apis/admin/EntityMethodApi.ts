@@ -1,4 +1,4 @@
-import { BaseApi } from './BaseApi.ts';
+import { BaseApi } from '../base.ts';
 
 export type EntityMethod = {
   id: string;

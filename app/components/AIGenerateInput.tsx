@@ -2,7 +2,7 @@ import { ThunderboltOutlined } from '@ant-design/icons';
 import { Input, message, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getApiInstance } from '../apis/index.ts';
-import { LLMDebugApi } from '../apis/llmDebug.api.ts';
+import { LLMDebugApi } from '../apis/admin/llmDebug.api.ts';
 import { useAIGenerateProvider } from '../providers/AIGenerateProvider.tsx';
 
 interface AIGenerateInputProps {

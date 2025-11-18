@@ -1,4 +1,4 @@
-import { getApiInstance } from '../index.ts';
+import { getApiInstance } from './index.ts';
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 /**

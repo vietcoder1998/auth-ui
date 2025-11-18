@@ -1,4 +1,4 @@
-import { getApiInstance } from './index.ts';
+import { getApiInstance } from '../index.ts';
 
 export const documentApi = {
   async listDocuments(params?: any) {

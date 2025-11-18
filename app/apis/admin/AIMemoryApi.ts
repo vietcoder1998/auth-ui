@@ -1,7 +1,7 @@
 // AI Memory API routes
 // Usage: adminApi.getAgentMemories({ q })
 
-import { BaseApi } from './BaseApi.ts';
+import { BaseApi } from '../base.ts';
 
 export class AIMemoryApi {
   static async getAgentMemories(params?: { q?: string; agentId?: string }) {

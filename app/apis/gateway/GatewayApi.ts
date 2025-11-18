@@ -1,4 +1,4 @@
-import { BaseApi } from '../admin/BaseApi.ts';
+import { BaseApi } from '../base.ts';
 
 /**
  * Gateway Service Interface
