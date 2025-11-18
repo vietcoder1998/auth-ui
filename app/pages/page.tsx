@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import HomePage from './components/Home.tsx';
-import BlogList from './blog/components/Blog.tsx';
-import DefaultLayout from '../layouts/DefaultLayout.tsx';
 import AuthStatus from '../layouts/AuthStatus.tsx';
+import DefaultLayout from '../layouts/DefaultLayout.tsx';
+import BlogList from './blog/components/Blog.tsx';
 
 export default function SystemPage() {
   const [activeTab, setActiveTab] = useState<'home' | 'blog'>('home');

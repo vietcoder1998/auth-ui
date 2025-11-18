@@ -3,7 +3,7 @@ import { ApiUtils } from '../index.ts';
 /**
  * Error handling utility class for API errors
  */
-export class ErrorHandler {
+export class ErrorHandlerApi {
   /**
    * Handle axios errors in components
    */
@@ -103,8 +103,8 @@ export class ErrorHandler {
 }
 
 // Export legacy functions for backward compatibility
-export const handleApiError = ErrorHandler.handleApiError.bind(ErrorHandler);
-export const addSuccessMessage = ErrorHandler.addSuccessMessage.bind(ErrorHandler);
-export const addWarningMessage = ErrorHandler.addWarningMessage.bind(ErrorHandler);
+export const handleApiError = ErrorHandlerApi.handleApiError.bind(ErrorHandlerApi);
+export const addSuccessMessage = ErrorHandlerApi.addSuccessMessage.bind(ErrorHandlerApi);
+export const addWarningMessage = ErrorHandlerApi.addWarningMessage.bind(ErrorHandlerApi);
 
-export default ErrorHandler;
+export default ErrorHandlerApi;

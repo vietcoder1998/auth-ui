@@ -214,8 +214,7 @@ export class ApiUtils {
       timeout: 30000, // Longer timeout for gateway operations
       headers: {
         'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Origin':
-          import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:3001',
+        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
     });

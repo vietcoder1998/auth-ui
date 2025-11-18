@@ -43,7 +43,7 @@ const result = await adminApi.getUsers(); // Errors handled automatically
 
 ```typescript
 import { addErrorToCookie } from '../components/ErrorDisplay.tsx';
-import { handleApiError } from '../utils/errorHandler.ts';
+import { handleApiError } from '../utils/ErrorHandlerApi.ts';
 
 try {
   const result = await fetch('/api/custom-endpoint');
@@ -163,7 +163,7 @@ app/
 ├── utils/
 │   ├── apiSetup.ts           # Early axios initialization
 │   ├── axiosErrorInterceptor.ts # Standalone interceptor (optional)
-│   └── errorHandler.ts       # Manual error utilities
+│   └── ErrorHandlerApi.ts       # Manual error utilities
 ├── layouts/
 │   └── AdminContentLayout.tsx # Includes StatusIndicator & ErrorDisplay
 └── root.tsx                  # Imports apiSetup for early init

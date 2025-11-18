@@ -1,6 +1,6 @@
 import { Button, Card, Space, Typography } from 'antd';
 import React from 'react';
-import { handleApiError } from '../utils/api/errorHandler.ts';
+import { handleApiError } from '../utils/api/handler.api.ts';
 
 const { Title, Text } = Typography;
 
