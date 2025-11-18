@@ -39,6 +39,11 @@ export const defaultSidebarMenu: MenuItem[] = [
     label: 'Dashboard',
   },
   {
+    key: '/admin/gateway',
+    icon: <ApiOutlined style={{ fontSize: 15 }} />,
+    label: 'Gateway Services',
+  },
+  {
     key: '/admin/system/jobs',
     icon: <ThunderboltOutlined />,
     label: 'Jobs',
@@ -211,11 +216,6 @@ export const defaultSidebarMenu: MenuItem[] = [
     icon: <DatabaseOutlined style={{ fontSize: 16 }} />,
     label: 'System Management',
     children: [
-      {
-        key: '/admin/gateway',
-        icon: <ApiOutlined style={{ fontSize: 15 }} />,
-        label: 'Gateway Services',
-      },
       {
         key: '/admin/system/sso',
         icon: <LinkOutlined style={{ fontSize: 15 }} />,
