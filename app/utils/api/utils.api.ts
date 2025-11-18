@@ -76,7 +76,7 @@ export class ApiUtils {
       withCredentials: true,
       timeout: 20000,
       headers: {
-        'Access-Control-Allow-Credentials': 'true',
+        // 'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Allow-Origin': import.meta.env.VITE_API_URL || 'http://localhost:3000',
         'Content-Type': 'application/json',
       },
@@ -209,12 +209,10 @@ export class ApiUtils {
 
   static getApiGatewayInstance(): AxiosInstance {
     const instance = axios.create({
-      baseURL: import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:3001/api/v1',
+      baseURL: import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:5000/api/v1',
       withCredentials: true,
       timeout: 30000, // Longer timeout for gateway operations
       headers: {
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
     });

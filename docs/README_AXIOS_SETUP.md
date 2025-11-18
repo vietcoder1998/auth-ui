@@ -13,7 +13,7 @@ The axios setup integrates seamlessly with the existing API structure while addi
 - Automatically adds errors to cookies for the ErrorDisplay component
 - Maintains existing toast notifications for immediate user feedback
 
-### 2. **API Setup Initialization** (`app/utils/apiSetup.ts`)
+### 2. **API Setup Initialization** (`app/utils/setup.api.ts`)
 
 - Ensures axios instance is created early in the application lifecycle
 - Exported for other modules that need direct access to the configured instance
@@ -161,7 +161,7 @@ app/
 │   ├── StatusIndicator.tsx   # System health monitoring
 │   └── ErrorTestComponent.tsx # Testing component
 ├── utils/
-│   ├── apiSetup.ts           # Early axios initialization
+│   ├── setup.api.ts           # Early axios initialization
 │   ├── axiosErrorInterceptor.ts # Standalone interceptor (optional)
 │   └── ErrorHandlerApi.ts       # Manual error utilities
 ├── layouts/
