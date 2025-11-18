@@ -1,4 +1,5 @@
 import {
+  ApiOutlined,
   AuditOutlined,
   BellOutlined,
   DatabaseOutlined,
@@ -211,6 +212,11 @@ export const defaultSidebarMenu: MenuItem[] = [
     label: 'System Management',
     children: [
       {
+        key: '/admin/gateway',
+        icon: <ApiOutlined style={{ fontSize: 15 }} />,
+        label: 'Gateway Services',
+      },
+      {
         key: '/admin/system/sso',
         icon: <LinkOutlined style={{ fontSize: 15 }} />,
         label: 'SSO Management',
@@ -295,6 +301,7 @@ export function useSidebarMenu(role?: string) {
 export function getIcon(iconName: string | React.ReactNode): React.ReactNode {
   if (typeof iconName !== 'string') return iconName;
   const icons: Record<string, React.ReactNode> = {
+    ApiOutlined: <ApiOutlined />,
     HomeOutlined: <HomeOutlined />,
     DatabaseOutlined: <DatabaseOutlined />,
     SettingOutlined: <SettingOutlined />,

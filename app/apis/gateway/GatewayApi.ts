@@ -175,5 +175,14 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
   }
 }
 
-// Export singleton instance
-export const gatewayApi = new GatewayApi();
+// Lazy singleton instance - created on first access to avoid circular dependency
+let _gatewayApiInstance: GatewayApi | null = null;
+
+export const gatewayApi = new Proxy({} as GatewayApi, {
+  get(target, prop) {
+    if (!_gatewayApiInstance) {
+      _gatewayApiInstance = new GatewayApi();
+    }
+    return (_gatewayApiInstance as any)[prop];
+  },
+});
