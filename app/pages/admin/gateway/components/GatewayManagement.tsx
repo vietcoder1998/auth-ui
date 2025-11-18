@@ -52,45 +52,7 @@ const GatewayManagement: React.FC = () => {
     } catch (error) {
       console.error('Failed to load services:', error);
       message.error('Failed to load services. Using mock data for demonstration.');
-
-      // Fallback to mock data if API fails
-      const mockServices: GatewayService[] = [
-        {
-          id: '1',
-          name: 'auth-service',
-          protocol: 'https',
-          host: 'auth.example.com',
-          port: 443,
-          path: '/api/v1',
-          retries: 3,
-          connectTimeout: 30000,
-          writeTimeout: 30000,
-          readTimeout: 30000,
-          enabled: true,
-          tags: ['auth', 'production'],
-          status: 'healthy',
-          lastChecked: new Date().toISOString(),
-          responseTime: 120,
-        },
-        {
-          id: '2',
-          name: 'user-service',
-          protocol: 'http',
-          host: 'localhost',
-          port: 3001,
-          path: '/api/users',
-          retries: 5,
-          connectTimeout: 60000,
-          writeTimeout: 60000,
-          readTimeout: 60000,
-          enabled: false,
-          tags: ['users', 'development'],
-          status: 'unknown',
-          lastChecked: undefined,
-          responseTime: undefined,
-        },
-      ];
-      setServices(mockServices);
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -240,17 +202,31 @@ const GatewayManagement: React.FC = () => {
       title: 'Tags',
       dataIndex: 'tags',
       key: 'tags',
-      render: (tags: string[]) => (
-        <>
-          {tags?.length
-            ? tags?.map((tag) => (
+      render: (tags: string[] | string) => {
+        // Convert string to array if needed
+        const tagArray =
+          typeof tags === 'string'
+            ? JSON.parse(tags)
+                .map((t: string) => t.trim())
+                .filter(Boolean)
+            : Array.isArray(tags)
+              ? tags
+              : [];
+
+        return (
+          <>
+            {tagArray.length > 0 ? (
+              tagArray.map((tag: string) => (
                 <Tag key={tag} color="blue">
                   {tag}
                 </Tag>
               ))
-            : ''}
-        </>
-      ),
+            ) : (
+              <Text type="secondary">No tags</Text>
+            )}
+          </>
+        );
+      },
     },
     {
       title: 'Last Checked',
