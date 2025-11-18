@@ -166,6 +166,16 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
   }
 
   /**
+   * Raise/restart a service
+   * @param id - Service ID
+   * @returns Updated service information
+   */
+  async raiseService(id: string): Promise<GatewayService> {
+    const response = await this.customPost(`/${id}/raise`);
+    return response.data.data;
+  }
+
+  /**
    * Bulk enable/disable services
    * @param ids - Array of service IDs
    * @param enabled - Enable or disable

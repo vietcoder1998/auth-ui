@@ -1,4 +1,10 @@
-import { ApiOutlined, CheckCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  ApiOutlined,
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  RocketOutlined,
+} from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import { Badge, Button, Popconfirm, Space, Table, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
@@ -12,6 +18,7 @@ interface GatewayTableProps {
   onEdit: (service: GatewayService) => void;
   onDelete: (serviceId: string) => void;
   onTestConnection: (service: GatewayService) => void;
+  onRaiseService: (service: GatewayService) => void;
 }
 
 const GatewayTable: React.FC<GatewayTableProps> = ({
@@ -20,6 +27,7 @@ const GatewayTable: React.FC<GatewayTableProps> = ({
   onEdit,
   onDelete,
   onTestConnection,
+  onRaiseService,
 }) => {
   const columns: TableColumnsType<GatewayService> = [
     {
@@ -89,6 +97,22 @@ const GatewayTable: React.FC<GatewayTableProps> = ({
               onClick={() => onTestConnection(record)}
               size="small"
             />
+          </Tooltip>
+          <Tooltip title="Raise Service">
+            <Popconfirm
+              title="Raise Service"
+              description="Are you sure you want to restart/raise this service?"
+              onConfirm={() => onRaiseService(record)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="link"
+                icon={<RocketOutlined />}
+                size="small"
+                style={{ color: '#52c41a' }}
+              />
+            </Popconfirm>
           </Tooltip>
           <Tooltip title="Edit">
             <Button

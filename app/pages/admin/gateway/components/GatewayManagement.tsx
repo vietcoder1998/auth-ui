@@ -139,6 +139,29 @@ const GatewayManagement: React.FC = () => {
     }
   };
 
+  const handleRaiseService = async (service: GatewayService) => {
+    if (!service.id) {
+      message.error('Service ID is required for raising');
+      return;
+    }
+
+    try {
+      message.loading({ content: 'Raising service...', key: 'raise' });
+
+      const updatedService = await gatewayApi.raiseService(service.id);
+
+      setServices((prev) => prev.map((s) => (s.id === updatedService.id ? updatedService : s)));
+
+      message.success({
+        content: `Service "${service.name}" has been raised successfully!`,
+        key: 'raise',
+      });
+    } catch (error) {
+      console.error('Failed to raise service:', error);
+      message.error({ content: 'Failed to raise service', key: 'raise' });
+    }
+  };
+
   const filteredServices = services.filter(
     (service) =>
       service.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -183,6 +206,7 @@ const GatewayManagement: React.FC = () => {
           }}
           onDelete={handleDeleteService}
           onTestConnection={handleTestConnection}
+          onRaiseService={handleRaiseService}
         />
       </Card>
 
