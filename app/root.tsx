@@ -10,7 +10,7 @@ import {
 import type { Route } from './+types/root.ts';
 import { AuthProvider } from './hooks/useAuth.tsx';
 import AuthDebugComponent from './components/AuthDebugComponent.tsx';
-import './utils/apiSetup.ts'; // Initialize axios instance early
+import './utils/api/apiSetup.ts'; // Initialize axios instance early
 import './app.css';
 
 export const links: Route.LinksFunction = () => [
