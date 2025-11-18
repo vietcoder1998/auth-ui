@@ -1,4 +1,4 @@
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined, ScanOutlined } from '@ant-design/icons';
 import { Button, Col, Input, Row, Space } from 'antd';
 import React from 'react';
 
@@ -9,7 +9,9 @@ interface GatewayFilterProps {
   onSearchChange: (value: string) => void;
   onAddService: () => void;
   onRefresh: () => void;
+  onScanService?: () => void;
   loading?: boolean;
+  scanning?: boolean;
 }
 
 const GatewayFilter: React.FC<GatewayFilterProps> = ({
@@ -17,7 +19,9 @@ const GatewayFilter: React.FC<GatewayFilterProps> = ({
   onSearchChange,
   onAddService,
   onRefresh,
+  onScanService,
   loading = false,
+  scanning = false,
 }) => {
   return (
     <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
@@ -26,6 +30,11 @@ const GatewayFilter: React.FC<GatewayFilterProps> = ({
           <Button type="primary" icon={<PlusOutlined />} onClick={onAddService}>
             Add Service
           </Button>
+          {onScanService && (
+            <Button icon={<ScanOutlined />} onClick={onScanService} loading={scanning}>
+              Scan Services
+            </Button>
+          )}
           <Button icon={<ReloadOutlined />} onClick={onRefresh} loading={loading}>
             Refresh
           </Button>

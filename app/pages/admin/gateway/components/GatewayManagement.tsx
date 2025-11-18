@@ -11,6 +11,7 @@ const { Title } = Typography;
 const GatewayManagement: React.FC = () => {
   const [services, setServices] = useState<GatewayService[]>([]);
   const [loading, setLoading] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingService, setEditingService] = useState<GatewayService | null>(null);
   const [searchText, setSearchText] = useState('');
@@ -115,6 +116,50 @@ const GatewayManagement: React.FC = () => {
     }
   };
 
+  const handleScanServices = async () => {
+    setScanning(true);
+    try {
+      message.loading({ content: 'Scanning for services...', key: 'scan' });
+
+      // Call the scan API endpoint (you'll need to implement this in GatewayApi)
+      // For now, we'll simulate the scan by testing all services
+      const scanPromises = services.map(async (service) => {
+        if (!service.id) return service;
+
+        try {
+          const result = await gatewayApi.testConnection(service.id);
+          return {
+            ...service,
+            status: result.status,
+            lastChecked: new Date().toISOString(),
+            responseTime: result.responseTime,
+          };
+        } catch (error) {
+          return {
+            ...service,
+            status: 'unhealthy' as const,
+            lastChecked: new Date().toISOString(),
+          };
+        }
+      });
+
+      const updatedServices = await Promise.all(scanPromises);
+      setServices(updatedServices);
+
+      const healthyCount = updatedServices.filter((s) => s.status === 'healthy').length;
+      message.success({
+        content: `Scan complete! ${healthyCount} of ${updatedServices.length} services are healthy.`,
+        key: 'scan',
+        duration: 4,
+      });
+    } catch (error) {
+      console.error('Failed to scan services:', error);
+      message.error({ content: 'Scan failed', key: 'scan' });
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const filteredServices = services.filter(
     (service) =>
       service.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -145,7 +190,9 @@ const GatewayManagement: React.FC = () => {
             setModalVisible(true);
           }}
           onRefresh={loadServices}
+          onScanService={handleScanServices}
           loading={loading}
+          scanning={scanning}
         />
 
         <GatewayTable

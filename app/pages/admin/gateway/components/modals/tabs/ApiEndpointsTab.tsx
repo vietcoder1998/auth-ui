@@ -15,6 +15,8 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
   const [endpointResults, setEndpointResults] = useState<
     Record<string, { status: number; time: number } | null>
   >({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Filter endpoints based on search text
   const filteredEndpoints = useMemo(() => {
@@ -32,6 +34,12 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
         endpoint.healthStatus?.toLowerCase().includes(search)
     );
   }, [endpoints, searchText]);
+
+  // Reset to first page when search changes
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+    setCurrentPage(1);
+  };
 
   const handleTestEndpoint = async (endpoint: GatewayServiceEndpoint) => {
     if (!endpoint.gatewayPath) {
@@ -86,7 +94,7 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
         placeholder="Search endpoints by path, method, gateway path, or description..."
         prefix={<SearchOutlined />}
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
+        onChange={handleSearchChange}
         style={{ marginBottom: 16 }}
         allowClear
       />
@@ -96,6 +104,21 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
         <List
           bordered
           dataSource={filteredEndpoints}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: filteredEndpoints.length,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              if (size !== pageSize) {
+                setPageSize(size);
+                setCurrentPage(1); // Reset to first page when page size changes
+              }
+            },
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} endpoints`,
+            pageSizeOptions: ['5', '10', '20', '50'],
+          }}
           renderItem={(endpoint) => {
             const testResult = endpointResults[endpoint.id];
             // Get base URL and remove /api/v1 suffix if present to avoid duplication
@@ -181,16 +204,6 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
           }
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
-      )}
-
-      {/* Summary */}
-      {endpoints.length > 0 && (
-        <div style={{ marginTop: 16, textAlign: 'right' }}>
-          <Text type="secondary">
-            Showing {filteredEndpoints.length} of {endpoints.length} endpoint
-            {endpoints.length !== 1 ? 's' : ''}
-          </Text>
-        </div>
       )}
     </div>
   );
