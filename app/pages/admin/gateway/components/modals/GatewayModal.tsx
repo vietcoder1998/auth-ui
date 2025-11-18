@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -71,6 +71,10 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags((prev) => prev.filter((tag) => tag !== tagToRemove));
+  };
+
+  const handleClearAllTags = () => {
+    setTags([]);
   };
 
   const handleSubmit = async (values: any) => {
@@ -220,14 +224,33 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
 
             {tags.length > 0 && (
               <div>
-                <Text type="secondary">Tags:</Text>
-                <div style={{ marginTop: 8 }}>
+                <div
+                  style={{
+                    marginBottom: 8,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text type="secondary">Tags ({tags.length}):</Text>
+                  <Button
+                    type="link"
+                    danger
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    onClick={handleClearAllTags}
+                  >
+                    Clear All
+                  </Button>
+                </div>
+                <div>
                   {tags.map((tag, index) => (
                     <Tag
                       key={index}
                       closable
                       onClose={() => handleRemoveTag(tag)}
                       style={{ marginBottom: 4 }}
+                      color="blue"
                     >
                       {tag}
                     </Tag>
