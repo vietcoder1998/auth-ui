@@ -95,7 +95,7 @@ const GatewayManagement: React.FC = () => {
           s.id === result.service.id
             ? {
                 ...s,
-                status: result.status,
+                status: result.service.healthStatus,
                 lastChecked: new Date().toISOString(),
                 responseTime: result.responseTime,
               }
@@ -125,7 +125,7 @@ const GatewayManagement: React.FC = () => {
       const scannedServices = await gatewayApi.scanServices();
       setServices(scannedServices);
 
-      const healthyCount = scannedServices.filter((s) => s.status === 'healthy').length;
+      const healthyCount = scannedServices.filter((s) => s.healthStatus === 'healthy').length;
       message.success({
         content: `Scan complete! ${healthyCount} of ${scannedServices.length} services are healthy.`,
         key: 'scan',
@@ -168,8 +168,8 @@ const GatewayManagement: React.FC = () => {
       service.host.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const healthyCount = services.filter((s) => s.status === 'healthy').length;
-  const unhealthyCount = services.filter((s) => s.status === 'unhealthy').length;
+  const healthyCount = services.filter((s) => s.healthStatus === 'healthy').length;
+  const unhealthyCount = services.filter((s) => s.healthStatus === 'unhealthy').length;
   const enabledCount = services.filter((s) => s.enabled).length;
 
   return (

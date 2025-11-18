@@ -38,7 +38,7 @@ export interface GatewayService {
   readTimeout: number;
   enabled: boolean;
   tags: string[];
-  status?: 'healthy' | 'unhealthy' | 'unknown';
+  healthStatus?: 'healthy' | 'unhealthy' | 'unknown';
   lastChecked?: string;
   responseTime?: number;
   endpoints?: GatewayServiceEndpoint[];
