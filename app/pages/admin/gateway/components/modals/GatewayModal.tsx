@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Col,
   Form,
   Input,
@@ -10,6 +9,7 @@ import {
   Select,
   Spin,
   Switch,
+  Tabs,
   message,
 } from 'antd';
 import React, { useEffect } from 'react';
@@ -101,84 +101,110 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
             enabled: true,
           }}
         >
-          <Card title="Basic Information" style={{ marginBottom: 16 }}>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Service Name"
-                  name="name"
-                  rules={[{ required: true, message: 'Please enter service name' }]}
-                >
-                  <Input placeholder="my-service" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Protocol" name="protocol">
-                  <Select>
-                    <Option value="http">HTTP</Option>
-                    <Option value="https">HTTPS</Option>
-                    <Option value="tcp">TCP</Option>
-                    <Option value="udp">UDP</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
+          <Tabs
+            defaultActiveKey="1"
+            items={[
+              {
+                key: '1',
+                label: 'Basic Information',
+                children: (
+                  <div style={{ padding: '16px 0' }}>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Service Name"
+                          name="name"
+                          rules={[{ required: true, message: 'Please enter service name' }]}
+                        >
+                          <Input placeholder="my-service" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="Protocol" name="protocol">
+                          <Select>
+                            <Option value="http">HTTP</Option>
+                            <Option value="https">HTTPS</Option>
+                            <Option value="tcp">TCP</Option>
+                            <Option value="udp">UDP</Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-            <Row gutter={16}>
-              <Col span={16}>
-                <Form.Item
-                  label="Host"
-                  name="host"
-                  rules={[{ required: true, message: 'Please enter host' }]}
-                >
-                  <Input placeholder="example.com or 192.168.1.100" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item label="Port" name="port">
-                  <InputNumber min={1} max={65535} style={{ width: '100%' }} placeholder="80" />
-                </Form.Item>
-              </Col>
-            </Row>
+                    <Row gutter={16}>
+                      <Col span={16}>
+                        <Form.Item
+                          label="Host"
+                          name="host"
+                          rules={[{ required: true, message: 'Please enter host' }]}
+                        >
+                          <Input placeholder="example.com or 192.168.1.100" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item label="Port" name="port">
+                          <InputNumber
+                            min={1}
+                            max={65535}
+                            style={{ width: '100%' }}
+                            placeholder="80"
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-            <Form.Item label="Path" name="path">
-              <Input placeholder="/api/v1" />
-            </Form.Item>
-          </Card>
+                    <Form.Item label="Path" name="path">
+                      <Input placeholder="/api/v1" />
+                    </Form.Item>
+                  </div>
+                ),
+              },
+              {
+                key: '2',
+                label: 'Configuration',
+                children: (
+                  <div style={{ padding: '16px 0' }}>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item label="Retries" name="retries">
+                          <InputNumber
+                            min={0}
+                            max={100}
+                            style={{ width: '100%' }}
+                            placeholder="5"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="Connect Timeout (ms)" name="connectTimeout">
+                          <InputNumber min={1000} style={{ width: '100%' }} placeholder="60000" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-          <Card title="Configuration" style={{ marginBottom: 16 }}>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Retries" name="retries">
-                  <InputNumber min={0} max={100} style={{ width: '100%' }} placeholder="5" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Connect Timeout (ms)" name="connectTimeout">
-                  <InputNumber min={1000} style={{ width: '100%' }} placeholder="60000" />
-                </Form.Item>
-              </Col>
-            </Row>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item label="Write Timeout (ms)" name="writeTimeout">
+                          <InputNumber min={1000} style={{ width: '100%' }} placeholder="60000" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="Read Timeout (ms)" name="readTimeout">
+                          <InputNumber min={1000} style={{ width: '100%' }} placeholder="60000" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Write Timeout (ms)" name="writeTimeout">
-                  <InputNumber min={1000} style={{ width: '100%' }} placeholder="60000" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Read Timeout (ms)" name="readTimeout">
-                  <InputNumber min={1000} style={{ width: '100%' }} placeholder="60000" />
-                </Form.Item>
-              </Col>
-            </Row>
+                    <Form.Item label="Enable Service" name="enabled" valuePropName="checked">
+                      <Switch />
+                    </Form.Item>
+                  </div>
+                ),
+              },
+            ]}
+          />
 
-            <Form.Item label="Enable Service" name="enabled" valuePropName="checked">
-              <Switch />
-            </Form.Item>
-          </Card>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
             <Button onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
