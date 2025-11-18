@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { publicApi } from '~/apis/public.api.ts';
+import { publicApi } from '~/apis/public/index.ts';
 import { Table, Button, Modal, Input, Form, message, Space, Spin } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 

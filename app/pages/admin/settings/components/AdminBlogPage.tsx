@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { publicApi } from '~/apis/public.api.ts';
+import { publicApi } from '~/apis/public/index.ts';
 import { Table, Button, Modal, Tag, Space, Spin, message, Form } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import CommonSearch from '../../../../components/CommonSearch.tsx';

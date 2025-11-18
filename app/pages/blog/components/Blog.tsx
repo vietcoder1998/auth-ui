@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { publicApi } from '../../../apis/public.api.ts';
+import { publicApi } from '../../../apis/public/index.ts';
 import { useNavigate } from 'react-router-dom';
 import DefaultLayout from '../../../layouts/DefaultLayout.tsx';
 

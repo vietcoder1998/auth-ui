@@ -1,8 +1,8 @@
 // Public API for Blog and Category (no auth)
 // Structure mirrors admin/index.ts but only for public blog/category endpoints
 
-import { PublicBlogApi } from './publicApi/PublicBlogApi.ts';
-import { PublicCategoryApi } from './publicApi/PublicCategoryApi.ts';
+import { PublicBlogApi } from './PublicBlogApi.ts';
+import { PublicCategoryApi } from './PublicCategoryApi.ts';
 
 export { PublicBlogApi, PublicCategoryApi };
 

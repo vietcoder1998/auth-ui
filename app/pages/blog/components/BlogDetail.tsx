@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { publicApi } from '../../../apis/public.api.ts';
+import { publicApi } from '../../../apis/public/index.ts';
 import DefaultLayout from '../../../layouts/DefaultLayout.tsx';
 import { Spin, Tag } from 'antd';
 

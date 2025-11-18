@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { authApi } from '~/apis/auth.api.ts';
+import { authApi } from '~/apis/auth/index.ts';
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();

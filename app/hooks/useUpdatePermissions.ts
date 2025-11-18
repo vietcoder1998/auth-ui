@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
 import { adminApi } from '~/apis/admin/index.ts';
-import { authApi } from '~/apis/auth.api.ts';
+import { authApi } from '~/apis/auth/index.ts';
 import { useLoginCookie } from './useCookie.tsx';
 
 // Type for errors saved in fixing_errors cookie

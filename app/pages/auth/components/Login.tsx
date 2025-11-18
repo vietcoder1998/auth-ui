@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Form, Input, Button, Card, Alert, Spin, Typography, Space, Divider } from 'antd';
 import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
-import { authApi } from '~/apis/auth.api.ts';
+import { authApi } from '~/apis/auth/index.ts';
 import { useAuth } from '../../../hooks/useAuth.tsx';
 import AuthStatus from '../../../layouts/AuthStatus.tsx';
 

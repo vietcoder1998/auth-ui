@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { adminApi } from '../apis/admin/index.ts';
-import { authApi } from '../apis/auth.api.ts';
+import { authApi } from '../apis/auth/index.ts';
 
 interface SSOValidationResult {
   success: boolean;

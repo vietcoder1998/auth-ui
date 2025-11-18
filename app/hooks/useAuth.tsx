@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi } from '~/apis/auth.api.ts';
+import { authApi } from '~/apis/auth/index.ts';
 
 interface User {
   id: string;
