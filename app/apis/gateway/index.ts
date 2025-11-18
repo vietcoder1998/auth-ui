@@ -7,6 +7,7 @@ export {
   GatewayApi,
   gatewayApi,
   type GatewayService,
+  type GatewayServiceEndpoint,
   type GatewayStatistics,
   type HealthCheckResult,
   type ServiceHealthStatus,
