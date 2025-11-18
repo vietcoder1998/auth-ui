@@ -27,7 +27,7 @@ import {
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import GatewayConnectionModal from './GatewayConnectionModal.tsx';
-import { gatewayApi, type GatewayService } from '../apis/gateway/index.ts';
+import { gatewayApi, type GatewayService } from '~/apis/gateway/index.ts';
 
 const { Title, Text } = Typography;
 const { Search } = Input;

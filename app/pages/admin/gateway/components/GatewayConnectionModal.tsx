@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
 import {
-  Modal,
+  Button,
+  Card,
+  Col,
   Form,
   Input,
-  Select,
   InputNumber,
-  Switch,
-  Button,
-  Tag,
-  Space,
-  Divider,
-  Typography,
-  Card,
+  Modal,
   Row,
-  Col,
+  Select,
+  Space,
   Spin,
+  Switch,
+  Tag,
+  Typography,
   message,
 } from 'antd';
-import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
-import { type GatewayService } from '../apis/gateway/index.ts';
+import React, { useEffect, useState } from 'react';
+import { type GatewayService } from '~/apis/gateway/index.ts';
 
 const { Title, Text } = Typography;
 const { Option } = Select;

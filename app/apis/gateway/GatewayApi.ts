@@ -1,4 +1,5 @@
 import { BaseApi } from '../base.ts';
+import { getApiGatewayInstance } from '~/utils/api/utils.api.ts';
 
 /**
  * Gateway Service Interface
@@ -58,6 +59,8 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
   constructor() {
     // Use gateway-service base path - can be configured via env
     super('/services');
+    // Override the api instance to use the gateway-specific instance
+    this.api = getApiGatewayInstance();
   }
 
   /**
@@ -153,12 +156,14 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
 
   // Static methods for backward compatibility
   static async getServices(params?: any): Promise<GatewayService[]> {
-    const response = await BaseApi.staticGetAll('/services', params);
+    const api = getApiGatewayInstance();
+    const response = await api.get('/services', { params });
     return response.data;
   }
 
   static async createService(service: Omit<GatewayService, 'id'>): Promise<GatewayService> {
-    const response = await BaseApi.staticCreate('/services', service);
+    const api = getApiGatewayInstance();
+    const response = await api.post('/services', service);
     return response.data;
   }
 
@@ -166,12 +171,14 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
     id: string,
     service: Partial<GatewayService>
   ): Promise<GatewayService> {
-    const response = await BaseApi.staticUpdate('/services', id, service);
+    const api = getApiGatewayInstance();
+    const response = await api.put(`/services/${id}`, service);
     return response.data;
   }
 
   static async deleteService(id: string): Promise<void> {
-    await BaseApi.staticDelete('/services', id);
+    const api = getApiGatewayInstance();
+    await api.delete(`/services/${id}`);
   }
 }
 

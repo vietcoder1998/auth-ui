@@ -206,6 +206,89 @@ export class ApiUtils {
 
     return instance;
   }
+
+  static getApiGatewayInstance(): AxiosInstance {
+    const instance = axios.create({
+      baseURL: import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:3001/api/v1',
+      withCredentials: true,
+      timeout: 30000, // Longer timeout for gateway operations
+      headers: {
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Origin':
+          import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:3001',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Add interceptors for auth, error handling, etc.
+    instance.interceptors.request.use((config) => {
+      // Attach token from cookie
+      const token = Cookies.get('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Attach user ID header that backend expects
+      const userId = ApiUtils.getUserId();
+      if (userId) {
+        config.headers['x-user-id'] = userId;
+      }
+
+      return config;
+    });
+
+    instance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // Extract error message for toast
+        let errorMessage =
+          error.response?.data?.message ??
+          error.response?.data?.error ??
+          error.message ??
+          'Gateway error occurred';
+
+        // Handle different error status codes with toasts
+        switch (true) {
+          case error.response?.status === 401:
+            errorMessage = 'Gateway authentication failed. Please login again.';
+            message.error(errorMessage);
+            setTimeout(() => {
+              if (!window.location.pathname.includes('/login')) {
+                Cookies.remove('auth_token');
+                Cookies.remove('auth_user');
+                window.location.href = '/login';
+              }
+            }, 1000);
+            break;
+          case error.response?.status === 403:
+            errorMessage =
+              "Gateway access denied. You don't have permission to perform this action.";
+            message.error(errorMessage);
+            break;
+          case error.response?.status === 404:
+            errorMessage = 'Gateway resource not found.';
+            message.error(errorMessage);
+            break;
+          case error.response?.status >= 500:
+            errorMessage = 'Gateway server error. Please try again later.';
+            message.error(errorMessage);
+            break;
+          case error.code === 'NETWORK_ERROR' || error.code === 'ECONNABORTED':
+            errorMessage = 'Gateway network error. Please check your connection.';
+            message.error(errorMessage);
+            break;
+          default:
+            message.error(errorMessage);
+            break;
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return instance;
+  }
 }
 
 export const getApiInstance = ApiUtils.getApiInstance;
+export const getApiGatewayInstance = ApiUtils.getApiGatewayInstance;
