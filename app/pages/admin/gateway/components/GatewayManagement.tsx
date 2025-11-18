@@ -88,7 +88,7 @@ const GatewayManagement: React.FC = () => {
     try {
       message.loading({ content: 'Testing connection...', key: 'test' });
 
-      const result = await gatewayApi.testConnection(service.id);
+      const result = await gatewayApi.testConnection(service.name);
 
       setServices((prev) =>
         prev.map((s) =>
