@@ -1,33 +1,32 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Card,
-  Table,
-  Button,
-  Space,
-  Tag,
-  Popconfirm,
-  message,
-  Typography,
-  Row,
-  Col,
-  Statistic,
-  Badge,
-  Tooltip,
-  Input,
-} from 'antd';
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ReloadOutlined,
-  SearchOutlined,
   ApiOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import GatewayConnectionModal from './GatewayConnectionModal.tsx';
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Input,
+  message,
+  Popconfirm,
+  Row,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+} from 'antd';
+import React, { useEffect, useState } from 'react';
 import { gatewayApi, type GatewayService } from '~/apis/gateway/index.ts';
+import GatewayConnectionModal from './GatewayConnectionModal.tsx';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -243,11 +242,13 @@ const GatewayManagement: React.FC = () => {
       key: 'tags',
       render: (tags: string[]) => (
         <>
-          {tags.map((tag) => (
-            <Tag key={tag} color="blue">
-              {tag}
-            </Tag>
-          ))}
+          {tags?.length
+            ? tags?.map((tag) => (
+                <Tag key={tag} color="blue">
+                  {tag}
+                </Tag>
+              ))
+            : ''}
         </>
       ),
     },

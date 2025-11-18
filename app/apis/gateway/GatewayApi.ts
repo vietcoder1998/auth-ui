@@ -69,7 +69,7 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
    */
   async getServices(params?: any): Promise<GatewayService[]> {
     const response = await this.getAll(params);
-    return response.data;
+    return response.data.data;
   }
 
   /**
