@@ -157,6 +157,15 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
   }
 
   /**
+   * Scan all services for health status
+   * @returns Array of services with updated health status
+   */
+  async scanServices(): Promise<GatewayService[]> {
+    const response = await this.customPost('/scan');
+    return response.data;
+  }
+
+  /**
    * Bulk enable/disable services
    * @param ids - Array of service IDs
    * @param enabled - Enable or disable

@@ -121,34 +121,13 @@ const GatewayManagement: React.FC = () => {
     try {
       message.loading({ content: 'Scanning for services...', key: 'scan' });
 
-      // Call the scan API endpoint (you'll need to implement this in GatewayApi)
-      // For now, we'll simulate the scan by testing all services
-      const scanPromises = services.map(async (service) => {
-        if (!service.id) return service;
+      // Call the scan API endpoint
+      const scannedServices = await gatewayApi.scanServices();
+      setServices(scannedServices);
 
-        try {
-          const result = await gatewayApi.testConnection(service.id);
-          return {
-            ...service,
-            status: result.status,
-            lastChecked: new Date().toISOString(),
-            responseTime: result.responseTime,
-          };
-        } catch (error) {
-          return {
-            ...service,
-            status: 'unhealthy' as const,
-            lastChecked: new Date().toISOString(),
-          };
-        }
-      });
-
-      const updatedServices = await Promise.all(scanPromises);
-      setServices(updatedServices);
-
-      const healthyCount = updatedServices.filter((s) => s.status === 'healthy').length;
+      const healthyCount = scannedServices.filter((s) => s.status === 'healthy').length;
       message.success({
-        content: `Scan complete! ${healthyCount} of ${updatedServices.length} services are healthy.`,
+        content: `Scan complete! ${healthyCount} of ${scannedServices.length} services are healthy.`,
         key: 'scan',
         duration: 4,
       });
