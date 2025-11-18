@@ -1,5 +1,5 @@
 // Re-export API utilities from utils
-export { ApiUtils, getApiInstance } from '../utils/api/index.ts';
+export { ApiUtils, getApiInstance } from '../utils/api/utils.api.ts';
 
 // Gateway API exports
 export {

@@ -1,4 +1,4 @@
-import { ApiUtils } from '../index.ts';
+import { ApiUtils } from './utils.api.ts';
 
 // Create and export the main API instance
 export const apiInstance = ApiUtils.getApiInstance();
