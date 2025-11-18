@@ -92,7 +92,7 @@ const GatewayManagement: React.FC = () => {
 
       setServices((prev) =>
         prev.map((s) =>
-          s.id === service.id
+          s.id === result.service.id
             ? {
                 ...s,
                 status: result.status,

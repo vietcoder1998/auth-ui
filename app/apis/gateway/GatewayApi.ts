@@ -62,6 +62,7 @@ export interface HealthCheckResult {
   status: 'healthy' | 'unhealthy';
   responseTime?: number;
   error?: string;
+  service: GatewayService;
 }
 
 /**
@@ -136,7 +137,7 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
    */
   async testConnection(id: string): Promise<HealthCheckResult> {
     const response = await this.customPost(`/${id}/test`);
-    return response.data;
+    return response.data.data;
   }
 
   /**
