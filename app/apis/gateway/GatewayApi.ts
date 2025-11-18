@@ -162,7 +162,7 @@ export class GatewayApi extends BaseApi<GatewayService, string> {
    */
   async scanServices(): Promise<GatewayService[]> {
     const response = await this.customPost('/scan');
-    return response.data;
+    return response.data.data;
   }
 
   /**

@@ -62,13 +62,6 @@ export default function ResponsiveContent({
     setSidebarItems(items);
   };
 
-  // Chat position change
-  const handlePositionChange = (
-    position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
-  ) => {
-    setChatPosition(position);
-  };
-
   return (
     <Layout style={{ height: '100vh', background: '#f6f8fa' }}>
       <AdminSidebar
@@ -110,8 +103,6 @@ export default function ResponsiveContent({
           <AdminChatWidget
             isChatCollapsed={isChatCollapsed}
             setIsChatCollapsed={setIsChatCollapsed}
-            chatPosition={chatPosition as 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'}
-            handlePositionChange={handlePositionChange}
           />
         </Content>
       </Layout>

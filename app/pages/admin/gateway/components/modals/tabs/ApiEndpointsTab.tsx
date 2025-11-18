@@ -51,7 +51,12 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
     let gatewayBaseUrl = import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:5000/api/v1';
     gatewayBaseUrl = gatewayBaseUrl.replace(/\/api\/v1\/?$/, '');
 
-    const fullUrl = `${gatewayBaseUrl}${endpoint.gatewayPath}`;
+    // Remove /api/v1 from gatewayPath if it exists in the middle
+    let cleanGatewayPath = endpoint.gatewayPath;
+    // Pattern: /service-name/api/v1/path -> /service-name/path
+    cleanGatewayPath = cleanGatewayPath.replace(/\/api\/v1\//, '/');
+
+    const fullUrl = `${gatewayBaseUrl}${cleanGatewayPath}`;
 
     setTestingEndpoint(endpoint.id);
     const startTime = Date.now();
@@ -125,7 +130,13 @@ const ApiEndpointsTab: React.FC<ApiEndpointsTabProps> = ({ endpoints = [] }) => 
             let gatewayBaseUrl =
               import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:5000/api/v1';
             gatewayBaseUrl = gatewayBaseUrl.replace(/\/api\/v1\/?$/, '');
-            const fullGatewayUrl = `${gatewayBaseUrl}${endpoint.gatewayPath}`;
+
+            // Remove /api/v1 from gatewayPath if it exists in the middle
+            let cleanGatewayPath = endpoint.gatewayPath;
+            // Pattern: /service-name/api/v1/path -> /service-name/path
+            cleanGatewayPath = cleanGatewayPath.replace(/\/api\/v1\//, '/');
+
+            const fullGatewayUrl = `${gatewayBaseUrl}${cleanGatewayPath}`;
 
             return (
               <List.Item
