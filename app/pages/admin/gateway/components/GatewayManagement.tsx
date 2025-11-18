@@ -1,35 +1,12 @@
-import {
-  ApiOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
-import type { TableColumnsType } from 'antd';
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Input,
-  message,
-  Popconfirm,
-  Row,
-  Space,
-  Statistic,
-  Table,
-  Tag,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Card, message, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { gatewayApi, type GatewayService } from '~/apis/gateway/index.ts';
-import GatewayConnectionModal from './GatewayConnectionModal.tsx';
+import GatewayFilter from './filter/GatewayFilter.tsx';
+import GatewayModal from './modals/GatewayModal.tsx';
+import GatewayStatistics from './GatewayStatistics.tsx';
+import GatewayTable from './table/GatewayTable.tsx';
 
-const { Title, Text } = Typography;
-const { Search } = Input;
+const { Title } = Typography;
 
 const GatewayManagement: React.FC = () => {
   const [services, setServices] = useState<GatewayService[]>([]);
@@ -149,220 +126,42 @@ const GatewayManagement: React.FC = () => {
   const unhealthyCount = services.filter((s) => s.status === 'unhealthy').length;
   const enabledCount = services.filter((s) => s.enabled).length;
 
-  const columns: TableColumnsType<GatewayService> = [
-    {
-      title: 'Service Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name: string, record: GatewayService) => (
-        <Space>
-          <ApiOutlined />
-          <span style={{ fontWeight: 500 }}>{name}</span>
-          {!record.enabled && <Tag color="default">Disabled</Tag>}
-        </Space>
-      ),
-    },
-    {
-      title: 'Endpoint',
-      key: 'endpoint',
-      render: (_: any, record: GatewayService) => (
-        <Text code>{`${record.protocol}://${record.host}:${record.port}${record.path}`}</Text>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string, record: GatewayService) => {
-        if (!record.enabled) {
-          return <Badge status="default" text="Disabled" />;
-        }
-
-        switch (status) {
-          case 'healthy':
-            return (
-              <Badge
-                status="success"
-                text={
-                  <Space>
-                    Healthy
-                    {record.responseTime && <Text type="secondary">({record.responseTime}ms)</Text>}
-                  </Space>
-                }
-              />
-            );
-          case 'unhealthy':
-            return <Badge status="error" text="Unhealthy" />;
-          default:
-            return <Badge status="default" text="Unknown" />;
-        }
-      },
-    },
-    {
-      title: 'Tags',
-      dataIndex: 'tags',
-      key: 'tags',
-      render: (tags: string[] | string) => {
-        // Convert string to array if needed
-        const tagArray =
-          typeof tags === 'string'
-            ? JSON.parse(tags)
-                .map((t: string) => t.trim())
-                .filter(Boolean)
-            : Array.isArray(tags)
-              ? tags
-              : [];
-
-        return (
-          <>
-            {tagArray.length > 0 ? (
-              tagArray.map((tag: string) => (
-                <Tag key={tag} color="blue">
-                  {tag}
-                </Tag>
-              ))
-            ) : (
-              <Text type="secondary">No tags</Text>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: 'Last Checked',
-      dataIndex: 'lastChecked',
-      key: 'lastChecked',
-      render: (lastChecked: string) =>
-        lastChecked ? new Date(lastChecked).toLocaleString() : 'Never',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_: any, record: GatewayService) => (
-        <Space>
-          <Tooltip title="Test Connection">
-            <Button
-              type="link"
-              icon={<CheckCircleOutlined />}
-              onClick={() => handleTestConnection(record)}
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="Edit">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              onClick={() => {
-                setEditingService(record);
-                setModalVisible(true);
-              }}
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Delete Service"
-              description="Are you sure you want to delete this service?"
-              onConfirm={() => handleDeleteService(record.id!)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="link" icon={<DeleteOutlined />} danger size="small" />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
-
   return (
     <div style={{ padding: 24 }}>
       <Title level={2}>Gateway Services Management</Title>
 
-      {/* Statistics */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Total Services" value={services.length} prefix={<ApiOutlined />} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Enabled"
-              value={enabledCount}
-              valueStyle={{ color: '#3f8600' }}
-              prefix={<CheckCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Healthy"
-              value={healthyCount}
-              valueStyle={{ color: '#3f8600' }}
-              prefix={<CheckCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Unhealthy"
-              value={unhealthyCount}
-              valueStyle={{ color: '#cf1322' }}
-              prefix={<CloseCircleOutlined />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <GatewayStatistics
+        totalServices={services.length}
+        enabledServices={enabledCount}
+        healthyServices={healthyCount}
+        unhealthyServices={unhealthyCount}
+      />
 
-      {/* Actions */}
       <Card>
-        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-          <Col>
-            <Space>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  setEditingService(null);
-                  setModalVisible(true);
-                }}
-              >
-                Add Service
-              </Button>
-              <Button icon={<ReloadOutlined />} onClick={loadServices} loading={loading}>
-                Refresh
-              </Button>
-            </Space>
-          </Col>
-          <Col>
-            <Search
-              placeholder="Search services..."
-              allowClear
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 300 }}
-            />
-          </Col>
-        </Row>
-
-        <Table
-          columns={columns}
-          dataSource={filteredServices}
-          loading={loading}
-          rowKey="id"
-          pagination={{
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} services`,
+        <GatewayFilter
+          searchText={searchText}
+          onSearchChange={setSearchText}
+          onAddService={() => {
+            setEditingService(null);
+            setModalVisible(true);
           }}
+          onRefresh={loadServices}
+          loading={loading}
+        />
+
+        <GatewayTable
+          services={filteredServices}
+          loading={loading}
+          onEdit={(service) => {
+            setEditingService(service);
+            setModalVisible(true);
+          }}
+          onDelete={handleDeleteService}
+          onTestConnection={handleTestConnection}
         />
       </Card>
 
-      <GatewayConnectionModal
+      <GatewayModal
         isOpen={modalVisible}
         onClose={() => {
           setModalVisible(false);

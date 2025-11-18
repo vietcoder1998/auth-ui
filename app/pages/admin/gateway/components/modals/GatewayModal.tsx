@@ -22,7 +22,7 @@ import { type GatewayService } from '~/apis/gateway/index.ts';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-interface GatewayConnectionModalProps {
+interface GatewayModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (service: GatewayService) => Promise<void>;
@@ -30,7 +30,7 @@ interface GatewayConnectionModalProps {
   loading?: boolean;
 }
 
-const GatewayConnectionModal: React.FC<GatewayConnectionModalProps> = ({
+const GatewayModal: React.FC<GatewayModalProps> = ({
   isOpen,
   onClose,
   onSave,
@@ -251,4 +251,4 @@ const GatewayConnectionModal: React.FC<GatewayConnectionModalProps> = ({
   );
 };
 
-export default GatewayConnectionModal;
+export default GatewayModal;
