@@ -1,3 +1,4 @@
+import { ApiOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
   Button,
   Col,
@@ -10,12 +11,17 @@ import {
   Spin,
   Switch,
   Tabs,
+  List,
+  Space,
+  Typography,
+  Badge,
   message,
 } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { type GatewayService } from '~/apis/gateway/index.ts';
 
 const { Option } = Select;
+const { Text } = Typography;
 
 interface GatewayModalProps {
   isOpen: boolean;
@@ -33,6 +39,9 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
   loading = false,
 }) => {
   const [form] = Form.useForm();
+  const [endpoints, setEndpoints] = useState<string[]>([]);
+  const [newEndpoint, setNewEndpoint] = useState('');
+  const [testingEndpoint, setTestingEndpoint] = useState<string | null>(null);
 
   useEffect(() => {
     if (service) {
@@ -48,10 +57,52 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
         readTimeout: service.readTimeout,
         enabled: service.enabled,
       });
+      // Load endpoints if service has any (can be extended later)
+      setEndpoints([]);
     } else {
       form.resetFields();
+      setEndpoints([]);
     }
   }, [service, form]);
+
+  const handleAddEndpoint = () => {
+    if (newEndpoint.trim() && !endpoints.includes(newEndpoint.trim())) {
+      setEndpoints((prev) => [...prev, newEndpoint.trim()]);
+      setNewEndpoint('');
+    }
+  };
+
+  const handleRemoveEndpoint = (endpoint: string) => {
+    setEndpoints((prev) => prev.filter((e) => e !== endpoint));
+  };
+
+  const handleTestEndpoint = async (endpoint: string) => {
+    const formValues = form.getFieldsValue();
+    const { protocol, host, port, path } = formValues;
+
+    if (!host) {
+      message.error('Please enter host first');
+      return;
+    }
+
+    const baseUrl = `${protocol}://${host}:${port}${path}`;
+    const fullUrl = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+
+    setTestingEndpoint(endpoint);
+    try {
+      const response = await fetch(fullUrl, { method: 'GET' });
+      const status = response.ok ? 'success' : 'error';
+
+      message[status]({
+        content: `${endpoint} - Status: ${response.status} ${response.statusText}`,
+        duration: 3,
+      });
+    } catch (error: any) {
+      message.error(`Failed to ping ${endpoint}: ${error.message}`);
+    } finally {
+      setTestingEndpoint(null);
+    }
+  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -71,6 +122,8 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
   const handleClose = () => {
     if (!loading) {
       form.resetFields();
+      setEndpoints([]);
+      setNewEndpoint('');
       onClose();
     }
   };
@@ -198,6 +251,87 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
                     <Form.Item label="Enable Service" name="enabled" valuePropName="checked">
                       <Switch />
                     </Form.Item>
+                  </div>
+                ),
+              },
+              {
+                key: '3',
+                label: 'API Endpoints',
+                children: (
+                  <div style={{ padding: '16px 0' }}>
+                    <Space.Compact style={{ width: '100%', marginBottom: 16 }}>
+                      <Input
+                        value={newEndpoint}
+                        onChange={(e) => setNewEndpoint(e.target.value)}
+                        placeholder="Enter endpoint path (e.g., /users, /health)"
+                        onPressEnter={handleAddEndpoint}
+                        prefix={<ApiOutlined />}
+                      />
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={handleAddEndpoint}
+                        disabled={!newEndpoint.trim()}
+                      >
+                        Add
+                      </Button>
+                    </Space.Compact>
+
+                    {endpoints.length > 0 ? (
+                      <List
+                        bordered
+                        dataSource={endpoints}
+                        renderItem={(endpoint) => {
+                          const formValues = form.getFieldsValue();
+                          const { protocol, host, port, path } = formValues;
+                          const baseUrl = `${protocol || 'http'}://${host || 'localhost'}:${port || 80}${path || '/'}`;
+                          const fullUrl = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+
+                          return (
+                            <List.Item
+                              actions={[
+                                <Button
+                                  key="test"
+                                  type="link"
+                                  size="small"
+                                  loading={testingEndpoint === endpoint}
+                                  onClick={() => handleTestEndpoint(endpoint)}
+                                >
+                                  Test
+                                </Button>,
+                                <Button
+                                  key="delete"
+                                  type="link"
+                                  danger
+                                  size="small"
+                                  icon={<DeleteOutlined />}
+                                  onClick={() => handleRemoveEndpoint(endpoint)}
+                                />,
+                              ]}
+                            >
+                              <List.Item.Meta
+                                title={
+                                  <Space>
+                                    <Badge status="default" />
+                                    <Text strong>{endpoint}</Text>
+                                  </Space>
+                                }
+                                description={
+                                  <Text type="secondary" copyable={{ text: fullUrl }}>
+                                    {fullUrl}
+                                  </Text>
+                                }
+                              />
+                            </List.Item>
+                          );
+                        }}
+                      />
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                        <ApiOutlined style={{ fontSize: 48, marginBottom: 16 }} />
+                        <div>No endpoints added yet. Add an endpoint to test.</div>
+                      </div>
+                    )}
                   </div>
                 ),
               },
