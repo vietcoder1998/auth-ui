@@ -209,3 +209,13 @@ export class ApiUtils {
 }
 
 export const getApiInstance = ApiUtils.getApiInstance;
+
+// Gateway API exports
+export {
+  GatewayApi,
+  gatewayApi,
+  type GatewayService,
+  type GatewayStatistics,
+  type HealthCheckResult,
+  type ServiceHealthStatus,
+} from './gateway/index.ts';

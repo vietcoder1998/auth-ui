@@ -27,27 +27,10 @@ import {
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import GatewayConnectionModal from './GatewayConnectionModal.tsx';
+import { gatewayApi, type GatewayService } from '../apis/gateway/index.ts';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
-
-interface GatewayService {
-  id?: string;
-  name: string;
-  protocol: string;
-  host: string;
-  port: number;
-  path: string;
-  retries: number;
-  connectTimeout: number;
-  writeTimeout: number;
-  readTimeout: number;
-  enabled: boolean;
-  tags: string[];
-  status?: 'healthy' | 'unhealthy' | 'unknown';
-  lastChecked?: string;
-  responseTime?: number;
-}
 
 const GatewayManagement: React.FC = () => {
   const [services, setServices] = useState<GatewayService[]>([]);
@@ -64,7 +47,14 @@ const GatewayManagement: React.FC = () => {
   const loadServices = async () => {
     setLoading(true);
     try {
-      // This would be replaced with actual API call
+      const fetchedServices = await gatewayApi.getServices();
+      setServices(fetchedServices);
+      message.success('Services loaded successfully!');
+    } catch (error) {
+      console.error('Failed to load services:', error);
+      message.error('Failed to load services. Using mock data for demonstration.');
+
+      // Fallback to mock data if API fails
       const mockServices: GatewayService[] = [
         {
           id: '1',
@@ -101,30 +91,20 @@ const GatewayManagement: React.FC = () => {
           responseTime: undefined,
         },
       ];
-
-      setTimeout(() => {
-        setServices(mockServices);
-        setLoading(false);
-      }, 500);
-    } catch (error) {
-      message.error('Failed to load services');
+      setServices(mockServices);
+    } finally {
       setLoading(false);
     }
   };
 
   const handleCreateService = async (serviceData: GatewayService) => {
     try {
-      // This would be replaced with actual API call
-      const newService: GatewayService = {
-        ...serviceData,
-        id: Date.now().toString(),
-        status: 'unknown',
-      };
-
+      const newService = await gatewayApi.createService(serviceData);
       setServices((prev) => [...prev, newService]);
       setModalVisible(false);
       message.success('Service created successfully!');
     } catch (error) {
+      console.error('Failed to create service:', error);
       message.error('Failed to create service');
       throw error;
     }
@@ -132,14 +112,18 @@ const GatewayManagement: React.FC = () => {
 
   const handleUpdateService = async (serviceData: GatewayService) => {
     try {
-      // This would be replaced with actual API call
+      if (!serviceData.id) {
+        throw new Error('Service ID is required for update');
+      }
+      const updatedService = await gatewayApi.updateService(serviceData.id, serviceData);
       setServices((prev) =>
-        prev.map((service) => (service.id === serviceData.id ? { ...serviceData } : service))
+        prev.map((service) => (service.id === updatedService.id ? updatedService : service))
       );
       setModalVisible(false);
       setEditingService(null);
       message.success('Service updated successfully!');
     } catch (error) {
+      console.error('Failed to update service:', error);
       message.error('Failed to update service');
       throw error;
     }
@@ -147,44 +131,48 @@ const GatewayManagement: React.FC = () => {
 
   const handleDeleteService = async (serviceId: string) => {
     try {
-      // This would be replaced with actual API call
+      await gatewayApi.deleteService(serviceId);
       setServices((prev) => prev.filter((service) => service.id !== serviceId));
       message.success('Service deleted successfully!');
     } catch (error) {
+      console.error('Failed to delete service:', error);
       message.error('Failed to delete service');
     }
   };
 
   const handleTestConnection = async (service: GatewayService) => {
+    if (!service.id) {
+      message.error('Service ID is required for testing');
+      return;
+    }
+
     try {
       message.loading({ content: 'Testing connection...', key: 'test' });
 
-      // This would be replaced with actual API call
-      setTimeout(() => {
-        const isHealthy = Math.random() > 0.3; // 70% chance of success
-        const responseTime = Math.floor(Math.random() * 500) + 50;
+      const result = await gatewayApi.testConnection(service.id);
 
-        setServices((prev) =>
-          prev.map((s) =>
-            s.id === service.id
-              ? {
-                  ...s,
-                  status: isHealthy ? 'healthy' : 'unhealthy',
-                  lastChecked: new Date().toISOString(),
-                  responseTime: isHealthy ? responseTime : undefined,
-                }
-              : s
-          )
-        );
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === service.id
+            ? {
+                ...s,
+                status: result.status,
+                lastChecked: new Date().toISOString(),
+                responseTime: result.responseTime,
+              }
+            : s
+        )
+      );
 
-        message.success({
-          content: isHealthy
-            ? `Connection successful! Response time: ${responseTime}ms`
-            : 'Connection failed!',
-          key: 'test',
-        });
-      }, 2000);
+      message.success({
+        content:
+          result.status === 'healthy'
+            ? `Connection successful! Response time: ${result.responseTime}ms`
+            : `Connection failed! ${result.error || ''}`,
+        key: 'test',
+      });
     } catch (error) {
+      console.error('Failed to test connection:', error);
       message.error({ content: 'Test failed', key: 'test' });
     }
   };
@@ -193,7 +181,7 @@ const GatewayManagement: React.FC = () => {
     (service) =>
       service.name.toLowerCase().includes(searchText.toLowerCase()) ||
       service.host.toLowerCase().includes(searchText.toLowerCase()) ||
-      service.tags.some((tag) => tag.toLowerCase().includes(searchText.toLowerCase()))
+      service.tags.some((tag: string) => tag.toLowerCase().includes(searchText.toLowerCase()))
   );
 
   const healthyCount = services.filter((s) => s.status === 'healthy').length;

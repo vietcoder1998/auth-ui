@@ -18,24 +18,10 @@ import {
   message,
 } from 'antd';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import { type GatewayService } from '../apis/gateway/index.ts';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-interface GatewayService {
-  id?: string;
-  name: string;
-  protocol: string;
-  host: string;
-  port: number;
-  path: string;
-  retries: number;
-  connectTimeout: number;
-  writeTimeout: number;
-  readTimeout: number;
-  enabled: boolean;
-  tags: string[];
-}
 
 interface GatewayConnectionModalProps {
   isOpen: boolean;
