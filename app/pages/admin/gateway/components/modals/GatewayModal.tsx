@@ -1,4 +1,3 @@
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -9,17 +8,13 @@ import {
   Modal,
   Row,
   Select,
-  Space,
   Spin,
   Switch,
-  Tag,
-  Typography,
   message,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { type GatewayService } from '~/apis/gateway/index.ts';
 
-const { Title, Text } = Typography;
 const { Option } = Select;
 
 interface GatewayModalProps {
@@ -38,8 +33,6 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
   loading = false,
 }) => {
   const [form] = Form.useForm();
-  const [newTag, setNewTag] = useState('');
-  const [tags, setTags] = useState<string[]>(service?.tags || []);
 
   useEffect(() => {
     if (service) {
@@ -55,33 +48,16 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
         readTimeout: service.readTimeout,
         enabled: service.enabled,
       });
-      setTags(service.tags || []);
     } else {
       form.resetFields();
-      setTags([]);
     }
   }, [service, form]);
-
-  const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags((prev) => [...prev, newTag.trim()]);
-      setNewTag('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags((prev) => prev.filter((tag) => tag !== tagToRemove));
-  };
-
-  const handleClearAllTags = () => {
-    setTags([]);
-  };
 
   const handleSubmit = async (values: any) => {
     try {
       const serviceData: GatewayService = {
         ...values,
-        tags,
+        tags: service?.tags || [],
         id: service?.id,
       };
       await onSave(serviceData);
@@ -95,8 +71,6 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
   const handleClose = () => {
     if (!loading) {
       form.resetFields();
-      setTags([]);
-      setNewTag('');
       onClose();
     }
   };
@@ -204,70 +178,14 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
             </Form.Item>
           </Card>
 
-          <Card title="Tags" style={{ marginBottom: 16 }}>
-            <Space.Compact style={{ width: '100%', marginBottom: 16 }}>
-              <Input
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                placeholder="Add tag..."
-                onPressEnter={handleAddTag}
-              />
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAddTag}
-                disabled={!newTag.trim()}
-              >
-                Add
-              </Button>
-            </Space.Compact>
-
-            {tags.length > 0 && (
-              <div>
-                <div
-                  style={{
-                    marginBottom: 8,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text type="secondary">Tags ({tags.length}):</Text>
-                  <Button
-                    type="link"
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    onClick={handleClearAllTags}
-                  >
-                    Clear All
-                  </Button>
-                </div>
-                <div>
-                  {tags.map((tag, index) => (
-                    <Tag
-                      key={index}
-                      closable
-                      onClose={() => handleRemoveTag(tag)}
-                      style={{ marginBottom: 4 }}
-                      color="blue"
-                    >
-                      {tag}
-                    </Tag>
-                  ))}
-                </div>
-              </div>
-            )}
-          </Card>
-
-          <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <Button onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
             <Button type="primary" htmlType="submit" loading={loading}>
               {service ? 'Update Service' : 'Create Service'}
             </Button>
-          </Space>
+          </div>
         </Form>
       </Spin>
     </Modal>

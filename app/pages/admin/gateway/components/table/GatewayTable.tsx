@@ -71,36 +71,6 @@ const GatewayTable: React.FC<GatewayTableProps> = ({
       },
     },
     {
-      title: 'Tags',
-      dataIndex: 'tags',
-      key: 'tags',
-      render: (tags: string[] | string) => {
-        // Convert string to array if needed
-        const tagArray =
-          typeof tags === 'string'
-            ? JSON.parse(tags)
-                .map((t: string) => t.trim())
-                .filter(Boolean)
-            : Array.isArray(tags)
-              ? tags
-              : [];
-
-        return (
-          <>
-            {tagArray.length > 0 ? (
-              tagArray.map((tag: string) => (
-                <Tag key={tag} color="blue">
-                  {tag}
-                </Tag>
-              ))
-            ) : (
-              <Text type="secondary">No tags</Text>
-            )}
-          </>
-        );
-      },
-    },
-    {
       title: 'Last Checked',
       dataIndex: 'lastChecked',
       key: 'lastChecked',

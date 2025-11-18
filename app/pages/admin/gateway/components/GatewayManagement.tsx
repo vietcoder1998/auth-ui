@@ -118,8 +118,7 @@ const GatewayManagement: React.FC = () => {
   const filteredServices = services.filter(
     (service) =>
       service.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      service.host.toLowerCase().includes(searchText.toLowerCase()) ||
-      service.tags.some((tag: string) => tag.toLowerCase().includes(searchText.toLowerCase()))
+      service.host.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const healthyCount = services.filter((s) => s.status === 'healthy').length;
