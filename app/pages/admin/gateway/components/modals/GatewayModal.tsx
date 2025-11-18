@@ -1,4 +1,4 @@
-import { ApiOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ApiOutlined, PlusOutlined, DeleteOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import {
   Button,
   Col,
@@ -16,6 +16,9 @@ import {
   Typography,
   Badge,
   message,
+  Empty,
+  Tag,
+  Tooltip,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { type GatewayService } from '~/apis/gateway/index.ts';
@@ -39,9 +42,10 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
   loading = false,
 }) => {
   const [form] = Form.useForm();
-  const [endpoints, setEndpoints] = useState<string[]>([]);
-  const [newEndpoint, setNewEndpoint] = useState('');
   const [testingEndpoint, setTestingEndpoint] = useState<string | null>(null);
+  const [endpointResults, setEndpointResults] = useState<
+    Record<string, { status: number; time: number } | null>
+  >({});
 
   useEffect(() => {
     if (service) {
@@ -57,48 +61,52 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
         readTimeout: service.readTimeout,
         enabled: service.enabled,
       });
-      // Load endpoints if service has any (can be extended later)
-      setEndpoints([]);
     } else {
       form.resetFields();
-      setEndpoints([]);
     }
   }, [service, form]);
 
-  const handleAddEndpoint = () => {
-    if (newEndpoint.trim() && !endpoints.includes(newEndpoint.trim())) {
-      setEndpoints((prev) => [...prev, newEndpoint.trim()]);
-      setNewEndpoint('');
-    }
-  };
-
-  const handleRemoveEndpoint = (endpoint: string) => {
-    setEndpoints((prev) => prev.filter((e) => e !== endpoint));
-  };
-
-  const handleTestEndpoint = async (endpoint: string) => {
-    const formValues = form.getFieldsValue();
-    const { protocol, host, port, path } = formValues;
-
-    if (!host) {
-      message.error('Please enter host first');
+  const handleTestEndpoint = async (endpoint: any) => {
+    if (!endpoint.gatewayPath) {
+      message.error('Gateway path not configured for this endpoint');
       return;
     }
 
-    const baseUrl = `${protocol}://${host}:${port}${path}`;
-    const fullUrl = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+    // Get base URL and remove /api/v1 suffix if present to avoid duplication
+    let gatewayBaseUrl = import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:5000/api/v1';
+    gatewayBaseUrl = gatewayBaseUrl.replace(/\/api\/v1\/?$/, '');
 
-    setTestingEndpoint(endpoint);
+    const fullUrl = `${gatewayBaseUrl}${endpoint.gatewayPath}`;
+
+    setTestingEndpoint(endpoint.id);
+    const startTime = Date.now();
+
     try {
-      const response = await fetch(fullUrl, { method: 'GET' });
-      const status = response.ok ? 'success' : 'error';
+      const response = await fetch(fullUrl, {
+        method: endpoint.method || 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      message[status]({
-        content: `${endpoint} - Status: ${response.status} ${response.statusText}`,
+      const responseTime = Date.now() - startTime;
+
+      setEndpointResults((prev) => ({
+        ...prev,
+        [endpoint.id]: { status: response.status, time: responseTime },
+      }));
+
+      const statusType = response.ok ? 'success' : 'error';
+      message[statusType]({
+        content: `${endpoint.method} ${endpoint.path} - Status: ${response.status} (${responseTime}ms)`,
         duration: 3,
       });
     } catch (error: any) {
-      message.error(`Failed to ping ${endpoint}: ${error.message}`);
+      setEndpointResults((prev) => ({
+        ...prev,
+        [endpoint.id]: null,
+      }));
+      message.error(`Failed to ping ${endpoint.path}: ${error.message}`);
     } finally {
       setTestingEndpoint(null);
     }
@@ -122,8 +130,6 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
   const handleClose = () => {
     if (!loading) {
       form.resetFields();
-      setEndpoints([]);
-      setNewEndpoint('');
       onClose();
     }
   };
@@ -259,67 +265,90 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
                 label: 'API Endpoints',
                 children: (
                   <div style={{ padding: '16px 0' }}>
-                    <Space.Compact style={{ width: '100%', marginBottom: 16 }}>
-                      <Input
-                        value={newEndpoint}
-                        onChange={(e) => setNewEndpoint(e.target.value)}
-                        placeholder="Enter endpoint path (e.g., /users, /health)"
-                        onPressEnter={handleAddEndpoint}
-                        prefix={<ApiOutlined />}
-                      />
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={handleAddEndpoint}
-                        disabled={!newEndpoint.trim()}
-                      >
-                        Add
-                      </Button>
-                    </Space.Compact>
-
-                    {endpoints.length > 0 ? (
+                    {service?.endpoints && service.endpoints.length > 0 ? (
                       <List
                         bordered
-                        dataSource={endpoints}
-                        renderItem={(endpoint) => {
-                          const formValues = form.getFieldsValue();
-                          const { protocol, host, port, path } = formValues;
-                          const baseUrl = `${protocol || 'http'}://${host || 'localhost'}:${port || 80}${path || '/'}`;
-                          const fullUrl = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+                        dataSource={service.endpoints}
+                        renderItem={(endpoint: any) => {
+                          const testResult = endpointResults[endpoint.id];
+                          // Get base URL and remove /api/v1 suffix if present to avoid duplication
+                          let gatewayBaseUrl =
+                            import.meta.env.VITE_GATEWAY_API_URL || 'http://localhost:5000/api/v1';
+                          gatewayBaseUrl = gatewayBaseUrl.replace(/\/api\/v1\/?$/, '');
+                          const fullGatewayUrl = `${gatewayBaseUrl}${endpoint.gatewayPath}`;
 
                           return (
                             <List.Item
                               actions={[
-                                <Button
-                                  key="test"
-                                  type="link"
-                                  size="small"
-                                  loading={testingEndpoint === endpoint}
-                                  onClick={() => handleTestEndpoint(endpoint)}
-                                >
-                                  Test
-                                </Button>,
-                                <Button
-                                  key="delete"
-                                  type="link"
-                                  danger
-                                  size="small"
-                                  icon={<DeleteOutlined />}
-                                  onClick={() => handleRemoveEndpoint(endpoint)}
-                                />,
+                                <Tooltip key="test" title={fullGatewayUrl}>
+                                  <Button
+                                    icon={<ThunderboltOutlined />}
+                                    onClick={() => handleTestEndpoint(endpoint)}
+                                    loading={testingEndpoint === endpoint.id}
+                                    size="small"
+                                  >
+                                    Test
+                                  </Button>
+                                </Tooltip>,
                               ]}
                             >
                               <List.Item.Meta
                                 title={
                                   <Space>
-                                    <Badge status="default" />
-                                    <Text strong>{endpoint}</Text>
+                                    <Tag
+                                      color={
+                                        endpoint.method === 'GET'
+                                          ? 'blue'
+                                          : endpoint.method === 'POST'
+                                            ? 'green'
+                                            : endpoint.method === 'PUT'
+                                              ? 'orange'
+                                              : endpoint.method === 'DELETE'
+                                                ? 'red'
+                                                : 'default'
+                                      }
+                                    >
+                                      {endpoint.method}
+                                    </Tag>
+                                    <Text strong>{endpoint.path}</Text>
+                                    {endpoint.healthStatus && (
+                                      <Badge
+                                        status={
+                                          endpoint.healthStatus === 'healthy'
+                                            ? 'success'
+                                            : endpoint.healthStatus === 'unhealthy'
+                                              ? 'error'
+                                              : 'default'
+                                        }
+                                        text={endpoint.healthStatus}
+                                      />
+                                    )}
                                   </Space>
                                 }
                                 description={
-                                  <Text type="secondary" copyable={{ text: fullUrl }}>
-                                    {fullUrl}
-                                  </Text>
+                                  <Space
+                                    direction="vertical"
+                                    size="small"
+                                    style={{ width: '100%' }}
+                                  >
+                                    {endpoint.description && (
+                                      <Text type="secondary">{endpoint.description}</Text>
+                                    )}
+                                    <Text type="secondary">
+                                      Gateway Path: {endpoint.gatewayPath}
+                                    </Text>
+                                    {endpoint.responseTime && (
+                                      <Text type="secondary">
+                                        Last Response: {endpoint.responseTime}ms
+                                      </Text>
+                                    )}
+                                    {testResult && (
+                                      <Text type={testResult.status < 400 ? 'success' : 'danger'}>
+                                        Test Result: Status {testResult.status} ({testResult.time}
+                                        ms)
+                                      </Text>
+                                    )}
+                                  </Space>
                                 }
                               />
                             </List.Item>
@@ -327,10 +356,10 @@ const GatewayModal: React.FC<GatewayModalProps> = ({
                         }}
                       />
                     ) : (
-                      <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
-                        <ApiOutlined style={{ fontSize: 48, marginBottom: 16 }} />
-                        <div>No endpoints added yet. Add an endpoint to test.</div>
-                      </div>
+                      <Empty
+                        description="No endpoints configured for this service"
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      />
                     )}
                   </div>
                 ),

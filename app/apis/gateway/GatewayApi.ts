@@ -2,6 +2,27 @@ import { BaseApi } from '../base.ts';
 import { getApiGatewayInstance } from '~/utils/api/utils.api.ts';
 
 /**
+ * Gateway Service Endpoint Interface
+ */
+export interface GatewayServiceEndpoint {
+  id: string;
+  path: string;
+  method: string;
+  description?: string;
+  enabled: boolean;
+  gatewayPath: string;
+  healthCheckEnabled: boolean;
+  lastHealthCheck?: string;
+  healthStatus?: 'healthy' | 'unhealthy' | 'unknown';
+  responseTime?: number;
+  tags?: string[];
+  metadata?: Record<string, any>;
+  createdAt?: string;
+  updatedAt?: string;
+  serviceId?: string;
+}
+
+/**
  * Gateway Service Interface
  */
 export interface GatewayService {
@@ -20,6 +41,7 @@ export interface GatewayService {
   status?: 'healthy' | 'unhealthy' | 'unknown';
   lastChecked?: string;
   responseTime?: number;
+  endpoints?: GatewayServiceEndpoint[];
 }
 
 /**
