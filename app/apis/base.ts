@@ -1,5 +1,5 @@
-import { getApiInstance } from './index.ts';
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { ApiUtils } from '~/utils/api/index.ts';
 
 /**
  * BaseApi - A generic base class for API operations
@@ -17,12 +17,12 @@ export class BaseApi<T = any, ID = string | number> {
    * @param basePath - The base path for the API endpoint (e.g., '/admin/users')
    */
   constructor(basePath: string) {
-    this.api = getApiInstance();
+    this.api = ApiUtils.getApiInstance();
     this.basePath = basePath;
   }
 
   public static get instance() {
-    const instance = getApiInstance();
+    const instance = ApiUtils.getApiInstance();
 
     return instance;
   }
@@ -144,7 +144,7 @@ export class BaseApi<T = any, ID = string | number> {
    * Static method for creating an entity (for backward compatibility)
    */
   static async staticCreate(basePath: string, data: any): Promise<any> {
-    const axios = getApiInstance();
+    const axios = ApiUtils.getApiInstance();
     return axios.post(basePath, data);
   }
 
@@ -152,7 +152,7 @@ export class BaseApi<T = any, ID = string | number> {
    * Static method for updating an entity (for backward compatibility)
    */
   static async staticUpdate(basePath: string, id: string | number, data: any): Promise<any> {
-    const axios = getApiInstance();
+    const axios = ApiUtils.getApiInstance();
     return axios.put(`${basePath}/${id}`, data);
   }
 
@@ -160,7 +160,7 @@ export class BaseApi<T = any, ID = string | number> {
    * Static method for deleting an entity (for backward compatibility)
    */
   static async staticDelete(basePath: string, id: string | number): Promise<any> {
-    const axios = getApiInstance();
+    const axios = ApiUtils.getApiInstance();
     return axios.delete(`${basePath}/${id}`);
   }
 }

@@ -13,7 +13,7 @@ const Blog: React.FC = () => {
   useEffect(() => {
     publicApi
       .getBlogs()
-      .then((res) => setBlogs(res.data.data))
+      .then((res: any) => setBlogs(res.data.data))
       .finally(() => setLoading(false));
   }, []);
 

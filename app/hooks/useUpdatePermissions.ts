@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { extractPermissionFromUrl } from '~/utils/permissionUtils.ts';
+import { extractPermissionFromUrl } from '~/utils/permissions/util.permission.ts';
 import { adminApi } from '~/apis/admin/index.ts';
 import { authApi } from '~/apis/auth/index.ts';
 import { useLoginCookie } from './useCookie.tsx';

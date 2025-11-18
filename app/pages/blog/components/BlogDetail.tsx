@@ -14,7 +14,7 @@ const BlogDetail: React.FC = () => {
     if (id) {
       publicApi
         .getBlog(id)
-        .then((res) => setBlog(res.data.data))
+        .then((res: any) => setBlog(res.data.data))
         .finally(() => setLoading(false));
     }
   }, [id]);
